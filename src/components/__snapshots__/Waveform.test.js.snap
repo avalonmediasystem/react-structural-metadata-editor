@@ -1,0 +1,294 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Waveform component renders Waveform without crashing 1`] = `
+ShallowWrapper {
+  Symbol(enzyme.__root__): [Circular],
+  Symbol(enzyme.__unrendered__): <Provider
+    store={
+      Object {
+        "clearActions": [Function],
+        "dispatch": [Function],
+        "getActions": [Function],
+        "getState": [Function],
+        "replaceReducer": [Function],
+        "subscribe": [Function],
+      }
+    }
+  >
+    <Connect(Waveform) />
+  </Provider>,
+  Symbol(enzyme.__renderer__): Object {
+    "batchedUpdates": [Function],
+    "checkPropTypes": [Function],
+    "getNode": [Function],
+    "render": [Function],
+    "simulateError": [Function],
+    "simulateEvent": [Function],
+    "unmount": [Function],
+  },
+  Symbol(enzyme.__node__): Object {
+    "instance": null,
+    "key": undefined,
+    "nodeType": "function",
+    "props": Object {
+      "children": <Connect(Waveform) />,
+      "value": Object {
+        "store": Object {
+          "clearActions": [Function],
+          "dispatch": [Function],
+          "getActions": [Function],
+          "getState": [Function],
+          "replaceReducer": [Function],
+          "subscribe": [Function],
+        },
+        "storeState": Object {
+          "peaksInstance": Object {
+            "peaks": Object {
+              "options": Object {
+                "_zoomLevelIndex": 0,
+                "_zoomLevels": Array [
+                  512,
+                  1024,
+                  2048,
+                  4096,
+                ],
+                "container": null,
+                "dataUri": null,
+                "dataUriDefaultFormat": "json",
+                "keyboard": true,
+                "mediaElement": null,
+              },
+              "player": Object {
+                "_mediaElement": Object {
+                  "currentTime": 0,
+                  "duration": 1738.945306,
+                },
+                "getCurrentTime": [MockFunction],
+                "getDuration": [MockFunction],
+                "seek": [MockFunction],
+              },
+              "segments": Object {
+                "_peaks": [Circular],
+                "_segments": Array [
+                  Object {
+                    "color": "#80A590",
+                    "endTime": 10.32,
+                    "id": "123a-456b-789c-3d",
+                    "labelText": "Segment 1.1",
+                    "startTime": 3.32,
+                  },
+                  Object {
+                    "color": "#2A5459",
+                    "endTime": 480,
+                    "id": "123a-456b-789c-4d",
+                    "labelText": "Segment 1.2",
+                    "startTime": 11.23,
+                  },
+                  Object {
+                    "color": "#80A590",
+                    "endTime": 900,
+                    "id": "123a-456b-789c-8d",
+                    "labelText": "Segment 2.1",
+                    "startTime": 543.24,
+                  },
+                ],
+                "add": [MockFunction],
+                "getSegment": [MockFunction],
+                "getSegments": [MockFunction],
+                "removeAll": [MockFunction],
+                "removeById": [MockFunction],
+              },
+              "zoom": Object {
+                "_peaks": [Circular],
+                "_zoomLevelIndex": 2,
+                "_zoomLevels": Array [
+                  512,
+                  1024,
+                  2048,
+                  4096,
+                ],
+                "zoomIn": [MockFunction],
+                "zoomOut": [MockFunction],
+              },
+            },
+          },
+        },
+      },
+    },
+    "ref": null,
+    "rendered": Object {
+      "instance": null,
+      "key": undefined,
+      "nodeType": "class",
+      "props": Object {},
+      "ref": Object {
+        "current": null,
+      },
+      "rendered": null,
+      "type": [Function],
+    },
+    "type": Object {
+      "$$typeof": Symbol(react.provider),
+      "_context": Object {
+        "$$typeof": Symbol(react.context),
+        "Consumer": Object {
+          "$$typeof": Symbol(react.context),
+          "_calculateChangedBits": null,
+          "_context": [Circular],
+        },
+        "Provider": [Circular],
+        "_calculateChangedBits": null,
+        "_currentRenderer": null,
+        "_currentRenderer2": null,
+        "_currentValue": null,
+        "_currentValue2": null,
+        "_threadCount": 0,
+      },
+    },
+  },
+  Symbol(enzyme.__nodes__): Array [
+    Object {
+      "instance": null,
+      "key": undefined,
+      "nodeType": "function",
+      "props": Object {
+        "children": <Connect(Waveform) />,
+        "value": Object {
+          "store": Object {
+            "clearActions": [Function],
+            "dispatch": [Function],
+            "getActions": [Function],
+            "getState": [Function],
+            "replaceReducer": [Function],
+            "subscribe": [Function],
+          },
+          "storeState": Object {
+            "peaksInstance": Object {
+              "peaks": Object {
+                "options": Object {
+                  "_zoomLevelIndex": 0,
+                  "_zoomLevels": Array [
+                    512,
+                    1024,
+                    2048,
+                    4096,
+                  ],
+                  "container": null,
+                  "dataUri": null,
+                  "dataUriDefaultFormat": "json",
+                  "keyboard": true,
+                  "mediaElement": null,
+                },
+                "player": Object {
+                  "_mediaElement": Object {
+                    "currentTime": 0,
+                    "duration": 1738.945306,
+                  },
+                  "getCurrentTime": [MockFunction],
+                  "getDuration": [MockFunction],
+                  "seek": [MockFunction],
+                },
+                "segments": Object {
+                  "_peaks": [Circular],
+                  "_segments": Array [
+                    Object {
+                      "color": "#80A590",
+                      "endTime": 10.32,
+                      "id": "123a-456b-789c-3d",
+                      "labelText": "Segment 1.1",
+                      "startTime": 3.32,
+                    },
+                    Object {
+                      "color": "#2A5459",
+                      "endTime": 480,
+                      "id": "123a-456b-789c-4d",
+                      "labelText": "Segment 1.2",
+                      "startTime": 11.23,
+                    },
+                    Object {
+                      "color": "#80A590",
+                      "endTime": 900,
+                      "id": "123a-456b-789c-8d",
+                      "labelText": "Segment 2.1",
+                      "startTime": 543.24,
+                    },
+                  ],
+                  "add": [MockFunction],
+                  "getSegment": [MockFunction],
+                  "getSegments": [MockFunction],
+                  "removeAll": [MockFunction],
+                  "removeById": [MockFunction],
+                },
+                "zoom": Object {
+                  "_peaks": [Circular],
+                  "_zoomLevelIndex": 2,
+                  "_zoomLevels": Array [
+                    512,
+                    1024,
+                    2048,
+                    4096,
+                  ],
+                  "zoomIn": [MockFunction],
+                  "zoomOut": [MockFunction],
+                },
+              },
+            },
+          },
+        },
+      },
+      "ref": null,
+      "rendered": Object {
+        "instance": null,
+        "key": undefined,
+        "nodeType": "class",
+        "props": Object {},
+        "ref": Object {
+          "current": null,
+        },
+        "rendered": null,
+        "type": [Function],
+      },
+      "type": Object {
+        "$$typeof": Symbol(react.provider),
+        "_context": Object {
+          "$$typeof": Symbol(react.context),
+          "Consumer": Object {
+            "$$typeof": Symbol(react.context),
+            "_calculateChangedBits": null,
+            "_context": [Circular],
+          },
+          "Provider": [Circular],
+          "_calculateChangedBits": null,
+          "_currentRenderer": null,
+          "_currentRenderer2": null,
+          "_currentValue": null,
+          "_currentValue2": null,
+          "_threadCount": 0,
+        },
+      },
+    },
+  ],
+  Symbol(enzyme.__options__): Object {
+    "adapter": ReactSixteenAdapter {
+      "options": Object {
+        "enableComponentDidUpdateOnSetState": true,
+        "legacyContextMode": "parent",
+        "lifecycles": Object {
+          "componentDidUpdate": Object {
+            "onSetState": true,
+          },
+          "getChildContext": Object {
+            "calledByRenderer": false,
+          },
+          "getDerivedStateFromProps": true,
+          "getSnapshotBeforeUpdate": true,
+          "setState": Object {
+            "skipsComponentDidUpdateOnNullish": true,
+          },
+        },
+      },
+    },
+  },
+  Symbol(enzyme.__childContext__): null,
+}
+`;

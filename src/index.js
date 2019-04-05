@@ -1,9 +1,8 @@
-import React, {Component} from 'react'
+import React, { Component } from 'react';
+import Root from './Root';
 
 export default class extends Component {
   render() {
-    return <div>
-      <h2>Welcome to React components</h2>
-    </div>
+    return <Root config={this.props.config} />;
   }
 }

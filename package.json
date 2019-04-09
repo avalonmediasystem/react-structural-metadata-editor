@@ -1,6 +1,6 @@
 {
   "name": "react-structural-metadata-editor",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "react-structural-metadata-editor React component",
   "main": "lib/index.js",
   "module": "es/index.js",
@@ -20,37 +20,35 @@
     "test:watch": "nwb test-react --server"
   },
   "dependencies": {
+    "base-64": "^0.1.0",
     "@fortawesome/fontawesome-svg-core": "^1.2.4",
     "@fortawesome/free-solid-svg-icons": "^5.3.1",
     "@fortawesome/react-fontawesome": "^0.1.2",
     "axios": "^0.18.0",
     "babel-runtime": "^7.0.0",
+    "lodash": "^4.17.11",
     "moment": "^2.22.2",
     "peaks.js": "^0.9.13",
+    "prop-types": "^15.6.2",
     "react-bootstrap": "^0.32.4",
     "react-dnd": "^7.0.2",
     "react-dnd-html5-backend": "^7.0.2",
-    "rxjs": "^6.4.0"
-  },
-  "peerDependencies": {
-    "react": "16.x"
-  },
-  "devDependencies": {
-    "base-64": "^0.1.0",
-    "enzyme": "^3.8.0",
-    "enzyme-adapter-react-16": "^1.8.0",
-    "lodash": "^4.17.11",
-    "nwb": "0.21.x",
-    "prop-types": "^15.6.2",
-    "react": "^16.8.5",
-    "react-dom": "^16.8.5",
     "react-redux": "^6.0.0",
     "react-transition-group": "2.5.3",
     "redux": "^4.0.0",
     "redux-mock-store": "^1.5.3",
     "redux-thunk": "^2.3.0",
+    "rxjs": "^6.4.0",
     "uuid": "^3.3.2",
     "waveform-data": "^2.1.2"
+  },
+  "peerDependencies": {
+    "react": "16.x"
+  },
+  "devDependencies": {
+    "nwb": "0.21.x",
+    "react": "^16.8.5",
+    "react-dom": "^16.8.5"
   },
   "author": "Adam Arling",
   "homepage": "",

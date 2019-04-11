@@ -13,9 +13,9 @@ import { connect } from 'react-redux';
 
 // Content of aria-label for UI components
 const waveformLabel = `Two interactive waveforms, plotted one after the other using data from a masterfile in the back-end server.
-There are time-based visual sections plotted in these 2 waveforms representing each timespan in the structure below.
+There are time-based visual sections plotted in these 2 waveforms representing each timespan in the structure below. 
 First one contains a selected zoomed-in section from the entire waveform, while the second waveform shows an overview of the entire audio file.
-There are multiple zoom levels, which can be changed using the zoom-in and zoom-out buttons in the waveform toolbar.
+There are multiple zoom levels, which can be changed using the zoom-in and zoom-out buttons in the waveform toolbar. 
 These time-based visual sections will be updated by editing the matching timespans in the structure.`;
 const audioControlsLabel = `Audio controls; play, seek, and adjust volume of the audio file`;
 const waveformControlsLabel = `Waveform toolbar with zoom-in, zoom-out, and seek functionalities to view and traverse the waveform`;

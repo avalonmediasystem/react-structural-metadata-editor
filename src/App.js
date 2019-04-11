@@ -6,9 +6,6 @@ import StructureOutputContainer from './containers/StructureOutputContainer';
 import { DragDropContextProvider } from 'react-dnd';
 import HTML5Backend from 'react-dnd-html5-backend';
 
-// Bootstrap (styles only)
-// import 'bootstrap/dist/css/bootstrap.min.css';
-
 // Font Awesome Imports
 import { library } from '@fortawesome/fontawesome-svg-core';
 import {

@@ -1,10 +1,3 @@
-body {
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-}
-
 section {
   margin-bottom: 20px;
 }
@@ -56,31 +49,6 @@ section {
   width: 100%;
   height: 400px;
   overflow: auto;
-}
-
-/*Structure section height based on devices*/
-@media (min-height: 750px) {
-  .structure-section {
-    height: 150px;
-  }
-}
-
-@media (min-height: 800px) {
-  .structure-section {
-    height: 275px;
-  }
-}
-
-@media (min-height: 1025px) {
-  .structure-section {
-    height: 520px;
-  }
-}
-
-.scrollable {
-  height: inherit;
-  overflow-y: scroll;
-  overflow-x: hidden;
 }
 
 /* Transitions */

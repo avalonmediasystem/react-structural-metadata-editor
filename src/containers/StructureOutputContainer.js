@@ -6,9 +6,9 @@ import APIUtils from '../api/Utils';
 import AlertContainer from './AlertContainer';
 import { configureAlert } from '../services/alert-status';
 import uuidv1 from 'uuid/v1';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, isEmpty } from 'lodash';
 import { buildSMUI } from '../actions/sm-data';
-import { handleStructureMasterFile } from '../actions/forms';
+import { retrieveStructureSuccess } from '../actions/forms';
 
 class StructureOutputContainer extends Component {
   constructor(props) {
@@ -16,16 +16,30 @@ class StructureOutputContainer extends Component {
     this.apiUtils = new APIUtils();
   }
   state = {
-    fetchAlertObj: {},
-    postAlertObj: {}
+    alertObj: {},
+    masterFileID: this.props.masterFileID,
+    baseURL: this.props.baseURL,
+    initStructure: this.props.initStructure
   };
 
   async componentDidMount() {
-    try {
-      const response = await this.apiUtils.getRequest('structure.json');
+    let smData = [];
 
+    const { baseURL, masterFileID, initStructure } = this.state;
+    try {
+      const response = await this.apiUtils.getRequest(
+        baseURL,
+        masterFileID,
+        'structure.json'
+      );
+
+      // Check for empty response when ingesting a new file
       // Add unique ids to every object
-      let smData = this.addIds([response.data]);
+      if (isEmpty(response.data)) {
+        smData = this.addIds([JSON.parse(initStructure)]);
+      } else {
+        smData = this.addIds([response.data]);
+      }
 
       // Tag the root element
       this.markRootElement(smData);
@@ -34,7 +48,7 @@ class StructureOutputContainer extends Component {
       this.props.buildSMUI(smData);
 
       // Update redux-store flag for structure file retrieval
-      this.props.handleStructureFile(0);
+      this.props.retrieveStructureSuccess();
     } catch (error) {
       console.log('TCL: StructureOutputContainer -> }catch -> error', error);
       this.handleFetchError(error);
@@ -73,23 +87,17 @@ class StructureOutputContainer extends Component {
     }
   }
 
-  clearFetchAlert = () => {
+  clearAlert = () => {
     this.setState({
-      fetchAlertObj: null
-    });
-  };
-
-  clearPostAlert = () => {
-    this.setState({
-      postAlertObj: null
+      alertObj: null
     });
   };
 
   handleFetchError(error) {
     let status = error.response !== undefined ? error.response.status : -2;
-    const fetchAlertObj = configureAlert(status, this.clearFetchAlert);
+    const alertObj = configureAlert(status, this.clearAlert);
 
-    this.setState({ fetchAlertObj });
+    this.setState({ alertObj });
   }
 
   handleSaveError(error) {
@@ -98,20 +106,21 @@ class StructureOutputContainer extends Component {
       error.response !== undefined
         ? error.response.status
         : error.request.status;
-    const postAlertObj = configureAlert(status, this.clearPostAlert);
+    const alertObj = configureAlert(status, this.clearAlert);
 
-    this.setState({ postAlertObj });
+    this.setState({ alertObj });
   }
 
   handleSaveItClick = () => {
+    const { baseURL, masterFileID } = this.state;
     let postData = { json: this.props.smData[0] };
     this.apiUtils
-      .postRequest('structure.json', postData)
+      .postRequest(baseURL, masterFileID, 'structure.json', postData)
       .then(response => {
         const { status } = response;
-        const postAlertObj = configureAlert(status, this.clearPostAlert);
+        const alertObj = configureAlert(status, this.clearAlert);
 
-        this.setState({ postAlertObj });
+        this.setState({ alertObj });
       })
       .catch(error => {
         this.handleSaveError(error);
@@ -120,16 +129,16 @@ class StructureOutputContainer extends Component {
 
   render() {
     const { smData = [], forms } = this.props;
-    const { fetchAlertObj, postAlertObj } = this.state;
+    const { alertObj } = this.state;
 
     return (
       <section className="structure-section">
-        {postAlertObj && <AlertContainer {...postAlertObj} />}
         {!forms.structureRetrieved ? (
-          <AlertContainer {...fetchAlertObj} />
+          <AlertContainer {...alertObj} />
         ) : (
-          <div className="scrollable">
+          <div>
             <h3>HTML Structure Tree from a masterfile in server</h3>
+            <AlertContainer {...alertObj} />
             <br />
             <List items={smData} />
             <Row>
@@ -156,7 +165,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   buildSMUI: smData => dispatch(buildSMUI(smData)),
-  handleStructureFile: code => dispatch(handleStructureMasterFile(code))
+  retrieveStructureSuccess: () => dispatch(retrieveStructureSuccess())
 });
 
 export default connect(

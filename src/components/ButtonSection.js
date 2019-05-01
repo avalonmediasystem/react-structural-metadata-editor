@@ -113,9 +113,8 @@ class ButtonSection extends Component {
     };
 
     const { structureRetrieved, waveformRetrieved } = this.props.forms;
-    const waveformAndStructureValid = structureRetrieved && waveformRetrieved;
 
-    return waveformAndStructureValid ? (
+    return structureRetrieved && waveformRetrieved ? (
       <section style={styles.section}>
         <AlertContainer {...this.state.alertObj} />
         <Row>

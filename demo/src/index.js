@@ -1,16 +1,13 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { render } from 'react-dom';
+import Root from '../../src';
 
-import Example from '../../src';
+const props = {
+  baseURL: 'https://spruce.dlib.indiana.edu',
+  masterFileID: 'sj1392061',
+  initStructure: '',
+  audioStreamURL:
+    'https://spruce.dlib.indiana.edu/master_files/sj1392061/auto.m3u8'
+};
 
-class Demo extends Component {
-  render() {
-    return (
-      <div>
-        <Example />
-      </div>
-    );
-  }
-}
-
-render(<Demo />, document.querySelector('#demo'));
+render(<Root {...props} />, document.getElementById('root'));

@@ -19,21 +19,15 @@ const forms = (state = initialState, action) => {
         editingDisabled: false
       });
 
-    case types.RETRIEVED_STRUCTURE:
-      if (action.code === 0) {
-        return Object.assign({}, state, {
-          structureRetrieved: true
-        });
-      }
-      break;
+    case types.RETRIEVE_STRUCTURE_SUCCESS:
+      return Object.assign({}, state, {
+        structureRetrieved: true
+      });
 
-    case types.RETRIEVED_WAVEFORM:
-      if (action.code === 0) {
-        return Object.assign({}, state, {
-          waveformRetrieved: true
-        });
-      }
-      break;
+    case types.RETRIEVE_WAVEFORM_SUCCESS:
+      return Object.assign({}, state, {
+        waveformRetrieved: true
+      });
 
     default:
       return state;

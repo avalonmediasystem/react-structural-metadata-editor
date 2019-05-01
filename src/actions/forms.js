@@ -5,12 +5,10 @@ export const handleEditingTimespans = code => ({
   code
 });
 
-export const handleStructureMasterFile = code => ({
-  type: types.RETRIEVED_STRUCTURE,
-  code
+export const retrieveStructureSuccess = () => ({
+  type: types.RETRIEVE_STRUCTURE_SUCCESS
 });
 
-export const handleWaveformMasterFile = code => ({
-  type: types.RETRIEVED_WAVEFORM,
-  code
+export const retrieveWaveformSuccess = () => ({
+  type: types.RETRIEVE_WAVEFORM_SUCCESS
 });

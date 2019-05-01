@@ -9,7 +9,7 @@ const store = createStore(rootReducer, applyMiddleware(thunk));
 
 const Root = props => (
   <Provider store={store}>
-    <App config={props} />
+    <App {...props} />
   </Provider>
 );
 

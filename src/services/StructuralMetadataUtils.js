@@ -114,9 +114,10 @@ export default class StructuralMetadataUtils {
       }
 
       let grandParentDiv = this.getParentDiv(parentDiv, clonedItems);
-      let parentIndex = grandParentDiv
-        ? grandParentDiv.items.map(item => item.id).indexOf(parentDiv.id)
-        : null;
+      let parentIndex =
+        grandParentDiv != null
+          ? grandParentDiv.items.map(item => item.id).indexOf(parentDiv.id)
+          : null;
       // A first child of siblings, or an only child
       if (spanIndex === 0) {
         // Can't move up
@@ -323,18 +324,21 @@ export default class StructuralMetadataUtils {
       after: null
     };
     let grandParentDiv = this.getParentDiv(parentDiv, allItems);
-    let parentIndex = grandParentDiv
-      ? grandParentDiv.items.map(item => item.label).indexOf(parentDiv.label)
-      : null;
 
-    wrapperHeadings.before =
-      grandParentDiv.items[parentIndex - 1] !== undefined
-        ? grandParentDiv.items[parentIndex - 1]
-        : null;
-    wrapperHeadings.after =
-      grandParentDiv.items[parentIndex + 1] !== undefined
-        ? grandParentDiv.items[parentIndex + 1]
-        : null;
+    if (grandParentDiv != null) {
+      let parentIndex = grandParentDiv.items
+        .map(item => item.label)
+        .indexOf(parentDiv.label);
+
+      wrapperHeadings.before =
+        grandParentDiv.items[parentIndex - 1] !== undefined
+          ? grandParentDiv.items[parentIndex - 1]
+          : null;
+      wrapperHeadings.after =
+        grandParentDiv.items[parentIndex + 1] !== undefined
+          ? grandParentDiv.items[parentIndex + 1]
+          : null;
+    }
     return wrapperHeadings;
   }
 
@@ -418,7 +422,9 @@ export default class StructuralMetadataUtils {
     };
 
     // Get all headings in the metada structure
-    let allHeadings = this.getItemsOfType('div', allItems);
+    let allHeadings = this.getItemsOfType('div', allItems).concat(
+      this.getItemsOfType('root', allItems)
+    );
 
     // There are currently no spans, ALL headings are valid
     if (!wrapperSpans.before && !wrapperSpans.after) {

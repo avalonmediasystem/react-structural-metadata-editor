@@ -82,12 +82,19 @@ export default class WaveformDataUtils {
     });
 
     // Set the default end time of the temporary segment
-    rangeEndTime = rangeBeginTime + 60;
+    if (currentSegments.length === 0) {
+      rangeEndTime = fileEndTime < 60 ? fileEndTime : rangeBeginTime + 60;
+    } else {
+      rangeEndTime = rangeBeginTime + 60;
+    }
 
     // Validate end time of the temporary segment
     currentSegments.map(segment => {
       if (rangeBeginTime < segment.startTime) {
         const segmentLength = segment.endTime - segment.startTime;
+        if (fileEndTime < 60) {
+          rangeEndTime = fileEndTime;
+        }
         if (segmentLength < 60 && rangeEndTime >= segment.endTime) {
           rangeEndTime = segment.startTime - 0.01;
         }

@@ -11,19 +11,22 @@ export const BASE_URL = useLocalData
 export const masterFileID = 'd791sg30j';
 
 // Default headers for API calls
-export const defaultHeaders = new Headers();
-defaultHeaders.append('Content-Type', 'application/json');
+//export const defaultHeaders = new Headers();
+//defaultHeaders.append('Content-Type', 'application/json');
+export const defaultHeaders = { 'Content-Type': 'application/json' };
 
 export default class APIUtils {
   /**
    * Construct GET request with parameters,
-   * @param {String} urlEndPoint
+   * @param {String} baseURL - base URL of the server hosting master file
+   * @param {String} masterFile - master file ID on the server
+   * @param {String} urlEndPoint - end point to make the network request
    * @param {Headers} headers
    */
-  getRequest(urlEndPoint, headers = defaultHeaders) {
+  getRequest(baseURL, masterFile, urlEndPoint, headers = defaultHeaders) {
     const url = useLocalData
       ? `${BASE_URL}${urlEndPoint}`
-      : `${BASE_URL}/master_files/${masterFileID}/${urlEndPoint}`;
+      : `${baseURL}/master_files/${masterFile}/${urlEndPoint}`;
     return axios.get(url, {
       headers: headers
     });
@@ -31,14 +34,22 @@ export default class APIUtils {
 
   /**
    * Construct POST request with parameters,
-   * @param {String} urlEndPoint
+   * @param {String} baseURL - base URL of the server hosting master file
+   * @param {String} masterFile - master file ID on the server
+   * @param {String} urlEndPoint - end point to make the network request
    * @param {JSON} data - JSON data posting to the server
    * @param {Headers} headers
    */
-  postRequest(urlEndPoint, data, headers = defaultHeaders) {
+  postRequest(
+    baseURL,
+    masterFile,
+    urlEndPoint,
+    data,
+    headers = defaultHeaders
+  ) {
     const url = useLocalData
       ? `${BASE_URL}${urlEndPoint}`
-      : `${BASE_URL}/master_files/${masterFileID}/${urlEndPoint}`;
+      : `${baseURL}/master_files/${masterFile}/${urlEndPoint}`;
     return axios.post(url, data, {
       headers: headers
     });

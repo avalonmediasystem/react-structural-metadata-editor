@@ -6,7 +6,7 @@ import * as actions from '../actions/forms';
 import Waveform from '../components/Waveform';
 import AlertContainer from '../containers/AlertContainer';
 import { configureAlert } from '../services/alert-status';
-import { handleWaveformMasterFile } from '../actions/forms';
+import { retrieveWaveformSuccess } from '../actions/forms';
 
 const apiUtils = new APIUtils();
 
@@ -31,7 +31,9 @@ class WaveformContainer extends Component {
 
   state = {
     alertObj: null,
-    hasError: false
+    hasError: false,
+    masterFileID: this.props.masterFileID,
+    baseURL: this.props.baseURL
   };
 
   componentDidMount() {
@@ -62,8 +64,13 @@ class WaveformContainer extends Component {
   }
 
   async initializePeaks() {
+    const { baseURL, masterFileID } = this.state;
     try {
-      const response = await apiUtils.getRequest('waveform.json');
+      const response = await apiUtils.getRequest(
+        baseURL,
+        masterFileID,
+        'waveform.json'
+      );
       // Set the masterfile URL as the URI for the waveform data file
       peaksOptions.dataUri = response.request.responseURL;
 
@@ -71,7 +78,7 @@ class WaveformContainer extends Component {
       this.props.initPeaks(this.props.smData, peaksOptions);
 
       // Update redux-store flag for waveform file retrieval
-      this.props.handleWaveformFile(0);
+      this.props.retrieveWaveformSuccess();
     } catch (error) {
       this.handleError(error);
     }
@@ -79,7 +86,7 @@ class WaveformContainer extends Component {
 
   render() {
     const { alertObj, hasError } = this.state;
-    const { forms } = this.props;
+    const { forms, audioStreamURL } = this.props;
 
     return (
       <section className="waveform-section">
@@ -89,6 +96,7 @@ class WaveformContainer extends Component {
           <Waveform
             waveformRef={ref => (this.waveformContainer = ref)}
             mediaPlayerRef={ref => (this.mediaPlayer = ref)}
+            audioStreamURL={audioStreamURL}
           />
         )}
       </section>
@@ -108,7 +116,7 @@ const mapDispatchToProps = dispatch => ({
   ...actions,
   initPeaks: (smData, options) =>
     dispatch(peaksActions.initPeaksInstance(smData, options)),
-  handleWaveformFile: code => dispatch(handleWaveformMasterFile(code))
+  retrieveWaveformSuccess: () => dispatch(retrieveWaveformSuccess())
 });
 
 export default connect(

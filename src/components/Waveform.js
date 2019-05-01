@@ -8,8 +8,8 @@ import {
   Row,
   Col
 } from 'react-bootstrap';
-import soundMP3 from '../data/utah_phillips_one.mp3';
 import { connect } from 'react-redux';
+import Hls from 'hls.js';
 
 // Content of aria-label for UI components
 const waveformLabel = `Two interactive waveforms, plotted one after the other using data from a masterfile in the back-end server.
@@ -24,7 +24,8 @@ class Waveform extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      seekTime: ''
+      seekTime: '',
+      audioFile: this.props.audioStreamURL
     };
 
     // Create `refs`
@@ -36,6 +37,17 @@ class Waveform extends Component {
   }
 
   componentDidMount() {
+    const { audioFile } = this.state;
+    if (Hls.isSupported()) {
+      const hls = new Hls();
+      // Bind media player
+      hls.attachMedia(this.mediaPlayer.current);
+      // MEDIA_ATTACHED event is fired by hls object once MediaSource is ready
+      hls.on(Hls.Events.MEDIA_ATTACHED, function() {
+        hls.loadSource(audioFile);
+      });
+    }
+
     // Grab the React `refs` now the component is mounted
     this.props.waveformRef(this.waveformContainer.current);
     this.props.mediaPlayerRef(this.mediaPlayer.current);
@@ -81,8 +93,6 @@ class Waveform extends Component {
             <audio
               controls
               ref={this.mediaPlayer}
-              src={soundMP3}
-              type="audio/mp3"
               aria-label={audioControlsLabel}
             >
               Your browser does not support the audio element.

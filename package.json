@@ -1,7 +1,7 @@
 {
-  "name": "test-react-packager",
-  "version": "1.0.0",
-  "description": "",
+  "name": "react-structural-metadata-editor",
+  "version": "1.1.0",
+  "description": "React Structural Metadata Editor for Avalon Media System",
   "main": "dist/index.js",
   "scripts": {
     "test": "jest --coverage --colors",
@@ -10,7 +10,10 @@
     "transpile": "babel src --out-dir dist --ignore src/**/*.spec.js,src/**/*.test.js --copy-files",
     "prepublishOnly": "npm run transpile"
   },
-  "author": "",
+  "contributors": [
+    "Adam Arling <aarling@gmail.com>",
+    "Dananji Withana"
+  ],
   "license": "ISC",
   "peerDependencies": {
     "react": "^16.8.6",

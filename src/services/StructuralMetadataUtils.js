@@ -559,7 +559,7 @@ export default class StructuralMetadataUtils {
 
     // If children exist, add to list
     if (foundDiv) {
-      foundDiv.items.unshift({
+      foundDiv.items.push({
         id: uuidv1(),
         type: 'div',
         label: obj.headingTitle,

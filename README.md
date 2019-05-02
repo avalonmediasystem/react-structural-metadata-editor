@@ -1,6 +1,8 @@
 # React Structural Metadata Editor
 
-A React component which displays structural metadata about an ingested work, and a visualized waveform to help navigating sections of the audio waveform. A user can add, edit and delete headers and timespans within the structural metadata, and save the record into a consuming application.
+A React component which displays structural metadata about an ingested audio/video file, and displays a visualized waveform to help navigating sections of the audio waveform. A user can add, edit and delete headers and timespans within the structural metadata, and save the record into a consuming application.
+
+**Note**: We are not currently publishing this package to NPM, but rather consuming it directly via a Github repository URL address. See [Deployment](#user-content-deployment) notes below for more info and example code.
 
 ## Getting Started
 
@@ -35,17 +37,17 @@ yarn install
 yarn start
 ```
 
-Open up a browser and navigate to: http://localhost:3001/ Hot reloading via `webpack` is enabled, so you'll see real-time updates reflected in the browser.
+Open up a browser and navigate to: http://localhost:3001/. Hot reloading via `webpack` is enabled, so you'll see live updates in the browser during development.
 
 ### Development
 
 All development should be done in the `/src` directory.
 
-The `/demo` directory contains demo application entry point `index.html` file, and mocks Avalon consuming the SME component.
+The `/demo` directory contains the demo application entry point `index.html` file, and mocks Avalon consuming the SME component.
 
-If you'd like to try out a new feature for SME without merging into `master`, create a new branch, ie: `my-new-feature`, and push it up to `https://github.com/avalonmediasystem/react-structural-metadata-editor` See the Deployment section below on how to import from either `master` or your own feature branch.
+If you'd like to try out a new development feature before merging your code into `master`, create a new branch, ie: `my-new-feature`, and push your branch to `https://github.com/avalonmediasystem/react-structural-metadata-editor`. See the [Deployment](#user-content-deployment) section below on how to import from either `master` or your own feature branch.
 
-#### Configuration
+#### Component configuration
 
 A consuming application is expected to provide the following configuration `props` passed to the SME component.
 
@@ -69,6 +71,40 @@ const props = {
 
 <StructuralMetadataEditor {...props} />
 ```
+
+### Commands
+
+The following commands are available to the application via `npm scripts` located in the `package.json` file.
+
+```
+yarn clean
+```
+
+Cleans the output directory `dist`, ensuring a fresh copy of files when preparing your files for packaging.
+
+```
+yarn start
+```
+
+Starts the webpack development server in which you can view your work. http://localhost:3001/
+
+```
+yarn test
+```
+
+Runs the application's tests once, and provides a coverage report.
+
+```
+yarn test:watch
+```
+
+If you prefer to keep an open `watch` on your tests during development, run this command in a separate tab in your terminal/shell.
+
+```
+yarn transpile
+```
+
+This command prepares the SME React component for packaging and distribution. It moves packaged, transpiled files into the `/dist` directory. Run this command when you're happy with your development changes, before committing a branch which you wish to push to Github or import locally.
 
 ## Running the tests
 
@@ -130,15 +166,15 @@ See the yarn docs (https://yarnpkg.com/lang/en/docs/cli/add/) for more info on a
 
 ## Contributing
 
-Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c63ec426) for details on our code of conduct, and the process for submitting pull requests to us.
+Please read [CONTRIBUTING.md](contributing.md) for details on our code of conduct, and the process for submitting pull requests to us.
 
 ## Versioning
 
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/your/project/tags).
+We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/avalonmediasystem/react-structural-metadata-editor/tags).
 
 ## Authors
 
-- **Adam Arling** - _Front End Developer_ - [Northwestern University](https://northwestern.edu)
+- **Adam J. Arling** - _Front End Developer_ - [Northwestern University](https://northwestern.edu)
 - **Dananji Withana** - _Front End Developer_ - [Indiana University](https://indiana.edu)
 
 See also the list of [contributors](https://github.com/avalonmediasystem/react-structural-metadata-editor/contributors) who participated in this project.
@@ -149,4 +185,4 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 
 ## Acknowledgments
 
-- Avalon Media System
+- [Avalon Media System](https://www.avalonmediasystem.org/)

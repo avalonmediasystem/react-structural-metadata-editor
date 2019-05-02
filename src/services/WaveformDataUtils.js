@@ -279,24 +279,38 @@ export default class WaveformDataUtils {
    */
   validateSegment(segment, peaksInstance) {
     const allSegments = this.sortSegments(peaksInstance, 'startTime');
-    const wrapperSegments = this.findWrapperSegments(segment, allSegments);
     const duration = this.roundOff(peaksInstance.player.getDuration());
     const startTime = this.roundOff(segment.startTime);
     const endTime = this.roundOff(segment.endTime);
 
-    if (
-      wrapperSegments.before !== null &&
-      startTime <= wrapperSegments.before.endTime
-    ) {
-      segment.startTime = wrapperSegments.before.endTime + 0.01;
+    const { before, after } = this.findWrapperSegments(segment, allSegments);
+
+    if (before) {
+      const segBefore = {
+        begin: this.roundOff(before.startTime),
+        end: this.roundOff(before.endTime)
+      };
+      if (startTime <= segBefore.end) {
+        segment.startTime = segBefore.end + 0.01;
+      }
+      if (endTime <= segBefore.end) {
+        segment.endTime = segBefore.end + 0.02;
+      }
+      if (endTime < segBefore.end) {
+        segment.endTime = segBefore.end + 0.01;
+      }
     }
-    if (
-      wrapperSegments.after !== null &&
-      endTime >= wrapperSegments.after.startTime
-    ) {
-      segment.endTime = wrapperSegments.after.startTime - 0.01;
+    if (after) {
+      const segAfter = {
+        begin: this.roundOff(after.startTime),
+        end: this.roundOff(after.endTime)
+      };
+      if (endTime >= segAfter.begin) {
+        segment.endTime = segAfter.begin - 0.01;
+      }
     }
-    if (wrapperSegments.after === null && endTime > duration) {
+
+    if (!after && endTime > duration) {
       segment.endTime = duration;
     }
     return segment;
@@ -344,6 +358,13 @@ export default class WaveformDataUtils {
   }
 
   roundOff(value) {
-    return Math.round(value * 100) / 100;
+    var valueString = '';
+    var [intVal, decVal] = value.toString().split('.');
+    if (!decVal) {
+      valueString = intVal;
+    } else {
+      valueString = intVal + '.' + decVal.substring(0, 2);
+    }
+    return parseFloat(valueString);
   }
 }

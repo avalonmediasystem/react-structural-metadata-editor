@@ -725,7 +725,7 @@ function () {
       var foundDiv = this.findItem(obj.headingChildOf, clonedItems) || clonedItems[0]; // If children exist, add to list
 
       if (foundDiv) {
-        foundDiv.items.unshift({
+        foundDiv.items.push({
           id: (0, _v["default"])(),
           type: 'div',
           label: obj.headingTitle,

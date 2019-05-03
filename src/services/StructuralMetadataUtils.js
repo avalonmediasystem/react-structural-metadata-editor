@@ -577,21 +577,50 @@ export default class StructuralMetadataUtils {
    * @returns ({Object}, {Array}) - (New span, The updated structured metadata collection, with new object inserted)
    */
   insertNewTimespan(obj, allItems) {
+    const { toMs } = this;
     let clonedItems = cloneDeep(allItems);
     let foundDiv = this.findItem(obj.timespanChildOf, clonedItems);
     const spanObj = this.createSpanObject(obj);
     let insertIndex = 0;
+    let nestedTimespans = [];
+
+    let findNestedTimespans = header => {
+      const items = header.items;
+      for (let item of items) {
+        if (item.type === 'span' && toMs(spanObj.begin) > toMs(item.end)) {
+          nestedTimespans.push(item);
+        }
+      }
+    };
 
     // If children exist, add to list
     if (foundDiv) {
       let childSpans = foundDiv.items.filter(item => item.type === 'span');
 
+      const nestedHeaders = foundDiv.items.filter(item => item.type === 'div');
+      for (let header of nestedHeaders) {
+        findNestedTimespans(header);
+      }
+      // Add nested timespans from child items and sort by begin time
+      childSpans = childSpans
+        .concat(nestedTimespans)
+        .sort((x, y) => this.toMs(x['begin']) - this.toMs(y['begin']));
+
       // Get before and after sibling spans
       let wrapperSpans = this.findWrapperSpans(spanObj, childSpans);
 
       if (wrapperSpans.before) {
-        insertIndex =
-          findIndex(foundDiv.items, { id: wrapperSpans.before.id }) + 1;
+        let wrapperSpanParent = this.getParentDiv(
+          wrapperSpans.before,
+          allItems
+        );
+        if (wrapperSpanParent.id !== foundDiv.id) {
+          insertIndex =
+            findIndex(foundDiv.items, { id: wrapperSpanParent.id }) + 1;
+        } else {
+          insertIndex =
+            findIndex(foundDiv.items, { id: wrapperSpans.before.id }) + 1;
+        }
       }
       // Insert new span at appropriate index
       foundDiv.items.splice(insertIndex, 0, spanObj);

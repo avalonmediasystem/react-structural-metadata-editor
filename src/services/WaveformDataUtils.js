@@ -83,9 +83,12 @@ export default class WaveformDataUtils {
 
     // Set the default end time of the temporary segment
     if (currentSegments.length === 0) {
-      rangeEndTime = fileEndTime < 60 ? fileEndTime : rangeBeginTime + 60;
+      rangeEndTime =
+        fileEndTime < 60
+          ? fileEndTime
+          : Math.round((rangeBeginTime + 60.0) * 100) / 100;
     } else {
-      rangeEndTime = rangeBeginTime + 60;
+      rangeEndTime = Math.round((rangeBeginTime + 60.0) * 100) / 100;
     }
 
     // Validate end time of the temporary segment
@@ -95,7 +98,7 @@ export default class WaveformDataUtils {
         if (fileEndTime < 60) {
           rangeEndTime = fileEndTime;
         }
-        if (segmentLength < 60 && rangeEndTime >= segment.endTime) {
+        if (segmentLength < 60 && rangeEndTime >= segment.startTime) {
           rangeEndTime = segment.startTime - 0.01;
         }
         if (

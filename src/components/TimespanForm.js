@@ -51,6 +51,9 @@ class TimespanForm extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
+    // Update the 'Child Of' options list everytime the form receive props
+    this.updateChildOfOptions();
+
     if (nextProps.timespanOpen && !this.state.isTyping) {
       const { initSegment, isInitializing, peaksInstance, segment } = nextProps;
 

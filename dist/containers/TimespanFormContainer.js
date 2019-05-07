@@ -57,7 +57,7 @@ function (_Component) {
 
     _this = (0, _possibleConstructorReturn2["default"])(this, (_getPrototypeOf2 = (0, _getPrototypeOf3["default"])(TimespanFormContainer)).call.apply(_getPrototypeOf2, [this].concat(args)));
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "state", {
-      message: null
+      isTyping: false
     });
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "submit", function (values) {
       // Update the data structure with new heading
@@ -74,6 +74,17 @@ function (_Component) {
 
       _this.props.cancelClick();
     });
+    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "setIsTyping", function (value) {
+      if (value === 1) {
+        _this.setState({
+          isTyping: true
+        });
+      } else {
+        _this.setState({
+          isTyping: false
+        });
+      }
+    });
     return _this;
   }
 
@@ -81,6 +92,8 @@ function (_Component) {
     key: "render",
     value: function render() {
       return _react["default"].createElement(_TimespanForm["default"], (0, _extends2["default"])({}, this.props, {
+        setIsTyping: this.setIsTyping,
+        isTyping: this.state.isTyping,
         onSubmit: this.submit
       }));
     }

@@ -20,15 +20,14 @@ class AlertContainer extends Component {
     }
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    if (this.props.message && !prevState.show) {
-      this.setState({ show: true });
-    }
-  }
-  componentWillReceiveProps(nextProps) {
+  static getDerivedStateFromProps(nextProps, prevState) {
     if (isEmpty(nextProps)) {
-      this.setState({ show: false });
+      return { show: false };
     }
+    if (nextProps.message && !prevState.show) {
+      return { show: true };
+    }
+    return null;
   }
 
   handleDismiss = () => {

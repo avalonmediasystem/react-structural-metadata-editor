@@ -8,7 +8,7 @@ import * as peaksActions from '../actions/peaks-instance';
 const structuralMetadataUtils = new StructuralMetadataUtils();
 class TimespanFormContainer extends Component {
   state = {
-    message: null
+    isTyping: false
   };
 
   submit = values => {
@@ -28,8 +28,23 @@ class TimespanFormContainer extends Component {
     this.props.cancelClick();
   };
 
+  setIsTyping = value => {
+    if (value === 1) {
+      this.setState({ isTyping: true });
+    } else {
+      this.setState({ isTyping: false });
+    }
+  };
+
   render() {
-    return <TimespanForm {...this.props} onSubmit={this.submit} />;
+    return (
+      <TimespanForm
+        {...this.props}
+        setIsTyping={this.setIsTyping}
+        isTyping={this.state.isTyping}
+        onSubmit={this.submit}
+      />
+    );
   }
 }
 

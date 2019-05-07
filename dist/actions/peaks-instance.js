@@ -13,7 +13,7 @@ exports.activateSegment = activateSegment;
 exports.revertSegment = revertSegment;
 exports.saveSegment = saveSegment;
 exports.updateSegment = updateSegment;
-exports.changeSegment = changeSegment;
+exports.dragSegment = dragSegment;
 exports.insertTempSegment = insertTempSegment;
 exports.deleteTempSegment = deleteTempSegment;
 
@@ -28,7 +28,7 @@ function initPeaksInstance(smData, options) {
 
     if (peaksInstance.events !== undefined) {
       peaksInstance.events.subscribe(function (segment) {
-        dispatch(changeSegment(segment));
+        dispatch(dragSegment(segment, 1));
       });
     }
   };
@@ -85,10 +85,11 @@ function updateSegment(segment, state) {
   };
 }
 
-function changeSegment(segment) {
+function dragSegment(segment, flag) {
   return {
-    type: types.DRAG_SEGMENT,
-    payload: segment
+    type: types.IS_DRAGGING,
+    segment: segment,
+    flag: flag
   };
 }
 

@@ -230,7 +230,7 @@ function () {
         var spanBegin = toMs(allSpans[i].begin);
         var spanEnd = toMs(allSpans[i].end); // Illegal time (falls between existing start/end times)
 
-        if (time >= spanBegin && time < spanEnd) {
+        if (time >= spanBegin && time <= spanEnd) {
           valid = false;
           break;
         } // Time exceeds the end time of the media file
@@ -745,22 +745,96 @@ function () {
   }, {
     key: "insertNewTimespan",
     value: function insertNewTimespan(obj, allItems) {
+      var _this3 = this;
+
+      var toMs = this.toMs;
       var clonedItems = (0, _lodash.cloneDeep)(allItems);
       var foundDiv = this.findItem(obj.timespanChildOf, clonedItems);
       var spanObj = this.createSpanObject(obj);
-      var insertIndex = 0; // If children exist, add to list
+      var insertIndex = 0;
+      var nestedTimespans = [];
+
+      var findNestedTimespans = function findNestedTimespans(header) {
+        var items = header.items;
+        var _iteratorNormalCompletion7 = true;
+        var _didIteratorError7 = false;
+        var _iteratorError7 = undefined;
+
+        try {
+          for (var _iterator7 = items[Symbol.iterator](), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
+            var item = _step7.value;
+
+            if (item.type === 'span' && toMs(spanObj.begin) > toMs(item.end)) {
+              nestedTimespans.push(item);
+            }
+          }
+        } catch (err) {
+          _didIteratorError7 = true;
+          _iteratorError7 = err;
+        } finally {
+          try {
+            if (!_iteratorNormalCompletion7 && _iterator7["return"] != null) {
+              _iterator7["return"]();
+            }
+          } finally {
+            if (_didIteratorError7) {
+              throw _iteratorError7;
+            }
+          }
+        }
+      }; // If children exist, add to list
+
 
       if (foundDiv) {
         var childSpans = foundDiv.items.filter(function (item) {
           return item.type === 'span';
+        });
+        var nestedHeaders = foundDiv.items.filter(function (item) {
+          return item.type === 'div';
+        });
+        var _iteratorNormalCompletion8 = true;
+        var _didIteratorError8 = false;
+        var _iteratorError8 = undefined;
+
+        try {
+          for (var _iterator8 = nestedHeaders[Symbol.iterator](), _step8; !(_iteratorNormalCompletion8 = (_step8 = _iterator8.next()).done); _iteratorNormalCompletion8 = true) {
+            var header = _step8.value;
+            findNestedTimespans(header);
+          } // Add nested timespans from child items and sort by begin time
+
+        } catch (err) {
+          _didIteratorError8 = true;
+          _iteratorError8 = err;
+        } finally {
+          try {
+            if (!_iteratorNormalCompletion8 && _iterator8["return"] != null) {
+              _iterator8["return"]();
+            }
+          } finally {
+            if (_didIteratorError8) {
+              throw _iteratorError8;
+            }
+          }
+        }
+
+        childSpans = childSpans.concat(nestedTimespans).sort(function (x, y) {
+          return _this3.toMs(x['begin']) - _this3.toMs(y['begin']);
         }); // Get before and after sibling spans
 
         var wrapperSpans = this.findWrapperSpans(spanObj, childSpans);
 
         if (wrapperSpans.before) {
-          insertIndex = (0, _lodash.findIndex)(foundDiv.items, {
-            id: wrapperSpans.before.id
-          }) + 1;
+          var wrapperSpanParent = this.getParentDiv(wrapperSpans.before, allItems);
+
+          if (wrapperSpanParent.id !== foundDiv.id) {
+            insertIndex = (0, _lodash.findIndex)(foundDiv.items, {
+              id: wrapperSpanParent.id
+            }) + 1;
+          } else {
+            insertIndex = (0, _lodash.findIndex)(foundDiv.items, {
+              id: wrapperSpans.before.id
+            }) + 1;
+          }
         } // Insert new span at appropriate index
 
 
@@ -834,24 +908,6 @@ function () {
     key: "toMs",
     value: function toMs(strTime) {
       return _moment["default"].duration(strTime).asMilliseconds();
-    }
-    /**
-     * Convert seconds to string format hh:mm:ss
-     * @param {Number} secTime - time in seconds
-     */
-
-  }, {
-    key: "toHHmmss",
-    value: function toHHmmss(secTime) {
-      var sec_num = parseInt('' + secTime * 100) / 100;
-      var hours = Math.floor(sec_num / 3600);
-      var minutes = Math.floor(sec_num / 60);
-      var seconds = Math.round(sec_num % 60 * 100) / 100;
-      var hourStr = hours < 10 ? "0".concat(hours) : "".concat(hours);
-      var minStr = minutes < 10 ? "0".concat(minutes) : "".concat(minutes);
-      var secStr = seconds.toFixed(2);
-      secStr = seconds < 10 ? "0".concat(secStr) : "".concat(secStr);
-      return "".concat(hourStr, ":").concat(minStr, ":").concat(secStr);
     }
     /**
      * Update an existing heading object

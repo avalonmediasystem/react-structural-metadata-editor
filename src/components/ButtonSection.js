@@ -27,10 +27,12 @@ class ButtonSection extends Component {
     disabled: true
   };
 
-  updateInitializeFlag = value => {
-    this.setState({
-      isInitializing: value
-    });
+  setIsInitializing = value => {
+    if (value === 1) {
+      this.setState({ isInitializing: true });
+    } else {
+      this.setState({ isInitializing: false });
+    }
   };
 
   clearAlert = () => {
@@ -86,6 +88,8 @@ class ButtonSection extends Component {
         disabled: false
       });
     } else {
+      // Initialize Redux store with temporary segment
+      this.props.bindInitSegment(tempSegment, 0);
       this.setState({
         initSegment: tempSegment,
         headingOpen: false,
@@ -109,7 +113,7 @@ class ButtonSection extends Component {
       initSegment: this.state.initSegment,
       isInitializing: this.state.isInitializing,
       timespanOpen: this.state.timespanOpen,
-      updateInitialize: this.updateInitializeFlag
+      setIsInitializing: this.setIsInitializing
     };
 
     const { structureRetrieved, waveformRetrieved } = this.props.forms;
@@ -165,6 +169,7 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = {
   createTempSegment: peaksActions.insertTempSegment,
   deleteTempSegment: peaksActions.deleteTempSegment,
+  bindInitSegment: peaksActions.dragSegment,
   handleEditingTimespans: handleEditingTimespans
 };
 

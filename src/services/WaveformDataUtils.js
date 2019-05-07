@@ -15,12 +15,9 @@ export default class WaveformDataUtils {
       for (let item of items) {
         if (item.type === 'span') {
           count = count > 1 ? 0 : count;
-          const { begin, end, label, id } = item;
+          const segment = this.convertTimespanToSegment(item);
           initSegments.push({
-            startTime: this.toMs(begin),
-            endTime: this.toMs(end),
-            labelText: label,
-            id: id,
+            ...segment,
             color: COLOR_PALETTE[count]
           });
           count++;
@@ -35,23 +32,6 @@ export default class WaveformDataUtils {
     createSegment(smData);
 
     return initSegments;
-  }
-
-  /**
-   * Add a new segment to Peaks when a new timespan is created
-   * @param {Object} newSpan - new span created for the user input
-   * @param {Object} peaksInstance - peaks instance for the waveform
-   */
-  insertNewSegment(newSpan, peaksInstance) {
-    const { begin, end, label, id } = newSpan;
-    peaksInstance.segments.add({
-      startTime: this.toMs(begin),
-      endTime: this.toMs(end),
-      labelText: label,
-      id: id
-    });
-
-    return peaksInstance;
   }
 
   /**
@@ -75,8 +55,8 @@ export default class WaveformDataUtils {
         rangeBeginTime >= segment.startTime &&
         rangeBeginTime <= segment.endTime
       ) {
-        // adds 0.01 to check consecutive segments with only a 0.01s difference
-        rangeBeginTime = segment.endTime + 0.01;
+        // Adds 0.01 to check consecutive segments and rounds upto 2 decimal points for accuracy
+        rangeBeginTime = Math.round((segment.endTime + 0.01) * 100) / 100;
       }
       return rangeBeginTime;
     });
@@ -288,35 +268,37 @@ export default class WaveformDataUtils {
 
     const { before, after } = this.findWrapperSegments(segment, allSegments);
 
-    if (before) {
-      const segBefore = {
-        begin: this.roundOff(before.startTime),
-        end: this.roundOff(before.endTime)
-      };
-      if (startTime <= segBefore.end) {
-        segment.startTime = segBefore.end + 0.01;
-      }
-      if (endTime <= segBefore.end) {
-        segment.endTime = segBefore.end + 0.02;
-      }
-      if (endTime < segBefore.end) {
-        segment.endTime = segBefore.end + 0.01;
-      }
+    if (before && startTime <= before.endTime) {
+      segment.startTime = before.endTime + 0.01;
     }
-    if (after) {
-      const segAfter = {
-        begin: this.roundOff(after.startTime),
-        end: this.roundOff(after.endTime)
-      };
-      if (endTime >= segAfter.begin) {
-        segment.endTime = segAfter.begin - 0.01;
-      }
+    if (before && endTime === before.endTime) {
+      segment.endTime = before.endTime + 0.02;
     }
-
+    if (before && endTime < before.endTime) {
+      segment.endTime = before.endTime + 0.01;
+    }
+    if (after && endTime >= after.startTime) {
+      segment.endTime = after.startTime - 0.01;
+    }
     if (!after && endTime > duration) {
       segment.endTime = duration;
     }
+
     return segment;
+  }
+
+  /**
+   * Convert timespan to segment to be consumed within peaks instance
+   * @param {Object} timespan
+   */
+  convertTimespanToSegment(timespan) {
+    const { begin, end, label, id } = timespan;
+    return {
+      startTime: this.toMs(begin),
+      endTime: this.toMs(end),
+      labelText: label,
+      id: id
+    };
   }
 
   /**
@@ -330,15 +312,23 @@ export default class WaveformDataUtils {
       after: null
     };
 
+    const timeFixedSegments = allSegments.map(seg => {
+      return {
+        ...seg,
+        startTime: this.roundOff(seg.startTime),
+        endTime: this.roundOff(seg.endTime)
+      };
+    });
+
     let currentIndex = allSegments
       .map(segment => segment.id)
       .indexOf(currentSegment.id);
 
     wrapperSegments.before =
-      currentIndex > 0 ? allSegments[currentIndex - 1] : null;
+      currentIndex > 0 ? timeFixedSegments[currentIndex - 1] : null;
     wrapperSegments.after =
-      currentIndex < allSegments.length - 1
-        ? allSegments[currentIndex + 1]
+      currentIndex < timeFixedSegments.length - 1
+        ? timeFixedSegments[currentIndex + 1]
         : null;
 
     return wrapperSegments;
@@ -353,6 +343,24 @@ export default class WaveformDataUtils {
     let hoursAndMins = parseInt(hours) * 3600 + parseInt(minutes) * 60;
     let secondsIn = seconds === '' ? 0.0 : parseFloat(seconds);
     return hoursAndMins + secondsIn;
+  }
+
+  /**
+   * Convert seconds to string format hh:mm:ss
+   * @param {Number} secTime - time in seconds
+   */
+  toHHmmss(secTime) {
+    let sec_num = this.roundOff(secTime);
+    let hours = Math.floor(sec_num / 3600);
+    let minutes = Math.floor(sec_num / 60);
+    let seconds = sec_num - minutes * 60 - hours * 3600;
+
+    let hourStr = hours < 10 ? `0${hours}` : `${hours}`;
+    let minStr = minutes < 10 ? `0${minutes}` : `${minutes}`;
+    let secStr = seconds.toFixed(2);
+    secStr = seconds < 10 ? `0${secStr}` : `${secStr}`;
+
+    return `${hourStr}:${minStr}:${secStr}`;
   }
 
   sortSegments(peaksInstance, sortBy) {

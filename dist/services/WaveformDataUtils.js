@@ -7,9 +7,9 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports["default"] = void 0;
 
-var _objectSpread2 = _interopRequireDefault(require("@babel/runtime/helpers/objectSpread"));
-
 var _slicedToArray2 = _interopRequireDefault(require("@babel/runtime/helpers/slicedToArray"));
+
+var _objectSpread2 = _interopRequireDefault(require("@babel/runtime/helpers/objectSpread"));
 
 var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
 
@@ -49,17 +49,12 @@ function () {
 
             if (item.type === 'span') {
               count = count > 1 ? 0 : count;
-              var begin = item.begin,
-                  end = item.end,
-                  label = item.label,
-                  id = item.id;
-              initSegments.push({
-                startTime: _this.toMs(begin),
-                endTime: _this.toMs(end),
-                labelText: label,
-                id: id,
+
+              var segment = _this.convertTimespanToSegment(item);
+
+              initSegments.push((0, _objectSpread2["default"])({}, segment, {
                 color: COLOR_PALETTE[count]
-              });
+              }));
               count++;
             }
 
@@ -88,27 +83,6 @@ function () {
       return initSegments;
     }
     /**
-     * Add a new segment to Peaks when a new timespan is created
-     * @param {Object} newSpan - new span created for the user input
-     * @param {Object} peaksInstance - peaks instance for the waveform
-     */
-
-  }, {
-    key: "insertNewSegment",
-    value: function insertNewSegment(newSpan, peaksInstance) {
-      var begin = newSpan.begin,
-          end = newSpan.end,
-          label = newSpan.label,
-          id = newSpan.id;
-      peaksInstance.segments.add({
-        startTime: this.toMs(begin),
-        endTime: this.toMs(end),
-        labelText: label,
-        id: id
-      });
-      return peaksInstance;
-    }
-    /**
      * Add a temporary segment to be edited when adding a new timespan to structure
      * @param {Object} peaksInstance - peaks instance for the current waveform
      */
@@ -126,17 +100,17 @@ function () {
 
       currentSegments.map(function (segment) {
         if (rangeBeginTime >= segment.startTime && rangeBeginTime <= segment.endTime) {
-          // adds 0.01 to check consecutive segments with only a 0.01s difference
-          rangeBeginTime = segment.endTime + 0.01;
+          // Adds 0.01 to check consecutive segments and rounds upto 2 decimal points for accuracy
+          rangeBeginTime = Math.round((segment.endTime + 0.01) * 100) / 100;
         }
 
         return rangeBeginTime;
       }); // Set the default end time of the temporary segment
 
       if (currentSegments.length === 0) {
-        rangeEndTime = fileEndTime < 60 ? fileEndTime : rangeBeginTime + 60;
+        rangeEndTime = fileEndTime < 60 ? fileEndTime : Math.round((rangeBeginTime + 60.0) * 100) / 100;
       } else {
-        rangeEndTime = rangeBeginTime + 60;
+        rangeEndTime = Math.round((rangeBeginTime + 60.0) * 100) / 100;
       } // Validate end time of the temporary segment
 
 
@@ -148,7 +122,7 @@ function () {
             rangeEndTime = fileEndTime;
           }
 
-          if (segmentLength < 60 && rangeEndTime >= segment.endTime) {
+          if (segmentLength < 60 && rangeEndTime >= segment.startTime) {
             rangeEndTime = segment.startTime - 0.01;
           }
 
@@ -377,24 +351,54 @@ function () {
     key: "validateSegment",
     value: function validateSegment(segment, peaksInstance) {
       var allSegments = this.sortSegments(peaksInstance, 'startTime');
-      var wrapperSegments = this.findWrapperSegments(segment, allSegments);
       var duration = this.roundOff(peaksInstance.player.getDuration());
       var startTime = this.roundOff(segment.startTime);
       var endTime = this.roundOff(segment.endTime);
 
-      if (wrapperSegments.before !== null && startTime <= wrapperSegments.before.endTime) {
-        segment.startTime = wrapperSegments.before.endTime + 0.01;
+      var _this$findWrapperSegm = this.findWrapperSegments(segment, allSegments),
+          before = _this$findWrapperSegm.before,
+          after = _this$findWrapperSegm.after;
+
+      if (before && startTime <= before.endTime) {
+        segment.startTime = before.endTime + 0.01;
       }
 
-      if (wrapperSegments.after !== null && endTime >= wrapperSegments.after.startTime) {
-        segment.endTime = wrapperSegments.after.startTime - 0.01;
+      if (before && endTime === before.endTime) {
+        segment.endTime = before.endTime + 0.02;
       }
 
-      if (wrapperSegments.after === null && endTime > duration) {
+      if (before && endTime < before.endTime) {
+        segment.endTime = before.endTime + 0.01;
+      }
+
+      if (after && endTime >= after.startTime) {
+        segment.endTime = after.startTime - 0.01;
+      }
+
+      if (!after && endTime > duration) {
         segment.endTime = duration;
       }
 
       return segment;
+    }
+    /**
+     * Convert timespan to segment to be consumed within peaks instance
+     * @param {Object} timespan
+     */
+
+  }, {
+    key: "convertTimespanToSegment",
+    value: function convertTimespanToSegment(timespan) {
+      var begin = timespan.begin,
+          end = timespan.end,
+          label = timespan.label,
+          id = timespan.id;
+      return {
+        startTime: this.toMs(begin),
+        endTime: this.toMs(end),
+        labelText: label,
+        id: id
+      };
     }
     /**
      * Find the before and after segments of a given segment
@@ -405,15 +409,23 @@ function () {
   }, {
     key: "findWrapperSegments",
     value: function findWrapperSegments(currentSegment, allSegments) {
+      var _this3 = this;
+
       var wrapperSegments = {
         before: null,
         after: null
       };
+      var timeFixedSegments = allSegments.map(function (seg) {
+        return (0, _objectSpread2["default"])({}, seg, {
+          startTime: _this3.roundOff(seg.startTime),
+          endTime: _this3.roundOff(seg.endTime)
+        });
+      });
       var currentIndex = allSegments.map(function (segment) {
         return segment.id;
       }).indexOf(currentSegment.id);
-      wrapperSegments.before = currentIndex > 0 ? allSegments[currentIndex - 1] : null;
-      wrapperSegments.after = currentIndex < allSegments.length - 1 ? allSegments[currentIndex + 1] : null;
+      wrapperSegments.before = currentIndex > 0 ? timeFixedSegments[currentIndex - 1] : null;
+      wrapperSegments.after = currentIndex < timeFixedSegments.length - 1 ? timeFixedSegments[currentIndex + 1] : null;
       return wrapperSegments;
     }
   }, {
@@ -434,6 +446,24 @@ function () {
       var secondsIn = seconds === '' ? 0.0 : parseFloat(seconds);
       return hoursAndMins + secondsIn;
     }
+    /**
+     * Convert seconds to string format hh:mm:ss
+     * @param {Number} secTime - time in seconds
+     */
+
+  }, {
+    key: "toHHmmss",
+    value: function toHHmmss(secTime) {
+      var sec_num = this.roundOff(secTime);
+      var hours = Math.floor(sec_num / 3600);
+      var minutes = Math.floor(sec_num / 60);
+      var seconds = sec_num - minutes * 60 - hours * 3600;
+      var hourStr = hours < 10 ? "0".concat(hours) : "".concat(hours);
+      var minStr = minutes < 10 ? "0".concat(minutes) : "".concat(minutes);
+      var secStr = seconds.toFixed(2);
+      secStr = seconds < 10 ? "0".concat(secStr) : "".concat(secStr);
+      return "".concat(hourStr, ":").concat(minStr, ":").concat(secStr);
+    }
   }, {
     key: "sortSegments",
     value: function sortSegments(peaksInstance, sortBy) {
@@ -445,7 +475,20 @@ function () {
   }, {
     key: "roundOff",
     value: function roundOff(value) {
-      return Math.round(value * 100) / 100;
+      var valueString = '';
+
+      var _value$toString$split = value.toString().split('.'),
+          _value$toString$split2 = (0, _slicedToArray2["default"])(_value$toString$split, 2),
+          intVal = _value$toString$split2[0],
+          decVal = _value$toString$split2[1];
+
+      if (!decVal) {
+        valueString = intVal;
+      } else {
+        valueString = intVal + '.' + decVal.substring(0, 2);
+      }
+
+      return parseFloat(valueString);
     }
   }]);
   return WaveformDataUtils;

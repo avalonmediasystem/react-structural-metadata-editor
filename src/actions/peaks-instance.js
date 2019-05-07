@@ -8,7 +8,7 @@ export function initPeaksInstance(smData, options) {
 
     if (peaksInstance.events !== undefined) {
       peaksInstance.events.subscribe(segment => {
-        dispatch(changeSegment(segment));
+        dispatch(dragSegment(segment, 1));
       });
     }
   };
@@ -65,10 +65,11 @@ export function updateSegment(segment, state) {
   };
 }
 
-export function changeSegment(segment) {
+export function dragSegment(segment, flag) {
   return {
-    type: types.DRAG_SEGMENT,
-    payload: segment
+    type: types.IS_DRAGGING,
+    segment,
+    flag
   };
 }
 

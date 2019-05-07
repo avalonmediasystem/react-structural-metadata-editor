@@ -682,24 +682,6 @@ export default class StructuralMetadataUtils {
   }
 
   /**
-   * Convert seconds to string format hh:mm:ss
-   * @param {Number} secTime - time in seconds
-   */
-  toHHmmss(secTime) {
-    let sec_num = parseInt('' + secTime * 100) / 100;
-    let hours = Math.floor(sec_num / 3600);
-    let minutes = Math.floor(sec_num / 60);
-    let seconds = Math.round((sec_num % 60) * 100) / 100;
-
-    let hourStr = hours < 10 ? `0${hours}` : `${hours}`;
-    let minStr = minutes < 10 ? `0${minutes}` : `${minutes}`;
-    let secStr = seconds.toFixed(2);
-    secStr = seconds < 10 ? `0${secStr}` : `${secStr}`;
-
-    return `${hourStr}:${minStr}:${secStr}`;
-  }
-
-  /**
    * Update an existing heading object
    * @param {Object} heading - updated form object
    * @param {Array} allItems - the data structure

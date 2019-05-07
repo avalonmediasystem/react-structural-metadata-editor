@@ -23,9 +23,11 @@ var waveformUtils = new _WaveformDataUtils["default"]();
 var initialState = {
   peaks: {},
   events: null,
-  segment: null
+  segment: null,
+  isDragging: false
 };
 var newPeaks = null;
+var updatedSegment = null;
 
 var peaksInstance = function peaksInstance() {
   var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : initialState;
@@ -46,9 +48,10 @@ var peaksInstance = function peaksInstance() {
       };
 
     case types.INSERT_SEGMENT:
-      newPeaks = waveformUtils.insertNewSegment(action.payload, (0, _objectSpread2["default"])({}, state.peaks));
+      state.peaks.segments.add(waveformUtils.convertTimespanToSegment(action.payload));
+      newPeaks = waveformUtils.rebuildPeaks((0, _objectSpread2["default"])({}, state.peaks));
       return (0, _objectSpread2["default"])({}, state, {
-        peaks: waveformUtils.rebuildPeaks(newPeaks)
+        peaks: newPeaks
       });
 
     case types.DELETE_SEGMENT:
@@ -78,14 +81,26 @@ var peaksInstance = function peaksInstance() {
 
     case types.UPDATE_SEGMENT:
       newPeaks = waveformUtils.updateSegment(action.segment, action.state, (0, _objectSpread2["default"])({}, state.peaks));
+      updatedSegment = newPeaks.segments.getSegment(action.segment.id);
       return (0, _objectSpread2["default"])({}, state, {
-        peaks: (0, _objectSpread2["default"])({}, newPeaks)
+        peaks: (0, _objectSpread2["default"])({}, newPeaks),
+        segment: updatedSegment
       });
 
-    case types.DRAG_SEGMENT:
-      return (0, _objectSpread2["default"])({}, state, {
-        segment: action.payload
-      });
+    case types.IS_DRAGGING:
+      if (action.flag === 0) {
+        return (0, _objectSpread2["default"])({}, state, {
+          segment: action.segment,
+          isDragging: false
+        });
+      }
+
+      if (action.flag === 1) {
+        return (0, _objectSpread2["default"])({}, state, {
+          segment: action.segment,
+          isDragging: true
+        });
+      }
 
     case types.TEMP_INSERT_SEGMENT:
       newPeaks = waveformUtils.insertTempSegment((0, _objectSpread2["default"])({}, state.peaks));

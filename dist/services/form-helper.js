@@ -14,7 +14,10 @@ exports.validTimespans = validTimespans;
 
 var _StructuralMetadataUtils = _interopRequireDefault(require("./StructuralMetadataUtils"));
 
+var _WaveformDataUtils = _interopRequireDefault(require("./WaveformDataUtils"));
+
 var structuralMetadataUtils = new _StructuralMetadataUtils["default"]();
+var waveformDataUtils = new _WaveformDataUtils["default"]();
 /**
  * Load existing form values to state, if in 'EDIT' mode
  */
@@ -66,7 +69,7 @@ function getValidationEndState(beginTime, endTime, allSpans, peaksInstance) {
 
   if (peaksInstance !== undefined) {
     if (peaksInstance.player !== undefined) {
-      duration = Math.round(peaksInstance.player.getDuration() * 100) / 100;
+      duration = waveformDataUtils.roundOff(peaksInstance.player.getDuration());
     }
   }
 
@@ -123,7 +126,7 @@ function validTimespans(beginTime, endTime, allSpans, peaksInstance) {
 
   if (peaksInstance !== undefined) {
     if (peaksInstance.player !== undefined) {
-      duration = Math.round(peaksInstance.player.getDuration() * 100) / 100;
+      duration = waveformDataUtils.roundOff(peaksInstance.player.getDuration());
     }
   } // Valid formats?
 

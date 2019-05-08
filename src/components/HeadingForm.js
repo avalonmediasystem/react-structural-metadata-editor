@@ -103,7 +103,7 @@ class HeadingForm extends Component {
     const { headingTitle } = this.state;
 
     return (
-      <form onSubmit={this.handleSubmit}>
+      <form onSubmit={this.handleSubmit} data-testid="heading-form">
         <FormGroup
           controlId="headingTitle"
           validationState={getValidationTitleState(headingTitle)}
@@ -132,11 +132,17 @@ class HeadingForm extends Component {
         <Row>
           <Col xs={12}>
             <ButtonToolbar className="pull-right">
-              <Button onClick={this.props.cancelClick}>Cancel</Button>
+              <Button
+                onClick={this.props.cancelClick}
+                data-testid="heading-form-cancel-button"
+              >
+                Cancel
+              </Button>
               <Button
                 bsStyle="primary"
                 type="submit"
                 disabled={!this.formIsValid()}
+                data-testid="heading-form-save-button"
               >
                 Save
               </Button>

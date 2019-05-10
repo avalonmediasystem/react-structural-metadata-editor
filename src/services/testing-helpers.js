@@ -21,3 +21,33 @@ export function renderWithRedux(
     store
   };
 }
+
+export const testSmData = [
+  {
+    type: 'root',
+    label: 'Sample Video',
+    items: [
+      {
+        type: 'div',
+        label: 'Intro',
+        items: [
+          {
+            type: 'div',
+            label: 'Adam test',
+            items: [],
+            id: 'abc'
+          },
+          {
+            type: 'span',
+            label: 'Part I',
+            begin: '00:00:00.00',
+            end: '00:01:00.00',
+            id: 'def'
+          }
+        ],
+        id: 'ghij'
+      }
+    ],
+    id: 'klmn'
+  }
+];

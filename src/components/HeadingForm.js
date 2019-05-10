@@ -107,6 +107,7 @@ class HeadingForm extends Component {
         <FormGroup
           controlId="headingTitle"
           validationState={getValidationTitleState(headingTitle)}
+          data-testid="heading-title-form-group"
         >
           <ControlLabel>Title</ControlLabel>
           <FormControl
@@ -119,6 +120,7 @@ class HeadingForm extends Component {
 
         <FormGroup controlId="headingChildOf">
           <ControlLabel>Child Of</ControlLabel>
+
           <FormControl
             componentClass="select"
             placeholder="select"
@@ -129,6 +131,7 @@ class HeadingForm extends Component {
             {this.state.childOfOptions}
           </FormControl>
         </FormGroup>
+
         <Row>
           <Col xs={12}>
             <ButtonToolbar className="pull-right">

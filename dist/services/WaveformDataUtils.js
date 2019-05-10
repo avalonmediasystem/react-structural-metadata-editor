@@ -134,9 +134,9 @@ function () {
       }); // Set the default end time of the temporary segment
 
       if (currentSegments.length === 0) {
-        rangeEndTime = fileEndTime < 60 ? fileEndTime : rangeBeginTime + 60;
+        rangeEndTime = fileEndTime < 60 ? fileEndTime : Math.round((rangeBeginTime + 60.0) * 100) / 100;
       } else {
-        rangeEndTime = rangeBeginTime + 60;
+        rangeEndTime = Math.round((rangeBeginTime + 60.0) * 100) / 100;
       } // Validate end time of the temporary segment
 
 
@@ -148,7 +148,7 @@ function () {
             rangeEndTime = fileEndTime;
           }
 
-          if (segmentLength < 60 && rangeEndTime >= segment.endTime) {
+          if (segmentLength < 60 && rangeEndTime >= segment.startTime) {
             rangeEndTime = segment.startTime - 0.01;
           }
 
@@ -377,20 +377,45 @@ function () {
     key: "validateSegment",
     value: function validateSegment(segment, peaksInstance) {
       var allSegments = this.sortSegments(peaksInstance, 'startTime');
-      var wrapperSegments = this.findWrapperSegments(segment, allSegments);
       var duration = this.roundOff(peaksInstance.player.getDuration());
       var startTime = this.roundOff(segment.startTime);
       var endTime = this.roundOff(segment.endTime);
 
-      if (wrapperSegments.before !== null && startTime <= wrapperSegments.before.endTime) {
-        segment.startTime = wrapperSegments.before.endTime + 0.01;
+      var _this$findWrapperSegm = this.findWrapperSegments(segment, allSegments),
+          before = _this$findWrapperSegm.before,
+          after = _this$findWrapperSegm.after;
+
+      if (before) {
+        var segBefore = {
+          begin: this.roundOff(before.startTime),
+          end: this.roundOff(before.endTime)
+        };
+
+        if (startTime <= segBefore.end) {
+          segment.startTime = segBefore.end + 0.01;
+        }
+
+        if (endTime <= segBefore.end) {
+          segment.endTime = segBefore.end + 0.02;
+        }
+
+        if (endTime < segBefore.end) {
+          segment.endTime = segBefore.end + 0.01;
+        }
       }
 
-      if (wrapperSegments.after !== null && endTime >= wrapperSegments.after.startTime) {
-        segment.endTime = wrapperSegments.after.startTime - 0.01;
+      if (after) {
+        var segAfter = {
+          begin: this.roundOff(after.startTime),
+          end: this.roundOff(after.endTime)
+        };
+
+        if (endTime >= segAfter.begin) {
+          segment.endTime = segAfter.begin - 0.01;
+        }
       }
 
-      if (wrapperSegments.after === null && endTime > duration) {
+      if (!after && endTime > duration) {
         segment.endTime = duration;
       }
 
@@ -445,7 +470,20 @@ function () {
   }, {
     key: "roundOff",
     value: function roundOff(value) {
-      return Math.round(value * 100) / 100;
+      var valueString = '';
+
+      var _value$toString$split = value.toString().split('.'),
+          _value$toString$split2 = (0, _slicedToArray2["default"])(_value$toString$split, 2),
+          intVal = _value$toString$split2[0],
+          decVal = _value$toString$split2[1];
+
+      if (!decVal) {
+        valueString = intVal;
+      } else {
+        valueString = intVal + '.' + decVal.substring(0, 2);
+      }
+
+      return parseFloat(valueString);
     }
   }]);
   return WaveformDataUtils;

@@ -7,7 +7,7 @@ var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefau
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports["default"] = exports.PureButtonSection = void 0;
+exports["default"] = void 0;
 
 var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
 
@@ -168,18 +168,23 @@ function (_Component) {
       };
       var _this$props$forms = this.props.forms,
           structureRetrieved = _this$props$forms.structureRetrieved,
-          waveformRetrieved = _this$props$forms.waveformRetrieved;
+          waveformRetrieved = _this$props$forms.waveformRetrieved; // Only return UI when both structure and waveform data exist
+
       return structureRetrieved && waveformRetrieved ? _react["default"].createElement("section", {
         style: styles.section
-      }, _react["default"].createElement(_AlertContainer["default"], this.state.alertObj), _react["default"].createElement(_reactBootstrap.Row, null, _react["default"].createElement(_reactBootstrap.Col, {
+      }, _react["default"].createElement(_AlertContainer["default"], this.state.alertObj), _react["default"].createElement(_reactBootstrap.Row, {
+        "data-testid": "button-row"
+      }, _react["default"].createElement(_reactBootstrap.Col, {
         xs: 6
       }, _react["default"].createElement(_reactBootstrap.Button, {
+        "data-testid": "add-heading-button",
         block: true,
         onClick: this.handleHeadingClick,
         disabled: this.state.disabled && this.props.forms.editingDisabled
       }, "Add a Heading")), _react["default"].createElement(_reactBootstrap.Col, {
         xs: 6
       }, _react["default"].createElement(_reactBootstrap.Button, {
+        "data-testid": "add-timespan-button",
         block: true,
         onClick: this.handleTimeSpanClick,
         disabled: this.state.disabled && this.props.forms.editingDisabled
@@ -187,22 +192,21 @@ function (_Component) {
         "in": this.state.headingOpen
       }, _react["default"].createElement("div", {
         className: "well",
-        style: styles.well
+        style: styles.well,
+        "data-testid": "heading-form-wrapper"
       }, _react["default"].createElement(_HeadingFormContainer["default"], {
         cancelClick: this.handleCancelHeadingClick
       }))), _react["default"].createElement(_reactBootstrap.Collapse, {
         "in": this.state.timespanOpen
       }, _react["default"].createElement("div", {
         className: "well",
-        style: styles.well
+        style: styles.well,
+        "data-testid": "timespan-form-wrapper"
       }, _react["default"].createElement(_TimespanFormContainer["default"], timespanFormProps)))) : null;
     }
   }]);
   return ButtonSection;
-}(_react.Component); // To use in tests as a disconnected component (to access state)
-
-
-exports.PureButtonSection = ButtonSection;
+}(_react.Component);
 
 var mapStateToProps = function mapStateToProps(state) {
   return {

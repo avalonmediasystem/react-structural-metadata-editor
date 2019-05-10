@@ -143,8 +143,21 @@ function (_Component) {
     key: "processOptions",
     value: function processOptions() {
       var options = this.getOptions();
+      var adamOptions = [{
+        id: 1,
+        label: '1'
+      }, {
+        id: 2,
+        label: '2'
+      }].map(function (header) {
+        return _react["default"].createElement("option", {
+          value: header.id,
+          key: header.id
+        }, header.label);
+      });
       this.setState({
-        childOfOptions: options
+        childOfOptions: options,
+        adamOptions: adamOptions
       });
     }
   }, {
@@ -152,10 +165,12 @@ function (_Component) {
     value: function render() {
       var headingTitle = this.state.headingTitle;
       return _react["default"].createElement("form", {
-        onSubmit: this.handleSubmit
+        onSubmit: this.handleSubmit,
+        "data-testid": "heading-form"
       }, _react["default"].createElement(_reactBootstrap.FormGroup, {
         controlId: "headingTitle",
-        validationState: (0, _formHelper.getValidationTitleState)(headingTitle)
+        validationState: (0, _formHelper.getValidationTitleState)(headingTitle),
+        "data-testid": "heading-title-form-group"
       }, _react["default"].createElement(_reactBootstrap.ControlLabel, null, "Title"), _react["default"].createElement(_reactBootstrap.FormControl, {
         type: "text",
         value: headingTitle,
@@ -168,17 +183,19 @@ function (_Component) {
         onChange: this.handleChildOfChange,
         value: this.state.headingChildOf
       }, _react["default"].createElement("option", {
-        value: ""
+        value: "asdfasdf"
       }, "Select..."), this.state.childOfOptions)), _react["default"].createElement(_reactBootstrap.Row, null, _react["default"].createElement(_reactBootstrap.Col, {
         xs: 12
       }, _react["default"].createElement(_reactBootstrap.ButtonToolbar, {
         className: "pull-right"
       }, _react["default"].createElement(_reactBootstrap.Button, {
-        onClick: this.props.cancelClick
+        onClick: this.props.cancelClick,
+        "data-testid": "heading-form-cancel-button"
       }, "Cancel"), _react["default"].createElement(_reactBootstrap.Button, {
         bsStyle: "primary",
         type: "submit",
-        disabled: !this.formIsValid()
+        disabled: !this.formIsValid(),
+        "data-testid": "heading-form-save-button"
       }, "Save")))));
     }
   }]);

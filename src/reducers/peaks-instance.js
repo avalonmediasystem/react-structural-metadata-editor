@@ -7,9 +7,11 @@ const waveformUtils = new WaveformDataUtils();
 const initialState = {
   peaks: {},
   events: null,
-  segment: null
+  segment: null,
+  isDragging: false
 };
 let newPeaks = null;
+let updatedSegment = null;
 
 const peaksInstance = (state = initialState, action) => {
   switch (action.type) {
@@ -26,12 +28,13 @@ const peaksInstance = (state = initialState, action) => {
       };
 
     case types.INSERT_SEGMENT:
-      newPeaks = waveformUtils.insertNewSegment(action.payload, {
-        ...state.peaks
-      });
+      state.peaks.segments.add(
+        waveformUtils.convertTimespanToSegment(action.payload)
+      );
+      newPeaks = waveformUtils.rebuildPeaks({ ...state.peaks });
       return {
         ...state,
-        peaks: waveformUtils.rebuildPeaks(newPeaks)
+        peaks: newPeaks
       };
 
     case types.DELETE_SEGMENT:
@@ -82,16 +85,20 @@ const peaksInstance = (state = initialState, action) => {
       newPeaks = waveformUtils.updateSegment(action.segment, action.state, {
         ...state.peaks
       });
+      updatedSegment = newPeaks.segments.getSegment(action.segment.id);
       return {
         ...state,
-        peaks: { ...newPeaks }
+        peaks: { ...newPeaks },
+        segment: updatedSegment
       };
 
-    case types.DRAG_SEGMENT:
-      return {
-        ...state,
-        segment: action.payload
-      };
+    case types.IS_DRAGGING:
+      if (action.flag === 0) {
+        return { ...state, segment: action.segment, isDragging: false };
+      }
+      if (action.flag === 1) {
+        return { ...state, segment: action.segment, isDragging: true };
+      }
 
     case types.TEMP_INSERT_SEGMENT:
       newPeaks = waveformUtils.insertTempSegment({ ...state.peaks });

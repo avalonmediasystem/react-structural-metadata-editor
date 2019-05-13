@@ -33,7 +33,8 @@ class TimespanForm extends Component {
       timespanChildOf: '',
       timespanTitle: '',
       validHeadings: [],
-      isTyping: false
+      peaksInstance: this.props.peaksInstance,
+      isInitializing: this.props.isInitializing
     };
     this.allSpans = null;
   }
@@ -43,43 +44,53 @@ class TimespanForm extends Component {
     this.allSpans = structuralMetadataUtils.getItemsOfType('span', smData);
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps, prevState) {
     const { smData } = this.props;
     if (!isEqual(smData, prevProps.smData)) {
       this.allSpans = structuralMetadataUtils.getItemsOfType('span', smData);
+      // Update valid headings when structure changes
+      this.updateChildOfOptions();
+    }
+    const { beginTime, endTime, isInitializing } = this.state;
+    const { beginTime: prevBeginTime, endTime: prevEndTime } = prevState;
+    if (beginTime !== prevBeginTime || endTime !== prevEndTime) {
+      this.updateChildOfOptions();
+      if (!isInitializing) {
+        // Set isInitializing flag to false
+        this.props.setIsInitializing(0);
+      }
     }
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.timespanOpen && !this.state.isTyping) {
+  static getDerivedStateFromProps(nextProps, prevState) {
+    if (nextProps.timespanOpen && !nextProps.isTyping) {
       const { initSegment, isInitializing, peaksInstance, segment } = nextProps;
 
-      // Set state to get initial begin and end times from temporary segment
-      if (initSegment !== this.props.initSegment && isInitializing) {
+      if (initSegment && isInitializing) {
         const { startTime, endTime } = initSegment;
-        this.setState({
-          beginTime: structuralMetadataUtils.toHHmmss(startTime),
-          endTime: structuralMetadataUtils.toHHmmss(endTime)
-        });
-        this.props.updateInitialize(false);
+        return {
+          beginTime: waveformDataUtils.toHHmmss(startTime),
+          endTime: waveformDataUtils.toHHmmss(endTime),
+          isInitializing: false
+        };
       }
 
-      // Update state when segment handles are dragged in the waveform
-      if (this.props.peaksInstance !== peaksInstance && !isInitializing) {
-        // Prevent from overlapping when dragging the handles
+      if (prevState.peaksInstance !== peaksInstance && !isInitializing) {
         const { startTime, endTime } = waveformDataUtils.validateSegment(
           segment,
           peaksInstance.peaks
         );
-        this.setState(
-          {
-            beginTime: structuralMetadataUtils.toHHmmss(startTime),
-            endTime: structuralMetadataUtils.toHHmmss(endTime)
-          },
-          this.updateChildOfOptions()
-        );
+        return {
+          beginTime: waveformDataUtils.toHHmmss(startTime),
+          endTime: waveformDataUtils.toHHmmss(endTime)
+        };
       }
     }
+    // When handles in waveform is dragged disable typing in the input form
+    if (nextProps.isDragging) {
+      nextProps.setIsTyping(0);
+    }
+    return null;
   }
 
   buildHeadingsOptions = () => {
@@ -117,8 +128,7 @@ class TimespanForm extends Component {
       endTime: '',
       timespanChildOf: '',
       timespanTitle: '',
-      validHeadings: [],
-      isTyping: false
+      validHeadings: []
     });
   }
 
@@ -153,17 +163,18 @@ class TimespanForm extends Component {
     this.clearFormValues();
   };
 
-  handleTimeChange = (e, callback) => {
-    // Update waveform segment with user inputs in the form
-    this.setState({ isTyping: true });
+  handleTimeChange = e => {
+    // Lock setting isTyping to false before updating the DOM
+    this.props.setIsDragging(this.props.segment, 0);
+
+    // Set isTyping flag in props to true
+    this.props.setIsTyping(1);
 
     this.setState({ [e.target.id]: e.target.value }, () => {
-      callback();
       this.updateChildOfOptions();
-      const { initSegment, peaksInstance } = this.props;
-      let segment = peaksInstance.peaks.segments.getSegment(initSegment.id);
+      // Update waveform segment with user inputs in the form
       if (this.localValidTimespans().valid) {
-        this.props.updateSegment(segment, this.state);
+        this.props.updateSegment(this.props.segment, this.state);
       }
     });
   };
@@ -233,11 +244,7 @@ class TimespanForm extends Component {
                 type="text"
                 value={beginTime}
                 placeholder="00:00:00"
-                onChange={e => {
-                  this.handleTimeChange(e, () => {
-                    this.setState({ isTyping: false });
-                  });
-                }}
+                onChange={this.handleTimeChange}
               />
               <FormControl.Feedback />
             </FormGroup>
@@ -257,11 +264,7 @@ class TimespanForm extends Component {
                 type="text"
                 value={endTime}
                 placeholder="00:00:00"
-                onChange={e => {
-                  this.handleTimeChange(e, () => {
-                    this.setState({ isTyping: false });
-                  });
-                }}
+                onChange={this.handleTimeChange}
               />
               <FormControl.Feedback />
             </FormGroup>
@@ -310,11 +313,13 @@ export { TimespanForm as PureTimespanForm };
 const mapStateToProps = state => ({
   smData: state.smData,
   peaksInstance: state.peaksInstance,
-  segment: state.peaksInstance.segment
+  segment: state.peaksInstance.segment,
+  isDragging: state.peaksInstance.isDragging
 });
 
 const mapDispatchToProps = {
-  updateSegment: peaksActions.updateSegment
+  updateSegment: peaksActions.updateSegment,
+  setIsDragging: peaksActions.dragSegment
 };
 
 export default connect(

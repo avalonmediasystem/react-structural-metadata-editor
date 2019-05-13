@@ -75,10 +75,16 @@ function (_Component) {
       alertObj: null,
       disabled: true
     });
-    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "updateInitializeFlag", function (value) {
-      _this.setState({
-        isInitializing: value
-      });
+    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "setIsInitializing", function (value) {
+      if (value === 1) {
+        _this.setState({
+          isInitializing: true
+        });
+      } else {
+        _this.setState({
+          isInitializing: false
+        });
+      }
     });
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "clearAlert", function () {
       _this.setState({
@@ -139,6 +145,9 @@ function (_Component) {
           disabled: false
         });
       } else {
+        // Initialize Redux store with temporary segment
+        _this.props.bindInitSegment(tempSegment, 0);
+
         _this.setState({
           initSegment: tempSegment,
           headingOpen: false,
@@ -164,7 +173,7 @@ function (_Component) {
         initSegment: this.state.initSegment,
         isInitializing: this.state.isInitializing,
         timespanOpen: this.state.timespanOpen,
-        updateInitialize: this.updateInitializeFlag
+        setIsInitializing: this.setIsInitializing
       };
       var _this$props$forms = this.props.forms,
           structureRetrieved = _this$props$forms.structureRetrieved,
@@ -219,6 +228,7 @@ var mapStateToProps = function mapStateToProps(state) {
 var mapDispatchToProps = {
   createTempSegment: peaksActions.insertTempSegment,
   deleteTempSegment: peaksActions.deleteTempSegment,
+  bindInitSegment: peaksActions.dragSegment,
   handleEditingTimespans: _forms.handleEditingTimespans
 };
 

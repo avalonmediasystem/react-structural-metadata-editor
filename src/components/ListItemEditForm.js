@@ -12,13 +12,33 @@ const structuralMetadataUtils = new StructuralMetadataUtils();
 class ListItemEditForm extends Component {
   constructor(props) {
     super(props);
-    this.type = this.props.item.type;
-    this.id = this.props.item.id;
+    this.state = {
+      isTyping: false,
+      isInitializing: true
+    };
   }
 
   static propTypes = {
     handleEditFormCancel: PropTypes.func,
     item: PropTypes.object.isRequired
+  };
+
+  // Toggle isTyping flag on and off from events in TimespanInlinForm
+  setIsTyping = value => {
+    if (value === 1) {
+      this.setState({ isTyping: true });
+    } else {
+      this.setState({ isTyping: false });
+    }
+  };
+
+  // Toggle isInitializing flag on and off from events in TimespanInlinForm
+  setIsInitializing = value => {
+    if (value === 1) {
+      this.setState({ isInitializing: true });
+    } else {
+      this.setState({ isInitializing: false });
+    }
   };
 
   addUpdatedValues(item, payload) {
@@ -64,6 +84,10 @@ class ListItemEditForm extends Component {
           item={item}
           cancelFn={this.handleCancelClick}
           saveFn={this.handleSaveClick}
+          setIsTyping={this.setIsTyping}
+          isTyping={this.state.isTyping}
+          isInitializing={this.state.isInitializing}
+          setIsInitializing={this.setIsInitializing}
         />
       );
     }

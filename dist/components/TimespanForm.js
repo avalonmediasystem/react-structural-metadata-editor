@@ -95,24 +95,19 @@ function (_Component) {
 
       _this.clearFormValues();
     });
-    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "handleTimeChange", function (e, callback) {
-      // Update waveform segment with user inputs in the form
-      _this.setState({
-        isTyping: true
-      });
+    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "handleTimeChange", function (e) {
+      // Lock setting isTyping to false before updating the DOM
+      _this.props.setIsDragging(_this.props.segment, 0); // Set isTyping flag in props to true
+
+
+      _this.props.setIsTyping(1);
 
       _this.setState((0, _defineProperty2["default"])({}, e.target.id, e.target.value), function () {
-        callback();
+        _this.updateChildOfOptions(); // Update waveform segment with user inputs in the form
 
-        _this.updateChildOfOptions();
-
-        var _this$props = _this.props,
-            initSegment = _this$props.initSegment,
-            peaksInstance = _this$props.peaksInstance;
-        var segment = peaksInstance.peaks.segments.getSegment(initSegment.id);
 
         if (_this.localValidTimespans().valid) {
-          _this.props.updateSegment(segment, _this.state);
+          _this.props.updateSegment(_this.props.segment, _this.state);
         }
       });
     });
@@ -130,7 +125,8 @@ function (_Component) {
       timespanChildOf: '',
       timespanTitle: '',
       validHeadings: [],
-      isTyping: false
+      peaksInstance: _this.props.peaksInstance,
+      isInitializing: _this.props.isInitializing
     };
     _this.allSpans = null;
     return _this;
@@ -144,43 +140,28 @@ function (_Component) {
     }
   }, {
     key: "componentDidUpdate",
-    value: function componentDidUpdate(prevProps) {
+    value: function componentDidUpdate(prevProps, prevState) {
       var smData = this.props.smData;
 
       if (!(0, _lodash.isEqual)(smData, prevProps.smData)) {
-        this.allSpans = structuralMetadataUtils.getItemsOfType('span', smData);
+        this.allSpans = structuralMetadataUtils.getItemsOfType('span', smData); // Update valid headings when structure changes
+
+        this.updateChildOfOptions();
       }
-    }
-  }, {
-    key: "componentWillReceiveProps",
-    value: function componentWillReceiveProps(nextProps) {
-      if (nextProps.timespanOpen && !this.state.isTyping) {
-        var initSegment = nextProps.initSegment,
-            isInitializing = nextProps.isInitializing,
-            peaksInstance = nextProps.peaksInstance,
-            segment = nextProps.segment; // Set state to get initial begin and end times from temporary segment
 
-        if (initSegment !== this.props.initSegment && isInitializing) {
-          var startTime = initSegment.startTime,
-              endTime = initSegment.endTime;
-          this.setState({
-            beginTime: structuralMetadataUtils.toHHmmss(startTime),
-            endTime: structuralMetadataUtils.toHHmmss(endTime)
-          });
-          this.props.updateInitialize(false);
-        } // Update state when segment handles are dragged in the waveform
+      var _this$state2 = this.state,
+          beginTime = _this$state2.beginTime,
+          endTime = _this$state2.endTime,
+          isInitializing = _this$state2.isInitializing;
+      var prevBeginTime = prevState.beginTime,
+          prevEndTime = prevState.endTime;
 
+      if (beginTime !== prevBeginTime || endTime !== prevEndTime) {
+        this.updateChildOfOptions();
 
-        if (this.props.peaksInstance !== peaksInstance && !isInitializing) {
-          // Prevent from overlapping when dragging the handles
-          var _waveformDataUtils$va = waveformDataUtils.validateSegment(segment, peaksInstance.peaks),
-              _startTime = _waveformDataUtils$va.startTime,
-              _endTime = _waveformDataUtils$va.endTime;
-
-          this.setState({
-            beginTime: structuralMetadataUtils.toHHmmss(_startTime),
-            endTime: structuralMetadataUtils.toHHmmss(_endTime)
-          }, this.updateChildOfOptions());
+        if (!isInitializing) {
+          // Set isInitializing flag to false
+          this.props.setIsInitializing(0);
         }
       }
     }
@@ -192,8 +173,7 @@ function (_Component) {
         endTime: '',
         timespanChildOf: '',
         timespanTitle: '',
-        validHeadings: [],
-        isTyping: false
+        validHeadings: []
       });
     }
   }, {
@@ -222,22 +202,20 @@ function (_Component) {
   }, {
     key: "localValidTimespans",
     value: function localValidTimespans() {
-      var _this$state2 = this.state,
-          beginTime = _this$state2.beginTime,
-          endTime = _this$state2.endTime;
+      var _this$state3 = this.state,
+          beginTime = _this$state3.beginTime,
+          endTime = _this$state3.endTime;
       var allSpans = this.allSpans;
       return (0, _formHelper.validTimespans)(beginTime, endTime, allSpans, this.props.peaksInstance.peaks);
     }
   }, {
     key: "render",
     value: function render() {
-      var _this2 = this;
-
-      var _this$state3 = this.state,
-          beginTime = _this$state3.beginTime,
-          endTime = _this$state3.endTime,
-          timespanChildOf = _this$state3.timespanChildOf,
-          timespanTitle = _this$state3.timespanTitle;
+      var _this$state4 = this.state,
+          beginTime = _this$state4.beginTime,
+          endTime = _this$state4.endTime,
+          timespanChildOf = _this$state4.timespanChildOf,
+          timespanTitle = _this$state4.timespanTitle;
       return _react["default"].createElement("form", {
         onSubmit: this.handleSubmit
       }, _react["default"].createElement(_reactBootstrap.FormGroup, {
@@ -256,13 +234,7 @@ function (_Component) {
         type: "text",
         value: beginTime,
         placeholder: "00:00:00",
-        onChange: function onChange(e) {
-          _this2.handleTimeChange(e, function () {
-            _this2.setState({
-              isTyping: false
-            });
-          });
-        }
+        onChange: this.handleTimeChange
       }), _react["default"].createElement(_reactBootstrap.FormControl.Feedback, null))), _react["default"].createElement(_reactBootstrap.Col, {
         sm: 6
       }, _react["default"].createElement(_reactBootstrap.FormGroup, {
@@ -272,13 +244,7 @@ function (_Component) {
         type: "text",
         value: endTime,
         placeholder: "00:00:00",
-        onChange: function onChange(e) {
-          _this2.handleTimeChange(e, function () {
-            _this2.setState({
-              isTyping: false
-            });
-          });
-        }
+        onChange: this.handleTimeChange
       }), _react["default"].createElement(_reactBootstrap.FormControl.Feedback, null)))), _react["default"].createElement(_reactBootstrap.FormGroup, {
         controlId: "timespanChildOf"
       }, _react["default"].createElement(_reactBootstrap.ControlLabel, null, "Child Of"), _react["default"].createElement(_reactBootstrap.FormControl, {
@@ -305,6 +271,49 @@ function (_Component) {
         disabled: !this.formIsValid()
       }, "Save")))));
     }
+  }], [{
+    key: "getDerivedStateFromProps",
+    value: function getDerivedStateFromProps(nextProps, prevState) {
+      // Cut off decimal points after 2 decimal points
+      var roundOff = function roundOff(val) {
+        return waveformDataUtils.roundOff(val);
+      };
+
+      if (nextProps.timespanOpen && !nextProps.isTyping) {
+        var initSegment = nextProps.initSegment,
+            isInitializing = nextProps.isInitializing,
+            peaksInstance = nextProps.peaksInstance,
+            segment = nextProps.segment;
+
+        if (initSegment && isInitializing) {
+          var startTime = initSegment.startTime,
+              endTime = initSegment.endTime;
+          return {
+            beginTime: waveformDataUtils.toHHmmss(roundOff(startTime)),
+            endTime: waveformDataUtils.toHHmmss(roundOff(endTime)),
+            isInitializing: false
+          };
+        }
+
+        if (prevState.peaksInstance !== peaksInstance && !isInitializing) {
+          var _waveformDataUtils$va = waveformDataUtils.validateSegment(segment, peaksInstance.peaks),
+              _startTime = _waveformDataUtils$va.startTime,
+              _endTime = _waveformDataUtils$va.endTime;
+
+          return {
+            beginTime: waveformDataUtils.toHHmmss(roundOff(_startTime)),
+            endTime: waveformDataUtils.toHHmmss(roundOff(_endTime))
+          };
+        }
+      } // When handles in waveform is dragged disable typing in the input form
+
+
+      if (nextProps.isDragging) {
+        nextProps.setIsTyping(0);
+      }
+
+      return null;
+    }
   }]);
   return TimespanForm;
 }(_react.Component); // For testing purposes
@@ -316,12 +325,14 @@ var mapStateToProps = function mapStateToProps(state) {
   return {
     smData: state.smData,
     peaksInstance: state.peaksInstance,
-    segment: state.peaksInstance.segment
+    segment: state.peaksInstance.segment,
+    isDragging: state.peaksInstance.isDragging
   };
 };
 
 var mapDispatchToProps = {
-  updateSegment: peaksActions.updateSegment
+  updateSegment: peaksActions.updateSegment,
+  setIsDragging: peaksActions.dragSegment
 };
 
 var _default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(TimespanForm);

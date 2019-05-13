@@ -910,24 +910,6 @@ function () {
       return _moment["default"].duration(strTime).asMilliseconds();
     }
     /**
-     * Convert seconds to string format hh:mm:ss
-     * @param {Number} secTime - time in seconds
-     */
-
-  }, {
-    key: "toHHmmss",
-    value: function toHHmmss(secTime) {
-      var sec_num = parseInt('' + secTime * 100) / 100;
-      var hours = Math.floor(sec_num / 3600);
-      var minutes = Math.floor(sec_num / 60);
-      var seconds = Math.round(sec_num % 60 * 100) / 100;
-      var hourStr = hours < 10 ? "0".concat(hours) : "".concat(hours);
-      var minStr = minutes < 10 ? "0".concat(minutes) : "".concat(minutes);
-      var secStr = seconds.toFixed(2);
-      secStr = seconds < 10 ? "0".concat(secStr) : "".concat(secStr);
-      return "".concat(hourStr, ":").concat(minStr, ":").concat(secStr);
-    }
-    /**
      * Update an existing heading object
      * @param {Object} heading - updated form object
      * @param {Array} allItems - the data structure

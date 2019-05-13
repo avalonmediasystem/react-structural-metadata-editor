@@ -11,7 +11,7 @@ import {
 } from '../services/form-helper';
 import { connect } from 'react-redux';
 import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, isEmpty } from 'lodash';
 import ListItemInlineEditControls from './ListItemInlineEditControls';
 import * as peaksActions from '../actions/peaks-instance';
 import WaveformDataUtils from '../services/WaveformDataUtils';
@@ -32,6 +32,7 @@ class TimespanInlineForm extends Component {
     // To implement validation logic on begin and end times, we need to remove the current item
     // from the stored data
     this.tempSmData = undefined;
+    this.allSpans = [];
   }
 
   static propTypes = {
@@ -45,11 +46,13 @@ class TimespanInlineForm extends Component {
     endTime: '',
     timespanTitle: '',
     clonedSegment: {},
-    isTyping: false
+    peaksInstance: this.props.peaksInstance,
+    segment: this.props.segment
   };
 
   componentDidMount() {
     const { smData, item, peaksInstance } = this.props;
+    const segment = waveformUtils.convertTimespanToSegment(item);
 
     // Get a fresh copy of store data
     this.tempSmData = cloneDeep(smData);
@@ -74,24 +77,46 @@ class TimespanInlineForm extends Component {
     // Make segment related to timespan editable
     this.props.activateSegment(item.id);
 
-    this.props.changeSegment();
+    // Set the selected segment in the component's state
+    this.setState({ segment });
+
+    // Initialize the segment in Redux store with the selected item
+    this.props.changeEditSegment(segment, 0);
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (this.props.peaksInstance !== nextProps.peaksInstance) {
-      if (nextProps.segment && !this.state.isTyping) {
-        const { segment, peaksInstance } = nextProps;
-        // Prevent from overlapping when dragging the handles
+  static getDerivedStateFromProps(nextProps, prevState) {
+    const {
+      peaksInstance,
+      segment,
+      isTyping,
+      isDragging,
+      isInitializing
+    } = nextProps;
+
+    if (!isDragging && isInitializing && !isTyping && !isEmpty(segment)) {
+      const { startTime, endTime } = segment;
+      return {
+        beginTime: waveformUtils.toHHmmss(startTime),
+        endTime: waveformUtils.toHHmmss(endTime)
+      };
+    }
+    if (isDragging) {
+      // When handles in waveform are dragged clear out isInitializing and isTyping flags
+      isInitializing ? nextProps.setIsInitializing(0) : null;
+      isTyping ? nextProps.setIsTyping(0) : null;
+      if (prevState.peaksInstance !== peaksInstance) {
         const { startTime, endTime } = waveformUtils.validateSegment(
           segment,
           peaksInstance.peaks
         );
-        this.setState({
-          beginTime: structuralMetadataUtils.toHHmmss(startTime),
-          endTime: structuralMetadataUtils.toHHmmss(endTime)
-        });
+        return {
+          beginTime: waveformUtils.toHHmmss(startTime),
+          endTime: waveformUtils.toHHmmss(endTime)
+        };
       }
     }
+
+    return null;
   }
 
   formIsValid() {
@@ -113,22 +138,23 @@ class TimespanInlineForm extends Component {
     this.props.cancelFn();
   };
 
-  handleInputChange = (e, callback) => {
-    this.setState({ isTyping: true });
+  handleInputChange = e => {
+    // Lock disabling isTyping flag before updating DOM from form inputs
+    this.props.changeEditSegment(this.props.segment, 0);
+
+    // Enable updating state from form inputs
+    this.props.setIsTyping(1);
+
     this.setState({ [e.target.id]: e.target.value }, () => {
-      callback();
-      const { item, peaksInstance } = this.props;
-      let segment = peaksInstance.peaks.segments.getSegment(item.id);
-      if (this.formIsValid()) {
-        this.props.updateSegment(segment, this.state);
-      }
+      // Update waveform segment with user inputs in the form
+      this.props.updateSegment(this.props.segment, this.state);
     });
   };
 
   handleSaveClick = () => {
     this.props.saveSegment(this.state);
     const { beginTime, endTime, timespanTitle } = this.state;
-    this.props.saveFn(this.props.item.id, {
+    this.props.saveFn(this.props.segment.id, {
       beginTime,
       endTime,
       timespanTitle
@@ -151,11 +177,7 @@ class TimespanInlineForm extends Component {
                 type="text"
                 style={styles.formControl}
                 value={timespanTitle}
-                onChange={e => {
-                  this.handleInputChange(e, () => {
-                    this.setState({ isTyping: false });
-                  });
-                }}
+                onChange={this.handleInputChange}
               />
             </FormGroup>
             <FormGroup
@@ -170,11 +192,7 @@ class TimespanInlineForm extends Component {
                 type="text"
                 style={styles.formControl}
                 value={beginTime}
-                onChange={e => {
-                  this.handleInputChange(e, () => {
-                    this.setState({ isTyping: false });
-                  });
-                }}
+                onChange={this.handleInputChange}
               />
             </FormGroup>
             <FormGroup
@@ -191,11 +209,7 @@ class TimespanInlineForm extends Component {
                 type="text"
                 style={styles.formControl}
                 value={endTime}
-                onChange={e => {
-                  this.handleInputChange(e, () => {
-                    this.setState({ isTyping: false });
-                  });
-                }}
+                onChange={this.handleInputChange}
               />
             </FormGroup>
           </div>
@@ -216,7 +230,8 @@ export { TimespanInlineForm as PureTimespanInlineForm };
 const mapStateToProps = state => ({
   smData: state.smData,
   peaksInstance: state.peaksInstance,
-  segment: state.peaksInstance.segment
+  segment: state.peaksInstance.segment,
+  isDragging: state.peaksInstance.isDragging
 });
 
 const mapDispatchToProps = {
@@ -224,7 +239,7 @@ const mapDispatchToProps = {
   revertSegment: peaksActions.revertSegment,
   saveSegment: peaksActions.saveSegment,
   updateSegment: peaksActions.updateSegment,
-  changeSegment: peaksActions.changeSegment
+  changeEditSegment: peaksActions.dragSegment
 };
 
 export default connect(

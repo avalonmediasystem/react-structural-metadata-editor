@@ -51,6 +51,28 @@ function (_Component) {
 
     (0, _classCallCheck2["default"])(this, ListItemEditForm);
     _this = (0, _possibleConstructorReturn2["default"])(this, (0, _getPrototypeOf2["default"])(ListItemEditForm).call(this, props));
+    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "setIsTyping", function (value) {
+      if (value === 1) {
+        _this.setState({
+          isTyping: true
+        });
+      } else {
+        _this.setState({
+          isTyping: false
+        });
+      }
+    });
+    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "setIsInitializing", function (value) {
+      if (value === 1) {
+        _this.setState({
+          isInitializing: true
+        });
+      } else {
+        _this.setState({
+          isInitializing: false
+        });
+      }
+    });
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "handleCancelClick", function (e) {
       _this.props.handleEditFormCancel();
     });
@@ -71,8 +93,10 @@ function (_Component) {
 
       _this.props.handleEditFormCancel();
     });
-    _this.type = _this.props.item.type;
-    _this.id = _this.props.item.id;
+    _this.state = {
+      isTyping: false,
+      isInitializing: true
+    };
     return _this;
   }
 
@@ -98,7 +122,11 @@ function (_Component) {
         return _react["default"].createElement(_TimespanInlineForm["default"], {
           item: item,
           cancelFn: this.handleCancelClick,
-          saveFn: this.handleSaveClick
+          saveFn: this.handleSaveClick,
+          setIsTyping: this.setIsTyping,
+          isTyping: this.state.isTyping,
+          isInitializing: this.state.isInitializing,
+          setIsInitializing: this.setIsInitializing
         });
       }
 

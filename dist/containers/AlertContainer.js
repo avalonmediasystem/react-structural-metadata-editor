@@ -71,24 +71,6 @@ function (_Component) {
       }
     }
   }, {
-    key: "componentDidUpdate",
-    value: function componentDidUpdate(prevProps, prevState) {
-      if (this.props.message && !prevState.show) {
-        this.setState({
-          show: true
-        });
-      }
-    }
-  }, {
-    key: "componentWillReceiveProps",
-    value: function componentWillReceiveProps(nextProps) {
-      if ((0, _lodash.isEmpty)(nextProps)) {
-        this.setState({
-          show: false
-        });
-      }
-    }
-  }, {
     key: "render",
     value: function render() {
       var _this$props = this.props,
@@ -103,6 +85,23 @@ function (_Component) {
         bsStyle: alertStyle,
         onDismiss: this.handleDismiss
       }, _react["default"].createElement("p", null, message));
+    }
+  }], [{
+    key: "getDerivedStateFromProps",
+    value: function getDerivedStateFromProps(nextProps, prevState) {
+      if ((0, _lodash.isEmpty)(nextProps)) {
+        return {
+          show: false
+        };
+      }
+
+      if (nextProps.message && !prevState.show) {
+        return {
+          show: true
+        };
+      }
+
+      return null;
     }
   }]);
   return AlertContainer;

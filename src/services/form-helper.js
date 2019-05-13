@@ -1,6 +1,8 @@
 import StructuralMetadataUtils from './StructuralMetadataUtils';
+import WaveformDataUtils from './WaveformDataUtils';
 
 const structuralMetadataUtils = new StructuralMetadataUtils();
+const waveformDataUtils = new WaveformDataUtils();
 
 /**
  * Load existing form values to state, if in 'EDIT' mode
@@ -58,7 +60,7 @@ export function getValidationEndState(
   let duration;
   if (peaksInstance !== undefined) {
     if (peaksInstance.player !== undefined) {
-      duration = Math.round(peaksInstance.player.getDuration() * 100) / 100;
+      duration = waveformDataUtils.roundOff(peaksInstance.player.getDuration());
     }
   }
 
@@ -119,7 +121,7 @@ export function validTimespans(beginTime, endTime, allSpans, peaksInstance) {
   let duration;
   if (peaksInstance !== undefined) {
     if (peaksInstance.player !== undefined) {
-      duration = Math.round(peaksInstance.player.getDuration() * 100) / 100;
+      duration = waveformDataUtils.roundOff(peaksInstance.player.getDuration());
     }
   }
   // Valid formats?

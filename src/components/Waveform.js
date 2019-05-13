@@ -24,16 +24,12 @@ class Waveform extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      seekTime: '',
       audioFile: this.props.audioStreamURL
     };
 
     // Create `refs`
     this.waveformContainer = React.createRef();
     this.mediaPlayer = React.createRef();
-
-    this.handleSubmit = this.handleSubmit.bind(this);
-    this.handleChange = this.handleChange.bind(this);
   }
 
   componentDidMount() {
@@ -59,24 +55,6 @@ class Waveform extends Component {
 
   zoomOut = () => {
     this.props.peaksInstance.peaks.zoom.zoomOut();
-  };
-
-  handleSubmit(event) {
-    this.seekTime();
-    event.preventDefault();
-  }
-
-  handleChange(event) {
-    this.setState({
-      seekTime: event.target.value
-    });
-  }
-
-  seekTime = () => {
-    const timeInSeconds = parseFloat(this.state.seekTime);
-    if (!Number.isNaN(timeInSeconds)) {
-      this.props.peaksInstance.peaks.player.seek(timeInSeconds);
-    }
   };
 
   render() {
@@ -119,18 +97,7 @@ class Waveform extends Component {
                     onClick={this.zoomOut}
                   />
                 </ButtonToolbar>
-              </FormGroup>{' '}
-              <FormGroup>
-                <FormControl
-                  className="form-control"
-                  type="text"
-                  value={this.state.seekTime}
-                  onChange={this.handleChange}
-                  placeholder="0"
-                  aria-label="Seek time in seconds"
-                />
-              </FormGroup>{' '}
-              <Button onClick={this.seekTime}>Seek</Button>
+              </FormGroup>
             </Form>
           </Col>
         </Row>

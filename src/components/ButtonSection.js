@@ -118,12 +118,14 @@ class ButtonSection extends Component {
 
     const { structureRetrieved, waveformRetrieved } = this.props.forms;
 
+    // Only return UI when both structure and waveform data exist
     return structureRetrieved && waveformRetrieved ? (
       <section style={styles.section}>
         <AlertContainer {...this.state.alertObj} />
-        <Row>
+        <Row data-testid="button-row">
           <Col xs={6}>
             <Button
+              data-testid="add-heading-button"
               block
               onClick={this.handleHeadingClick}
               disabled={this.state.disabled && this.props.forms.editingDisabled}
@@ -133,6 +135,7 @@ class ButtonSection extends Component {
           </Col>
           <Col xs={6}>
             <Button
+              data-testid="add-timespan-button"
               block
               onClick={this.handleTimeSpanClick}
               disabled={this.state.disabled && this.props.forms.editingDisabled}
@@ -143,12 +146,20 @@ class ButtonSection extends Component {
         </Row>
 
         <Collapse in={this.state.headingOpen}>
-          <div className="well" style={styles.well}>
+          <div
+            className="well"
+            style={styles.well}
+            data-testid="heading-form-wrapper"
+          >
             <HeadingFormContainer cancelClick={this.handleCancelHeadingClick} />
           </div>
         </Collapse>
         <Collapse in={this.state.timespanOpen}>
-          <div className="well" style={styles.well}>
+          <div
+            className="well"
+            style={styles.well}
+            data-testid="timespan-form-wrapper"
+          >
             <TimespanFormContainer {...timespanFormProps} />
           </div>
         </Collapse>
@@ -156,9 +167,6 @@ class ButtonSection extends Component {
     ) : null;
   }
 }
-
-// To use in tests as a disconnected component (to access state)
-export { ButtonSection as PureButtonSection };
 
 const mapStateToProps = state => ({
   smData: state.smData,

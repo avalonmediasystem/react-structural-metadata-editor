@@ -274,11 +274,6 @@ function (_Component) {
   }], [{
     key: "getDerivedStateFromProps",
     value: function getDerivedStateFromProps(nextProps, prevState) {
-      // Cut off decimal points after 2 decimal points
-      var roundOff = function roundOff(val) {
-        return waveformDataUtils.roundOff(val);
-      };
-
       if (nextProps.timespanOpen && !nextProps.isTyping) {
         var initSegment = nextProps.initSegment,
             isInitializing = nextProps.isInitializing,
@@ -289,8 +284,8 @@ function (_Component) {
           var startTime = initSegment.startTime,
               endTime = initSegment.endTime;
           return {
-            beginTime: waveformDataUtils.toHHmmss(roundOff(startTime)),
-            endTime: waveformDataUtils.toHHmmss(roundOff(endTime)),
+            beginTime: waveformDataUtils.toHHmmss(startTime),
+            endTime: waveformDataUtils.toHHmmss(endTime),
             isInitializing: false
           };
         }
@@ -301,8 +296,8 @@ function (_Component) {
               _endTime = _waveformDataUtils$va.endTime;
 
           return {
-            beginTime: waveformDataUtils.toHHmmss(roundOff(_startTime)),
-            endTime: waveformDataUtils.toHHmmss(roundOff(_endTime))
+            beginTime: waveformDataUtils.toHHmmss(_startTime),
+            endTime: waveformDataUtils.toHHmmss(_endTime)
           };
         }
       } // When handles in waveform is dragged disable typing in the input form

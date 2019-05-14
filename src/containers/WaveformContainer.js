@@ -89,7 +89,7 @@ class WaveformContainer extends Component {
     const { forms, audioStreamURL } = this.props;
 
     return (
-      <section className="waveform-section">
+      <section>
         {!forms.waveformRetrieved && hasError ? (
           <AlertContainer {...alertObj} />
         ) : (

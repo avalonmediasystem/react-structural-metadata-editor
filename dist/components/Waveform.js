@@ -34,7 +34,6 @@ var _hls = _interopRequireDefault(require("hls.js"));
 // Content of aria-label for UI components
 var waveformLabel = "Two interactive waveforms, plotted one after the other using data from a masterfile in the back-end server.\nThere are time-based visual sections plotted in these 2 waveforms representing each timespan in the structure below. \nFirst one contains a selected zoomed-in section from the entire waveform, while the second waveform shows an overview of the entire audio file.\nThere are multiple zoom levels, which can be changed using the zoom-in and zoom-out buttons in the waveform toolbar. \nThese time-based visual sections will be updated by editing the matching timespans in the structure.";
 var audioControlsLabel = "Audio controls; play, seek, and adjust volume of the audio file";
-var waveformControlsLabel = "Waveform toolbar with zoom-in, zoom-out, and seek functionalities to view and traverse the waveform";
 
 var Waveform =
 /*#__PURE__*/
@@ -121,9 +120,7 @@ function (_Component) {
       }, "Your browser does not support the audio element.")), _react["default"].createElement(_reactBootstrap.Col, {
         xs: 12,
         md: 6,
-        className: "text-right",
-        tabIndex: "0",
-        "aria-label": waveformControlsLabel
+        className: "text-right"
       }, _react["default"].createElement(_reactBootstrap.Form, {
         inline: true,
         onSubmit: this.handleSubmit,

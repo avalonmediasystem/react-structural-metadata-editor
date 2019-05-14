@@ -143,21 +143,8 @@ function (_Component) {
     key: "processOptions",
     value: function processOptions() {
       var options = this.getOptions();
-      var adamOptions = [{
-        id: 1,
-        label: '1'
-      }, {
-        id: 2,
-        label: '2'
-      }].map(function (header) {
-        return _react["default"].createElement("option", {
-          value: header.id,
-          key: header.id
-        }, header.label);
-      });
       this.setState({
-        childOfOptions: options,
-        adamOptions: adamOptions
+        childOfOptions: options
       });
     }
   }, {
@@ -183,7 +170,7 @@ function (_Component) {
         onChange: this.handleChildOfChange,
         value: this.state.headingChildOf
       }, _react["default"].createElement("option", {
-        value: "asdfasdf"
+        value: ""
       }, "Select..."), this.state.childOfOptions)), _react["default"].createElement(_reactBootstrap.Row, null, _react["default"].createElement(_reactBootstrap.Col, {
         xs: 12
       }, _react["default"].createElement(_reactBootstrap.ButtonToolbar, {

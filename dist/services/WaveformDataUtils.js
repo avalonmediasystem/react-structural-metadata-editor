@@ -359,7 +359,6 @@ function () {
           before = _this$findWrapperSegm.before,
           after = _this$findWrapperSegm.after;
 
-
       if (before && startTime <= before.endTime) {
         segment.startTime = before.endTime + 0.01;
       }
@@ -375,6 +374,7 @@ function () {
       if (after && endTime >= after.startTime) {
         segment.endTime = after.startTime - 0.01;
       }
+
       if (!after && endTime > duration) {
         segment.endTime = duration;
       }

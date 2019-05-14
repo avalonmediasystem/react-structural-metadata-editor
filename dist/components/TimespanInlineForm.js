@@ -187,11 +187,6 @@ function (_Component) {
   }], [{
     key: "getDerivedStateFromProps",
     value: function getDerivedStateFromProps(nextProps, prevState) {
-      // Cut off decimal points after 2 decimal points
-      var roundOff = function roundOff(val) {
-        return waveformUtils.roundOff(val);
-      };
-
       var peaksInstance = nextProps.peaksInstance,
           segment = nextProps.segment,
           isTyping = nextProps.isTyping,
@@ -202,8 +197,8 @@ function (_Component) {
         var startTime = segment.startTime,
             endTime = segment.endTime;
         return {
-          beginTime: waveformUtils.toHHmmss(roundOff(startTime)),
-          endTime: waveformUtils.toHHmmss(roundOff(endTime))
+          beginTime: waveformUtils.toHHmmss(startTime),
+          endTime: waveformUtils.toHHmmss(endTime)
         };
       }
 
@@ -218,8 +213,8 @@ function (_Component) {
               _endTime = _waveformUtils$valida.endTime;
 
           return {
-            beginTime: waveformUtils.toHHmmss(roundOff(_startTime)),
-            endTime: waveformUtils.toHHmmss(roundOff(_endTime))
+            beginTime: waveformUtils.toHHmmss(_startTime),
+            endTime: waveformUtils.toHHmmss(_endTime)
           };
         }
       }

@@ -18,7 +18,6 @@ First one contains a selected zoomed-in section from the entire waveform, while 
 There are multiple zoom levels, which can be changed using the zoom-in and zoom-out buttons in the waveform toolbar. 
 These time-based visual sections will be updated by editing the matching timespans in the structure.`;
 const audioControlsLabel = `Audio controls; play, seek, and adjust volume of the audio file`;
-const waveformControlsLabel = `Waveform toolbar with zoom-in, zoom-out, and seek functionalities to view and traverse the waveform`;
 
 class Waveform extends Component {
   constructor(props) {
@@ -76,13 +75,7 @@ class Waveform extends Component {
               Your browser does not support the audio element.
             </audio>
           </Col>
-          <Col
-            xs={12}
-            md={6}
-            className="text-right"
-            tabIndex="0"
-            aria-label={waveformControlsLabel}
-          >
+          <Col xs={12} md={6} className="text-right">
             <Form inline onSubmit={this.handleSubmit} role="form">
               <FormGroup>
                 <ButtonToolbar>

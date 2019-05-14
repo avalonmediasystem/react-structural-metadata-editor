@@ -5,7 +5,7 @@ var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefau
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports["default"] = exports.defaultHeaders = exports.masterFileID = exports.BASE_URL = void 0;
+exports["default"] = void 0;
 
 var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
 
@@ -15,18 +15,11 @@ var _axios = _interopRequireDefault(require("axios"));
 
 // Config flag to change the source of data retrieval endpoint
 var useLocalData = false;
-var BASE_URL = useLocalData ? 'http://localhost:3123/data/mock-response-' : 'https://spruce.dlib.indiana.edu'; // Masterfile ID on the server
+var BASE_URL = 'http://localhost:3123/data/mock-response-'; // Default headers for API calls
 
-exports.BASE_URL = BASE_URL;
-var masterFileID = 'd791sg30j'; // Default headers for API calls
-//export const defaultHeaders = new Headers();
-//defaultHeaders.append('Content-Type', 'application/json');
-
-exports.masterFileID = masterFileID;
 var defaultHeaders = {
   'Content-Type': 'application/json'
 };
-exports.defaultHeaders = defaultHeaders;
 
 var APIUtils =
 /*#__PURE__*/

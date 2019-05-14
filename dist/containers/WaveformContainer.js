@@ -167,9 +167,7 @@ function (_Component) {
       var _this$props = this.props,
           forms = _this$props.forms,
           audioStreamURL = _this$props.audioStreamURL;
-      return _react["default"].createElement("section", {
-        className: "waveform-section"
-      }, !forms.waveformRetrieved && hasError ? _react["default"].createElement(_AlertContainer["default"], alertObj) : _react["default"].createElement(_Waveform["default"], {
+      return _react["default"].createElement("section", null, !forms.waveformRetrieved && hasError ? _react["default"].createElement(_AlertContainer["default"], alertObj) : _react["default"].createElement(_Waveform["default"], {
         waveformRef: function waveformRef(ref) {
           return _this2.waveformContainer = ref;
         },

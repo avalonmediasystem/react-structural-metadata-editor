@@ -3,17 +3,10 @@ import axios from 'axios';
 // Config flag to change the source of data retrieval endpoint
 const useLocalData = false;
 
-export const BASE_URL = useLocalData
-  ? 'http://localhost:3123/data/mock-response-'
-  : 'https://spruce.dlib.indiana.edu';
-
-// Masterfile ID on the server
-export const masterFileID = 'd791sg30j';
+const BASE_URL = 'http://localhost:3123/data/mock-response-';
 
 // Default headers for API calls
-//export const defaultHeaders = new Headers();
-//defaultHeaders.append('Content-Type', 'application/json');
-export const defaultHeaders = { 'Content-Type': 'application/json' };
+const defaultHeaders = { 'Content-Type': 'application/json' };
 
 export default class APIUtils {
   /**

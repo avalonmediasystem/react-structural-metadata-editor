@@ -9,9 +9,6 @@ import AlertContainer from '../containers/AlertContainer';
 import { handleEditingTimespans } from '../actions/forms';
 
 const styles = {
-  section: {
-    margin: '4rem 0'
-  },
   well: {
     marginTop: '1rem'
   }
@@ -120,7 +117,7 @@ class ButtonSection extends Component {
 
     // Only return UI when both structure and waveform data exist
     return structureRetrieved && waveformRetrieved ? (
-      <section style={styles.section}>
+      <section>
         <AlertContainer {...this.state.alertObj} />
         <Row data-testid="button-row">
           <Col xs={6}>

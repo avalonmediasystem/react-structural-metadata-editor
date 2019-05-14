@@ -232,7 +232,7 @@ function (_Component) {
       var alertObj = this.state.alertObj;
       return _react["default"].createElement("section", {
         className: "structure-section"
-      }, !forms.structureRetrieved ? _react["default"].createElement(_AlertContainer["default"], alertObj) : _react["default"].createElement("div", null, _react["default"].createElement("h3", null, "HTML Structure Tree from a masterfile in server"), _react["default"].createElement(_AlertContainer["default"], alertObj), _react["default"].createElement("br", null), _react["default"].createElement(_List["default"], {
+      }, !forms.structureRetrieved ? _react["default"].createElement(_AlertContainer["default"], alertObj) : _react["default"].createElement("div", null, _react["default"].createElement(_AlertContainer["default"], alertObj), _react["default"].createElement(_List["default"], {
         items: smData
       }), _react["default"].createElement(_reactBootstrap.Row, null, _react["default"].createElement(_reactBootstrap.Col, {
         xs: 12,

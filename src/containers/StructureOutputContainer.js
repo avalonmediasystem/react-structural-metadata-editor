@@ -137,9 +137,7 @@ class StructureOutputContainer extends Component {
           <AlertContainer {...alertObj} />
         ) : (
           <div>
-            <h3>HTML Structure Tree from a masterfile in server</h3>
             <AlertContainer {...alertObj} />
-            <br />
             <List items={smData} />
             <Row>
               <Col xs={12} className="text-right">

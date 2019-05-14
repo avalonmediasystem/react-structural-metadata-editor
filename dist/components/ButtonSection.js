@@ -42,9 +42,6 @@ var _AlertContainer = _interopRequireDefault(require("../containers/AlertContain
 var _forms = require("../actions/forms");
 
 var styles = {
-  section: {
-    margin: '4rem 0'
-  },
   well: {
     marginTop: '1rem'
   }
@@ -179,9 +176,7 @@ function (_Component) {
           structureRetrieved = _this$props$forms.structureRetrieved,
           waveformRetrieved = _this$props$forms.waveformRetrieved; // Only return UI when both structure and waveform data exist
 
-      return structureRetrieved && waveformRetrieved ? _react["default"].createElement("section", {
-        style: styles.section
-      }, _react["default"].createElement(_AlertContainer["default"], this.state.alertObj), _react["default"].createElement(_reactBootstrap.Row, {
+      return structureRetrieved && waveformRetrieved ? _react["default"].createElement("section", null, _react["default"].createElement(_AlertContainer["default"], this.state.alertObj), _react["default"].createElement(_reactBootstrap.Row, {
         "data-testid": "button-row"
       }, _react["default"].createElement(_reactBootstrap.Col, {
         xs: 6

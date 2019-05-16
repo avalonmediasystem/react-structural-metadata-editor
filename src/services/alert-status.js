@@ -14,8 +14,8 @@ export const PEAKSJS_REACHED_END_OF_FILE =
  * @param {number} status Code for response
  * @param {function} clearAlert A function defined in the hosting component to clear the alert object in component's state
  */
-export function configureAlert(status, clearAlert) {
-  let alertObj = { alertStyle: 'danger', clearAlert: clearAlert };
+export function configureAlert(status = 0, clearAlert) {
+  let alertObj = { alertStyle: 'danger', clearAlert };
 
   if (status === 401) {
     alertObj.message = UNAUTHORIZED_ACCESS;

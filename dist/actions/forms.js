@@ -5,7 +5,7 @@ var _interopRequireWildcard = require("@babel/runtime/helpers/interopRequireWild
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.retrieveWaveformSuccess = exports.retrieveStructureSuccess = exports.handleEditingTimespans = void 0;
+exports.handleStructureError = exports.retrieveWaveformSuccess = exports.retrieveStructureSuccess = exports.handleEditingTimespans = void 0;
 
 var types = _interopRequireWildcard(require("./types"));
 
@@ -33,3 +33,13 @@ var retrieveWaveformSuccess = function retrieveWaveformSuccess() {
 };
 
 exports.retrieveWaveformSuccess = retrieveWaveformSuccess;
+
+var handleStructureError = function handleStructureError(flag, status) {
+  return {
+    type: types.HANDLE_STRUCTURE_ERROR,
+    flag: flag,
+    status: status
+  };
+};
+
+exports.handleStructureError = handleStructureError;

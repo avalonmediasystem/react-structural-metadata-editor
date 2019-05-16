@@ -949,6 +949,64 @@ function () {
     value: function validTimeFormat(value) {
       return value && value.split(':').length === 3;
     }
+    /**
+     * This function adds a unique, front-end only id, to every object in the data structure
+     * @param {Array} structureJS
+     * @returns {Array}
+     */
+
+  }, {
+    key: "addUUIds",
+    value: function addUUIds(structureJS) {
+      var structureWithIds = (0, _lodash.cloneDeep)(structureJS); // Recursively loop through data structure
+
+      var fn = function fn(items) {
+        var _iteratorNormalCompletion9 = true;
+        var _didIteratorError9 = false;
+        var _iteratorError9 = undefined;
+
+        try {
+          for (var _iterator9 = items[Symbol.iterator](), _step9; !(_iteratorNormalCompletion9 = (_step9 = _iterator9.next()).done); _iteratorNormalCompletion9 = true) {
+            var item = _step9.value;
+            // Create and add an id
+            item.id = (0, _v["default"])(); // Send child items back into the function
+
+            if (item.items && item.items.length > 0) {
+              fn(item.items);
+            }
+          }
+        } catch (err) {
+          _didIteratorError9 = true;
+          _iteratorError9 = err;
+        } finally {
+          try {
+            if (!_iteratorNormalCompletion9 && _iterator9["return"] != null) {
+              _iterator9["return"]();
+            }
+          } finally {
+            if (_didIteratorError9) {
+              throw _iteratorError9;
+            }
+          }
+        }
+      };
+
+      fn(structureWithIds);
+      return structureWithIds;
+    }
+    /**
+     * Mark the top element as 'root' to help when creating list items
+     * The top elemetn should not have a delete icon
+     * @param {Array} smData - array of structured metadata
+     */
+
+  }, {
+    key: "markRootElement",
+    value: function markRootElement(smData) {
+      if (smData.length > 0) {
+        smData[0].type = 'root';
+      }
+    }
   }]);
   return StructuralMetadataUtils;
 }();

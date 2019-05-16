@@ -9,8 +9,6 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports["default"] = exports.PureWaveformContainer = void 0;
 
-var _objectSpread2 = _interopRequireDefault(require("@babel/runtime/helpers/objectSpread"));
-
 var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
 
 var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
@@ -35,7 +33,7 @@ var _Utils = _interopRequireDefault(require("../api/Utils"));
 
 var _reactRedux = require("react-redux");
 
-var peaksActions = _interopRequireWildcard(require("../actions/peaks-instance"));
+var _peaksInstance = require("../actions/peaks-instance");
 
 var actions = _interopRequireWildcard(require("../actions/forms"));
 
@@ -72,7 +70,8 @@ function (_Component) {
       alertObj: null,
       hasError: false,
       masterFileID: _this.props.masterFileID,
-      baseURL: _this.props.baseURL
+      baseURL: _this.props.baseURL,
+      initStructure: _this.props.initStructure
     });
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "clearAlert", function () {
       _this.setState({
@@ -89,8 +88,59 @@ function (_Component) {
     value: function componentDidMount() {
       peaksOptions.container = this.waveformContainer;
       peaksOptions.mediaElement = this.mediaPlayer;
-      this.initializePeaks();
+      this.initializePeaksInstance();
     }
+  }, {
+    key: "initializePeaksInstance",
+    value: function () {
+      var _initializePeaksInstance = (0, _asyncToGenerator2["default"])(
+      /*#__PURE__*/
+      _regenerator["default"].mark(function _callee() {
+        var _this$state, baseURL, masterFileID, initStructure, isError, response;
+
+        return _regenerator["default"].wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                _this$state = this.state, baseURL = _this$state.baseURL, masterFileID = _this$state.masterFileID, initStructure = _this$state.initStructure;
+                isError = false;
+                _context.prev = 2;
+                _context.next = 5;
+                return apiUtils.getRequest(baseURL, masterFileID, 'waveform.json');
+
+              case 5:
+                response = _context.sent;
+                // Set the masterfile URL as the URI for the waveform data file
+                peaksOptions.dataUri = response.request.responseURL; // Initialize Peaks
+
+                this.props.fetchDataAndBuildPeaks(baseURL, masterFileID, initStructure, peaksOptions, isError); // Update redux-store flag for waveform file retrieval
+
+                this.props.retrieveWaveformSuccess();
+                _context.next = 16;
+                break;
+
+              case 11:
+                _context.prev = 11;
+                _context.t0 = _context["catch"](2);
+                isError = true;
+                this.handleError(_context.t0); // Fetch structure.json when waveform.json is
+
+                this.props.fetchDataAndBuildPeaks(baseURL, masterFileID, initStructure, peaksOptions, isError);
+
+              case 16:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, _callee, this, [[2, 11]]);
+      }));
+
+      function initializePeaksInstance() {
+        return _initializePeaksInstance.apply(this, arguments);
+      }
+
+      return initializePeaksInstance;
+    }()
   }, {
     key: "handleError",
     value: function handleError(error) {
@@ -109,53 +159,6 @@ function (_Component) {
         hasError: true
       });
     }
-  }, {
-    key: "initializePeaks",
-    value: function () {
-      var _initializePeaks = (0, _asyncToGenerator2["default"])(
-      /*#__PURE__*/
-      _regenerator["default"].mark(function _callee() {
-        var _this$state, baseURL, masterFileID, response;
-
-        return _regenerator["default"].wrap(function _callee$(_context) {
-          while (1) {
-            switch (_context.prev = _context.next) {
-              case 0:
-                _this$state = this.state, baseURL = _this$state.baseURL, masterFileID = _this$state.masterFileID;
-                _context.prev = 1;
-                _context.next = 4;
-                return apiUtils.getRequest(baseURL, masterFileID, 'waveform.json');
-
-              case 4:
-                response = _context.sent;
-                // Set the masterfile URL as the URI for the waveform data file
-                peaksOptions.dataUri = response.request.responseURL; // Initialize Peaks
-
-                this.props.initPeaks(this.props.smData, peaksOptions); // Update redux-store flag for waveform file retrieval
-
-                this.props.retrieveWaveformSuccess();
-                _context.next = 13;
-                break;
-
-              case 10:
-                _context.prev = 10;
-                _context.t0 = _context["catch"](1);
-                this.handleError(_context.t0);
-
-              case 13:
-              case "end":
-                return _context.stop();
-            }
-          }
-        }, _callee, this, [[1, 10]]);
-      }));
-
-      function initializePeaks() {
-        return _initializePeaks.apply(this, arguments);
-      }
-
-      return initializePeaks;
-    }()
   }, {
     key: "render",
     value: function render() {
@@ -191,15 +194,9 @@ var mapStateToProps = function mapStateToProps(state) {
   };
 };
 
-var mapDispatchToProps = function mapDispatchToProps(dispatch) {
-  return (0, _objectSpread2["default"])({}, actions, {
-    initPeaks: function initPeaks(smData, options) {
-      return dispatch(peaksActions.initPeaksInstance(smData, options));
-    },
-    retrieveWaveformSuccess: function retrieveWaveformSuccess() {
-      return dispatch((0, actions.retrieveWaveformSuccess)());
-    }
-  });
+var mapDispatchToProps = {
+  fetchDataAndBuildPeaks: _peaksInstance.initializeSMDataPeaks,
+  retrieveWaveformSuccess: actions.retrieveWaveformSuccess
 };
 
 var _default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(WaveformContainer);

@@ -3,6 +3,7 @@ import * as types from '../actions/types';
 const initialState = {
   editingDisabled: false,
   structureRetrieved: false,
+  structureStatus: null,
   waveformRetrieved: false
 };
 
@@ -28,6 +29,18 @@ const forms = (state = initialState, action) => {
       return Object.assign({}, state, {
         waveformRetrieved: true
       });
+
+    case types.HANDLE_STRUCTURE_ERROR:
+      if (action.flag === 0) {
+        return Object.assign({}, state, {
+          structureStatus: null
+        });
+      } else {
+        return Object.assign({}, state, {
+          structureRetrieved: false,
+          structureStatus: action.status
+        });
+      }
 
     default:
       return state;

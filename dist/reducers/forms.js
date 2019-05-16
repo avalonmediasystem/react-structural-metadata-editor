@@ -12,6 +12,7 @@ var types = _interopRequireWildcard(require("../actions/types"));
 var initialState = {
   editingDisabled: false,
   structureRetrieved: false,
+  structureStatus: null,
   waveformRetrieved: false
 };
 
@@ -40,6 +41,18 @@ var forms = function forms() {
       return Object.assign({}, state, {
         waveformRetrieved: true
       });
+
+    case types.HANDLE_STRUCTURE_ERROR:
+      if (action.flag === 0) {
+        return Object.assign({}, state, {
+          structureStatus: null
+        });
+      } else {
+        return Object.assign({}, state, {
+          structureRetrieved: false,
+          structureStatus: action.status
+        });
+      }
 
     default:
       return state;

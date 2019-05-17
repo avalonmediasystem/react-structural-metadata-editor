@@ -5,10 +5,6 @@ import { Button, Col, Row } from 'react-bootstrap';
 import APIUtils from '../api/Utils';
 import AlertContainer from './AlertContainer';
 import { configureAlert } from '../services/alert-status';
-import uuidv1 from 'uuid/v1';
-import { cloneDeep, isEmpty } from 'lodash';
-import { buildSMUI } from '../actions/sm-data';
-import { retrieveStructureSuccess } from '../actions/forms';
 
 class StructureOutputContainer extends Component {
   constructor(props) {
@@ -16,75 +12,25 @@ class StructureOutputContainer extends Component {
     this.apiUtils = new APIUtils();
   }
   state = {
-    alertObj: {},
-    masterFileID: this.props.masterFileID,
+    alertObj: this.props.alertObj,
     baseURL: this.props.baseURL,
-    initStructure: this.props.initStructure
+    masterFileID: this.props.masterFileID,
+    structureStatus: this.props.forms.structureStatus
   };
 
-  async componentDidMount() {
-    let smData = [];
-
-    const { baseURL, masterFileID, initStructure } = this.state;
-    try {
-      const response = await this.apiUtils.getRequest(
-        baseURL,
-        masterFileID,
-        'structure.json'
-      );
-
-      // Check for empty response when ingesting a new file
-      // Add unique ids to every object
-      if (isEmpty(response.data)) {
-        smData = this.addIds([JSON.parse(initStructure)]);
-      } else {
-        smData = this.addIds([response.data]);
-      }
-
-      // Tag the root element
-      this.markRootElement(smData);
-
-      // Update the redux store
-      this.props.buildSMUI(smData);
-
-      // Update redux-store flag for structure file retrieval
-      this.props.retrieveStructureSuccess();
-    } catch (error) {
-      console.log('TCL: StructureOutputContainer -> }catch -> error', error);
-      this.handleFetchError(error);
+  static getDerivedStateFromProps(nextProps, prevState) {
+    if (prevState.structureStatus !== nextProps.forms.structureStatus) {
+      return {
+        alertObj: configureAlert(
+          nextProps.forms.structureStatus,
+          nextProps.clearAlert
+        )
+      };
     }
-  }
-
-  /**
-   * This function adds a unique, front-end only id, to every object in the data structure
-   * @param {Array} structureJS
-   * @returns {Array}
-   */
-  addIds(structureJS) {
-    let structureWithIds = cloneDeep(structureJS);
-
-    // Recursively loop through data structure
-    let fn = items => {
-      for (let item of items) {
-        // Create and add an id
-        item.id = uuidv1();
-
-        // Send child items back into the function
-        if (item.items && item.items.length > 0) {
-          fn(item.items);
-        }
-      }
-    };
-
-    fn(structureWithIds);
-
-    return structureWithIds;
-  }
-
-  markRootElement(smData) {
-    if (smData.length > 0) {
-      smData[0].type = 'root';
+    if (nextProps.alertObj === null) {
+      return { alertObj: null };
     }
+    return null;
   }
 
   clearAlert = () => {
@@ -92,13 +38,6 @@ class StructureOutputContainer extends Component {
       alertObj: null
     });
   };
-
-  handleFetchError(error) {
-    let status = error.response !== undefined ? error.response.status : -2;
-    const alertObj = configureAlert(status, this.clearAlert);
-
-    this.setState({ alertObj });
-  }
 
   handleSaveError(error) {
     console.log('TCL: handleSaveError -> error', error);
@@ -128,7 +67,7 @@ class StructureOutputContainer extends Component {
   };
 
   render() {
-    const { smData = [], forms } = this.props;
+    const { forms, smData } = this.props;
     const { alertObj } = this.state;
 
     return (
@@ -161,12 +100,9 @@ const mapStateToProps = state => ({
   forms: state.forms
 });
 
-const mapDispatchToProps = dispatch => ({
-  buildSMUI: smData => dispatch(buildSMUI(smData)),
-  retrieveStructureSuccess: () => dispatch(retrieveStructureSuccess())
-});
+// const mapDispatchToProps = dispatch => ({
+//   buildSMUI: smData => dispatch(buildSMUI(smData)),
+//   retrieveStructureSuccess: () => dispatch(retrieveStructureSuccess())
+// });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(StructureOutputContainer);
+export default connect(mapStateToProps)(StructureOutputContainer);

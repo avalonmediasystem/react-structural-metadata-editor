@@ -12,3 +12,9 @@ export const retrieveStructureSuccess = () => ({
 export const retrieveWaveformSuccess = () => ({
   type: types.RETRIEVE_WAVEFORM_SUCCESS
 });
+
+export const handleStructureError = (flag, status) => ({
+  type: types.HANDLE_STRUCTURE_ERROR,
+  flag,
+  status
+});

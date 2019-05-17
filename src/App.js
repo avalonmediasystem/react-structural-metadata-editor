@@ -7,6 +7,7 @@ import { DragDropContextProvider } from 'react-dnd';
 import HTML5Backend from 'react-dnd-html5-backend';
 import { connect } from 'react-redux';
 import { resetReduxStore } from './actions';
+import { handleStructureError } from './actions/forms';
 
 // Font Awesome Imports
 import { library } from '@fortawesome/fontawesome-svg-core';
@@ -20,19 +21,37 @@ import {
 library.add(faDotCircle, faMinusCircle, faPen, faSave, faTrash);
 
 class App extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      structureAlert: {}
+    };
+  }
   // Lifecycle method fired before unmounting the React component
   componentWillUnmount() {
     // Reset the redux-store
     this.props.resetStore();
   }
 
+  clearStructureAlert = () => {
+    this.setState({ structureAlert: null });
+    this.props.handleStructureError(0);
+  };
+
   render() {
     return (
       <DragDropContextProvider backend={HTML5Backend}>
         <div className="container">
-          <WaveformContainer {...this.props} />
+          <WaveformContainer
+            {...this.props}
+            structureAlert={this.state.structureAlert}
+          />
           <ButtonSection />
-          <StructureOutputContainer {...this.props} />
+          <StructureOutputContainer
+            alertObj={this.state.structureAlert}
+            clearAlert={this.clearStructureAlert}
+            {...this.props}
+          />
         </div>
       </DragDropContextProvider>
     );
@@ -40,7 +59,8 @@ class App extends Component {
 }
 
 const mapDispatchToProps = {
-  resetStore: resetReduxStore
+  resetStore: resetReduxStore,
+  handleStructureError: handleStructureError
 };
 
 export default connect(

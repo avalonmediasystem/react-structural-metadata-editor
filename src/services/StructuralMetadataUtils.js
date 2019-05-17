@@ -715,4 +715,41 @@ export default class StructuralMetadataUtils {
   validTimeFormat(value) {
     return value && value.split(':').length === 3;
   }
+
+  /**
+   * This function adds a unique, front-end only id, to every object in the data structure
+   * @param {Array} structureJS
+   * @returns {Array}
+   */
+  addUUIds(structureJS) {
+    let structureWithIds = cloneDeep(structureJS);
+
+    // Recursively loop through data structure
+    let fn = items => {
+      for (let item of items) {
+        // Create and add an id
+        item.id = uuidv1();
+
+        // Send child items back into the function
+        if (item.items && item.items.length > 0) {
+          fn(item.items);
+        }
+      }
+    };
+
+    fn(structureWithIds);
+
+    return structureWithIds;
+  }
+
+  /**
+   * Mark the top element as 'root' to help when creating list items
+   * The top elemetn should not have a delete icon
+   * @param {Array} smData - array of structured metadata
+   */
+  markRootElement(smData) {
+    if (smData.length > 0) {
+      smData[0].type = 'root';
+    }
+  }
 }

@@ -51,22 +51,12 @@ function (_Component) {
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "zoomOut", function () {
       _this.props.peaksInstance.peaks.zoom.zoomOut();
     });
-    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "seekTime", function () {
-      var timeInSeconds = parseFloat(_this.state.seekTime);
-
-      if (!Number.isNaN(timeInSeconds)) {
-        _this.props.peaksInstance.peaks.player.seek(timeInSeconds);
-      }
-    });
     _this.state = {
-      seekTime: '',
       audioFile: _this.props.audioStreamURL
     }; // Create `refs`
 
     _this.waveformContainer = _react["default"].createRef();
     _this.mediaPlayer = _react["default"].createRef();
-    _this.handleSubmit = _this.handleSubmit.bind((0, _assertThisInitialized2["default"])(_this));
-    _this.handleChange = _this.handleChange.bind((0, _assertThisInitialized2["default"])(_this));
     return _this;
   }
 
@@ -88,19 +78,6 @@ function (_Component) {
 
       this.props.waveformRef(this.waveformContainer.current);
       this.props.mediaPlayerRef(this.mediaPlayer.current);
-    }
-  }, {
-    key: "handleSubmit",
-    value: function handleSubmit(event) {
-      this.seekTime();
-      event.preventDefault();
-    }
-  }, {
-    key: "handleChange",
-    value: function handleChange(event) {
-      this.setState({
-        seekTime: event.target.value
-      });
     }
   }, {
     key: "render",
@@ -133,16 +110,7 @@ function (_Component) {
         className: "glyphicon glyphicon-zoom-out",
         "aria-label": "Zoom out",
         onClick: this.zoomOut
-      }))), ' ', _react["default"].createElement(_reactBootstrap.FormGroup, null, _react["default"].createElement(_reactBootstrap.FormControl, {
-        className: "form-control",
-        type: "text",
-        value: this.state.seekTime,
-        onChange: this.handleChange,
-        placeholder: "0",
-        "aria-label": "Seek time in seconds"
-      })), ' ', _react["default"].createElement(_reactBootstrap.Button, {
-        onClick: this.seekTime
-      }, "Seek")))));
+      })))))));
     }
   }]);
   return Waveform;

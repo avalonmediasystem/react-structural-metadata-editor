@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import APIUtils from '../api/Utils';
 import { connect } from 'react-redux';
-import * as peaksActions from '../actions/peaks-instance';
+import { initializeSMDataPeaks } from '../actions/peaks-instance';
 import * as actions from '../actions/forms';
 import Waveform from '../components/Waveform';
 import AlertContainer from '../containers/AlertContainer';
@@ -33,13 +33,14 @@ class WaveformContainer extends Component {
     alertObj: null,
     hasError: false,
     masterFileID: this.props.masterFileID,
-    baseURL: this.props.baseURL
+    baseURL: this.props.baseURL,
+    initStructure: this.props.initStructure
   };
 
   componentDidMount() {
     peaksOptions.container = this.waveformContainer;
     peaksOptions.mediaElement = this.mediaPlayer;
-    this.initializePeaks();
+    this.initializePeaksInstance();
   }
 
   clearAlert = () => {
@@ -47,6 +48,42 @@ class WaveformContainer extends Component {
       alertObj: null
     });
   };
+
+  async initializePeaksInstance() {
+    const { baseURL, masterFileID, initStructure } = this.state;
+    let isError = false;
+    try {
+      const response = await apiUtils.getRequest(
+        baseURL,
+        masterFileID,
+        'waveform.json'
+      );
+      // Set the masterfile URL as the URI for the waveform data file
+      peaksOptions.dataUri = response.request.responseURL;
+
+      // Initialize Peaks
+      this.props.fetchDataAndBuildPeaks(
+        baseURL,
+        masterFileID,
+        initStructure,
+        peaksOptions,
+        isError
+      );
+      // Update redux-store flag for waveform file retrieval
+      this.props.retrieveWaveformSuccess();
+    } catch (error) {
+      isError = true;
+      this.handleError(error);
+      // Fetch structure.json when waveform.json is
+      this.props.fetchDataAndBuildPeaks(
+        baseURL,
+        masterFileID,
+        initStructure,
+        peaksOptions,
+        isError
+      );
+    }
+  }
 
   handleError(error) {
     console.log('TCL: WaveformContainer -> handleError -> error', error);
@@ -61,27 +98,6 @@ class WaveformContainer extends Component {
 
     const alertObj = configureAlert(status, this.clearAlert);
     this.setState({ alertObj, hasError: true });
-  }
-
-  async initializePeaks() {
-    const { baseURL, masterFileID } = this.state;
-    try {
-      const response = await apiUtils.getRequest(
-        baseURL,
-        masterFileID,
-        'waveform.json'
-      );
-      // Set the masterfile URL as the URI for the waveform data file
-      peaksOptions.dataUri = response.request.responseURL;
-
-      // Initialize Peaks
-      this.props.initPeaks(this.props.smData, peaksOptions);
-
-      // Update redux-store flag for waveform file retrieval
-      this.props.retrieveWaveformSuccess();
-    } catch (error) {
-      this.handleError(error);
-    }
   }
 
   render() {
@@ -112,12 +128,10 @@ const mapStateToProps = state => ({
   forms: state.forms
 });
 
-const mapDispatchToProps = dispatch => ({
-  ...actions,
-  initPeaks: (smData, options) =>
-    dispatch(peaksActions.initPeaksInstance(smData, options)),
-  retrieveWaveformSuccess: () => dispatch(retrieveWaveformSuccess())
-});
+const mapDispatchToProps = {
+  fetchDataAndBuildPeaks: initializeSMDataPeaks,
+  retrieveWaveformSuccess: retrieveWaveformSuccess
+};
 
 export default connect(
   mapStateToProps,

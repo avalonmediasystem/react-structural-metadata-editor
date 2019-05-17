@@ -26,7 +26,9 @@ var PEAKSJS_REACHED_END_OF_FILE = 'Time ahead has timespans reaching the end of 
 
 exports.PEAKSJS_REACHED_END_OF_FILE = PEAKSJS_REACHED_END_OF_FILE;
 
-function configureAlert(status, clearAlert) {
+function configureAlert() {
+  var status = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+  var clearAlert = arguments.length > 1 ? arguments[1] : undefined;
   var alertObj = {
     alertStyle: 'danger',
     clearAlert: clearAlert

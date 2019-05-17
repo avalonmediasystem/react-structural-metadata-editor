@@ -283,8 +283,59 @@ export default class WaveformDataUtils {
     if (!after && endTime > duration) {
       segment.endTime = duration;
     }
+    if (this.isOverlapping(segment, allSegments)) {
+      segment = this.shiftSegmentToValidTime(segment, allSegments);
+    }
 
     return segment;
+  }
+
+  /**
+   * Shift an overlapped segment to a valid time through existing segments
+   * @param {Object} segment - segment to be validated and moved
+   * @param {Array} allSegments - an array of all the segments in Peaks instance
+   */
+  shiftSegmentToValidTime(segment, allSegments) {
+    const segments = allSegments.filter(seg => seg.id !== segment.id);
+    for (let i = 0; i < segments.length; i++) {
+      let current = segments[i];
+      let withinSegment = this.isOverlapping(current, allSegments);
+      let next = segments[i + 1];
+      if (current && next && segment.startTime < current.endTime) {
+        if (
+          !withinSegment ||
+          next.startTime !== current.endTime ||
+          next.startTime !== current.endTime + 0.01
+        ) {
+          segment.startTime = current.endTime + 0.01;
+          segment.endTime = segment.startTime + 0.01;
+        }
+      }
+      if (current && !next) {
+        segment.startTime = current.endTime + 0.01;
+        segment.endTime = segment.startTime + 0.02;
+      }
+    }
+    return segment;
+  }
+
+  /**
+   * Check to see whether a segment is fully contained within another segment
+   * @param {Object} segment - segment to be checked for overlapping with another segment
+   * @param {Array} allSegments - array of all the segments in the Peaks instance
+   */
+  isOverlapping(segment, allSegments) {
+    let overlapped = false;
+    const segments = allSegments.filter(seg => seg.id !== segment.id);
+    segments.map(current => {
+      if (
+        segment.startTime >= current.startTime &&
+        segment.endTime <= current.endTime
+      ) {
+        overlapped = true;
+      }
+    });
+    return overlapped;
   }
 
   /**

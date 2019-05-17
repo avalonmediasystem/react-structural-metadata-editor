@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import APIUtils from '../api/Utils';
 import { connect } from 'react-redux';
 import { initializeSMDataPeaks } from '../actions/peaks-instance';
-import * as actions from '../actions/forms';
+import { handleEditingTimespans } from '../actions/forms';
 import Waveform from '../components/Waveform';
 import AlertContainer from '../containers/AlertContainer';
 import { configureAlert } from '../services/alert-status';
@@ -74,6 +74,7 @@ class WaveformContainer extends Component {
     } catch (error) {
       isError = true;
       this.handleError(error);
+      this.props.handleEditingTimespans(0);
       // Fetch structure.json when waveform.json is
       this.props.fetchDataAndBuildPeaks(
         baseURL,
@@ -130,7 +131,8 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = {
   fetchDataAndBuildPeaks: initializeSMDataPeaks,
-  retrieveWaveformSuccess: retrieveWaveformSuccess
+  retrieveWaveformSuccess: retrieveWaveformSuccess,
+  handleEditingTimespans: handleEditingTimespans
 };
 
 export default connect(

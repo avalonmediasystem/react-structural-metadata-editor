@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import List from './List';
 import { connect } from 'react-redux';
 import * as smActions from '../actions/sm-data';
-import * as peaksActions from '../actions/peaks-instance';
-import * as forms from '../actions/forms';
+import { deleteSegment } from '../actions/peaks-instance';
+import { handleEditingTimespans } from '../actions/forms';
 import PropTypes from 'prop-types';
 import { ItemTypes } from '../services/Constants';
 import { DragSource, DropTarget } from 'react-dnd';
@@ -60,6 +60,12 @@ class ListItem extends Component {
 
   handleDelete = () => {
     const { item } = this.props;
+
+    // Remove DnD source & targets if the current item was active
+    if (this.props.item.active) {
+      this.handleShowDropTargetsClick();
+    }
+
     this.props.deleteItem(item.id);
     this.props.deleteSegment(item);
   };
@@ -67,6 +73,11 @@ class ListItem extends Component {
   handleEditClick = () => {
     // Disable the edit buttons of other list items
     this.props.handleEditingTimespans(0);
+
+    // Remove DnD source & targets if the current item was active
+    if (this.props.item.active) {
+      this.handleShowDropTargetsClick();
+    }
 
     this.setState({ editing: true });
   };
@@ -168,8 +179,8 @@ const mapDispatchToProps = {
   removeDropTargets: smActions.removeDropTargets,
   removeActiveDragSources: smActions.removeActiveDragSources,
   setActiveDragSource: smActions.setActiveDragSource,
-  deleteSegment: peaksActions.deleteSegment,
-  handleEditingTimespans: forms.handleEditingTimespans
+  deleteSegment: deleteSegment,
+  handleEditingTimespans: handleEditingTimespans
 };
 
 const mapStateToProps = state => ({

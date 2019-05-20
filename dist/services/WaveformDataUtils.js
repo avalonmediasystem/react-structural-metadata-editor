@@ -379,7 +379,64 @@ function () {
         segment.endTime = duration;
       }
 
+      if (this.isOverlapping(segment, allSegments)) {
+        segment = this.shiftSegmentToValidTime(segment, allSegments);
+      }
+
       return segment;
+    }
+    /**
+     * Shift an overlapped segment to a valid time through existing segments
+     * @param {Object} segment - segment to be validated and moved
+     * @param {Array} allSegments - an array of all the segments in Peaks instance
+     */
+
+  }, {
+    key: "shiftSegmentToValidTime",
+    value: function shiftSegmentToValidTime(segment, allSegments) {
+      var segments = allSegments.filter(function (seg) {
+        return seg.id !== segment.id;
+      });
+
+      for (var i = 0; i < segments.length; i++) {
+        var current = segments[i];
+        var withinSegment = this.isOverlapping(current, allSegments);
+        var next = segments[i + 1];
+
+        if (current && next && segment.startTime < current.endTime) {
+          if (!withinSegment || next.startTime !== current.endTime || next.startTime !== current.endTime + 0.01) {
+            segment.startTime = current.endTime + 0.01;
+            segment.endTime = segment.startTime + 0.01;
+          }
+        }
+
+        if (current && !next) {
+          segment.startTime = current.endTime + 0.01;
+          segment.endTime = segment.startTime + 0.02;
+        }
+      }
+
+      return segment;
+    }
+    /**
+     * Check to see whether a segment is fully contained within another segment
+     * @param {Object} segment - segment to be checked for overlapping with another segment
+     * @param {Array} allSegments - array of all the segments in the Peaks instance
+     */
+
+  }, {
+    key: "isOverlapping",
+    value: function isOverlapping(segment, allSegments) {
+      var overlapped = false;
+      var segments = allSegments.filter(function (seg) {
+        return seg.id !== segment.id;
+      });
+      segments.map(function (current) {
+        if (segment.startTime >= current.startTime && segment.endTime <= current.endTime) {
+          overlapped = true;
+        }
+      });
+      return overlapped;
     }
     /**
      * Convert timespan to segment to be consumed within peaks instance

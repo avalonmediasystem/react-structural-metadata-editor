@@ -35,7 +35,7 @@ var _reactRedux = require("react-redux");
 
 var _peaksInstance = require("../actions/peaks-instance");
 
-var actions = _interopRequireWildcard(require("../actions/forms"));
+var _forms = require("../actions/forms");
 
 var _Waveform = _interopRequireDefault(require("../components/Waveform"));
 
@@ -116,18 +116,19 @@ function (_Component) {
                 this.props.fetchDataAndBuildPeaks(baseURL, masterFileID, initStructure, peaksOptions, isError); // Update redux-store flag for waveform file retrieval
 
                 this.props.retrieveWaveformSuccess();
-                _context.next = 16;
+                _context.next = 17;
                 break;
 
               case 11:
                 _context.prev = 11;
                 _context.t0 = _context["catch"](2);
                 isError = true;
-                this.handleError(_context.t0); // Fetch structure.json when waveform.json is
+                this.handleError(_context.t0);
+                this.props.handleEditingTimespans(0); // Fetch structure.json when waveform.json is
 
                 this.props.fetchDataAndBuildPeaks(baseURL, masterFileID, initStructure, peaksOptions, isError);
 
-              case 16:
+              case 17:
               case "end":
                 return _context.stop();
             }
@@ -196,7 +197,8 @@ var mapStateToProps = function mapStateToProps(state) {
 
 var mapDispatchToProps = {
   fetchDataAndBuildPeaks: _peaksInstance.initializeSMDataPeaks,
-  retrieveWaveformSuccess: actions.retrieveWaveformSuccess
+  retrieveWaveformSuccess: _forms.retrieveWaveformSuccess,
+  handleEditingTimespans: _forms.handleEditingTimespans
 };
 
 var _default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(WaveformContainer);

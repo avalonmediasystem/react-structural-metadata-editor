@@ -31,9 +31,9 @@ var _reactRedux = require("react-redux");
 
 var smActions = _interopRequireWildcard(require("../actions/sm-data"));
 
-var peaksActions = _interopRequireWildcard(require("../actions/peaks-instance"));
+var _peaksInstance = require("../actions/peaks-instance");
 
-var forms = _interopRequireWildcard(require("../actions/forms"));
+var _forms = require("../actions/forms");
 
 var _propTypes = _interopRequireDefault(require("prop-types"));
 
@@ -100,7 +100,11 @@ function (_Component) {
       editing: false
     });
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "handleDelete", function () {
-      var item = _this.props.item;
+      var item = _this.props.item; // Remove DnD source & targets if the current item was active
+
+      if (_this.props.item.active) {
+        _this.handleShowDropTargetsClick();
+      }
 
       _this.props.deleteItem(item.id);
 
@@ -108,7 +112,12 @@ function (_Component) {
     });
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "handleEditClick", function () {
       // Disable the edit buttons of other list items
-      _this.props.handleEditingTimespans(0);
+      _this.props.handleEditingTimespans(0); // Remove DnD source & targets if the current item was active
+
+
+      if (_this.props.item.active) {
+        _this.handleShowDropTargetsClick();
+      }
 
       _this.setState({
         editing: true
@@ -208,8 +217,8 @@ var mapDispatchToProps = {
   removeDropTargets: smActions.removeDropTargets,
   removeActiveDragSources: smActions.removeActiveDragSources,
   setActiveDragSource: smActions.setActiveDragSource,
-  deleteSegment: peaksActions.deleteSegment,
-  handleEditingTimespans: forms.handleEditingTimespans
+  deleteSegment: _peaksInstance.deleteSegment,
+  handleEditingTimespans: _forms.handleEditingTimespans
 };
 
 var mapStateToProps = function mapStateToProps(state) {

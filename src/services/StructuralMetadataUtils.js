@@ -61,6 +61,44 @@ export default class StructuralMetadataUtils {
   }
 
   /**
+   * Format the time of the timespans in the structured metadata fetched from the server,
+   * so that they can be used in the validation logic and Peaks instance
+   * @param {Array} allItems - array of all the items in structured metadata
+   */
+  buildSMUI(allItems) {
+    // Regex to match mm:ss OR single number
+    const regex = /^(?:[0-9]*:[0-9]*.[0-9]*|[0-9]*.[0-9]*)$/i;
+
+    // Convert time to HH:mm:ss.ms format to use in validation logic
+    let convertToHHmmss = time => {
+      if (time.indexOf(':') !== -1) {
+        let [minutes, seconds] = time.split(':');
+        let minutesIn = parseInt(minutes) * 60;
+        let secondsIn = seconds === '' ? 0.0 : parseFloat(seconds);
+        return this.toHHmmss(minutesIn + secondsIn);
+      } else {
+        return this.toHHmmss(time);
+      }
+    };
+    // Recursive function to traverse whole data structure
+    let formatTime = items => {
+      for (let item of items) {
+        if (item.type === 'span') {
+          const { begin, end } = item;
+          item.begin = regex.test(begin) ? convertToHHmmss(begin) : begin;
+          item.end = regex.test(end) ? convertToHHmmss(end) : end;
+        }
+        if (item.items) {
+          formatTime(item.items);
+        }
+      }
+    };
+
+    formatTime(allItems);
+    return allItems;
+  }
+
+  /**
    * Update the data structure to represent all possible dropTargets for the provided dragSource
    * @param {Object} dragSource
    * @param {Object} allItems
@@ -261,28 +299,6 @@ export default class StructuralMetadataUtils {
       }
     };
     fn(items);
-
-    return foundItem;
-  }
-
-  /**
-   * @param {String} label - string value to match against
-   * @param {Array} items - Array of nested structured metadata objects containing headings and time spans
-   * @return {Object} - Object found, or null if none
-   */
-  findItemByLabel(label, items) {
-    let foundItem = null;
-    let findItem = items => {
-      for (let item of items) {
-        if (item.label === label) {
-          foundItem = item;
-        }
-        if (item.items) {
-          findItem(item.items);
-        }
-      }
-    };
-    findItem(items);
 
     return foundItem;
   }
@@ -674,29 +690,6 @@ export default class StructuralMetadataUtils {
   }
 
   /**
-   * Moment.js helper millisecond converter to make calculations consistent
-   * @param {String} strTime form input value
-   */
-  toMs(strTime) {
-    return moment.duration(strTime).asMilliseconds();
-  }
-
-  /**
-   * Update an existing heading object
-   * @param {Object} heading - updated form object
-   * @param {Array} allItems - the data structure
-   */
-  updateHeading(heading, allItems) {
-    const clonedItems = cloneDeep(allItems);
-    let item = this.findItem(heading.id, clonedItems);
-    item.label = heading.headingTitle;
-
-    // TODO: Figure out how to handle "Child Of" when this becomes inline.
-
-    return clonedItems;
-  }
-
-  /**
    * Does 'before' time start prior to 'end' time?
    * @param {String} begin form intput value
    * @param {String} end form input value
@@ -751,5 +744,42 @@ export default class StructuralMetadataUtils {
     if (smData.length > 0) {
       smData[0].type = 'root';
     }
+  }
+
+  /**
+   * Moment.js helper millisecond converter to make calculations consistent
+   * @param {String} strTime form input value
+   */
+  toMs(strTime) {
+    return moment.duration(strTime).asMilliseconds();
+  }
+
+  /**
+   * Convert seconds to string format hh:mm:ss
+   * @param {Number} secTime - time in seconds
+   */
+  toHHmmss(secTime) {
+    let sec_num = this.roundOff(secTime);
+    let hours = Math.floor(sec_num / 3600);
+    let minutes = Math.floor(sec_num / 60);
+    let seconds = sec_num - minutes * 60 - hours * 3600;
+
+    let hourStr = hours < 10 ? `0${hours}` : `${hours}`;
+    let minStr = minutes < 10 ? `0${minutes}` : `${minutes}`;
+    let secStr = seconds.toFixed(2);
+    secStr = seconds < 10 ? `0${secStr}` : `${secStr}`;
+
+    return `${hourStr}:${minStr}:${secStr}`;
+  }
+
+  roundOff(value) {
+    var valueString = '';
+    var [intVal, decVal] = value.toString().split('.');
+    if (!decVal) {
+      valueString = intVal;
+    } else {
+      valueString = intVal + '.' + decVal.substring(0, 2);
+    }
+    return parseFloat(valueString);
   }
 }

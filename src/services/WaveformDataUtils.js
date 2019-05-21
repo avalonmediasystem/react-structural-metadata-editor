@@ -396,24 +396,6 @@ export default class WaveformDataUtils {
     return hoursAndMins + secondsIn;
   }
 
-  /**
-   * Convert seconds to string format hh:mm:ss
-   * @param {Number} secTime - time in seconds
-   */
-  toHHmmss(secTime) {
-    let sec_num = this.roundOff(secTime);
-    let hours = Math.floor(sec_num / 3600);
-    let minutes = Math.floor(sec_num / 60);
-    let seconds = sec_num - minutes * 60 - hours * 3600;
-
-    let hourStr = hours < 10 ? `0${hours}` : `${hours}`;
-    let minStr = minutes < 10 ? `0${minutes}` : `${minutes}`;
-    let secStr = seconds.toFixed(2);
-    secStr = seconds < 10 ? `0${secStr}` : `${secStr}`;
-
-    return `${hourStr}:${minStr}:${secStr}`;
-  }
-
   sortSegments(peaksInstance, sortBy) {
     let allSegments = peaksInstance.segments.getSegments();
     return allSegments.sort((x, y) => x[sortBy] - y[sortBy]);

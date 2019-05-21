@@ -69,8 +69,8 @@ class TimespanForm extends Component {
       if (initSegment && isInitializing) {
         const { startTime, endTime } = initSegment;
         return {
-          beginTime: waveformDataUtils.toHHmmss(startTime),
-          endTime: waveformDataUtils.toHHmmss(endTime),
+          beginTime: structuralMetadataUtils.toHHmmss(startTime),
+          endTime: structuralMetadataUtils.toHHmmss(endTime),
           isInitializing: false
         };
       }
@@ -81,8 +81,8 @@ class TimespanForm extends Component {
           peaksInstance.peaks
         );
         return {
-          beginTime: waveformDataUtils.toHHmmss(startTime),
-          endTime: waveformDataUtils.toHHmmss(endTime)
+          beginTime: structuralMetadataUtils.toHHmmss(startTime),
+          endTime: structuralMetadataUtils.toHHmmss(endTime)
         };
       }
     }

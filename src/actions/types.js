@@ -1,4 +1,3 @@
-export const ADD_HEADING = 'ADD_HEADING';
 export const BUILD_SM_UI = 'BUILD_SM_UI';
 export const DELETE_ITEM = 'DELETE_ITEM';
 

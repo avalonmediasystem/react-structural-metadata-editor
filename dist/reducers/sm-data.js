@@ -25,13 +25,9 @@ var smData = function smData() {
   var action = arguments.length > 1 ? arguments[1] : undefined;
 
   switch (action.type) {
-    case types.ADD_HEADING:
-      stateClone = (0, _lodash.cloneDeep)(state);
-      stateClone.push(action.payload);
-      return stateClone;
-
     case types.BUILD_SM_UI:
-      return action.payload;
+      newState = structuralMetadataUtils.buildSMUI(action.payload);
+      return newState;
 
     case types.DELETE_ITEM:
       return structuralMetadataUtils.deleteListItem(action.id, state);

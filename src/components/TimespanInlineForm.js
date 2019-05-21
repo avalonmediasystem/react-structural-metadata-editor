@@ -96,8 +96,8 @@ class TimespanInlineForm extends Component {
     if (!isDragging && isInitializing && !isTyping && !isEmpty(segment)) {
       const { startTime, endTime } = segment;
       return {
-        beginTime: waveformUtils.toHHmmss(startTime),
-        endTime: waveformUtils.toHHmmss(endTime)
+        beginTime: structuralMetadataUtils.toHHmmss(startTime),
+        endTime: structuralMetadataUtils.toHHmmss(endTime)
       };
     }
     if (isDragging) {
@@ -110,8 +110,8 @@ class TimespanInlineForm extends Component {
           peaksInstance.peaks
         );
         return {
-          beginTime: waveformUtils.toHHmmss(startTime),
-          endTime: waveformUtils.toHHmmss(endTime)
+          beginTime: structuralMetadataUtils.toHHmmss(startTime),
+          endTime: structuralMetadataUtils.toHHmmss(endTime)
         };
       }
     }

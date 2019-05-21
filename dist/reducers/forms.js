@@ -13,7 +13,8 @@ var initialState = {
   editingDisabled: false,
   structureRetrieved: false,
   structureStatus: null,
-  waveformRetrieved: false
+  waveformRetrieved: false,
+  streamMediaRetrieved: true
 };
 
 var forms = function forms() {
@@ -53,6 +54,11 @@ var forms = function forms() {
           structureStatus: action.status
         });
       }
+
+    case types.RETREIVE_STREAM_MEDIA_ERROR:
+      return Object.assign({}, state, {
+        streamMediaRetrieved: false
+      });
 
     default:
       return state;

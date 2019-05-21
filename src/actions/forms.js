@@ -18,3 +18,7 @@ export const handleStructureError = (flag, status) => ({
   flag,
   status
 });
+
+export const retrieveStreamMediaError = () => ({
+  type: types.RETREIVE_STREAM_MEDIA_ERROR
+});

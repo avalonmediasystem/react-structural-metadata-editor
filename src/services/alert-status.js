@@ -1,13 +1,16 @@
-export const UNAUTHORIZED_ACCESS = 'Unauthorized to access the masterfile';
-export const MASTERFILE_NOT_FOUND = 'Requested masterfile not found';
-export const SAVED_MASTERFILE_SUCCESS = 'Successfully saved to masterfile';
-export const NETWORK_ERROR = 'Network error, please try again';
+export const UNAUTHORIZED_ACCESS =
+  "You're not authorized to access this resource.";
+export const MASTERFILE_NOT_FOUND = 'Requested data not available.';
+export const SAVED_MASTERFILE_SUCCESS = 'Saved successfully.';
+export const NETWORK_ERROR = 'Network error. Please try again.';
 export const FETCH_STRUCTURED_DATA_ERROR =
-  'There was an error fetching the Structured Metadata from server';
-export const PEAKJS_INITIALIZE_ERROR =
-  'There was an error initializing the PeakJS waveform';
+  'There was an error retrieving the structure information.';
+export const WAVEFORM_INITIALIZE_ERROR =
+  'There was an error initializing the waveform.';
 export const PEAKSJS_REACHED_END_OF_FILE =
-  'Time ahead has timespans reaching the end of media file, there is no available time to insert a new timespan';
+  'There is no space available to insert a new timespan.';
+export const FETCH_STREAM_MEDIA_ERROR =
+  'There was an error retrieving the media stream.';
 
 /**
  * Helper function which prepares a configuration object to feed the AlertContainer component
@@ -27,10 +30,12 @@ export function configureAlert(status = 0, clearAlert) {
   } else if (status === -2) {
     alertObj.message = FETCH_STRUCTURED_DATA_ERROR;
   } else if (status === -3) {
-    alertObj.message = PEAKJS_INITIALIZE_ERROR;
+    alertObj.message = WAVEFORM_INITIALIZE_ERROR;
   } else if (status === -4) {
     alertObj.alertStyle = 'warning';
     alertObj.message = PEAKSJS_REACHED_END_OF_FILE;
+  } else if (status === -5) {
+    alertObj.message = FETCH_STREAM_MEDIA_ERROR;
   } else {
     alertObj.message = NETWORK_ERROR;
   }

@@ -113,7 +113,12 @@ class ButtonSection extends Component {
       setIsInitializing: this.setIsInitializing
     };
 
-    const { structureRetrieved, waveformRetrieved } = this.props.forms;
+    const {
+      editingDisabled,
+      structureRetrieved,
+      waveformRetrieved,
+      streamMediaRetrieved
+    } = this.props.forms;
 
     // Only return UI when both structure and waveform data exist
     return structureRetrieved && waveformRetrieved ? (
@@ -125,7 +130,7 @@ class ButtonSection extends Component {
               data-testid="add-heading-button"
               block
               onClick={this.handleHeadingClick}
-              disabled={this.state.disabled && this.props.forms.editingDisabled}
+              disabled={this.state.disabled && editingDisabled}
             >
               Add a Heading
             </Button>
@@ -135,7 +140,10 @@ class ButtonSection extends Component {
               data-testid="add-timespan-button"
               block
               onClick={this.handleTimeSpanClick}
-              disabled={this.state.disabled && this.props.forms.editingDisabled}
+              disabled={
+                (this.state.disabled && editingDisabled) ||
+                !streamMediaRetrieved
+              }
             >
               Add a Timespan
             </Button>

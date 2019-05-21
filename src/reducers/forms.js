@@ -4,7 +4,8 @@ const initialState = {
   editingDisabled: false,
   structureRetrieved: false,
   structureStatus: null,
-  waveformRetrieved: false
+  waveformRetrieved: false,
+  streamMediaRetrieved: true
 };
 
 const forms = (state = initialState, action) => {
@@ -41,6 +42,11 @@ const forms = (state = initialState, action) => {
           structureStatus: action.status
         });
       }
+
+    case types.RETREIVE_STREAM_MEDIA_ERROR:
+      return Object.assign({}, state, {
+        streamMediaRetrieved: false
+      });
 
     default:
       return state;

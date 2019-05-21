@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import {
   Button,
   ButtonToolbar,
-  FormControl,
   FormGroup,
   Form,
   Row,
@@ -10,6 +9,9 @@ import {
 } from 'react-bootstrap';
 import { connect } from 'react-redux';
 import Hls from 'hls.js';
+import AlertContainer from '../containers/AlertContainer';
+import { configureAlert } from '../services/alert-status';
+import { retrieveStreamMediaError } from '../actions/forms';
 
 // Content of aria-label for UI components
 const waveformLabel = `Two interactive waveforms, plotted one after the other using data from a masterfile in the back-end server.
@@ -23,7 +25,9 @@ class Waveform extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      audioFile: this.props.audioStreamURL
+      audioFile: this.props.audioStreamURL,
+      alertObj: null,
+      hasError: false
     };
 
     // Create `refs`
@@ -31,22 +35,52 @@ class Waveform extends Component {
     this.mediaPlayer = React.createRef();
   }
 
-  componentDidMount() {
+  componentDidMount = () => {
     const { audioFile } = this.state;
     if (Hls.isSupported()) {
       const hls = new Hls();
+      let self = this;
       // Bind media player
       hls.attachMedia(this.mediaPlayer.current);
       // MEDIA_ATTACHED event is fired by hls object once MediaSource is ready
       hls.on(Hls.Events.MEDIA_ATTACHED, function() {
         hls.loadSource(audioFile);
       });
+      hls.on(Hls.Events.ERROR, function(event, data) {
+        if (data.fatal) {
+          self.setAlert(data);
+        }
+      });
     }
-
     // Grab the React `refs` now the component is mounted
     this.props.waveformRef(this.waveformContainer.current);
     this.props.mediaPlayerRef(this.mediaPlayer.current);
-  }
+  };
+
+  clearAlert = () => {
+    this.setState({ alertObj: null });
+  };
+
+  setAlert = data => {
+    this.props.retrieveStreamMediaError();
+    if (data.response !== undefined) {
+      const status = data.response.code;
+      status === 0
+        ? this.setState({
+            alertObj: configureAlert(-5, this.clearAlert),
+            hasError: true
+          })
+        : this.setState({
+            alertObj: configureAlert(data.response.code, this.clearAlert),
+            hasError: true
+          });
+    } else {
+      this.setState({
+        alertObj: configureAlert(-5, this.clearAlert),
+        hasError: true
+      });
+    }
+  };
 
   zoomIn = () => {
     this.props.peaksInstance.peaks.zoom.zoomIn();
@@ -57,6 +91,7 @@ class Waveform extends Component {
   };
 
   render() {
+    const { alertObj, hasError } = this.state;
     return (
       <div>
         <div
@@ -67,13 +102,17 @@ class Waveform extends Component {
         />
         <Row>
           <Col xs={12} md={6}>
-            <audio
-              controls
-              ref={this.mediaPlayer}
-              aria-label={audioControlsLabel}
-            >
-              Your browser does not support the audio element.
-            </audio>
+            {hasError ? (
+              <AlertContainer {...alertObj} />
+            ) : (
+              <audio
+                controls
+                ref={this.mediaPlayer}
+                aria-label={audioControlsLabel}
+              >
+                Your browser does not support the audio element.
+              </audio>
+            )}
           </Col>
           <Col xs={12} md={6} className="text-right">
             <Form inline onSubmit={this.handleSubmit} role="form">
@@ -105,5 +144,12 @@ export { Waveform as PureWaveform };
 const mapStateToProps = state => ({
   peaksInstance: state.peaksInstance
 });
+
+const mapDispatchToProps = {
+  retrieveStreamMediaError: retrieveStreamMediaError
+};
 // To use in the app
-export default connect(mapStateToProps)(Waveform);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Waveform);

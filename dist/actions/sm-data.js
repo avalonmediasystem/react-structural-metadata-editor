@@ -5,7 +5,6 @@ var _interopRequireWildcard = require("@babel/runtime/helpers/interopRequireWild
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.addHeading = addHeading;
 exports.buildSMUI = buildSMUI;
 exports.deleteItem = deleteItem;
 exports.addDropTargets = addDropTargets;
@@ -15,13 +14,6 @@ exports.removeActiveDragSources = removeActiveDragSources;
 exports.handleListItemDrop = handleListItemDrop;
 
 var types = _interopRequireWildcard(require("./types"));
-
-function addHeading(values) {
-  return {
-    type: types.ADD_HEADING,
-    payload: values
-  };
-}
 
 function buildSMUI(json) {
   return {

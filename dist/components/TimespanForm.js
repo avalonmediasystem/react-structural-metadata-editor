@@ -284,8 +284,8 @@ function (_Component) {
           var startTime = initSegment.startTime,
               endTime = initSegment.endTime;
           return {
-            beginTime: waveformDataUtils.toHHmmss(startTime),
-            endTime: waveformDataUtils.toHHmmss(endTime),
+            beginTime: structuralMetadataUtils.toHHmmss(startTime),
+            endTime: structuralMetadataUtils.toHHmmss(endTime),
             isInitializing: false
           };
         }
@@ -296,8 +296,8 @@ function (_Component) {
               _endTime = _waveformDataUtils$va.endTime;
 
           return {
-            beginTime: waveformDataUtils.toHHmmss(_startTime),
-            endTime: waveformDataUtils.toHHmmss(_endTime)
+            beginTime: structuralMetadataUtils.toHHmmss(_startTime),
+            endTime: structuralMetadataUtils.toHHmmss(_endTime)
           };
         }
       } // When handles in waveform is dragged disable typing in the input form

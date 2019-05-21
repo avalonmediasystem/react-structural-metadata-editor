@@ -9,13 +9,9 @@ let newState = null;
 
 const smData = (state = initialState, action) => {
   switch (action.type) {
-    case types.ADD_HEADING:
-      stateClone = cloneDeep(state);
-      stateClone.push(action.payload);
-      return stateClone;
-
     case types.BUILD_SM_UI:
-      return action.payload;
+      newState = structuralMetadataUtils.buildSMUI(action.payload);
+      return newState;
 
     case types.DELETE_ITEM:
       return structuralMetadataUtils.deleteListItem(action.id, state);

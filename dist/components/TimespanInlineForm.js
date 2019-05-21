@@ -197,8 +197,8 @@ function (_Component) {
         var startTime = segment.startTime,
             endTime = segment.endTime;
         return {
-          beginTime: waveformUtils.toHHmmss(startTime),
-          endTime: waveformUtils.toHHmmss(endTime)
+          beginTime: structuralMetadataUtils.toHHmmss(startTime),
+          endTime: structuralMetadataUtils.toHHmmss(endTime)
         };
       }
 
@@ -213,8 +213,8 @@ function (_Component) {
               _endTime = _waveformUtils$valida.endTime;
 
           return {
-            beginTime: waveformUtils.toHHmmss(_startTime),
-            endTime: waveformUtils.toHHmmss(_endTime)
+            beginTime: structuralMetadataUtils.toHHmmss(_startTime),
+            endTime: structuralMetadataUtils.toHHmmss(_endTime)
           };
         }
       }

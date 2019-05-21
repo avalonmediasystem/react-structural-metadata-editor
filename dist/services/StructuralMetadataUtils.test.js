@@ -1,5 +1,4 @@
 import StructuralMetadataUtils from './StructuralMetadataUtils';
-import WaveformDataUtils from './WaveformDataUtils';
 import {
   testMetadataStructure,
   testEmptyHeaderBefore,
@@ -8,7 +7,6 @@ import {
 import { cloneDeep } from 'lodash';
 
 const smu = new StructuralMetadataUtils();
-const waveformUtils = new WaveformDataUtils();
 var testData = [];
 
 beforeEach(() => {
@@ -628,17 +626,17 @@ describe('StructuralMetadataUtils class', () => {
   describe('converts time in seconds to string hh:mm:ss.ss format', () => {
     test('when time is an integer', () => {
       const timeInSeconds = 540.0;
-      const value = waveformUtils.toHHmmss(timeInSeconds);
+      const value = smu.toHHmmss(timeInSeconds);
       expect(value).toEqual('00:09:00.00');
     });
     test('when there are decimal points', () => {
       const timeInSeconds = 543.9983255;
-      const value = waveformUtils.toHHmmss(timeInSeconds);
+      const value = smu.toHHmmss(timeInSeconds);
       expect(value).toEqual('00:09:03.99');
     });
     test('when decimal with zero at the end', () => {
       const timeInSeconds = 545.2;
-      const value = waveformUtils.toHHmmss(timeInSeconds);
+      const value = smu.toHHmmss(timeInSeconds);
       expect(value).toEqual('00:09:05.20');
     });
   });

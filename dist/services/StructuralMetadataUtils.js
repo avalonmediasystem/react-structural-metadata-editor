@@ -11,6 +11,8 @@ var _objectWithoutProperties2 = _interopRequireDefault(require("@babel/runtime/h
 
 var _objectSpread2 = _interopRequireDefault(require("@babel/runtime/helpers/objectSpread"));
 
+var _slicedToArray2 = _interopRequireDefault(require("@babel/runtime/helpers/slicedToArray"));
+
 var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
 
 var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
@@ -124,6 +126,75 @@ function () {
       });
       parentDiv.items.splice(indexToDelete, 1);
       return clonedItems;
+    }
+    /**
+     * Format the time of the timespans in the structured metadata fetched from the server,
+     * so that they can be used in the validation logic and Peaks instance
+     * @param {Array} allItems - array of all the items in structured metadata
+     */
+
+  }, {
+    key: "buildSMUI",
+    value: function buildSMUI(allItems) {
+      var _this2 = this;
+
+      // Regex to match mm:ss OR single number
+      var regex = /^(?:[0-9]*:[0-9]*.[0-9]*|[0-9]*.[0-9]*)$/i; // Convert time to HH:mm:ss.ms format to use in validation logic
+
+      var convertToHHmmss = function convertToHHmmss(time) {
+        if (time.indexOf(':') !== -1) {
+          var _time$split = time.split(':'),
+              _time$split2 = (0, _slicedToArray2["default"])(_time$split, 2),
+              minutes = _time$split2[0],
+              seconds = _time$split2[1];
+
+          var minutesIn = parseInt(minutes) * 60;
+          var secondsIn = seconds === '' ? 0.0 : parseFloat(seconds);
+          return _this2.toHHmmss(minutesIn + secondsIn);
+        } else {
+          return _this2.toHHmmss(time);
+        }
+      }; // Recursive function to traverse whole data structure
+
+
+      var formatTime = function formatTime(items) {
+        var _iteratorNormalCompletion = true;
+        var _didIteratorError = false;
+        var _iteratorError = undefined;
+
+        try {
+          for (var _iterator = items[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+            var item = _step.value;
+
+            if (item.type === 'span') {
+              var begin = item.begin,
+                  end = item.end;
+              item.begin = regex.test(begin) ? convertToHHmmss(begin) : begin;
+              item.end = regex.test(end) ? convertToHHmmss(end) : end;
+            }
+
+            if (item.items) {
+              formatTime(item.items);
+            }
+          }
+        } catch (err) {
+          _didIteratorError = true;
+          _iteratorError = err;
+        } finally {
+          try {
+            if (!_iteratorNormalCompletion && _iterator["return"] != null) {
+              _iterator["return"]();
+            }
+          } finally {
+            if (_didIteratorError) {
+              throw _iteratorError;
+            }
+          }
+        }
+      };
+
+      formatTime(allItems);
+      return allItems;
     }
     /**
      * Update the data structure to represent all possible dropTargets for the provided dragSource
@@ -272,53 +343,6 @@ function () {
       var foundItem = null;
 
       var fn = function fn(items) {
-        var _iteratorNormalCompletion = true;
-        var _didIteratorError = false;
-        var _iteratorError = undefined;
-
-        try {
-          for (var _iterator = items[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-            var item = _step.value;
-
-            if (item.id === id) {
-              foundItem = item;
-            }
-
-            if (item.items && item.items.length > 0) {
-              fn(item.items);
-            }
-          }
-        } catch (err) {
-          _didIteratorError = true;
-          _iteratorError = err;
-        } finally {
-          try {
-            if (!_iteratorNormalCompletion && _iterator["return"] != null) {
-              _iterator["return"]();
-            }
-          } finally {
-            if (_didIteratorError) {
-              throw _iteratorError;
-            }
-          }
-        }
-      };
-
-      fn(items);
-      return foundItem;
-    }
-    /**
-     * @param {String} label - string value to match against
-     * @param {Array} items - Array of nested structured metadata objects containing headings and time spans
-     * @return {Object} - Object found, or null if none
-     */
-
-  }, {
-    key: "findItemByLabel",
-    value: function findItemByLabel(label, items) {
-      var foundItem = null;
-
-      var findItem = function findItem(items) {
         var _iteratorNormalCompletion2 = true;
         var _didIteratorError2 = false;
         var _iteratorError2 = undefined;
@@ -327,12 +351,12 @@ function () {
           for (var _iterator2 = items[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
             var item = _step2.value;
 
-            if (item.label === label) {
+            if (item.id === id) {
               foundItem = item;
             }
 
-            if (item.items) {
-              findItem(item.items);
+            if (item.items && item.items.length > 0) {
+              fn(item.items);
             }
           }
         } catch (err) {
@@ -351,7 +375,7 @@ function () {
         }
       };
 
-      findItem(items);
+      fn(items);
       return foundItem;
     }
     /**
@@ -603,12 +627,12 @@ function () {
   }, {
     key: "getValidHeadingForEmptySpans",
     value: function getValidHeadingForEmptySpans(wrapperSpans, allItems) {
-      var _this2 = this;
+      var _this3 = this;
 
       var adjacentDiv = null;
 
       var getWrapperDiv = function getWrapperDiv(currentParent, position) {
-        var wrapperParents = _this2.findWrapperHeaders(currentParent, allItems);
+        var wrapperParents = _this3.findWrapperHeaders(currentParent, allItems);
 
         switch (position) {
           case 'before':
@@ -745,7 +769,7 @@ function () {
   }, {
     key: "insertNewTimespan",
     value: function insertNewTimespan(obj, allItems) {
-      var _this3 = this;
+      var _this4 = this;
 
       var toMs = this.toMs;
       var clonedItems = (0, _lodash.cloneDeep)(allItems);
@@ -818,7 +842,7 @@ function () {
         }
 
         childSpans = childSpans.concat(nestedTimespans).sort(function (x, y) {
-          return _this3.toMs(x['begin']) - _this3.toMs(y['begin']);
+          return _this4.toMs(x['begin']) - _this4.toMs(y['begin']);
         }); // Get before and after sibling spans
 
         var wrapperSpans = this.findWrapperSpans(spanObj, childSpans);
@@ -898,31 +922,6 @@ function () {
 
       var cleanItems = removeFromTree(clonedItems[0], 'optional');
       return [cleanItems];
-    }
-    /**
-     * Moment.js helper millisecond converter to make calculations consistent
-     * @param {String} strTime form input value
-     */
-
-  }, {
-    key: "toMs",
-    value: function toMs(strTime) {
-      return _moment["default"].duration(strTime).asMilliseconds();
-    }
-    /**
-     * Update an existing heading object
-     * @param {Object} heading - updated form object
-     * @param {Array} allItems - the data structure
-     */
-
-  }, {
-    key: "updateHeading",
-    value: function updateHeading(heading, allItems) {
-      var clonedItems = (0, _lodash.cloneDeep)(allItems);
-      var item = this.findItem(heading.id, clonedItems);
-      item.label = heading.headingTitle; // TODO: Figure out how to handle "Child Of" when this becomes inline.
-
-      return clonedItems;
     }
     /**
      * Does 'before' time start prior to 'end' time?
@@ -1006,6 +1005,52 @@ function () {
       if (smData.length > 0) {
         smData[0].type = 'root';
       }
+    }
+    /**
+     * Moment.js helper millisecond converter to make calculations consistent
+     * @param {String} strTime form input value
+     */
+
+  }, {
+    key: "toMs",
+    value: function toMs(strTime) {
+      return _moment["default"].duration(strTime).asMilliseconds();
+    }
+    /**
+     * Convert seconds to string format hh:mm:ss
+     * @param {Number} secTime - time in seconds
+     */
+
+  }, {
+    key: "toHHmmss",
+    value: function toHHmmss(secTime) {
+      var sec_num = this.roundOff(secTime);
+      var hours = Math.floor(sec_num / 3600);
+      var minutes = Math.floor(sec_num / 60);
+      var seconds = sec_num - minutes * 60 - hours * 3600;
+      var hourStr = hours < 10 ? "0".concat(hours) : "".concat(hours);
+      var minStr = minutes < 10 ? "0".concat(minutes) : "".concat(minutes);
+      var secStr = seconds.toFixed(2);
+      secStr = seconds < 10 ? "0".concat(secStr) : "".concat(secStr);
+      return "".concat(hourStr, ":").concat(minStr, ":").concat(secStr);
+    }
+  }, {
+    key: "roundOff",
+    value: function roundOff(value) {
+      var valueString = '';
+
+      var _value$toString$split = value.toString().split('.'),
+          _value$toString$split2 = (0, _slicedToArray2["default"])(_value$toString$split, 2),
+          intVal = _value$toString$split2[0],
+          decVal = _value$toString$split2[1];
+
+      if (!decVal) {
+        valueString = intVal;
+      } else {
+        valueString = intVal + '.' + decVal.substring(0, 2);
+      }
+
+      return parseFloat(valueString);
     }
   }]);
   return StructuralMetadataUtils;

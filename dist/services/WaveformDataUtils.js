@@ -503,24 +503,6 @@ function () {
       var secondsIn = seconds === '' ? 0.0 : parseFloat(seconds);
       return hoursAndMins + secondsIn;
     }
-    /**
-     * Convert seconds to string format hh:mm:ss
-     * @param {Number} secTime - time in seconds
-     */
-
-  }, {
-    key: "toHHmmss",
-    value: function toHHmmss(secTime) {
-      var sec_num = this.roundOff(secTime);
-      var hours = Math.floor(sec_num / 3600);
-      var minutes = Math.floor(sec_num / 60);
-      var seconds = sec_num - minutes * 60 - hours * 3600;
-      var hourStr = hours < 10 ? "0".concat(hours) : "".concat(hours);
-      var minStr = minutes < 10 ? "0".concat(minutes) : "".concat(minutes);
-      var secStr = seconds.toFixed(2);
-      secStr = seconds < 10 ? "0".concat(secStr) : "".concat(secStr);
-      return "".concat(hourStr, ":").concat(minStr, ":").concat(secStr);
-    }
   }, {
     key: "sortSegments",
     value: function sortSegments(peaksInstance, sortBy) {

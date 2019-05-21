@@ -90,6 +90,8 @@ function () {
   }, {
     key: "insertTempSegment",
     value: function insertTempSegment(peaksInstance) {
+      var _this2 = this;
+
       // Current time of the playhead
       var currentTime = this.roundOff(peaksInstance.player.getCurrentTime()); // End time of the media file
 
@@ -100,8 +102,8 @@ function () {
 
       currentSegments.map(function (segment) {
         if (rangeBeginTime >= segment.startTime && rangeBeginTime <= segment.endTime) {
-          // Adds 0.01 to check consecutive segments and rounds upto 2 decimal points for accuracy
-          rangeBeginTime = Math.round((segment.endTime + 0.01) * 100) / 100;
+          // rounds upto 2 decimal points for accuracy
+          rangeBeginTime = _this2.roundOff(segment.endTime);
         }
 
         return rangeBeginTime;
@@ -123,11 +125,11 @@ function () {
           }
 
           if (segmentLength < 60 && rangeEndTime >= segment.startTime) {
-            rangeEndTime = segment.startTime - 0.01;
+            rangeEndTime = segment.startTime;
           }
 
           if (rangeEndTime >= segment.startTime && rangeEndTime < segment.endTime) {
-            rangeEndTime = segment.startTime - 0.01;
+            rangeEndTime = segment.startTime;
           }
         }
 
@@ -210,12 +212,12 @@ function () {
   }, {
     key: "rebuildPeaks",
     value: function rebuildPeaks(peaksInstance) {
-      var _this2 = this;
+      var _this3 = this;
 
       var clonedSegments = this.sortSegments(peaksInstance, 'startTime');
       peaksInstance.segments.removeAll();
       clonedSegments.forEach(function (segment, index) {
-        segment.color = _this2.isOdd(index) ? COLOR_PALETTE[1] : COLOR_PALETTE[0];
+        segment.color = _this3.isOdd(index) ? COLOR_PALETTE[1] : COLOR_PALETTE[0];
         peaksInstance.segments.add(segment);
       });
       return peaksInstance;
@@ -359,20 +361,16 @@ function () {
           before = _this$findWrapperSegm.before,
           after = _this$findWrapperSegm.after;
 
-      if (before && startTime <= before.endTime) {
-        segment.startTime = before.endTime + 0.01;
+      if (before && startTime < before.endTime) {
+        segment.startTime = before.endTime;
       }
 
       if (before && endTime === before.endTime) {
-        segment.endTime = before.endTime + 0.02;
-      }
-
-      if (before && endTime < before.endTime) {
         segment.endTime = before.endTime + 0.01;
       }
 
       if (after && endTime >= after.startTime) {
-        segment.endTime = after.startTime - 0.01;
+        segment.endTime = after.startTime;
       }
 
       if (!after && endTime > duration) {
@@ -405,14 +403,14 @@ function () {
 
         if (current && next && segment.startTime < current.endTime) {
           if (!withinSegment || next.startTime !== current.endTime || next.startTime !== current.endTime + 0.01) {
-            segment.startTime = current.endTime + 0.01;
+            segment.startTime = current.endTime;
             segment.endTime = segment.startTime + 0.01;
           }
         }
 
         if (current && !next) {
-          segment.startTime = current.endTime + 0.01;
-          segment.endTime = segment.startTime + 0.02;
+          segment.startTime = current.endTime;
+          segment.endTime = segment.startTime + 0.01;
         }
       }
 
@@ -466,7 +464,7 @@ function () {
   }, {
     key: "findWrapperSegments",
     value: function findWrapperSegments(currentSegment, allSegments) {
-      var _this3 = this;
+      var _this4 = this;
 
       var wrapperSegments = {
         before: null,
@@ -474,8 +472,8 @@ function () {
       };
       var timeFixedSegments = allSegments.map(function (seg) {
         return (0, _objectSpread2["default"])({}, seg, {
-          startTime: _this3.roundOff(seg.startTime),
-          endTime: _this3.roundOff(seg.endTime)
+          startTime: _this4.roundOff(seg.startTime),
+          endTime: _this4.roundOff(seg.endTime)
         });
       });
       var currentIndex = allSegments.map(function (segment) {

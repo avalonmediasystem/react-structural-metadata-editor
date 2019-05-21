@@ -301,7 +301,7 @@ function () {
         var spanBegin = toMs(allSpans[i].begin);
         var spanEnd = toMs(allSpans[i].end); // Illegal time (falls between existing start/end times)
 
-        if (time >= spanBegin && time <= spanEnd) {
+        if (time > spanBegin && time < spanEnd) {
           valid = false;
           break;
         } // Time exceeds the end time of the media file

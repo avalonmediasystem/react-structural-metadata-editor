@@ -18,7 +18,8 @@ const peaksOptions = {
 const initialState = {
   forms: {
     structureRetrieved: true,
-    waveformRetrieved: true
+    waveformRetrieved: true,
+    streamMediaRetrieved: true
   },
   peaksInstance: {
     peaks: Peaks.init(peaksOptions)

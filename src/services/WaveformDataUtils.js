@@ -55,8 +55,8 @@ export default class WaveformDataUtils {
         rangeBeginTime >= segment.startTime &&
         rangeBeginTime <= segment.endTime
       ) {
-        // Adds 0.01 to check consecutive segments and rounds upto 2 decimal points for accuracy
-        rangeBeginTime = Math.round((segment.endTime + 0.01) * 100) / 100;
+        // rounds upto 2 decimal points for accuracy
+        rangeBeginTime = this.roundOff(segment.endTime);
       }
       return rangeBeginTime;
     });
@@ -79,13 +79,13 @@ export default class WaveformDataUtils {
           rangeEndTime = fileEndTime;
         }
         if (segmentLength < 60 && rangeEndTime >= segment.startTime) {
-          rangeEndTime = segment.startTime - 0.01;
+          rangeEndTime = segment.startTime;
         }
         if (
           rangeEndTime >= segment.startTime &&
           rangeEndTime < segment.endTime
         ) {
-          rangeEndTime = segment.startTime - 0.01;
+          rangeEndTime = segment.startTime;
         }
       }
       if (rangeEndTime > fileEndTime) {
@@ -268,17 +268,14 @@ export default class WaveformDataUtils {
 
     const { before, after } = this.findWrapperSegments(segment, allSegments);
 
-    if (before && startTime <= before.endTime) {
-      segment.startTime = before.endTime + 0.01;
+    if (before && startTime < before.endTime) {
+      segment.startTime = before.endTime;
     }
     if (before && endTime === before.endTime) {
-      segment.endTime = before.endTime + 0.02;
-    }
-    if (before && endTime < before.endTime) {
       segment.endTime = before.endTime + 0.01;
     }
     if (after && endTime >= after.startTime) {
-      segment.endTime = after.startTime - 0.01;
+      segment.endTime = after.startTime;
     }
     if (!after && endTime > duration) {
       segment.endTime = duration;
@@ -307,13 +304,13 @@ export default class WaveformDataUtils {
           next.startTime !== current.endTime ||
           next.startTime !== current.endTime + 0.01
         ) {
-          segment.startTime = current.endTime + 0.01;
+          segment.startTime = current.endTime;
           segment.endTime = segment.startTime + 0.01;
         }
       }
       if (current && !next) {
-        segment.startTime = current.endTime + 0.01;
-        segment.endTime = segment.startTime + 0.02;
+        segment.startTime = current.endTime;
+        segment.endTime = segment.startTime + 0.01;
       }
     }
     return segment;

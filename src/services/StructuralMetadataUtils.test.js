@@ -121,7 +121,7 @@ describe('StructuralMetadataUtils class', () => {
     });
     test('time = 00:00:03.32 (start of the first timespan)', () => {
       const time = '00:00:03.32';
-      expect(smu.doesTimeOverlap(time, allSpans)).toBeFalsy();
+      expect(smu.doesTimeOverlap(time, allSpans)).toBeTruthy();
     });
     test('time == 00:00:05.00 (within an existing timespan)', () => {
       const time = '00:00:05.00';

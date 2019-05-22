@@ -15,10 +15,11 @@ exports.handleListItemDrop = handleListItemDrop;
 
 var types = _interopRequireWildcard(require("./types"));
 
-function buildSMUI(json) {
+function buildSMUI(json, duration) {
   return {
     type: types.BUILD_SM_UI,
-    payload: json
+    json: json,
+    duration: duration
   };
 }
 

@@ -352,89 +352,48 @@ function () {
   }, {
     key: "validateSegment",
     value: function validateSegment(segment, peaksInstance) {
-      var allSegments = this.sortSegments(peaksInstance, 'startTime');
+      var allSegments = peaksInstance.segments.getSegments();
       var duration = this.roundOff(peaksInstance.player.getDuration());
-      var startTime = this.roundOff(segment.startTime);
-      var endTime = this.roundOff(segment.endTime);
+      var startTime = segment.startTime,
+          endTime = segment.endTime; // segments before and after the editing segment
 
       var _this$findWrapperSegm = this.findWrapperSegments(segment, allSegments),
           before = _this$findWrapperSegm.before,
-          after = _this$findWrapperSegm.after;
+          after = _this$findWrapperSegm.after; // index of the segment in the arrays
 
-      if (before && startTime < before.endTime) {
-        segment.startTime = before.endTime;
-      }
 
-      if (before && endTime === before.endTime) {
-        segment.endTime = before.endTime + 0.01;
-      }
+      var segmentIndex = allSegments.map(function (seg) {
+        return seg.id;
+      }).indexOf(segment.id);
 
-      if (after && endTime >= after.startTime) {
-        segment.endTime = after.startTime;
-      }
+      for (var i = 0; i < allSegments.length; i++) {
+        var current = allSegments[i];
 
-      if (!after && endTime > duration) {
-        segment.endTime = duration;
-      }
-
-      if (this.isOverlapping(segment, allSegments)) {
-        segment = this.shiftSegmentToValidTime(segment, allSegments);
-      }
-
-      return segment;
-    }
-    /**
-     * Shift an overlapped segment to a valid time through existing segments
-     * @param {Object} segment - segment to be validated and moved
-     * @param {Array} allSegments - an array of all the segments in Peaks instance
-     */
-
-  }, {
-    key: "shiftSegmentToValidTime",
-    value: function shiftSegmentToValidTime(segment, allSegments) {
-      var segments = allSegments.filter(function (seg) {
-        return seg.id !== segment.id;
-      });
-
-      for (var i = 0; i < segments.length; i++) {
-        var current = segments[i];
-        var withinSegment = this.isOverlapping(current, allSegments);
-        var next = segments[i + 1];
-
-        if (current && next && segment.startTime < current.endTime) {
-          if (!withinSegment || next.startTime !== current.endTime || next.startTime !== current.endTime + 0.01) {
-            segment.startTime = current.endTime;
-            segment.endTime = segment.startTime + 0.01;
-          }
+        if (current.id == segment.id) {
+          continue;
         }
 
-        if (current && !next) {
+        if (startTime > current.startTime && endTime < current.endTime) {
           segment.startTime = current.endTime;
+          segment.endTime = current.endTime + 0.01;
+        } else if (duration - 0.01 <= endTime && endTime <= duration && after && after.id === current.id) {
+          segment.endTime = after.startTime;
+        } else if (before && before.id === current.id && startTime < before.endTime) {
+          segment.startTime = before.endTime;
+        } else if (after && after.id === current.id && endTime > after.startTime) {
+          segment.endTime = after.startTime;
+        } else if (startTime > current.startTime && startTime < current.endTime) {
+          segment.startTime = i < segmentIndex ? current.endTime : current.startTime;
+        } else if (endTime > current.startTime && endTime < current.endTime) {
+          segment.endTime = i < segmentIndex ? current.startTime : current.endTime;
+        } else if (segment.startTime === segment.endTime) {
           segment.endTime = segment.startTime + 0.01;
+        } else if (endTime > duration) {
+          segment.endTime = duration;
         }
       }
 
       return segment;
-    }
-    /**
-     * Check to see whether a segment is fully contained within another segment
-     * @param {Object} segment - segment to be checked for overlapping with another segment
-     * @param {Array} allSegments - array of all the segments in the Peaks instance
-     */
-
-  }, {
-    key: "isOverlapping",
-    value: function isOverlapping(segment, allSegments) {
-      var overlapped = false;
-      var segments = allSegments.filter(function (seg) {
-        return seg.id !== segment.id;
-      });
-      segments.map(function (current) {
-        if (segment.startTime >= current.startTime && segment.endTime <= current.endTime) {
-          overlapped = true;
-        }
-      });
-      return overlapped;
     }
     /**
      * Convert timespan to segment to be consumed within peaks instance
@@ -470,17 +429,25 @@ function () {
         before: null,
         after: null
       };
+      var startTime = currentSegment.startTime,
+          endTime = currentSegment.endTime;
       var timeFixedSegments = allSegments.map(function (seg) {
         return (0, _objectSpread2["default"])({}, seg, {
           startTime: _this4.roundOff(seg.startTime),
           endTime: _this4.roundOff(seg.endTime)
         });
       });
-      var currentIndex = allSegments.map(function (segment) {
-        return segment.id;
-      }).indexOf(currentSegment.id);
-      wrapperSegments.before = currentIndex > 0 ? timeFixedSegments[currentIndex - 1] : null;
-      wrapperSegments.after = currentIndex < timeFixedSegments.length - 1 ? timeFixedSegments[currentIndex + 1] : null;
+      wrapperSegments.after = timeFixedSegments.filter(function (seg) {
+        return seg.startTime > startTime;
+      })[0];
+      var segmentsBefore = timeFixedSegments.filter(function (seg) {
+        return seg.endTime < endTime;
+      });
+
+      if (segmentsBefore) {
+        wrapperSegments.before = segmentsBefore[segmentsBefore.length - 1];
+      }
+
       return wrapperSegments;
     }
   }, {

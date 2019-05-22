@@ -71,7 +71,8 @@ function (_Component) {
       hasError: false,
       masterFileID: _this.props.masterFileID,
       baseURL: _this.props.baseURL,
-      initStructure: _this.props.initStructure
+      initStructure: _this.props.initStructure,
+      streamLength: _this.props.streamDuration
     });
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "clearAlert", function () {
       _this.setState({
@@ -96,13 +97,13 @@ function (_Component) {
       var _initializePeaksInstance = (0, _asyncToGenerator2["default"])(
       /*#__PURE__*/
       _regenerator["default"].mark(function _callee() {
-        var _this$state, baseURL, masterFileID, initStructure, isError, response;
+        var _this$state, baseURL, masterFileID, initStructure, streamLength, isError, response;
 
         return _regenerator["default"].wrap(function _callee$(_context) {
           while (1) {
             switch (_context.prev = _context.next) {
               case 0:
-                _this$state = this.state, baseURL = _this$state.baseURL, masterFileID = _this$state.masterFileID, initStructure = _this$state.initStructure;
+                _this$state = this.state, baseURL = _this$state.baseURL, masterFileID = _this$state.masterFileID, initStructure = _this$state.initStructure, streamLength = _this$state.streamLength;
                 isError = false;
                 _context.prev = 2;
                 _context.next = 5;
@@ -113,7 +114,7 @@ function (_Component) {
                 // Set the masterfile URL as the URI for the waveform data file
                 peaksOptions.dataUri = response.request.responseURL; // Initialize Peaks
 
-                this.props.fetchDataAndBuildPeaks(baseURL, masterFileID, initStructure, peaksOptions, isError); // Update redux-store flag for waveform file retrieval
+                this.props.fetchDataAndBuildPeaks(baseURL, masterFileID, initStructure, peaksOptions, streamLength, isError); // Update redux-store flag for waveform file retrieval
 
                 this.props.retrieveWaveformSuccess();
                 _context.next = 17;
@@ -126,7 +127,7 @@ function (_Component) {
                 this.handleError(_context.t0);
                 this.props.handleEditingTimespans(0); // Fetch structure.json when waveform.json is
 
-                this.props.fetchDataAndBuildPeaks(baseURL, masterFileID, initStructure, peaksOptions, isError);
+                this.props.fetchDataAndBuildPeaks(baseURL, masterFileID, initStructure, peaksOptions, streamLength, isError);
 
               case 17:
               case "end":

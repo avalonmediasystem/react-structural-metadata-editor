@@ -34,7 +34,8 @@ class WaveformContainer extends Component {
     hasError: false,
     masterFileID: this.props.masterFileID,
     baseURL: this.props.baseURL,
-    initStructure: this.props.initStructure
+    initStructure: this.props.initStructure,
+    streamLength: this.props.streamDuration
   };
 
   componentDidMount() {
@@ -50,7 +51,7 @@ class WaveformContainer extends Component {
   };
 
   async initializePeaksInstance() {
-    const { baseURL, masterFileID, initStructure } = this.state;
+    const { baseURL, masterFileID, initStructure, streamLength } = this.state;
     let isError = false;
     try {
       const response = await apiUtils.getRequest(
@@ -67,6 +68,7 @@ class WaveformContainer extends Component {
         masterFileID,
         initStructure,
         peaksOptions,
+        streamLength,
         isError
       );
       // Update redux-store flag for waveform file retrieval
@@ -81,6 +83,7 @@ class WaveformContainer extends Component {
         masterFileID,
         initStructure,
         peaksOptions,
+        streamLength,
         isError
       );
     }

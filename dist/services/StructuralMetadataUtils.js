@@ -135,14 +135,15 @@ function () {
 
   }, {
     key: "buildSMUI",
-    value: function buildSMUI(allItems) {
+    value: function buildSMUI(allItems, duration) {
       var _this2 = this;
 
       // Regex to match mm:ss OR single number
-      var regex = /^(?:[0-9]*:[0-9]*.[0-9]*|[0-9]*.[0-9]*)$/i; // Convert time to HH:mm:ss.ms format to use in validation logic
+      var regexMMSS = /^([0-9]*:[0-9]*.[0-9]*)$/i;
+      var regexSS = /^([0-9]*.[0-9]*)$/i; // Convert time to HH:mm:ss.ms format to use in validation logic
 
       var convertToHHmmss = function convertToHHmmss(time) {
-        if (time.indexOf(':') !== -1) {
+        if (regexMMSS.test(time)) {
           var _time$split = time.split(':'),
               _time$split2 = (0, _slicedToArray2["default"])(_time$split, 2),
               minutes = _time$split2[0],
@@ -150,9 +151,13 @@ function () {
 
           var minutesIn = parseInt(minutes) * 60;
           var secondsIn = seconds === '' ? 0.0 : parseFloat(seconds);
-          return _this2.toHHmmss(minutesIn + secondsIn);
+          return minutesIn + secondsIn;
+        }
+
+        if (regexSS.test(time)) {
+          return parseFloat(time);
         } else {
-          return _this2.toHHmmss(time);
+          return _this2.toMs(time) / 1000;
         }
       }; // Recursive function to traverse whole data structure
 
@@ -169,8 +174,15 @@ function () {
             if (item.type === 'span') {
               var begin = item.begin,
                   end = item.end;
-              item.begin = regex.test(begin) ? convertToHHmmss(begin) : begin;
-              item.end = regex.test(end) ? convertToHHmmss(end) : end;
+              var beginTime = convertToHHmmss(begin);
+              var endTime = convertToHHmmss(end);
+              item.begin = _this2.toHHmmss(beginTime);
+
+              if (beginTime > endTime) {
+                item.end = _this2.toHHmmss(duration / 1000);
+              } else {
+                item.end = _this2.toHHmmss(endTime);
+              }
             }
 
             if (item.items) {

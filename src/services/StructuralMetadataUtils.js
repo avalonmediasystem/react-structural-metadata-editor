@@ -65,19 +65,23 @@ export default class StructuralMetadataUtils {
    * so that they can be used in the validation logic and Peaks instance
    * @param {Array} allItems - array of all the items in structured metadata
    */
-  buildSMUI(allItems) {
+  buildSMUI(allItems, duration) {
     // Regex to match mm:ss OR single number
-    const regex = /^(?:[0-9]*:[0-9]*.[0-9]*|[0-9]*.[0-9]*)$/i;
+    const regexMMSS = /^([0-9]*:[0-9]*.[0-9]*)$/i;
+    const regexSS = /^([0-9]*.[0-9]*)$/i;
 
     // Convert time to HH:mm:ss.ms format to use in validation logic
     let convertToHHmmss = time => {
-      if (time.indexOf(':') !== -1) {
+      if (regexMMSS.test(time)) {
         let [minutes, seconds] = time.split(':');
         let minutesIn = parseInt(minutes) * 60;
         let secondsIn = seconds === '' ? 0.0 : parseFloat(seconds);
-        return this.toHHmmss(minutesIn + secondsIn);
+        return minutesIn + secondsIn;
+      }
+      if (regexSS.test(time)) {
+        return parseFloat(time);
       } else {
-        return this.toHHmmss(time);
+        return this.toMs(time) / 1000;
       }
     };
     // Recursive function to traverse whole data structure
@@ -85,8 +89,14 @@ export default class StructuralMetadataUtils {
       for (let item of items) {
         if (item.type === 'span') {
           const { begin, end } = item;
-          item.begin = regex.test(begin) ? convertToHHmmss(begin) : begin;
-          item.end = regex.test(end) ? convertToHHmmss(end) : end;
+          let beginTime = convertToHHmmss(begin);
+          let endTime = convertToHHmmss(end);
+          item.begin = this.toHHmmss(beginTime);
+          if (beginTime > endTime) {
+            item.end = this.toHHmmss(duration / 1000);
+          } else {
+            item.end = this.toHHmmss(endTime);
+          }
         }
         if (item.items) {
           formatTime(item.items);

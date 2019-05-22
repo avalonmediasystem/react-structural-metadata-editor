@@ -65,7 +65,18 @@ function (_Component) {
         });
         hls.on(_hls["default"].Events.ERROR, function (event, data) {
           if (data.fatal) {
-            self.setAlert(data);
+            switch (data.type) {
+              case _hls["default"].ErrorTypes.NETWORK_ERROR:
+                self.setAlert(data);
+                break;
+
+              case _hls["default"].ErrorTypes.MEDIA_ERROR:
+                self.setAlert(data);
+                break;
+
+              default:
+                break;
+            }
           }
         });
       } // Grab the React `refs` now the component is mounted

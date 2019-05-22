@@ -48,7 +48,16 @@ class Waveform extends Component {
       });
       hls.on(Hls.Events.ERROR, function(event, data) {
         if (data.fatal) {
-          self.setAlert(data);
+          switch(data.type) {
+            case Hls.ErrorTypes.NETWORK_ERROR:
+              self.setAlert(data);
+              break;
+            case Hls.ErrorTypes.MEDIA_ERROR:
+              self.setAlert(data);
+              break;
+            default:
+              break;
+            }
         }
       });
     }

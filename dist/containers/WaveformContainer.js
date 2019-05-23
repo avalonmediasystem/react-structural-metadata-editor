@@ -53,7 +53,8 @@ var peaksOptions = {
   keyboard: true,
   pointMarkerColor: '#006eb0',
   showPlayheadTime: true,
-  zoomWaveformColor: 'rgba(217, 217, 217, 1)'
+  zoomWaveformColor: 'rgba(117, 117, 117, 1)',
+  overviewWaveformColor: 'rgba(117, 117, 117, 1)'
 };
 
 var WaveformContainer =

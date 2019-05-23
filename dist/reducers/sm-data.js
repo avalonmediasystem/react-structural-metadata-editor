@@ -26,7 +26,7 @@ var smData = function smData() {
 
   switch (action.type) {
     case types.BUILD_SM_UI:
-      newState = structuralMetadataUtils.buildSMUI(action.payload);
+      newState = structuralMetadataUtils.buildSMUI(action.json, action.duration);
       return newState;
 
     case types.DELETE_ITEM:

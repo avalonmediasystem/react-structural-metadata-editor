@@ -1,9 +1,10 @@
 import * as types from './types';
 
-export function buildSMUI(json) {
+export function buildSMUI(json, duration) {
   return {
     type: types.BUILD_SM_UI,
-    payload: json
+    json,
+    duration
   };
 }
 

@@ -7,7 +7,8 @@ const props = {
   masterFileID: '12579s459',
   initStructure: '',
   audioStreamURL:
-    'https://spruce.dlib.indiana.edu/master_files/12579s459/auto.m3u8'
+    'https://spruce.dlib.indiana.edu/master_files/12579s459/auto.m3u8',
+  streamDuration: 377338
 };
 
 render(<Root {...props} />, document.getElementById('root'));

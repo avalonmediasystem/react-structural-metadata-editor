@@ -42,7 +42,7 @@ var structuralMetadataUtils = new _StructuralMetadataUtils["default"]();
  * @param {Boolean} isError - flag inidicating an error happened when fetching waveform.json
  */
 
-function initializeSMDataPeaks(baseURL, masterFileID, initStructure, options, isError) {
+function initializeSMDataPeaks(baseURL, masterFileID, initStructure, options, duration, isError) {
   return function (dispatch, getState) {
     apiUtils.getRequest(baseURL, masterFileID, 'structure.json').then(function (response) {
       var smData = [];
@@ -56,7 +56,7 @@ function initializeSMDataPeaks(baseURL, masterFileID, initStructure, options, is
 
       structuralMetadataUtils.markRootElement(smData); // Initialize Redux state variable with structure
 
-      dispatch((0, _smData.buildSMUI)(smData)); // Update redux-store flag for structure file retrieval
+      dispatch((0, _smData.buildSMUI)(smData, duration)); // Update redux-store flag for structure file retrieval
 
       dispatch((0, _forms.retrieveStructureSuccess)());
 

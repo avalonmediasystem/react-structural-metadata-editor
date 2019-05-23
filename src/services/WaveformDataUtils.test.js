@@ -499,6 +499,27 @@ describe('WaveformDataUtils class', () => {
           color: '#FBB040'
         });
       });
+
+      test('when there is a segment going until the end of the file over an existing segment', () => {
+        const testSegment = {
+          startTime: 540.0,
+          endTime: 1738.94,
+          editable: true,
+          id: 'test-segment',
+          color: '#FBB040'
+        };
+        peaks.segments.add(testSegment);
+        // Change the start time of the segment
+        testSegment.startTime = 541.43;
+        const value = waveformUtils.validateSegment(testSegment, peaks);
+        expect(value).toEqual({
+          startTime: 541.43,
+          endTime: 543.24,
+          editable: true,
+          id: 'test-segment',
+          color: '#FBB040'
+        });
+      });
     });
   });
 });

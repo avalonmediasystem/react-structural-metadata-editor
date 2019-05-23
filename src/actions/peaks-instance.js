@@ -21,6 +21,7 @@ export function initializeSMDataPeaks(
   masterFileID,
   initStructure,
   options,
+  duration,
   isError
 ) {
   return (dispatch, getState) => {
@@ -41,7 +42,7 @@ export function initializeSMDataPeaks(
         structuralMetadataUtils.markRootElement(smData);
 
         // Initialize Redux state variable with structure
-        dispatch(buildSMUI(smData));
+        dispatch(buildSMUI(smData, duration));
 
         // Update redux-store flag for structure file retrieval
         dispatch(retrieveStructureSuccess());

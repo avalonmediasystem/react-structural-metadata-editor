@@ -46,24 +46,33 @@ function () {
 
     (0, _classCallCheck2["default"])(this, StructuralMetadataUtils);
     (0, _defineProperty2["default"])(this, "dndHelper", {
-      addSpanBefore: function addSpanBefore(allItems, wrapperSpanBefore) {
+      addSpanBefore: function addSpanBefore(parentDiv, allItems, wrapperSpanBefore) {
         var beforeParent = _this.getParentDiv(wrapperSpanBefore, allItems);
 
-        var beforeIndex = beforeParent.items.map(function (item) {
+        var beforeSiblings = beforeParent.items;
+        var beforeIndex = beforeSiblings.map(function (item) {
           return item.id;
         }).indexOf(wrapperSpanBefore.id); // Before the insert, check that the dropTarget index doesn't already exist
 
-        if (beforeParent.items[beforeIndex + 1] && beforeParent.items[beforeIndex + 1].type !== 'optional') {
-          beforeParent.items.splice(beforeIndex + 1, 0, _this.createDropZoneObject());
+        if (beforeSiblings[beforeIndex + 1] && beforeSiblings[beforeIndex + 1].type !== 'optional' && parentDiv.id !== beforeParent.id) {
+          beforeSiblings.splice(beforeIndex + 1, 0, _this.createDropZoneObject());
         }
       },
-      addSpanAfter: function addSpanAfter(allItems, wrapperSpanAfter) {
+      addSpanAfter: function addSpanAfter(parentDiv, allItems, wrapperSpanAfter) {
         var afterParent = _this.getParentDiv(wrapperSpanAfter, allItems);
 
-        var afterIndex = afterParent.items.map(function (item) {
+        var afterSiblings = afterParent.items;
+        var afterIndex = afterSiblings.map(function (item) {
           return item.id;
         }).indexOf(wrapperSpanAfter.id);
-        afterParent.items.splice(afterIndex, 0, _this.createDropZoneObject());
+
+        if (afterSiblings[afterIndex - 1] && afterSiblings[afterIndex - 1].type !== 'optional' && parentDiv.id !== afterParent.id) {
+          afterSiblings.splice(afterIndex, 0, _this.createDropZoneObject());
+        }
+
+        if (afterIndex === 0 && parentDiv.id !== afterParent.id) {
+          afterSiblings.splice(afterIndex, 0, _this.createDropZoneObject());
+        }
       },
       stuckInMiddle: function stuckInMiddle(spanIndex, siblings, parentDiv) {
         return spanIndex !== 0 && spanIndex !== siblings.length - 1 && parentDiv.items[spanIndex - 1].type === 'span' && parentDiv.items[spanIndex + 1].type === 'span';
@@ -72,7 +81,11 @@ function () {
         var wrapperParents = _this.findWrapperHeaders(parentDiv, allItems);
 
         if (wrapperParents.after) {
-          wrapperParents.after.items.splice(0, 0, _this.createDropZoneObject());
+          if (wrapperParents.after.items) {
+            wrapperParents.after.items.splice(0, 0, _this.createDropZoneObject());
+          } else {
+            wrapperParents.after.items = [_this.createDropZoneObject()];
+          }
         }
       }
     });
@@ -131,6 +144,7 @@ function () {
      * Format the time of the timespans in the structured metadata fetched from the server,
      * so that they can be used in the validation logic and Peaks instance
      * @param {Array} allItems - array of all the items in structured metadata
+     * @param {Float} duration - end time of the media file in Milliseconds
      */
 
   }, {
@@ -140,7 +154,9 @@ function () {
 
       // Regex to match mm:ss OR single number
       var regexMMSS = /^([0-9]*:[0-9]*.[0-9]*)$/i;
-      var regexSS = /^([0-9]*.[0-9]*)$/i; // Convert time to HH:mm:ss.ms format to use in validation logic
+      var regexSS = /^([0-9]*.[0-9]*)$/i; // Round duration to 2 decimal places
+
+      var fileLength = Math.round(duration / 10) / 100; // Convert time to HH:mm:ss.ms format to use in validation logic
 
       var convertToHHmmss = function convertToHHmmss(time) {
         if (regexMMSS.test(time)) {
@@ -179,7 +195,7 @@ function () {
               item.begin = _this2.toHHmmss(beginTime);
 
               if (beginTime > endTime) {
-                item.end = _this2.toHHmmss(duration / 1000);
+                item.end = _this2.toHHmmss(fileLength);
               } else {
                 item.end = _this2.toHHmmss(endTime);
               }
@@ -255,30 +271,37 @@ function () {
           }
         }
 
-        var grandParentDiv = this.getParentDiv(parentDiv, clonedItems);
-        var parentIndex = grandParentDiv != null ? grandParentDiv.items.map(function (item) {
-          return item.id;
-        }).indexOf(parentDiv.id) : null; // A first child of siblings, or an only child
+        var grandParentDiv = this.getParentDiv(parentDiv, clonedItems); // A first/last child of siblings, or an only child
 
-        if (spanIndex === 0) {
-          // Can't move up
-          if (parentIndex === null) {
-            return clonedItems;
+        if (grandParentDiv !== null) {
+          var siblingTimespans = this.getItemsOfType('span', siblings);
+          var timespanIndex = siblingTimespans.map(function (sibling) {
+            return sibling.id;
+          }).indexOf(dragSource.id);
+          var parentIndex = grandParentDiv.items.map(function (item) {
+            return item.id;
+          }).indexOf(parentDiv.id);
+
+          if (timespanIndex === 0) {
+            grandParentDiv.items.splice(parentIndex, 0, this.createDropZoneObject());
           }
 
-          if (grandParentDiv) {
-            // Insert directly before the parent div
-            grandParentDiv.items.splice(parentIndex, 0, this.createDropZoneObject()); // Insert after the "before" wrapper span (if one exists)
-
-            if (wrapperSpans.before) {
-              this.dndHelper.addSpanBefore(clonedItems, wrapperSpans.before);
-            }
+          if (timespanIndex === siblingTimespans.length - 1) {
+            var newPI = grandParentDiv.items.map(function (item) {
+              return item.id;
+            }).indexOf(parentDiv.id);
+            grandParentDiv.items.splice(newPI + 1, 0, this.createDropZoneObject());
           }
+        } // Insert after the "before" wrapper span (if one exists)
+
+
+        if (wrapperSpans.before) {
+          this.dndHelper.addSpanBefore(parentDiv, clonedItems, wrapperSpans.before);
         } // Insert relative to the span after the active span
 
 
         if (wrapperSpans.after) {
-          this.dndHelper.addSpanAfter(clonedItems, wrapperSpans.after);
+          this.dndHelper.addSpanAfter(parentDiv, clonedItems, wrapperSpans.after);
         } // Insert when there is no wrapper span after active span, but empty headers
 
 
@@ -431,11 +454,14 @@ function () {
       var grandParentDiv = this.getParentDiv(parentDiv, allItems);
 
       if (grandParentDiv != null) {
-        var parentIndex = grandParentDiv.items.map(function (item) {
+        var grandParentItems = grandParentDiv.items.filter(function (item) {
+          return item.type !== 'optional';
+        });
+        var parentIndex = grandParentItems.map(function (item) {
           return item.label;
         }).indexOf(parentDiv.label);
-        wrapperHeadings.before = grandParentDiv.items[parentIndex - 1] !== undefined ? grandParentDiv.items[parentIndex - 1] : null;
-        wrapperHeadings.after = grandParentDiv.items[parentIndex + 1] !== undefined ? grandParentDiv.items[parentIndex + 1] : null;
+        wrapperHeadings.before = grandParentItems[parentIndex - 1] !== undefined ? grandParentItems[parentIndex - 1] : null;
+        wrapperHeadings.after = grandParentItems[parentIndex + 1] !== undefined ? grandParentItems[parentIndex + 1] : null;
       }
 
       return wrapperHeadings;

@@ -64,11 +64,15 @@ export default class StructuralMetadataUtils {
    * Format the time of the timespans in the structured metadata fetched from the server,
    * so that they can be used in the validation logic and Peaks instance
    * @param {Array} allItems - array of all the items in structured metadata
+   * @param {Float} duration - end time of the media file in Milliseconds
    */
   buildSMUI(allItems, duration) {
     // Regex to match mm:ss OR single number
     const regexMMSS = /^([0-9]*:[0-9]*.[0-9]*)$/i;
     const regexSS = /^([0-9]*.[0-9]*)$/i;
+
+    // Round duration to 2 decimal places
+    const fileLength = Math.round(duration / 10) / 100;
 
     // Convert time to HH:mm:ss.ms format to use in validation logic
     let convertToHHmmss = time => {
@@ -93,7 +97,7 @@ export default class StructuralMetadataUtils {
           let endTime = convertToHHmmss(end);
           item.begin = this.toHHmmss(beginTime);
           if (beginTime > endTime) {
-            item.end = this.toHHmmss(duration / 1000);
+            item.end = this.toHHmmss(fileLength);
           } else {
             item.end = this.toHHmmss(endTime);
           }
@@ -162,35 +166,47 @@ export default class StructuralMetadataUtils {
       }
 
       let grandParentDiv = this.getParentDiv(parentDiv, clonedItems);
-      let parentIndex =
-        grandParentDiv != null
-          ? grandParentDiv.items.map(item => item.id).indexOf(parentDiv.id)
-          : null;
-      // A first child of siblings, or an only child
-      if (spanIndex === 0) {
-        // Can't move up
-        if (parentIndex === null) {
-          return clonedItems;
-        }
 
-        if (grandParentDiv) {
-          // Insert directly before the parent div
+      // A first/last child of siblings, or an only child
+      if (grandParentDiv !== null) {
+        let siblingTimespans = this.getItemsOfType('span', siblings);
+        let timespanIndex = siblingTimespans
+          .map(sibling => sibling.id)
+          .indexOf(dragSource.id);
+
+        let parentIndex = grandParentDiv.items
+          .map(item => item.id)
+          .indexOf(parentDiv.id);
+        if (timespanIndex === 0) {
           grandParentDiv.items.splice(
             parentIndex,
             0,
             this.createDropZoneObject()
           );
-
-          // Insert after the "before" wrapper span (if one exists)
-          if (wrapperSpans.before) {
-            this.dndHelper.addSpanBefore(clonedItems, wrapperSpans.before);
-          }
+        }
+        if (timespanIndex === siblingTimespans.length - 1) {
+          let newPI = grandParentDiv.items
+            .map(item => item.id)
+            .indexOf(parentDiv.id);
+          grandParentDiv.items.splice(
+            newPI + 1,
+            0,
+            this.createDropZoneObject()
+          );
         }
       }
 
+      // Insert after the "before" wrapper span (if one exists)
+      if (wrapperSpans.before) {
+        this.dndHelper.addSpanBefore(
+          parentDiv,
+          clonedItems,
+          wrapperSpans.before
+        );
+      }
       // Insert relative to the span after the active span
       if (wrapperSpans.after) {
-        this.dndHelper.addSpanAfter(clonedItems, wrapperSpans.after);
+        this.dndHelper.addSpanAfter(parentDiv, clonedItems, wrapperSpans.after);
       }
       // Insert when there is no wrapper span after active span, but empty headers
       if (!wrapperSpans.after) {
@@ -206,30 +222,37 @@ export default class StructuralMetadataUtils {
    * This mutates the state of the data structure
    */
   dndHelper = {
-    addSpanBefore: (allItems, wrapperSpanBefore) => {
+    addSpanBefore: (parentDiv, allItems, wrapperSpanBefore) => {
       let beforeParent = this.getParentDiv(wrapperSpanBefore, allItems);
-      let beforeIndex = beforeParent.items
+      let beforeSiblings = beforeParent.items;
+      let beforeIndex = beforeSiblings
         .map(item => item.id)
         .indexOf(wrapperSpanBefore.id);
       // Before the insert, check that the dropTarget index doesn't already exist
       if (
-        beforeParent.items[beforeIndex + 1] &&
-        beforeParent.items[beforeIndex + 1].type !== 'optional'
+        beforeSiblings[beforeIndex + 1] &&
+        beforeSiblings[beforeIndex + 1].type !== 'optional' &&
+        parentDiv.id !== beforeParent.id
       ) {
-        beforeParent.items.splice(
-          beforeIndex + 1,
-          0,
-          this.createDropZoneObject()
-        );
+        beforeSiblings.splice(beforeIndex + 1, 0, this.createDropZoneObject());
       }
     },
-    addSpanAfter: (allItems, wrapperSpanAfter) => {
+    addSpanAfter: (parentDiv, allItems, wrapperSpanAfter) => {
       let afterParent = this.getParentDiv(wrapperSpanAfter, allItems);
-      let afterIndex = afterParent.items
+      let afterSiblings = afterParent.items;
+      let afterIndex = afterSiblings
         .map(item => item.id)
         .indexOf(wrapperSpanAfter.id);
-
-      afterParent.items.splice(afterIndex, 0, this.createDropZoneObject());
+      if (
+        afterSiblings[afterIndex - 1] &&
+        afterSiblings[afterIndex - 1].type !== 'optional' &&
+        parentDiv.id !== afterParent.id
+      ) {
+        afterSiblings.splice(afterIndex, 0, this.createDropZoneObject());
+      }
+      if (afterIndex === 0 && parentDiv.id !== afterParent.id) {
+        afterSiblings.splice(afterIndex, 0, this.createDropZoneObject());
+      }
     },
     stuckInMiddle: (spanIndex, siblings, parentDiv) => {
       return (
@@ -242,7 +265,11 @@ export default class StructuralMetadataUtils {
     addSpanToEmptyHeader: (parentDiv, allItems) => {
       let wrapperParents = this.findWrapperHeaders(parentDiv, allItems);
       if (wrapperParents.after) {
-        wrapperParents.after.items.splice(0, 0, this.createDropZoneObject());
+        if (wrapperParents.after.items) {
+          wrapperParents.after.items.splice(0, 0, this.createDropZoneObject());
+        } else {
+          wrapperParents.after.items = [this.createDropZoneObject()];
+        }
       }
     }
   };
@@ -350,19 +377,22 @@ export default class StructuralMetadataUtils {
       after: null
     };
     let grandParentDiv = this.getParentDiv(parentDiv, allItems);
-
     if (grandParentDiv != null) {
-      let parentIndex = grandParentDiv.items
+      let grandParentItems = grandParentDiv.items.filter(
+        item => item.type !== 'optional'
+      );
+
+      let parentIndex = grandParentItems
         .map(item => item.label)
         .indexOf(parentDiv.label);
 
       wrapperHeadings.before =
-        grandParentDiv.items[parentIndex - 1] !== undefined
-          ? grandParentDiv.items[parentIndex - 1]
+        grandParentItems[parentIndex - 1] !== undefined
+          ? grandParentItems[parentIndex - 1]
           : null;
       wrapperHeadings.after =
-        grandParentDiv.items[parentIndex + 1] !== undefined
-          ? grandParentDiv.items[parentIndex + 1]
+        grandParentItems[parentIndex + 1] !== undefined
+          ? grandParentItems[parentIndex + 1]
           : null;
     }
     return wrapperHeadings;

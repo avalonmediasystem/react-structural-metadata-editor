@@ -90,7 +90,7 @@ function (_Component) {
 
       deleteMessage += "?"; // Disable editing of other list items
 
-      _this.props.handleEditingTimespans(0);
+      _this.props.handleEditingTimespans(1);
 
       _this.setState({
         deleteMessage: deleteMessage,
@@ -112,7 +112,7 @@ function (_Component) {
     key: "enableEditing",
     value: function enableEditing() {
       // Enable editing of other list items
-      this.props.handleEditingTimespans(1);
+      this.props.handleEditingTimespans(0);
     }
   }, {
     key: "render",
@@ -129,7 +129,7 @@ function (_Component) {
         className: "edit-controls-wrapper"
       }, item.type === 'span' && _react["default"].createElement(_reactBootstrap.Button, {
         bsStyle: "link",
-        disabled: forms.editingDisabled,
+        disabled: forms.editingDisabled && !item.active,
         onClick: handleShowDropTargetsClick
       }, _react["default"].createElement(_reactFontawesome.FontAwesomeIcon, {
         icon: "dot-circle"

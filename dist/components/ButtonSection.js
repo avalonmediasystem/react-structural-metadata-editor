@@ -90,7 +90,7 @@ function (_Component) {
       }); // Clear the redux-store flag when closing the alert from AlertContainer
 
 
-      _this.props.handleEditingTimespans(1);
+      _this.props.handleEditingTimespans(0);
     });
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "handleCancelHeadingClick", function () {
       _this.setState({
@@ -100,7 +100,7 @@ function (_Component) {
       _this.clearAlert();
     });
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "handleHeadingClick", function () {
-      _this.props.handleEditingTimespans(0); // When opening heading form, delete if a temporary segment exists
+      _this.props.handleEditingTimespans(1); // When opening heading form, delete if a temporary segment exists
 
 
       _this.deleteTempSegment();
@@ -126,7 +126,7 @@ function (_Component) {
       _this.clearAlert(); // Disable editing other items in structure
 
 
-      _this.props.handleEditingTimespans(0); // Create a temporary segment if timespan form is closed
+      _this.props.handleEditingTimespans(1); // Create a temporary segment if timespan form is closed
 
 
       if (!_this.state.timespanOpen) {

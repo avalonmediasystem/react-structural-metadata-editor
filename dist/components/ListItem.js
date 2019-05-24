@@ -100,11 +100,7 @@ function (_Component) {
       editing: false
     });
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "handleDelete", function () {
-      var item = _this.props.item; // Remove DnD source & targets if the current item was active
-
-      if (_this.props.item.active) {
-        _this.handleShowDropTargetsClick();
-      }
+      var item = _this.props.item;
 
       _this.props.deleteItem(item.id);
 
@@ -112,12 +108,7 @@ function (_Component) {
     });
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "handleEditClick", function () {
       // Disable the edit buttons of other list items
-      _this.props.handleEditingTimespans(0); // Remove DnD source & targets if the current item was active
-
-
-      if (_this.props.item.active) {
-        _this.handleShowDropTargetsClick();
-      }
+      _this.props.handleEditingTimespans(1);
 
       _this.setState({
         editing: true
@@ -129,7 +120,7 @@ function (_Component) {
       }); // Enable the edit buttons of other list items
 
 
-      _this.props.handleEditingTimespans(1);
+      _this.props.handleEditingTimespans(0);
     });
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "handleShowDropTargetsClick", function () {
       var _this$props = _this.props,
@@ -137,13 +128,19 @@ function (_Component) {
           item = _this$props.item,
           removeActiveDragSources = _this$props.removeActiveDragSources,
           removeDropTargets = _this$props.removeDropTargets,
-          setActiveDragSource = _this$props.setActiveDragSource; // Clear out any current drop targets
+          setActiveDragSource = _this$props.setActiveDragSource; // Disable other editing actions
+
+      _this.props.handleEditingTimespans(1); // Clear out any current drop targets
+
 
       removeDropTargets(); // Handle closing of current drag source drop targets, and exit with a clean UI.
 
       if (item.active === true) {
         // Clear out any active drag sources
-        removeActiveDragSources();
+        removeActiveDragSources(); // Enable other editing actions
+
+        _this.props.handleEditingTimespans(0);
+
         return;
       } // Clear out any active drag sources
 
@@ -176,7 +173,8 @@ function (_Component) {
       var itemProp = {
         childrenCount: item.items ? item.items.length : 0,
         label: item.label,
-        type: item.type
+        type: item.type,
+        active: item.active
       };
       return connectDragSource(connectDropTarget(_react["default"].createElement("li", {
         className: active ? 'active' : ''
@@ -223,7 +221,8 @@ var mapDispatchToProps = {
 
 var mapStateToProps = function mapStateToProps(state) {
   return {
-    smData: state.smData
+    smData: state.smData,
+    peaksInstance: state.peaksInstance.peaks
   };
 };
 

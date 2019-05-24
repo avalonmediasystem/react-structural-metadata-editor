@@ -77,7 +77,10 @@ class WaveformContainer extends Component {
     } catch (error) {
       isError = true;
       this.handleError(error);
-      this.props.handleEditingTimespans(0);
+
+      // Disable edting when waveform is missing
+      this.props.handleEditingTimespans(1);
+
       // Fetch structure.json when waveform.json is
       this.props.fetchDataAndBuildPeaks(
         baseURL,

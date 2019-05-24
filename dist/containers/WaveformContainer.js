@@ -125,8 +125,9 @@ function (_Component) {
                 _context.prev = 11;
                 _context.t0 = _context["catch"](2);
                 isError = true;
-                this.handleError(_context.t0);
-                this.props.handleEditingTimespans(0); // Fetch structure.json when waveform.json is
+                this.handleError(_context.t0); // Disable edting when waveform is missing
+
+                this.props.handleEditingTimespans(1); // Fetch structure.json when waveform.json is
 
                 this.props.fetchDataAndBuildPeaks(baseURL, masterFileID, initStructure, peaksOptions, streamLength, isError);
 

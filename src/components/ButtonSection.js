@@ -38,7 +38,7 @@ class ButtonSection extends Component {
       disabled: true
     });
     // Clear the redux-store flag when closing the alert from AlertContainer
-    this.props.handleEditingTimespans(1);
+    this.props.handleEditingTimespans(0);
   };
 
   handleCancelHeadingClick = () => {
@@ -47,7 +47,7 @@ class ButtonSection extends Component {
   };
 
   handleHeadingClick = () => {
-    this.props.handleEditingTimespans(0);
+    this.props.handleEditingTimespans(1);
     // When opening heading form, delete if a temporary segment exists
     this.deleteTempSegment();
     this.setState({
@@ -69,7 +69,7 @@ class ButtonSection extends Component {
     this.clearAlert();
 
     // Disable editing other items in structure
-    this.props.handleEditingTimespans(0);
+    this.props.handleEditingTimespans(1);
 
     // Create a temporary segment if timespan form is closed
     if (!this.state.timespanOpen) {

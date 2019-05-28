@@ -36,7 +36,7 @@ class ListItemControls extends Component {
 
   enableEditing() {
     // Enable editing of other list items
-    this.props.handleEditingTimespans(1);
+    this.props.handleEditingTimespans(0);
   }
 
   handleConfirmDelete = () => {
@@ -55,7 +55,7 @@ class ListItemControls extends Component {
     deleteMessage += `?`;
 
     // Disable editing of other list items
-    this.props.handleEditingTimespans(0);
+    this.props.handleEditingTimespans(1);
 
     this.setState({
       deleteMessage,
@@ -85,7 +85,7 @@ class ListItemControls extends Component {
         {item.type === 'span' && (
           <Button
             bsStyle="link"
-            disabled={forms.editingDisabled}
+            disabled={forms.editingDisabled && !item.active}
             onClick={handleShowDropTargetsClick}
           >
             <FontAwesomeIcon icon="dot-circle" />

@@ -23,7 +23,7 @@ var forms = function forms() {
 
   switch (action.type) {
     case types.IS_EDITING_TIMESPAN:
-      if (action.code === 0) {
+      if (action.code === 1) {
         return Object.assign({}, state, {
           editingDisabled: true
         });

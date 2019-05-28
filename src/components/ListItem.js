@@ -61,23 +61,13 @@ class ListItem extends Component {
   handleDelete = () => {
     const { item } = this.props;
 
-    // Remove DnD source & targets if the current item was active
-    if (this.props.item.active) {
-      this.handleShowDropTargetsClick();
-    }
-
     this.props.deleteItem(item.id);
     this.props.deleteSegment(item);
   };
 
   handleEditClick = () => {
     // Disable the edit buttons of other list items
-    this.props.handleEditingTimespans(0);
-
-    // Remove DnD source & targets if the current item was active
-    if (this.props.item.active) {
-      this.handleShowDropTargetsClick();
-    }
+    this.props.handleEditingTimespans(1);
 
     this.setState({ editing: true });
   };
@@ -86,7 +76,7 @@ class ListItem extends Component {
     this.setState({ editing: false });
 
     // Enable the edit buttons of other list items
-    this.props.handleEditingTimespans(1);
+    this.props.handleEditingTimespans(0);
   };
 
   handleShowDropTargetsClick = () => {
@@ -98,6 +88,9 @@ class ListItem extends Component {
       setActiveDragSource
     } = this.props;
 
+    // Disable other editing actions
+    this.props.handleEditingTimespans(1);
+
     // Clear out any current drop targets
     removeDropTargets();
 
@@ -105,6 +98,8 @@ class ListItem extends Component {
     if (item.active === true) {
       // Clear out any active drag sources
       removeActiveDragSources();
+      // Enable other editing actions
+      this.props.handleEditingTimespans(0);
       return;
     }
     // Clear out any active drag sources
@@ -134,7 +129,8 @@ class ListItem extends Component {
     const itemProp = {
       childrenCount: item.items ? item.items.length : 0,
       label: item.label,
-      type: item.type
+      type: item.type,
+      active: item.active
     };
 
     return connectDragSource(
@@ -184,7 +180,8 @@ const mapDispatchToProps = {
 };
 
 const mapStateToProps = state => ({
-  smData: state.smData
+  smData: state.smData,
+  peaksInstance: state.peaksInstance.peaks
 });
 
 const ConnectedDropTarget = DropTarget(ItemTypes.SPAN, spanTarget, collectDrop);

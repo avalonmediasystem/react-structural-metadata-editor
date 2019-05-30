@@ -108,6 +108,7 @@ class TimespanForm extends Component {
 
     // Get all valid div headings
     let validHeadings = structuralMetadataUtils.getValidHeadings(
+      newSpan,
       wrapperSpans,
       smData
     );

@@ -566,6 +566,7 @@ function () {
     /**
      * Overall logic is to find existing before and after spans for the new object (time flow), and then
      * their parent 'divs' would be valid headings.
+     * @param {Object} newSpan - New timespan created with values supplied by the user
      * @param {Object} wrapperSpans Object representing before and after spans of newSpan (if they exist)
      * @param {Array} allItems - All structural metadata items in tree
      * @return {Array} - of valid <div> objects in structural metadata tree
@@ -573,176 +574,131 @@ function () {
 
   }, {
     key: "getValidHeadings",
-    value: function getValidHeadings(wrapperSpans, allItems) {
-      var validHeadings = [];
+    value: function getValidHeadings(newSpan, wrapperSpans, allItems) {
+      var _this3 = this;
+
+      var allValidHeadings = [];
       var sortedHeadings = [];
+      var uniqueHeadings = [];
+      var toMs = this.toMs;
+      var before = wrapperSpans.before,
+          after = wrapperSpans.after;
+      var allHeadings = this.getItemsOfType('root', allItems).concat(this.getItemsOfType('div', allItems)); // Explore possible headings traversing outwards from a suggested heading
 
-      var findSpanItem = function findSpanItem(targetSpan, items) {
-        var _iteratorNormalCompletion5 = true;
-        var _didIteratorError5 = false;
-        var _iteratorError5 = undefined;
+      var exploreOutwards = function exploreOutwards(heading) {
+        var invalid = false;
 
-        try {
-          for (var _iterator5 = items[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
-            var item = _step5.value;
+        var parentHeading = _this3.getParentDiv(heading, allItems);
 
-            // Children items exist
-            if (item.items) {
-              // Check for a target span match
-              var targetSpanMatch = item.items.filter(function (childItem) {
-                return childItem.id === targetSpan.id;
-              }); // Match found
+        var newBegin = newSpan.begin,
+            newEnd = newSpan.end;
 
-              if (targetSpanMatch.length > 0) {
-                var _items = item.items,
-                    cloneWOItems = (0, _objectWithoutProperties2["default"])(item, ["items"]); // Add parent div to valid array
+        if (parentHeading) {
+          var headingIndex = parentHeading.items.map(function (item) {
+            return item.id;
+          }).indexOf(heading.id);
+          var siblings = parentHeading.items;
+          siblings.forEach(function (sibling, i) {
+            if (sibling.type === 'span') {
+              var begin = sibling.begin,
+                  end = sibling.end;
 
-                validHeadings.push(cloneWOItems);
-              } // Try deeper in list
+              if (toMs(newEnd) < toMs(begin) && i < headingIndex) {
+                invalid = true;
+              }
 
-
-              findSpanItem(targetSpan, item.items);
+              if (toMs(newBegin) > toMs(end) && i > headingIndex) {
+                invalid = true;
+              }
             }
-          }
-        } catch (err) {
-          _didIteratorError5 = true;
-          _iteratorError5 = err;
-        } finally {
-          try {
-            if (!_iteratorNormalCompletion5 && _iterator5["return"] != null) {
-              _iterator5["return"]();
-            }
-          } finally {
-            if (_didIteratorError5) {
-              throw _iteratorError5;
-            }
+          });
+
+          if (!invalid) {
+            allValidHeadings.push(parentHeading);
+            exploreOutwards(parentHeading);
+          } else {
+            return;
           }
         }
-      }; // Get all headings in the metada structure
+      }; // Find relevant headings traversing into suggested headings
 
 
-      var allHeadings = this.getItemsOfType('div', allItems).concat(this.getItemsOfType('root', allItems)); // There are currently no spans, ALL headings are valid
+      var exploreInwards = function exploreInwards(wrapperParent, wrapperSpan, isBefore) {
+        var spanIndex = wrapperParent.items.map(function (item) {
+          return item.id;
+        }).indexOf(wrapperSpan.id);
+        var divsAfter = [],
+            divsBefore = [];
 
-      if (!wrapperSpans.before && !wrapperSpans.after) {
-        validHeadings = allHeadings;
+        if (isBefore) {
+          divsAfter = wrapperParent.items.filter(function (item, i) {
+            return i > spanIndex;
+          });
+        } else {
+          divsBefore = wrapperParent.items.filter(function (item, i) {
+            return i < spanIndex;
+          });
+        }
+
+        var allDivs = _this3.getItemsOfType('div', divsAfter.concat(divsBefore));
+
+        return allDivs;
+      };
+
+      if (!before && !after) {
+        allValidHeadings = allHeadings;
       }
 
-      if (wrapperSpans.before) {
-        findSpanItem(wrapperSpans.before, allItems);
+      if (before) {
+        var parentBefore = this.getParentDiv(before, allItems);
+        allValidHeadings.push(parentBefore);
+
+        if (!after) {
+          var headings = exploreInwards(parentBefore, before, true);
+          allValidHeadings = allValidHeadings.concat(headings);
+        }
       }
 
-      if (wrapperSpans.after) {
-        findSpanItem(wrapperSpans.after, allItems);
-      } // Get valid headings when either of wrapping timespan is null
+      if (after) {
+        var parentAfter = this.getParentDiv(after, allItems);
+        allValidHeadings.push(parentAfter);
 
+        if (!before) {
+          var _headings = exploreInwards(parentAfter, after, false);
 
-      if (!wrapperSpans.before && wrapperSpans.after || wrapperSpans.before && !wrapperSpans.after) {
-        var validDivHeading = this.getValidHeadingForEmptySpans(wrapperSpans, allItems);
-        validHeadings = validHeadings.concat(validDivHeading);
-      } // Sort valid headings to comply with the order in the metadata structure
+          allValidHeadings = allValidHeadings.concat(_headings);
+        }
+      }
 
+      allValidHeadings.map(function (heading) {
+        return exploreOutwards(heading);
+      }); // Sort valid headings to comply with the order in the metadata structure
 
       allHeadings.forEach(function (key) {
         var found = false;
-        validHeadings = validHeadings.filter(function (heading) {
+        allValidHeadings.filter(function (heading) {
           if (!found && heading.label === key.label) {
-            sortedHeadings.push(heading);
+            var items = heading.items,
+                cloneWOItems = (0, _objectWithoutProperties2["default"])(heading, ["items"]);
+            sortedHeadings.push(cloneWOItems);
             found = true;
             return false;
           } else {
             return true;
           }
         });
+      }); // Filter the duplicated headings
+
+      sortedHeadings.map(function (heading) {
+        var indexIn = uniqueHeadings.map(function (h) {
+          return h.id;
+        }).indexOf(heading.id);
+
+        if (indexIn === -1) {
+          uniqueHeadings.push(heading);
+        }
       });
-      return sortedHeadings;
-    }
-    /**
-     * Find valid headings when either wrapping timespan before or after is null
-     * @param {Object} wrapperSpans - spans wrapping the current active timespan
-     * @param {Array} allItems - all the items in structured metadata
-     */
-
-  }, {
-    key: "getValidHeadingForEmptySpans",
-    value: function getValidHeadingForEmptySpans(wrapperSpans, allItems) {
-      var _this3 = this;
-
-      var adjacentDiv = null;
-
-      var getWrapperDiv = function getWrapperDiv(currentParent, position) {
-        var wrapperParents = _this3.findWrapperHeaders(currentParent, allItems);
-
-        switch (position) {
-          case 'before':
-            return !wrapperParents.before ? currentParent : wrapperParents.before;
-
-          case 'after':
-            return !wrapperParents.after ? currentParent : wrapperParents.after;
-
-          default:
-            return currentParent;
-        }
-      };
-
-      var nestedHeadings = [];
-
-      var getNestedDivs = function getNestedDivs(currentHeader, currentParent) {
-        if (currentHeader !== currentParent) {
-          var _items2 = currentHeader.items;
-
-          if (_items2) {
-            var _iteratorNormalCompletion6 = true;
-            var _didIteratorError6 = false;
-            var _iteratorError6 = undefined;
-
-            try {
-              for (var _iterator6 = _items2[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
-                var item = _step6.value;
-
-                if (item.type === 'div') {
-                  var _items3 = item.items,
-                      cloneWOItems = (0, _objectWithoutProperties2["default"])(item, ["items"]);
-                  nestedHeadings.push(cloneWOItems);
-                }
-
-                getNestedDivs(item, currentParent);
-              }
-            } catch (err) {
-              _didIteratorError6 = true;
-              _iteratorError6 = err;
-            } finally {
-              try {
-                if (!_iteratorNormalCompletion6 && _iterator6["return"] != null) {
-                  _iterator6["return"]();
-                }
-              } finally {
-                if (_didIteratorError6) {
-                  throw _iteratorError6;
-                }
-              }
-            }
-          }
-        }
-      };
-
-      if (!wrapperSpans.after && wrapperSpans.before) {
-        var currentParent = this.getParentDiv(wrapperSpans.before, allItems);
-        adjacentDiv = getWrapperDiv(currentParent, 'after');
-        getNestedDivs(adjacentDiv, currentParent);
-      }
-
-      if (!wrapperSpans.before && wrapperSpans.after) {
-        var _currentParent = this.getParentDiv(wrapperSpans.after, allItems);
-
-        adjacentDiv = getWrapperDiv(_currentParent, 'before');
-        getNestedDivs(adjacentDiv, _currentParent);
-      }
-
-      var _adjacentDiv = adjacentDiv,
-          items = _adjacentDiv.items,
-          woItems = (0, _objectWithoutProperties2["default"])(_adjacentDiv, ["items"]);
-      nestedHeadings.push(woItems);
-      return nestedHeadings;
+      return uniqueHeadings;
     }
     /**
      * Helper function which handles React Dnd's dropping of a dragSource onto a dropTarget
@@ -809,100 +765,68 @@ function () {
     value: function insertNewTimespan(obj, allItems) {
       var _this4 = this;
 
-      var toMs = this.toMs;
       var clonedItems = (0, _lodash.cloneDeep)(allItems);
-      var foundDiv = this.findItem(obj.timespanChildOf, clonedItems);
-      var spanObj = this.createSpanObject(obj);
+      var foundDiv = this.findItem(obj.timespanChildOf, clonedItems); // Timespan related to values
+
+      var spanObj = this.createSpanObject(obj); // Index the new timespan to be inserted
+
       var insertIndex = 0;
-      var nestedTimespans = [];
 
-      var findNestedTimespans = function findNestedTimespans(header) {
-        var items = header.items;
-        var _iteratorNormalCompletion7 = true;
-        var _didIteratorError7 = false;
-        var _iteratorError7 = undefined;
-
-        try {
-          for (var _iterator7 = items[Symbol.iterator](), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
-            var item = _step7.value;
-
-            if (item.type === 'span' && toMs(spanObj.begin) > toMs(item.end)) {
-              nestedTimespans.push(item);
-            }
+      var getParentOfSpan = function getParentOfSpan(item) {
+        var inFoundDiv = false;
+        var closestSibling = null;
+        var siblings = foundDiv.items;
+        siblings.map(function (sibling) {
+          if (sibling.id === item.id) {
+            inFoundDiv = true;
+            closestSibling = sibling;
           }
-        } catch (err) {
-          _didIteratorError7 = true;
-          _iteratorError7 = err;
-        } finally {
-          try {
-            if (!_iteratorNormalCompletion7 && _iterator7["return"] != null) {
-              _iterator7["return"]();
-            }
-          } finally {
-            if (_didIteratorError7) {
-              throw _iteratorError7;
-            }
+        });
+
+        if (!inFoundDiv) {
+          var parentItem = _this4.getParentDiv(item, allItems);
+
+          if (parentItem) {
+            closestSibling = getParentOfSpan(parentItem);
           }
         }
-      }; // If children exist, add to list
 
+        return closestSibling;
+      };
 
       if (foundDiv) {
-        var childSpans = foundDiv.items.filter(function (item) {
-          return item.type === 'span';
-        });
-        var nestedHeaders = foundDiv.items.filter(function (item) {
-          return item.type === 'div';
-        });
-        var _iteratorNormalCompletion8 = true;
-        var _didIteratorError8 = false;
-        var _iteratorError8 = undefined;
+        var allSpans = this.getItemsOfType('span', allItems);
 
-        try {
-          for (var _iterator8 = nestedHeaders[Symbol.iterator](), _step8; !(_iteratorNormalCompletion8 = (_step8 = _iterator8.next()).done); _iteratorNormalCompletion8 = true) {
-            var header = _step8.value;
-            findNestedTimespans(header);
-          } // Add nested timespans from child items and sort by begin time
+        var _this$findWrapperSpan = this.findWrapperSpans(spanObj, allSpans),
+            before = _this$findWrapperSpan.before,
+            after = _this$findWrapperSpan.after;
 
-        } catch (err) {
-          _didIteratorError8 = true;
-          _iteratorError8 = err;
-        } finally {
-          try {
-            if (!_iteratorNormalCompletion8 && _iterator8["return"] != null) {
-              _iterator8["return"]();
-            }
-          } finally {
-            if (_didIteratorError8) {
-              throw _iteratorError8;
-            }
+        if (before) {
+          var siblingBefore = getParentOfSpan(before);
+
+          if (siblingBefore) {
+            insertIndex = foundDiv.items.map(function (item) {
+              return item.id;
+            }).indexOf(siblingBefore.id) + 1;
           }
         }
 
-        childSpans = childSpans.concat(nestedTimespans).sort(function (x, y) {
-          return _this4.toMs(x['begin']) - _this4.toMs(y['begin']);
-        }); // Get before and after sibling spans
+        if (after) {
+          var siblingAfter = getParentOfSpan(after);
 
-        var wrapperSpans = this.findWrapperSpans(spanObj, childSpans);
-
-        if (wrapperSpans.before) {
-          var wrapperSpanParent = this.getParentDiv(wrapperSpans.before, allItems);
-
-          if (wrapperSpanParent.id !== foundDiv.id) {
-            insertIndex = (0, _lodash.findIndex)(foundDiv.items, {
-              id: wrapperSpanParent.id
-            }) + 1;
-          } else {
-            insertIndex = (0, _lodash.findIndex)(foundDiv.items, {
-              id: wrapperSpans.before.id
-            }) + 1;
+          if (siblingAfter) {
+            var siblingAfterIndex = foundDiv.items.map(function (item) {
+              return item.id;
+            }).indexOf(siblingAfter.id);
+            insertIndex = siblingAfterIndex === 0 ? 0 : siblingAfterIndex - 1;
           }
-        } // Insert new span at appropriate index
+        } else {
+          insertIndex = foundDiv.items.length + 1;
+        }
+      } // Insert new span at appropriate index
 
 
-        foundDiv.items.splice(insertIndex, 0, spanObj);
-      }
-
+      foundDiv.items.splice(insertIndex, 0, spanObj);
       return {
         newSpan: spanObj,
         updatedData: clonedItems
@@ -998,13 +922,13 @@ function () {
       var structureWithIds = (0, _lodash.cloneDeep)(structureJS); // Recursively loop through data structure
 
       var fn = function fn(items) {
-        var _iteratorNormalCompletion9 = true;
-        var _didIteratorError9 = false;
-        var _iteratorError9 = undefined;
+        var _iteratorNormalCompletion5 = true;
+        var _didIteratorError5 = false;
+        var _iteratorError5 = undefined;
 
         try {
-          for (var _iterator9 = items[Symbol.iterator](), _step9; !(_iteratorNormalCompletion9 = (_step9 = _iterator9.next()).done); _iteratorNormalCompletion9 = true) {
-            var item = _step9.value;
+          for (var _iterator5 = items[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+            var item = _step5.value;
             // Create and add an id
             item.id = (0, _v["default"])(); // Send child items back into the function
 
@@ -1013,16 +937,16 @@ function () {
             }
           }
         } catch (err) {
-          _didIteratorError9 = true;
-          _iteratorError9 = err;
+          _didIteratorError5 = true;
+          _iteratorError5 = err;
         } finally {
           try {
-            if (!_iteratorNormalCompletion9 && _iterator9["return"] != null) {
-              _iterator9["return"]();
+            if (!_iteratorNormalCompletion5 && _iterator5["return"] != null) {
+              _iterator5["return"]();
             }
           } finally {
-            if (_didIteratorError9) {
-              throw _iteratorError9;
+            if (_didIteratorError5) {
+              throw _iteratorError5;
             }
           }
         }

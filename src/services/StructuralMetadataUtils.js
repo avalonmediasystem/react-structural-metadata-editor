@@ -449,68 +449,97 @@ export default class StructuralMetadataUtils {
   /**
    * Overall logic is to find existing before and after spans for the new object (time flow), and then
    * their parent 'divs' would be valid headings.
+   * @param {Object} newSpan - New timespan created with values supplied by the user
    * @param {Object} wrapperSpans Object representing before and after spans of newSpan (if they exist)
    * @param {Array} allItems - All structural metadata items in tree
    * @return {Array} - of valid <div> objects in structural metadata tree
    */
-  getValidHeadings(wrapperSpans, allItems) {
-    let validHeadings = [];
+  getValidHeadings(newSpan, wrapperSpans, allItems) {
+    let allValidHeadings = [];
     let sortedHeadings = [];
+    let uniqueHeadings = [];
+    const { toMs } = this;
 
-    let findSpanItem = (targetSpan, items) => {
-      for (let item of items) {
-        // Children items exist
-        if (item.items) {
-          // Check for a target span match
-          let targetSpanMatch = item.items.filter(
-            childItem => childItem.id === targetSpan.id
-          );
-          // Match found
-          if (targetSpanMatch.length > 0) {
-            let { items, ...cloneWOItems } = item;
-            // Add parent div to valid array
-            validHeadings.push(cloneWOItems);
+    const { before, after } = wrapperSpans;
+    const allHeadings = this.getItemsOfType('root', allItems).concat(
+      this.getItemsOfType('div', allItems)
+    );
+
+    // Explore possible headings traversing outwards from a suggested heading
+    let exploreOutwards = heading => {
+      let invalid = false;
+      const parentHeading = this.getParentDiv(heading, allItems);
+      const { begin: newBegin, end: newEnd } = newSpan;
+      if (parentHeading) {
+        const headingIndex = parentHeading.items
+          .map(item => item.id)
+          .indexOf(heading.id);
+        const siblings = parentHeading.items;
+        siblings.forEach((sibling, i) => {
+          if (sibling.type === 'span') {
+            const { begin, end } = sibling;
+            if (toMs(newEnd) < toMs(begin) && i < headingIndex) {
+              invalid = true;
+            }
+            if (toMs(newBegin) > toMs(end) && i > headingIndex) {
+              invalid = true;
+            }
           }
-          // Try deeper in list
-          findSpanItem(targetSpan, item.items);
+        });
+        if (!invalid) {
+          allValidHeadings.push(parentHeading);
+          exploreOutwards(parentHeading);
+        } else {
+          return;
         }
       }
     };
 
-    // Get all headings in the metada structure
-    let allHeadings = this.getItemsOfType('div', allItems).concat(
-      this.getItemsOfType('root', allItems)
-    );
+    // Find relevant headings traversing into suggested headings
+    let exploreInwards = (wrapperParent, wrapperSpan, isBefore) => {
+      const spanIndex = wrapperParent.items
+        .map(item => item.id)
+        .indexOf(wrapperSpan.id);
+      let divsAfter = [],
+        divsBefore = [];
+      if (isBefore) {
+        divsAfter = wrapperParent.items.filter((item, i) => i > spanIndex);
+      } else {
+        divsBefore = wrapperParent.items.filter((item, i) => i < spanIndex);
+      }
+      const allDivs = this.getItemsOfType('div', divsAfter.concat(divsBefore));
+      return allDivs;
+    };
 
-    // There are currently no spans, ALL headings are valid
-    if (!wrapperSpans.before && !wrapperSpans.after) {
-      validHeadings = allHeadings;
+    if (!before && !after) {
+      allValidHeadings = allHeadings;
+    }
+    if (before) {
+      const parentBefore = this.getParentDiv(before, allItems);
+      allValidHeadings.push(parentBefore);
+      if (!after) {
+        let headings = exploreInwards(parentBefore, before, true);
+        allValidHeadings = allValidHeadings.concat(headings);
+      }
+    }
+    if (after) {
+      const parentAfter = this.getParentDiv(after, allItems);
+      allValidHeadings.push(parentAfter);
+      if (!before) {
+        let headings = exploreInwards(parentAfter, after, false);
+        allValidHeadings = allValidHeadings.concat(headings);
+      }
     }
 
-    if (wrapperSpans.before) {
-      findSpanItem(wrapperSpans.before, allItems);
-    }
-    if (wrapperSpans.after) {
-      findSpanItem(wrapperSpans.after, allItems);
-    }
-    // Get valid headings when either of wrapping timespan is null
-    if (
-      (!wrapperSpans.before && wrapperSpans.after) ||
-      (wrapperSpans.before && !wrapperSpans.after)
-    ) {
-      let validDivHeading = this.getValidHeadingForEmptySpans(
-        wrapperSpans,
-        allItems
-      );
-      validHeadings = validHeadings.concat(validDivHeading);
-    }
+    allValidHeadings.map(heading => exploreOutwards(heading));
 
     // Sort valid headings to comply with the order in the metadata structure
     allHeadings.forEach(key => {
       let found = false;
-      validHeadings = validHeadings.filter(heading => {
+      allValidHeadings.filter(heading => {
         if (!found && heading.label === key.label) {
-          sortedHeadings.push(heading);
+          const { items, ...cloneWOItems } = heading;
+          sortedHeadings.push(cloneWOItems);
           found = true;
           return false;
         } else {
@@ -519,57 +548,14 @@ export default class StructuralMetadataUtils {
       });
     });
 
-    return sortedHeadings;
-  }
-
-  /**
-   * Find valid headings when either wrapping timespan before or after is null
-   * @param {Object} wrapperSpans - spans wrapping the current active timespan
-   * @param {Array} allItems - all the items in structured metadata
-   */
-  getValidHeadingForEmptySpans(wrapperSpans, allItems) {
-    let adjacentDiv = null;
-
-    let getWrapperDiv = (currentParent, position) => {
-      let wrapperParents = this.findWrapperHeaders(currentParent, allItems);
-      switch (position) {
-        case 'before':
-          return !wrapperParents.before ? currentParent : wrapperParents.before;
-        case 'after':
-          return !wrapperParents.after ? currentParent : wrapperParents.after;
-        default:
-          return currentParent;
+    // Filter the duplicated headings
+    sortedHeadings.map(heading => {
+      const indexIn = uniqueHeadings.map(h => h.id).indexOf(heading.id);
+      if (indexIn === -1) {
+        uniqueHeadings.push(heading);
       }
-    };
-
-    let nestedHeadings = [];
-    let getNestedDivs = (currentHeader, currentParent) => {
-      if (currentHeader !== currentParent) {
-        let items = currentHeader.items;
-        if (items) {
-          for (let item of items) {
-            if (item.type === 'div') {
-              let { items, ...cloneWOItems } = item;
-              nestedHeadings.push(cloneWOItems);
-            }
-            getNestedDivs(item, currentParent);
-          }
-        }
-      }
-    };
-    if (!wrapperSpans.after && wrapperSpans.before) {
-      let currentParent = this.getParentDiv(wrapperSpans.before, allItems);
-      adjacentDiv = getWrapperDiv(currentParent, 'after');
-      getNestedDivs(adjacentDiv, currentParent);
-    }
-    if (!wrapperSpans.before && wrapperSpans.after) {
-      let currentParent = this.getParentDiv(wrapperSpans.after, allItems);
-      adjacentDiv = getWrapperDiv(currentParent, 'before');
-      getNestedDivs(adjacentDiv, currentParent);
-    }
-    let { items, ...woItems } = adjacentDiv;
-    nestedHeadings.push(woItems);
-    return nestedHeadings;
+    });
+    return uniqueHeadings;
   }
 
   /**
@@ -633,54 +619,60 @@ export default class StructuralMetadataUtils {
    * @returns ({Object}, {Array}) - (New span, The updated structured metadata collection, with new object inserted)
    */
   insertNewTimespan(obj, allItems) {
-    const { toMs } = this;
     let clonedItems = cloneDeep(allItems);
-    let foundDiv = this.findItem(obj.timespanChildOf, clonedItems);
-    const spanObj = this.createSpanObject(obj);
-    let insertIndex = 0;
-    let nestedTimespans = [];
 
-    let findNestedTimespans = header => {
-      const items = header.items;
-      for (let item of items) {
-        if (item.type === 'span' && toMs(spanObj.begin) > toMs(item.end)) {
-          nestedTimespans.push(item);
+    let foundDiv = this.findItem(obj.timespanChildOf, clonedItems);
+
+    // Timespan related to values
+    const spanObj = this.createSpanObject(obj);
+
+    // Index the new timespan to be inserted
+    let insertIndex = 0;
+
+    let getParentOfSpan = item => {
+      let inFoundDiv = false;
+      let closestSibling = null;
+      const siblings = foundDiv.items;
+      siblings.map(sibling => {
+        if (sibling.id === item.id) {
+          inFoundDiv = true;
+          closestSibling = sibling;
+        }
+      });
+      if (!inFoundDiv) {
+        let parentItem = this.getParentDiv(item, allItems);
+        if (parentItem) {
+          closestSibling = getParentOfSpan(parentItem);
         }
       }
+      return closestSibling;
     };
 
-    // If children exist, add to list
     if (foundDiv) {
-      let childSpans = foundDiv.items.filter(item => item.type === 'span');
-
-      const nestedHeaders = foundDiv.items.filter(item => item.type === 'div');
-      for (let header of nestedHeaders) {
-        findNestedTimespans(header);
-      }
-      // Add nested timespans from child items and sort by begin time
-      childSpans = childSpans
-        .concat(nestedTimespans)
-        .sort((x, y) => this.toMs(x['begin']) - this.toMs(y['begin']));
-
-      // Get before and after sibling spans
-      let wrapperSpans = this.findWrapperSpans(spanObj, childSpans);
-
-      if (wrapperSpans.before) {
-        let wrapperSpanParent = this.getParentDiv(
-          wrapperSpans.before,
-          allItems
-        );
-        if (wrapperSpanParent.id !== foundDiv.id) {
+      const allSpans = this.getItemsOfType('span', allItems);
+      const { before, after } = this.findWrapperSpans(spanObj, allSpans);
+      if (before) {
+        let siblingBefore = getParentOfSpan(before);
+        if (siblingBefore) {
           insertIndex =
-            findIndex(foundDiv.items, { id: wrapperSpanParent.id }) + 1;
-        } else {
-          insertIndex =
-            findIndex(foundDiv.items, { id: wrapperSpans.before.id }) + 1;
+            foundDiv.items.map(item => item.id).indexOf(siblingBefore.id) + 1;
         }
       }
-      // Insert new span at appropriate index
-      foundDiv.items.splice(insertIndex, 0, spanObj);
+      if (after) {
+        let siblingAfter = getParentOfSpan(after);
+        if (siblingAfter) {
+          let siblingAfterIndex = foundDiv.items
+            .map(item => item.id)
+            .indexOf(siblingAfter.id);
+          insertIndex = siblingAfterIndex === 0 ? 0 : siblingAfterIndex - 1;
+        }
+      } else {
+        insertIndex = foundDiv.items.length + 1;
+      }
     }
+
+    // Insert new span at appropriate index
+    foundDiv.items.splice(insertIndex, 0, spanObj);
 
     return { newSpan: spanObj, updatedData: clonedItems };
   }

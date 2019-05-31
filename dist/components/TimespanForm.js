@@ -61,7 +61,7 @@ function (_Component) {
 
       var wrapperSpans = structuralMetadataUtils.findWrapperSpans(newSpan, _this.allSpans); // Get all valid div headings
 
-      var validHeadings = structuralMetadataUtils.getValidHeadings(wrapperSpans, smData); // Update state with valid headings
+      var validHeadings = structuralMetadataUtils.getValidHeadings(newSpan, wrapperSpans, smData); // Update state with valid headings
 
       _this.setState({
         validHeadings: validHeadings

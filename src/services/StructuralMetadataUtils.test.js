@@ -446,6 +446,7 @@ describe('StructuralMetadataUtils class', () => {
 
   describe('finds valid headings when adding/editing a timespan', () => {
     test('no existing timespans', () => {
+      const newSpan = { begin: '00:00:00.01', end: '00:02:00.00' };
       const wrapperSpans = {
         before: null,
         after: null
@@ -488,7 +489,7 @@ describe('StructuralMetadataUtils class', () => {
           id: '123a-456b-789c-2d'
         }
       ];
-      const value = smu.getValidHeadings(wrapperSpans, structure);
+      const value = smu.getValidHeadings(newSpan, wrapperSpans, structure);
       expect(value).toHaveLength(expected.length);
       expect(value).toContainEqual({
         type: 'div',
@@ -497,6 +498,7 @@ describe('StructuralMetadataUtils class', () => {
       });
     });
     test('wrapped by existing timespans', () => {
+      const newSpan = { begin: '00:08:00.00', end: '00:09:00.00' };
       const wrapperSpans = {
         before: {
           type: 'span',
@@ -521,11 +523,21 @@ describe('StructuralMetadataUtils class', () => {
         },
         {
           type: 'div',
+          label: 'Second segment',
+          id: '123a-456b-789c-5d'
+        },
+        {
+          type: 'div',
           label: 'Sub-Segment 2.1',
           id: '123a-456b-789c-6d'
+        },
+        {
+          type: 'div',
+          label: 'Sub-Segment 2.1.1',
+          id: '123a-456b-789c-7d'
         }
       ];
-      const value = smu.getValidHeadings(wrapperSpans, testData);
+      const value = smu.getValidHeadings(newSpan, wrapperSpans, testData);
       expect(value).toHaveLength(expected.length);
       expect(value).toContainEqual({
         type: 'div',
@@ -534,6 +546,7 @@ describe('StructuralMetadataUtils class', () => {
       });
     });
     test('no wrapping timespans after', () => {
+      const newSpan = { begin: '00:15:00.00', end: '00:16:00.00' };
       const wrapperSpans = {
         before: {
           type: 'span',
@@ -547,11 +560,21 @@ describe('StructuralMetadataUtils class', () => {
       const expected = [
         {
           type: 'div',
+          label: 'Title',
+          id: '123a-456b-789c-0d'
+        },
+        {
+          type: 'div',
+          label: 'Second segment',
+          id: '123a-456b-789c-5d'
+        },
+        {
+          type: 'div',
           label: 'Sub-Segment 2.1',
           id: '123a-456b-789c-6d'
         }
       ];
-      const value = smu.getValidHeadings(wrapperSpans, testData);
+      const value = smu.getValidHeadings(newSpan, wrapperSpans, testData);
       expect(value).toHaveLength(expected.length);
       expect(value).toContainEqual({
         type: 'div',
@@ -559,46 +582,42 @@ describe('StructuralMetadataUtils class', () => {
         id: '123a-456b-789c-6d'
       });
     });
-  });
-
-  describe('finds valid headings when either timespans before or after is null', () => {
-    test('wrapping timespan before in null', () => {
+    test('no wrapping span before', () => {
+      const newSpan = { begin: '00:00:00.00', end: '00:00:03.32' };
       const wrapperSpans = {
         before: null,
         after: {
           type: 'span',
           label: 'Act 1',
           id: '123a-456b-789c-3d',
-          begin: '00:10:00.00',
-          end: '00:15:00.00'
+          begin: '00:00:03.32',
+          end: '00:00:10.32'
         }
       };
-      const value = smu.getValidHeadingForEmptySpans(
-        wrapperSpans,
-        testEmptyHeaderBefore
-      );
-      expect(value).toEqual([
-        { type: 'div', label: 'Scene 1', id: '123a-456b-789c-1d' }
-      ]);
-    });
-    test('wrapping timespan after is null', () => {
-      const wrapperSpans = {
-        before: {
-          type: 'span',
-          label: 'Act 1',
-          id: '123a-456b-789c-2d',
-          begin: '00:00:00.00',
-          end: '00:09:00.00'
+      const expected = [
+        {
+          type: 'div',
+          label: 'Title',
+          id: '123a-456b-789c-0d'
         },
-        after: null
-      };
-      const value = smu.getValidHeadingForEmptySpans(
-        wrapperSpans,
-        testEmptyHeaderAfter
-      );
-      expect(value).toEqual([
-        { type: 'div', label: 'Scene 2', id: '123a-456b-789c-3d' }
-      ]);
+        {
+          type: 'div',
+          label: 'First segment',
+          id: '123a-456b-789c-1d'
+        },
+        {
+          type: 'div',
+          label: 'Sub-Segment 1.1',
+          id: '123a-456b-789c-2d'
+        }
+      ];
+      const value = smu.getValidHeadings(newSpan, wrapperSpans, testData);
+      expect(value).toHaveLength(expected.length);
+      expect(value).toContainEqual({
+        type: 'div',
+        label: 'Sub-Segment 1.1',
+        id: '123a-456b-789c-2d'
+      });
     });
   });
 

@@ -1,17 +1,11 @@
 import React, { Component } from 'react';
-import {
-  Button,
-  ButtonToolbar,
-  FormGroup,
-  Form,
-  Row,
-  Col
-} from 'react-bootstrap';
+import { Button, ButtonToolbar, Row, Col } from 'react-bootstrap';
 import { connect } from 'react-redux';
 import Hls from 'hls.js';
 import AlertContainer from '../containers/AlertContainer';
 import { configureAlert } from '../services/alert-status';
 import { retrieveStreamMediaError } from '../actions/forms';
+import VolumeSlider from './Slider';
 
 // Content of aria-label for UI components
 const waveformLabel = `Two interactive waveforms, plotted one after the other using data from a masterfile in the back-end server.
@@ -19,7 +13,6 @@ There are time-based visual sections plotted in these 2 waveforms representing e
 First one contains a selected zoomed-in section from the entire waveform, while the second waveform shows an overview of the entire audio file.
 There are multiple zoom levels, which can be changed using the zoom-in and zoom-out buttons in the waveform toolbar. 
 These time-based visual sections will be updated by editing the matching timespans in the structure.`;
-const audioControlsLabel = `Audio controls; play, seek, and adjust volume of the audio file`;
 
 class Waveform extends Component {
   constructor(props) {
@@ -27,7 +20,8 @@ class Waveform extends Component {
     this.state = {
       audioFile: this.props.audioStreamURL,
       alertObj: null,
-      hasError: false
+      hasError: false,
+      volume: 100
     };
 
     // Create `refs`
@@ -48,7 +42,7 @@ class Waveform extends Component {
       });
       hls.on(Hls.Events.ERROR, function(event, data) {
         if (data.fatal) {
-          switch(data.type) {
+          switch (data.type) {
             case Hls.ErrorTypes.NETWORK_ERROR:
               self.setAlert(data);
               break;
@@ -57,7 +51,7 @@ class Waveform extends Component {
               break;
             default:
               break;
-            }
+          }
         }
       });
     }
@@ -99,8 +93,22 @@ class Waveform extends Component {
     this.props.peaksInstance.peaks.zoom.zoomOut();
   };
 
+  playAudio = () => {
+    this.props.peaksInstance.peaks.player.play();
+  };
+
+  pauseAudio = () => {
+    this.props.peaksInstance.peaks.player.pause();
+  };
+
+  setVolume = volume => {
+    this.mediaPlayer.current.volume = volume / 100;
+    this.setState({ volume });
+  };
+
   render() {
-    const { alertObj, hasError } = this.state;
+    const { alertObj, hasError, volume } = this.state;
+    const { streamMediaRetrieved } = this.props;
     return (
       <div>
         <div
@@ -109,37 +117,39 @@ class Waveform extends Component {
           aria-label={waveformLabel}
           tabIndex="0"
         />
-        <Row>
-          <Col xs={12} md={6}>
-            {hasError ? (
-              <AlertContainer {...alertObj} />
-            ) : (
-              <audio
-                controls
-                ref={this.mediaPlayer}
-                aria-label={audioControlsLabel}
-              >
-                Your browser does not support the audio element.
-              </audio>
-            )}
+        {hasError && <AlertContainer {...alertObj} />}
+        <Row className="waveform-toolbar">
+          <audio ref={this.mediaPlayer} hidden={true}>
+            Your browser does not support the audio element.
+          </audio>
+          <Col xs={6} md={6}>
+            <VolumeSlider volume={volume} setVolume={this.setVolume} />
           </Col>
-          <Col xs={12} md={6} className="text-right">
-            <Form inline onSubmit={this.handleSubmit} role="form">
-              <FormGroup>
-                <ButtonToolbar>
-                  <Button
-                    className="glyphicon glyphicon-zoom-in"
-                    aria-label="Zoom in"
-                    onClick={this.zoomIn}
-                  />
-                  <Button
-                    className="glyphicon glyphicon-zoom-out"
-                    aria-label="Zoom out"
-                    onClick={this.zoomOut}
-                  />
-                </ButtonToolbar>
-              </FormGroup>
-            </Form>
+          <Col xs={12} md={6}>
+            <ButtonToolbar>
+              <Button
+                className="glyphicon glyphicon-play"
+                aria-label="Play"
+                onClick={this.playAudio}
+                disabled={!streamMediaRetrieved}
+              />
+              <Button
+                className="glyphicon glyphicon-pause"
+                aria-label="Pause"
+                onClick={this.pauseAudio}
+                disabled={!streamMediaRetrieved}
+              />
+              <Button
+                className="glyphicon glyphicon-zoom-in"
+                aria-label="Zoom in"
+                onClick={this.zoomIn}
+              />
+              <Button
+                className="glyphicon glyphicon-zoom-out"
+                aria-label="Zoom out"
+                onClick={this.zoomOut}
+              />
+            </ButtonToolbar>
           </Col>
         </Row>
       </div>
@@ -151,7 +161,8 @@ class Waveform extends Component {
 export { Waveform as PureWaveform };
 
 const mapStateToProps = state => ({
-  peaksInstance: state.peaksInstance
+  peaksInstance: state.peaksInstance,
+  streamMediaRetrieved: state.forms.streamMediaRetrieved
 });
 
 const mapDispatchToProps = {

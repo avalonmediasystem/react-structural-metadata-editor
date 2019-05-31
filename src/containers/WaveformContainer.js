@@ -35,8 +35,7 @@ class WaveformContainer extends Component {
     hasError: false,
     masterFileID: this.props.masterFileID,
     baseURL: this.props.baseURL,
-    initStructure: this.props.initStructure,
-    streamLength: this.props.streamDuration
+    initStructure: this.props.initStructure
   };
 
   componentDidMount() {
@@ -113,7 +112,7 @@ class WaveformContainer extends Component {
     const { forms, audioStreamURL } = this.props;
 
     return (
-      <section>
+      <section className="waveform-section">
         {!forms.waveformRetrieved && hasError ? (
           <AlertContainer {...alertObj} />
         ) : (

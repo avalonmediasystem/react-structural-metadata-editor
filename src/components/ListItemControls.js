@@ -81,12 +81,13 @@ class ListItemControls extends Component {
     const { deleteMessage, showDeleteConfirm } = this.state;
 
     return (
-      <div className="edit-controls-wrapper">
+      <div className="edit-controls-wrapper" data-testid="list-item-controls">
         {item.type === 'span' && (
           <Button
             bsStyle="link"
             disabled={forms.editingDisabled && !item.active}
             onClick={handleShowDropTargetsClick}
+            data-testid="list-item-dnd-btn"
           >
             <FontAwesomeIcon icon="dot-circle" />
           </Button>
@@ -95,6 +96,7 @@ class ListItemControls extends Component {
           bsStyle="link"
           onClick={handleEditClick}
           disabled={forms.editingDisabled}
+          data-testid="list-item-edit-btn"
         >
           <FontAwesomeIcon icon="pen" />
         </Button>
@@ -105,6 +107,7 @@ class ListItemControls extends Component {
               bsStyle="link"
               onClick={this.handleDeleteClick}
               disabled={forms.editingDisabled}
+              data-testid="list-item-delete-btn"
             >
               <FontAwesomeIcon icon="trash" />
             </Button>
@@ -118,17 +121,26 @@ class ListItemControls extends Component {
                 id="popover-contained"
                 title="Confirm delete?"
                 style={styles.popover}
+                data-testid="delete-confirmation-popup"
               >
-                <p dangerouslySetInnerHTML={{ __html: deleteMessage }} />
+                <p
+                  dangerouslySetInnerHTML={{ __html: deleteMessage }}
+                  data-testid="delete-confirmation-message"
+                />
                 <ButtonToolbar style={styles.buttonToolbar}>
                   <Button
                     bsStyle="danger"
                     bsSize="xsmall"
                     onClick={this.handleConfirmDelete}
+                    data-testid="delete-confirmation-confirm-btn"
                   >
                     Delete
                   </Button>
-                  <Button bsSize="xsmall" onClick={this.cancelDeleteClick}>
+                  <Button
+                    bsSize="xsmall"
+                    onClick={this.cancelDeleteClick}
+                    data-testid="delete-confirmation-cancel-btn"
+                  >
                     Cancel
                   </Button>
                 </ButtonToolbar>

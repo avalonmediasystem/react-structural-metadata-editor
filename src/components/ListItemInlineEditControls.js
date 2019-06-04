@@ -13,6 +13,7 @@ const ListItemInlineEditControls = props => {
           bsStyle="link"
           disabled={!props.formIsValid}
           onClick={props.handleSaveClick}
+          data-testid="inline-form-save-button"
         >
           <FontAwesomeIcon icon="save" />
         </Button>
@@ -22,7 +23,7 @@ const ListItemInlineEditControls = props => {
         overlay={tooltip('Cancel')}
         onClick={props.handleCancelClick}
       >
-        <Button bsStyle="link">
+        <Button bsStyle="link" data-testid="inline-form-cancel-button">
           <FontAwesomeIcon icon="minus-circle" />
         </Button>
       </OverlayTrigger>

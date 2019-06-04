@@ -72,8 +72,7 @@ function (_Component) {
       hasError: false,
       masterFileID: _this.props.masterFileID,
       baseURL: _this.props.baseURL,
-      initStructure: _this.props.initStructure,
-      streamLength: _this.props.streamDuration
+      initStructure: _this.props.initStructure
     });
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "clearAlert", function () {
       _this.setState({
@@ -174,7 +173,9 @@ function (_Component) {
       var _this$props = this.props,
           forms = _this$props.forms,
           audioStreamURL = _this$props.audioStreamURL;
-      return _react["default"].createElement("section", null, !forms.waveformRetrieved && hasError ? _react["default"].createElement(_AlertContainer["default"], alertObj) : _react["default"].createElement(_Waveform["default"], {
+      return _react["default"].createElement("section", {
+        className: "waveform-section"
+      }, !forms.waveformRetrieved && hasError ? _react["default"].createElement(_AlertContainer["default"], alertObj) : _react["default"].createElement(_Waveform["default"], {
         waveformRef: function waveformRef(ref) {
           return _this2.waveformContainer = ref;
         },

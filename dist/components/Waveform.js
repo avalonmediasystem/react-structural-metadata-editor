@@ -37,9 +37,10 @@ var _alertStatus = require("../services/alert-status");
 
 var _forms = require("../actions/forms");
 
+var _Slider = _interopRequireDefault(require("./Slider"));
+
 // Content of aria-label for UI components
 var waveformLabel = "Two interactive waveforms, plotted one after the other using data from a masterfile in the back-end server.\nThere are time-based visual sections plotted in these 2 waveforms representing each timespan in the structure below. \nFirst one contains a selected zoomed-in section from the entire waveform, while the second waveform shows an overview of the entire audio file.\nThere are multiple zoom levels, which can be changed using the zoom-in and zoom-out buttons in the waveform toolbar. \nThese time-based visual sections will be updated by editing the matching timespans in the structure.";
-var audioControlsLabel = "Audio controls; play, seek, and adjust volume of the audio file";
 
 var Waveform =
 /*#__PURE__*/
@@ -116,10 +117,25 @@ function (_Component) {
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "zoomOut", function () {
       _this.props.peaksInstance.peaks.zoom.zoomOut();
     });
+    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "playAudio", function () {
+      _this.props.peaksInstance.peaks.player.play();
+    });
+    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "pauseAudio", function () {
+      _this.props.peaksInstance.peaks.player.pause();
+    });
+    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "setVolume", function (volume) {
+      _this.mediaPlayer.current.volume = volume / 100;
+
+      _this.setState({
+        volume: volume
+      });
+    });
     _this.state = {
       audioFile: _this.props.audioStreamURL,
       alertObj: null,
-      hasError: false
+      hasError: false,
+      volume: 100,
+      time: 0.0
     }; // Create `refs`
 
     _this.waveformContainer = _react["default"].createRef();
@@ -132,28 +148,39 @@ function (_Component) {
     value: function render() {
       var _this$state = this.state,
           alertObj = _this$state.alertObj,
-          hasError = _this$state.hasError;
+          hasError = _this$state.hasError,
+          volume = _this$state.volume;
+      var streamMediaRetrieved = this.props.streamMediaRetrieved;
       return _react["default"].createElement("div", null, _react["default"].createElement("div", {
         id: "waveform-container",
         ref: this.waveformContainer,
         "aria-label": waveformLabel,
         tabIndex: "0"
-      }), _react["default"].createElement(_reactBootstrap.Row, null, _react["default"].createElement(_reactBootstrap.Col, {
+      }), hasError && _react["default"].createElement(_AlertContainer["default"], alertObj), _react["default"].createElement(_reactBootstrap.Row, {
+        className: "waveform-toolbar"
+      }, _react["default"].createElement("audio", {
+        ref: this.mediaPlayer,
+        hidden: true
+      }, "Your browser does not support the audio element."), _react["default"].createElement(_reactBootstrap.Col, {
+        xs: 6,
+        md: 6
+      }, _react["default"].createElement(_Slider["default"], {
+        volume: volume,
+        setVolume: this.setVolume
+      })), _react["default"].createElement(_reactBootstrap.Col, {
         xs: 12,
         md: 6
-      }, hasError ? _react["default"].createElement(_AlertContainer["default"], alertObj) : _react["default"].createElement("audio", {
-        controls: true,
-        ref: this.mediaPlayer,
-        "aria-label": audioControlsLabel
-      }, "Your browser does not support the audio element.")), _react["default"].createElement(_reactBootstrap.Col, {
-        xs: 12,
-        md: 6,
-        className: "text-right"
-      }, _react["default"].createElement(_reactBootstrap.Form, {
-        inline: true,
-        onSubmit: this.handleSubmit,
-        role: "form"
-      }, _react["default"].createElement(_reactBootstrap.FormGroup, null, _react["default"].createElement(_reactBootstrap.ButtonToolbar, null, _react["default"].createElement(_reactBootstrap.Button, {
+      }, _react["default"].createElement(_reactBootstrap.ButtonToolbar, null, _react["default"].createElement(_reactBootstrap.Button, {
+        className: "glyphicon glyphicon-play",
+        "aria-label": "Play",
+        onClick: this.playAudio,
+        disabled: !streamMediaRetrieved
+      }), _react["default"].createElement(_reactBootstrap.Button, {
+        className: "glyphicon glyphicon-pause",
+        "aria-label": "Pause",
+        onClick: this.pauseAudio,
+        disabled: !streamMediaRetrieved
+      }), _react["default"].createElement(_reactBootstrap.Button, {
         className: "glyphicon glyphicon-zoom-in",
         "aria-label": "Zoom in",
         onClick: this.zoomIn
@@ -161,7 +188,7 @@ function (_Component) {
         className: "glyphicon glyphicon-zoom-out",
         "aria-label": "Zoom out",
         onClick: this.zoomOut
-      })))))));
+      })))));
     }
   }]);
   return Waveform;
@@ -172,7 +199,8 @@ exports.PureWaveform = Waveform;
 
 var mapStateToProps = function mapStateToProps(state) {
   return {
-    peaksInstance: state.peaksInstance
+    peaksInstance: state.peaksInstance,
+    streamMediaRetrieved: state.forms.streamMediaRetrieved
   };
 };
 

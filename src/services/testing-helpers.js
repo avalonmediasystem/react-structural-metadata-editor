@@ -24,30 +24,70 @@ export function renderWithRedux(
 
 export const testSmData = [
   {
-    type: 'root',
-    label: 'Sample Video',
+    type: 'div',
+    label: 'Title',
+    id: '123a-456b-789c-0d',
     items: [
       {
         type: 'div',
-        label: 'Intro',
+        label: 'First segment',
+        id: '123a-456b-789c-1d',
         items: [
           {
             type: 'div',
-            label: 'Adam test',
-            items: [],
-            id: 'abc'
+            label: 'Sub-Segment 1.1',
+            id: '123a-456b-789c-2d',
+            items: []
           },
           {
             type: 'span',
-            label: 'Part I',
-            begin: '00:00:00.00',
-            end: '00:01:00.00',
-            id: 'def'
+            label: 'Segment 1.1',
+            id: '123a-456b-789c-3d',
+            begin: '00:00:03.32',
+            end: '00:00:10.32'
+          },
+          {
+            type: 'span',
+            label: 'Segment 1.2',
+            id: '123a-456b-789c-4d',
+            begin: '00:00:11.23',
+            end: '00:08:00.00'
           }
-        ],
-        id: 'ghij'
+        ]
+      },
+      {
+        type: 'div',
+        label: 'Second segment',
+        id: '123a-456b-789c-5d',
+        items: [
+          {
+            type: 'div',
+            label: 'Sub-Segment 2.1',
+            id: '123a-456b-789c-6d',
+            items: [
+              {
+                type: 'div',
+                label: 'Sub-Segment 2.1.1',
+                id: '123a-456b-789c-7d',
+                items: []
+              },
+              {
+                type: 'span',
+                label: 'Segment 2.1',
+                id: '123a-456b-789c-8d',
+                begin: '00:09:03.24',
+                end: '00:15:00.00'
+              }
+            ]
+          }
+        ]
+      },
+      {
+        type: 'div',
+        label: 'A ',
+        id: '123a-456b-789c-9d',
+        items: []
       }
-    ],
-    id: 'klmn'
+    ]
   }
 ];

@@ -20,8 +20,8 @@ test('select child options are available in dropdown', () => {
     initialState
   });
   const el = container.querySelector('#headingChildOf');
-  expect(el.children.length).toBe(4);
-  expect(el.children[1].value).toBe('klmn');
+  expect(el.children.length).toBe(8);
+  expect(el.children[1].value).toBe('123a-456b-789c-0d');
 });
 
 test('heading title input shows proper validation messages', async () => {
@@ -70,7 +70,7 @@ test('Save button has enabled state only when heading form is valid', () => {
 
   // Make child of valid
   fireEvent.change(childOfSelect, {
-    target: { value: 'abc' }
+    target: { value: '123a-456b-789c-5d' }
   });
   expect(submitButton).toBeEnabled();
 
@@ -91,14 +91,14 @@ describe('submitting the form', () => {
       target: { value: 'A title here' }
     });
     fireEvent.change(utils.getByLabelText(/child of/i), {
-      target: { value: 'abc' }
+      target: { value: '123a-456b-789c-5d' }
     });
     fireEvent.click(utils.getByTestId('heading-form-save-button'));
   });
 
   test('submits the correct data and payload structure', () => {
     const expectedPayload = {
-      headingChildOf: 'abc',
+      headingChildOf: '123a-456b-789c-5d',
       headingTitle: 'A title here'
     };
 

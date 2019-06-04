@@ -70,11 +70,12 @@ class HeadingInlineForm extends Component {
 
     return (
       <Form inline>
-        <div className="row-wrapper">
+        <div className="row-wrapper" data-testid="heading-inline-form">
           <div>
             <FormGroup
               controlId="headingTitle"
               validationState={getValidationTitleState(headingTitle)}
+              data-testid="inline-heading-title-form-group"
             >
               <ControlLabel>Title</ControlLabel>
               <FormControl

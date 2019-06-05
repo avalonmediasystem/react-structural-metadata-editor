@@ -7,7 +7,7 @@ const tooltip = tip => <Tooltip id="tooltip">{tip}</Tooltip>;
 
 const ListItemInlineEditControls = props => {
   return (
-    <div className="edit-controls-wrapper">
+    <div className="edit-controls-wrapper" data-testid="inline-form-controls">
       <OverlayTrigger placement="left" overlay={tooltip('Save')}>
         <Button
           bsStyle="link"

@@ -51,7 +51,7 @@ test('heading and timespan buttons do not display when structural or waveform da
 describe('heading button', () => {
   test('clicking the heading button opens the heading form with a disabled save button on initial load', async () => {
     // Arrange
-    const { getByTestId, getByText } = renderWithRedux(<ButtonSection />, {
+    const { getByTestId } = renderWithRedux(<ButtonSection />, {
       initialState
     });
 
@@ -78,7 +78,39 @@ describe('heading button', () => {
 });
 
 describe('timespan button', () => {
-  // TODO: Fill these in
+  let buttonSection;
+  beforeEach(() => {
+    buttonSection = renderWithRedux(<ButtonSection />, {
+      initialState
+    });
+    fireEvent.click(buttonSection.getByTestId('add-timespan-button'));
+  });
+  test('clicking timespan button opens a timespan form with default values for begin/end times and disabled save button', async () => {
+    await wait(() => {
+      expect(buttonSection.getByTestId('timespan-form-wrapper')).toHaveClass(
+        'collapse in'
+      );
+    });
+    // Begin Time and End Time is already filled with default values
+    expect(buttonSection.getAllByPlaceholderText('00:00:00')[0].value).toBe(
+      '00:00:00.00'
+    );
+    expect(buttonSection.getAllByPlaceholderText('00:00:00')[1].value).toBe(
+      '00:00:03.32'
+    );
+    // Save button is disabled
+    expect(
+      buttonSection.getByTestId('timespan-form-save-button')
+    ).toBeDisabled();
+  });
+  test('clicking cancel button closes the timespan form', async () => {
+    fireEvent.click(buttonSection.getByTestId('timespan-form-cancel-button'));
+    await wait(() => {
+      expect(
+        buttonSection.getByTestId('timespan-form-wrapper')
+      ).not.toHaveClass('in');
+    });
+  });
 });
 
 test('when one form is open, clicking the button for the other form closes current form and opens the new form', async () => {

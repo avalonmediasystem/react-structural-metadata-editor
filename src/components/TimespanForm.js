@@ -221,6 +221,7 @@ class TimespanForm extends Component {
         <FormGroup
           controlId="timespanTitle"
           validationState={getValidationTitleState(timespanTitle)}
+          data-testid="timespan-form-title"
         >
           <ControlLabel>Title</ControlLabel>
           <FormControl
@@ -239,6 +240,7 @@ class TimespanForm extends Component {
                 beginTime,
                 this.allSpans
               )}
+              data-testid="timespan-form-begintime"
             >
               <ControlLabel>Begin Time</ControlLabel>
               <FormControl
@@ -259,6 +261,7 @@ class TimespanForm extends Component {
                 this.allSpans,
                 this.props.peaksInstance.peaks
               )}
+              data-testid="timespan-form-endtime"
             >
               <ControlLabel>End Time</ControlLabel>
               <FormControl
@@ -272,7 +275,10 @@ class TimespanForm extends Component {
           </Col>
         </Row>
 
-        <FormGroup controlId="timespanChildOf">
+        <FormGroup
+          controlId="timespanChildOf"
+          data-testid="timespan-form-childof"
+        >
           <ControlLabel>Child Of</ControlLabel>
           <FormControl
             componentClass="select"
@@ -292,11 +298,17 @@ class TimespanForm extends Component {
         <Row>
           <Col xs={12}>
             <ButtonToolbar className="pull-right">
-              <Button onClick={this.handleCancelClick}>Cancel</Button>
+              <Button
+                onClick={this.handleCancelClick}
+                data-testid="timespan-form-cancel-button"
+              >
+                Cancel
+              </Button>
               <Button
                 bsStyle="primary"
                 type="submit"
                 disabled={!this.formIsValid()}
+                data-testid="timespan-form-save-button"
               >
                 Save
               </Button>

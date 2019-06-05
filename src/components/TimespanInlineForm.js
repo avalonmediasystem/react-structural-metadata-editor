@@ -165,7 +165,7 @@ class TimespanInlineForm extends Component {
     const { beginTime, endTime, timespanTitle } = this.state;
 
     return (
-      <Form inline>
+      <Form inline data-testid="timespan-inline-form">
         <div className="row-wrapper">
           <div>
             <FormGroup

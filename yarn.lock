@@ -6659,6 +6659,18 @@ react-dnd-html5-backend@^7.0.2:
   dependencies:
     dnd-core "^7.4.4"
 
+react-dnd-test-backend@^7.4.4:
+  version "7.4.4"
+  resolved "https://registry.yarnpkg.com/react-dnd-test-backend/-/react-dnd-test-backend-7.4.4.tgz#e532c830c50a0da2cb62587027a08a143414057a"
+  integrity sha512-IkPrujQ/B6AsWPZGZpw5mYx18/FLi5qhoUIXLLQ+bhUKkW+T8PNHxhqgWucFBBVm3ZB3mEX0h4rtK4JApwRv8g==
+  dependencies:
+    dnd-core "^7.4.4"
+
+react-dnd-test-utils@^7.4.4:
+  version "7.4.4"
+  resolved "https://registry.yarnpkg.com/react-dnd-test-utils/-/react-dnd-test-utils-7.4.4.tgz#21679437c334076073235669f91d384affadf53c"
+  integrity sha512-jxvpGZd5muESFOvImekEAA+g5VSpkgUGU+kAqiuWdujogpi8vc7728EfsdU9lHsdGaryPULlpF29vA/lliTpUQ==
+
 react-dnd@^7.0.2:
   version "7.4.5"
   resolved "https://registry.yarnpkg.com/react-dnd/-/react-dnd-7.4.5.tgz#cb4a2c97cd81f514d892c6cc2f020908ca7382a5"

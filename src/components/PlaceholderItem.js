@@ -45,7 +45,11 @@ class PlaceholderItem extends Component {
     const { isOver, connectDropTarget } = this.props;
 
     return connectDropTarget(
-      <li className="row-wrapper" style={isOver ? styles.liHovered : styles.li}>
+      <li
+        className="row-wrapper"
+        data-testid="drop-list-item"
+        style={isOver ? styles.liHovered : styles.li}
+      >
         Drop here
       </li>
     );

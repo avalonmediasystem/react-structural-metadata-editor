@@ -458,6 +458,8 @@ export default class StructuralMetadataUtils {
     let allValidHeadings = [];
     let sortedHeadings = [];
     let uniqueHeadings = [];
+    // New timespan falls between timespans in the same parent
+    let stuckInMiddle = false;
     const { toMs } = this;
 
     const { before, after } = wrapperSpans;
@@ -470,7 +472,7 @@ export default class StructuralMetadataUtils {
       let invalid = false;
       const parentHeading = this.getParentDiv(heading, allItems);
       const { begin: newBegin, end: newEnd } = newSpan;
-      if (parentHeading) {
+      if (parentHeading && !stuckInMiddle) {
         const headingIndex = parentHeading.items
           .map(item => item.id)
           .indexOf(heading.id);
@@ -528,6 +530,14 @@ export default class StructuralMetadataUtils {
       if (!before) {
         let headings = exploreInwards(parentAfter, after, false);
         allValidHeadings = allValidHeadings.concat(headings);
+      }
+    }
+    if (before && after) {
+      const parentBefore = this.getParentDiv(before, allItems);
+      const parentAfter = this.getParentDiv(after, allItems);
+      if (parentBefore.id === parentAfter.id) {
+        stuckInMiddle = true;
+        allValidHeadings.push(parentBefore);
       }
     }
 

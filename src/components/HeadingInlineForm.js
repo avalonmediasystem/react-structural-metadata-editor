@@ -69,8 +69,8 @@ class HeadingInlineForm extends Component {
     const { headingTitle } = this.state;
 
     return (
-      <Form inline>
-        <div className="row-wrapper" data-testid="heading-inline-form">
+      <Form inline data-testid="heading-inline-form">
+        <div className="row-wrapper">
           <div>
             <FormGroup
               controlId="headingTitle"

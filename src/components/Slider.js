@@ -58,7 +58,6 @@ function VolumeSlider(props) {
   const [prevValue, setPrevValue] = React.useState(100);
 
   const handleChange = (e, value) => {
-    setPrevValue(value);
     props.setVolume(value);
   };
 

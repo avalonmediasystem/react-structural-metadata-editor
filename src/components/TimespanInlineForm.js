@@ -171,6 +171,7 @@ class TimespanInlineForm extends Component {
             <FormGroup
               controlId="timespanTitle"
               validationState={getValidationTitleState(timespanTitle)}
+              data-testid="timespan-inline-form-title"
             >
               <ControlLabel>Title</ControlLabel>
               <FormControl
@@ -186,6 +187,7 @@ class TimespanInlineForm extends Component {
                 beginTime,
                 this.allSpans
               )}
+              data-testid="timespan-inline-form-begintime"
             >
               <ControlLabel>Begin Time</ControlLabel>
               <FormControl
@@ -223,9 +225,6 @@ class TimespanInlineForm extends Component {
     );
   }
 }
-
-// For testing purposes
-export { TimespanInlineForm as PureTimespanInlineForm };
 
 const mapStateToProps = state => ({
   smData: state.smData,

@@ -6,20 +6,33 @@ import reducer from '../reducers';
 
 /**
  * Helper function for providing a Redux connected component for testing.
- *
  * Taken from Testing Library:  https://testing-library.com/docs/example-react-redux
+ *
+ * Providing re-render when props gets updated.
+ * Taken from: https://gist.github.com/darekzak/0c56bd9f1ad6e876fd21837feee79c50
  *
  * @param {React Component} ui
  * @param {object} param1
+ * @param {function} param2
  */
 export function renderWithRedux(
   ui,
-  { initialState, store = createStore(reducer, initialState) } = {}
+  { initialState, store = createStore(reducer, initialState) } = {},
+  renderFn = render
 ) {
-  return {
-    ...render(<Provider store={store}>{ui}</Provider>),
+  const obj = {
+    ...renderFn(<Provider store={store}>{ui}</Provider>),
     store
   };
+  obj.rerenderWithRedux = (el, nextState) => {
+    if (nextState) {
+      store.replaceReducer(() => nextState);
+      store.dispatch({ type: '__TEST_ACTION_REPLACE_STATE__' });
+      store.replaceReducer(reducer);
+    }
+    return renderWithRedux(el, { store }, obj.rerender);
+  };
+  return obj;
 }
 
 export const testSmData = [

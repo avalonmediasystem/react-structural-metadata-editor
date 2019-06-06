@@ -34,20 +34,28 @@ class TimespanForm extends Component {
       timespanTitle: '',
       validHeadings: [],
       peaksInstance: this.props.peaksInstance,
-      isInitializing: this.props.isInitializing
+      isInitializing: this.props.isInitializing,
+      allSpans: null
     };
-    this.allSpans = null;
   }
 
   componentDidMount() {
-    const { smData } = this.props;
-    this.allSpans = structuralMetadataUtils.getItemsOfType('span', smData);
+    const { smData, peaksInstance } = this.props;
+    const { beginTime, endTime } = this.state;
+    this.setState({
+      allSpans: structuralMetadataUtils.getItemsOfType('span', smData)
+    });
+    if (peaksInstance && beginTime !== '' && endTime !== '') {
+      this.updateChildOfOptions();
+    }
   }
 
   componentDidUpdate(prevProps, prevState) {
     const { smData } = this.props;
-    if (!isEqual(smData, prevProps.smData)) {
-      this.allSpans = structuralMetadataUtils.getItemsOfType('span', smData);
+    if (!isEqual(smData, prevProps.smData) && smData.length > 0) {
+      this.setState({
+        allSpans: structuralMetadataUtils.getItemsOfType('span', smData)
+      });
       // Update valid headings when structure changes
       this.updateChildOfOptions();
     }
@@ -64,11 +72,18 @@ class TimespanForm extends Component {
 
   static getDerivedStateFromProps(nextProps, prevState) {
     if (nextProps.timespanOpen && !nextProps.isTyping) {
-      const { initSegment, isInitializing, peaksInstance, segment } = nextProps;
+      const {
+        initSegment,
+        isInitializing,
+        peaksInstance,
+        segment,
+        smData
+      } = nextProps;
 
       if (initSegment && isInitializing) {
         const { startTime, endTime } = initSegment;
         return {
+          allSpans: structuralMetadataUtils.getItemsOfType('span', smData),
           beginTime: structuralMetadataUtils.toHHmmss(startTime),
           endTime: structuralMetadataUtils.toHHmmss(endTime),
           isInitializing: false
@@ -103,7 +118,7 @@ class TimespanForm extends Component {
     // Get spans in overall span list which fall before and after the new span
     let wrapperSpans = structuralMetadataUtils.findWrapperSpans(
       newSpan,
-      this.allSpans
+      this.state.allSpans
     );
 
     // Get all valid div headings
@@ -202,8 +217,7 @@ class TimespanForm extends Component {
    * A local wrapper for the reusable function 'validTimespans'
    */
   localValidTimespans() {
-    const { beginTime, endTime } = this.state;
-    const { allSpans } = this;
+    const { beginTime, endTime, allSpans } = this.state;
 
     return validTimespans(
       beginTime,
@@ -214,10 +228,16 @@ class TimespanForm extends Component {
   }
 
   render() {
-    const { beginTime, endTime, timespanChildOf, timespanTitle } = this.state;
+    const {
+      beginTime,
+      endTime,
+      timespanChildOf,
+      timespanTitle,
+      allSpans
+    } = this.state;
 
     return (
-      <form onSubmit={this.handleSubmit}>
+      <form onSubmit={this.handleSubmit} data-testid="timespan-form">
         <FormGroup
           controlId="timespanTitle"
           validationState={getValidationTitleState(timespanTitle)}
@@ -236,10 +256,7 @@ class TimespanForm extends Component {
           <Col sm={6}>
             <FormGroup
               controlId="beginTime"
-              validationState={getValidationBeginState(
-                beginTime,
-                this.allSpans
-              )}
+              validationState={getValidationBeginState(beginTime, allSpans)}
               data-testid="timespan-form-begintime"
             >
               <ControlLabel>Begin Time</ControlLabel>
@@ -258,7 +275,7 @@ class TimespanForm extends Component {
               validationState={getValidationEndState(
                 beginTime,
                 endTime,
-                this.allSpans,
+                allSpans,
                 this.props.peaksInstance.peaks
               )}
               data-testid="timespan-form-endtime"
@@ -319,9 +336,6 @@ class TimespanForm extends Component {
     );
   }
 }
-
-// For testing purposes
-export { TimespanForm as PureTimespanForm };
 
 const mapStateToProps = state => ({
   smData: state.smData,

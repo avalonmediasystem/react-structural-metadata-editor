@@ -667,8 +667,7 @@ export default class StructuralMetadataUtils {
           insertIndex =
             foundDiv.items.map(item => item.id).indexOf(siblingBefore.id) + 1;
         }
-      }
-      if (after) {
+      } else if (after) {
         let siblingAfter = getParentOfSpan(after);
         if (siblingAfter) {
           let siblingAfterIndex = foundDiv.items

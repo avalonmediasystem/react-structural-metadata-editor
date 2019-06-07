@@ -9,10 +9,10 @@ const initialState = {
   smData: testSmData
 };
 
-let ListContext = wrapInTestContext(List);
+let ListContext = null;
 
 beforeEach(() => {
-  ListContext;
+  ListContext = wrapInTestContext(List);
 });
 afterEach(cleanup);
 
@@ -20,7 +20,7 @@ test('List component renders successfully', () => {
   const { getByText } = renderWithRedux(<ListContext items={testSmData} />, {
     initialState
   });
-  expect(getByText('Title')).toBeInTheDocument();
+  expect(getByText(/^Ima Title$/)).toBeInTheDocument();
 });
 
 test('List component displays its list items successfully', () => {

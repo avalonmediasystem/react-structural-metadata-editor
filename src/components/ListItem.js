@@ -151,7 +151,12 @@ class ListItem extends Component {
                 </span>
               )}
               {(type === 'div' || type === 'root') && (
-                <div className="structure-title heading">{label}</div>
+                <div
+                  className="structure-title heading"
+                  data-testid="heading-label"
+                >
+                  {label}
+                </div>
               )}
               <ListItemControls
                 handleDelete={this.handleDelete}

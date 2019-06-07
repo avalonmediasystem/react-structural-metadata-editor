@@ -34,11 +34,30 @@ export function renderWithRedux(
   };
   return obj;
 }
+// export function renderWithRedux(
+//   ui,
+//   { initialState, store = createStore(reducer, initialState) } = {},
+//   renderFn = render
+// ) {
+//   const obj = {
+//     ...renderFn(<Provider store={store}>{ui}</Provider>),
+//     store
+//   };
+//   obj.rerenderWithRedux = (el, nextState) => {
+//     if (nextState) {
+//       store.replaceReducer(() => nextState);
+//       store.dispatch({ type: '__TEST_ACTION_REPLACE_STATE__' });
+//       store.replaceReducer(rootReducer);
+//     }
+//     return renderWithRedux(el, { store }, obj.rerender);
+//   };
+//   return obj;
+// }
 
 export const testSmData = [
   {
     type: 'div',
-    label: 'Title',
+    label: 'Ima Title',
     id: '123a-456b-789c-0d',
     items: [
       {

@@ -24,14 +24,19 @@ const initialState = {
     segment: {
       startTime: 0,
       endTime: 3.32,
-      label: '',
+      labelText: '',
       id: 'temp-segment',
       editable: true,
       color: '#FBB040'
-    },
-    events: null
+    }
   }
 };
+
+// Setting up props for the tests
+const setTypingMock = jest.fn();
+const setInitializeMock = jest.fn();
+const onSubmitMock = jest.fn();
+const cancelMock = jest.fn();
 
 const props = {
   initSegment: {
@@ -43,7 +48,11 @@ const props = {
   },
   timespanOpen: true,
   isTyping: false,
-  isInitializing: true
+  isInitializing: true,
+  setIsTyping: setTypingMock,
+  setIsInitializing: setInitializeMock,
+  onSubmit: onSubmitMock,
+  cancelClick: cancelMock
 };
 
 afterEach(cleanup);
@@ -74,7 +83,7 @@ test('initial render with default begin/end time and save button disabled', () =
   expect(childOfSelect.children[1].value).toBe('123a-456b-789c-0d');
 });
 
-test('shows proper validation messages for title', () => {
+test('shows proper validation messages for title and save button is disabled/enabled', () => {
   const { getByTestId, getByLabelText } = renderWithRedux(
     <TimespanForm {...props} />,
     { initialState }
@@ -107,17 +116,10 @@ test('shows proper validation messages for title', () => {
   expect(saveButton).toBeEnabled();
 });
 
-describe('shows proper validation messages for begin/end time changes', () => {
-  let timespanForm, saveButton, newProps;
+describe('shows proper validation messages for begin/end time changes and save button is disabled/enabled', () => {
+  let timespanForm, saveButton;
   beforeEach(() => {
-    const setTypingMock = jest.fn();
-    const setInitializeMock = jest.fn();
-    newProps = {
-      ...props,
-      setIsTyping: setTypingMock,
-      setIsInitializing: setInitializeMock
-    };
-    timespanForm = renderWithRedux(<TimespanForm {...newProps} />, {
+    timespanForm = renderWithRedux(<TimespanForm {...props} />, {
       initialState
     });
     saveButton = timespanForm.getByTestId('timespan-form-save-button');
@@ -143,7 +145,7 @@ describe('shows proper validation messages for begin/end time changes', () => {
   test('end time overlaps next segment', () => {
     // Change props to allow changes to go through as user input from the forms
     const updatedProps = {
-      ...newProps,
+      ...props,
       isInitializing: false,
       isTyping: true
     };
@@ -168,7 +170,7 @@ describe('shows proper validation messages for begin/end time changes', () => {
 
   test('begin time > end time', () => {
     const updatedProps = {
-      ...newProps,
+      ...props,
       isInitializing: false,
       isTyping: true
     };
@@ -216,19 +218,10 @@ test('enable save button by selecting a parent element for the timespan', () => 
 
 describe('submitting the form', () => {
   let timespanForm;
-  const onSubmitMock = jest.fn();
-  const cancelMock = jest.fn();
   beforeEach(() => {
-    timespanForm = renderWithRedux(
-      <TimespanForm
-        {...props}
-        onSubmit={onSubmitMock}
-        cancelClick={cancelMock}
-      />,
-      {
-        initialState
-      }
-    );
+    timespanForm = renderWithRedux(<TimespanForm {...props} />, {
+      initialState
+    });
     fireEvent.change(timespanForm.getByLabelText(/title/i), {
       target: { value: 'New Timespan' }
     });

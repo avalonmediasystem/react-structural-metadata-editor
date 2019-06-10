@@ -43,7 +43,11 @@ class AlertContainer extends Component {
     }
 
     return (
-      <Alert bsStyle={alertStyle} onDismiss={this.handleDismiss}>
+      <Alert
+        bsStyle={alertStyle}
+        onDismiss={this.handleDismiss}
+        data-testid="alert-container"
+      >
         <p>{message}</p>
       </Alert>
     );

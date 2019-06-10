@@ -20,9 +20,7 @@ export default class APIUtils {
     const url = useLocalData
       ? `${BASE_URL}${urlEndPoint}`
       : `${baseURL}/master_files/${masterFile}/${urlEndPoint}`;
-    return axios.get(url, {
-      headers: headers
-    });
+    return axios.get(url, { headers });
   }
 
   /**
@@ -44,7 +42,21 @@ export default class APIUtils {
       ? `${BASE_URL}${urlEndPoint}`
       : `${baseURL}/master_files/${masterFile}/${urlEndPoint}`;
     return axios.post(url, data, {
-      headers: headers
+      headers
     });
+  }
+
+  /**
+   * Construct HEAD request with parameters,
+   * @param {String} baseURL - base URL of the server hosting master file
+   * @param {String} masterFile - master file ID on the server
+   * @param {String} urlEndPoint - end point to make the network request
+   * @param {Headers} headers
+   */
+  headRequest(baseURL, masterFile, urlEndPoint, headers = defaultHeaders) {
+    const url = useLocalData
+      ? `${BASE_URL}${urlEndPoint}`
+      : `${baseURL}/master_files/${masterFile}/${urlEndPoint}`;
+    return axios.head(url, { headers });
   }
 }

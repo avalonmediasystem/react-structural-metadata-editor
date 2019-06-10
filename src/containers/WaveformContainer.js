@@ -54,13 +54,17 @@ class WaveformContainer extends Component {
     const { baseURL, masterFileID, initStructure, streamLength } = this.state;
     let isError = false;
     try {
-      const response = await apiUtils.getRequest(
+      // Check whether the waveform.json exists in the server
+      const response = await apiUtils.headRequest(
         baseURL,
         masterFileID,
         'waveform.json'
       );
+
       // Set the masterfile URL as the URI for the waveform data file
-      peaksOptions.dataUri = response.request.responseURL;
+      if (response.status >= 200 && response.status < 400) {
+        peaksOptions.dataUri = response.request.responseURL;
+      }
 
       // Initialize Peaks
       this.props.fetchDataAndBuildPeaks(

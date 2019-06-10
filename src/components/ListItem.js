@@ -146,12 +146,17 @@ class ListItem extends Component {
           {!this.state.editing && (
             <div className="row-wrapper">
               {type === 'span' && (
-                <span className="structure-title">
+                <span className="structure-title" data-testid="timespan-label">
                   {label} ({begin} - {end})
                 </span>
               )}
               {(type === 'div' || type === 'root') && (
-                <div className="structure-title heading">{label}</div>
+                <div
+                  className="structure-title heading"
+                  data-testid="heading-label"
+                >
+                  {label}
+                </div>
               )}
               <ListItemControls
                 handleDelete={this.handleDelete}

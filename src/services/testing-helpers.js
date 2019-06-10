@@ -37,8 +37,8 @@ export function renderWithRedux(
 
 export const testSmData = [
   {
-    type: 'div',
-    label: 'Title',
+    type: 'root',
+    label: 'Ima Title',
     id: '123a-456b-789c-0d',
     items: [
       {

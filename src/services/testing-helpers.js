@@ -108,3 +108,63 @@ export const testSmData = [
     ]
   }
 ];
+
+export const testEmptyHeaderBefore = [
+  {
+    type: 'div',
+    label: 'Title',
+    id: '123a-456b-789c-0d',
+    items: [
+      {
+        type: 'div',
+        label: 'Scene 1',
+        id: '123a-456b-789c-1d',
+        items: []
+      },
+      {
+        type: 'div',
+        label: 'Scene 2',
+        id: '123a-456b-789c-2d',
+        items: [
+          {
+            type: 'span',
+            label: 'Act 1',
+            id: '123a-456b-789c-3d',
+            begin: '00:10:00.00',
+            end: '00:15:00.00'
+          }
+        ]
+      }
+    ]
+  }
+];
+
+export const testEmptyHeaderAfter = [
+  {
+    type: 'div',
+    label: 'Title',
+    id: '123a-456b-789c-0d',
+    items: [
+      {
+        type: 'div',
+        label: 'Scene 1',
+        id: '123a-456b-789c-1d',
+        items: [
+          {
+            type: 'span',
+            label: 'Act 1',
+            id: '123a-456b-789c-2d',
+            begin: '00:00:00.00',
+            end: '00:09:00.00'
+          }
+        ]
+      },
+      {
+        type: 'div',
+        label: 'Scene 2',
+        id: '123a-456b-789c-3d',
+        items: []
+      }
+    ]
+  }
+];

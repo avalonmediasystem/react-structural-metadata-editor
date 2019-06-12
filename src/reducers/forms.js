@@ -5,7 +5,11 @@ const initialState = {
   structureRetrieved: false,
   structureStatus: null,
   waveformRetrieved: false,
-  streamMediaRetrieved: true
+  streamInfo: {
+    streamMediaError: false,
+    streamMediaLoading: true,
+    streamMediaStatus: null
+  }
 };
 
 const forms = (state = initialState, action) => {
@@ -43,9 +47,27 @@ const forms = (state = initialState, action) => {
         });
       }
 
-    case types.RETREIVE_STREAM_MEDIA_ERROR:
+    case types.STREAM_MEDIA_LOADING:
       return Object.assign({}, state, {
-        streamMediaRetrieved: false
+        streamInfo: Object.assign({}, state.streamInfo, {
+          streamMediaStatus: action.payload
+        })
+      });
+
+    case types.STREAM_MEDIA_ERROR:
+      return Object.assign({}, state, {
+        streamInfo: Object.assign({}, state.streamInfo, {
+          streamMediaError: true,
+          streamMediaStatus: action.payload
+        })
+      });
+
+    case types.STREAM_MEDIA_SUCCESS:
+      return Object.assign({}, state, {
+        streamInfo: Object.assign({}, state.streamInfo, {
+          streamMediaLoading: false,
+          streamMediaStatus: null
+        })
       });
 
     default:

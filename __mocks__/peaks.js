@@ -1,10 +1,6 @@
 export const Peaks = jest.fn(opts => {
   let peaks = {};
   peaks.options = opts;
-  peaks.zoom = {
-    zoomIn: jest.fn(),
-    zoomOut: jest.fn()
-  };
   peaks.player = {
     seek: jest.fn(time => {
       peaks.player._mediaElement.currentTime = time;
@@ -15,8 +11,6 @@ export const Peaks = jest.fn(opts => {
     getDuration: jest.fn(() => {
       return peaks.player._mediaElement.duration;
     }),
-    play: jest.fn(),
-    pause: jest.fn(),
     _mediaElement: {
       currentTime: 0,
       duration: 1738.945306

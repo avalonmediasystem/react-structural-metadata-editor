@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
 import { Button, ButtonToolbar, Row, Col } from 'react-bootstrap';
 import { connect } from 'react-redux';
-import Hls from 'hls.js';
 import AlertContainer from '../containers/AlertContainer';
 import { configureAlert } from '../services/alert-status';
-import { retrieveStreamMediaError } from '../actions/forms';
+import { retrieveStreamMedia } from '../actions/forms';
 import VolumeSlider from './Slider';
 
 // Content of aria-label for UI components
@@ -19,8 +18,9 @@ class Waveform extends Component {
     super(props);
     this.state = {
       audioFile: this.props.audioStreamURL,
-      alertObj: null,
-      volume: 100
+      alertObj: this.props.alertObj,
+      volume: 100,
+      streamMediaStatus: this.props.streamInfo.streamMediaStatus
     };
 
     // Create `refs`
@@ -28,57 +28,30 @@ class Waveform extends Component {
     this.mediaPlayer = React.createRef();
   }
 
+  static getDerivedStateFromProps(nextProps, prevState) {
+    const { streamMediaStatus } = nextProps.streamInfo;
+    if (prevState.streamMediaStatus !== streamMediaStatus) {
+      return {
+        streamMediaStatus: nextProps.streamInfo.streamMediaStatus,
+        alertObj: configureAlert(
+          nextProps.streamInfo.streamMediaStatus,
+          nextProps.clearAlert
+        )
+      };
+    }
+    if (nextProps.alertObj === null) {
+      return { alertObj: null };
+    }
+    return null;
+  }
+
   componentDidMount = () => {
     const { audioFile } = this.state;
-    if (Hls.isSupported()) {
-      const hls = new Hls();
-      let self = this;
-      // Bind media player
-      hls.attachMedia(this.mediaPlayer.current);
-      // MEDIA_ATTACHED event is fired by hls object once MediaSource is ready
-      hls.on(Hls.Events.MEDIA_ATTACHED, function(event, data) {
-        hls.loadSource(audioFile);
-      });
-      hls.on(Hls.Events.ERROR, function(event, data) {
-        if (data.fatal) {
-          switch (data.type) {
-            case Hls.ErrorTypes.NETWORK_ERROR:
-              self.setAlert(data);
-              break;
-            case Hls.ErrorTypes.MEDIA_ERROR:
-              self.setAlert(data);
-              break;
-            default:
-              break;
-          }
-        }
-      });
-    }
+    this.props.retrieveStreamMedia(audioFile, this.mediaPlayer);
+
     // Grab the React `refs` now the component is mounted
     this.props.waveformRef(this.waveformContainer.current);
     this.props.mediaPlayerRef(this.mediaPlayer.current);
-  };
-
-  clearAlert = () => {
-    this.setState({ alertObj: null });
-  };
-
-  setAlert = data => {
-    this.props.retrieveStreamMediaError();
-    if (data.response !== undefined) {
-      const status = data.response.code;
-      status === 0
-        ? this.setState({
-            alertObj: configureAlert(-5, this.clearAlert)
-          })
-        : this.setState({
-            alertObj: configureAlert(data.response.code, this.clearAlert)
-          });
-    } else {
-      this.setState({
-        alertObj: configureAlert(-5, this.clearAlert)
-      });
-    }
   };
 
   zoomIn = () => {
@@ -104,7 +77,7 @@ class Waveform extends Component {
 
   render() {
     const { alertObj, volume } = this.state;
-    const { streamMediaRetrieved } = this.props;
+    const { streamMediaError, streamMediaLoading } = this.props.streamInfo;
     return (
       <React.Fragment>
         <div
@@ -114,7 +87,9 @@ class Waveform extends Component {
           tabIndex="0"
           data-testid="waveform"
         />
-        {!streamMediaRetrieved && <AlertContainer {...alertObj} />}
+        {(streamMediaError || streamMediaLoading) && (
+          <AlertContainer {...alertObj} />
+        )}
         <Row data-testid="waveform-toolbar">
           <audio ref={this.mediaPlayer} hidden={true}>
             Your browser does not support the audio element.
@@ -128,15 +103,15 @@ class Waveform extends Component {
                 className="glyphicon glyphicon-play"
                 aria-label="Play"
                 onClick={this.playAudio}
-                disabled={!streamMediaRetrieved}
                 data-testid="waveform-play-button"
+                disabled={streamMediaError || streamMediaLoading}
               />
               <Button
                 className="glyphicon glyphicon-pause"
                 aria-label="Pause"
                 onClick={this.pauseAudio}
-                disabled={!streamMediaRetrieved}
                 data-testid="waveform-pause-button"
+                disabled={streamMediaError || streamMediaLoading}
               />
               <Button
                 className="glyphicon glyphicon-zoom-in"
@@ -160,13 +135,13 @@ class Waveform extends Component {
 
 const mapStateToProps = state => ({
   peaksInstance: state.peaksInstance,
-  streamMediaRetrieved: state.forms.streamMediaRetrieved
+  streamInfo: state.forms.streamInfo
 });
 
 const mapDispatchToProps = {
-  retrieveStreamMediaError: retrieveStreamMediaError
+  retrieveStreamMedia: retrieveStreamMedia
 };
-// To use in the app
+
 export default connect(
   mapStateToProps,
   mapDispatchToProps

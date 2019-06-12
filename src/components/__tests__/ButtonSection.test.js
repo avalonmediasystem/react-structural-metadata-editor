@@ -2,7 +2,7 @@ import React from 'react';
 import Peaks from 'peaks';
 import { fireEvent, cleanup, wait } from 'react-testing-library';
 import 'jest-dom/extend-expect';
-import { renderWithRedux } from '../../services/testing-helpers';
+import { renderWithRedux, testSmData } from '../../services/testing-helpers';
 import ButtonSection from '../ButtonSection';
 
 // Set up a redux store for the tests
@@ -19,11 +19,16 @@ const initialState = {
   forms: {
     structureRetrieved: true,
     waveformRetrieved: true,
-    streamMediaRetrieved: true
+    streamInfo: {
+      // stream URL works
+      streamMediaError: false,
+      streamMediaLoading: false
+    }
   },
   peaksInstance: {
     peaks: Peaks.init(peaksOptions)
-  }
+  },
+  smData: testSmData
 };
 
 afterEach(cleanup);
@@ -110,6 +115,21 @@ describe('timespan button', () => {
         buttonSection.getByTestId('timespan-form-wrapper')
       ).not.toHaveClass('in');
     });
+  });
+  test('disabled when there is an error in fetching stream media file', () => {
+    const nextState = {
+      ...initialState,
+      forms: {
+        ...initialState.forms,
+        streamInfo: {
+          streamMediaError: true,
+          streamMediaLoading: false
+        }
+      }
+    };
+    buttonSection.rerenderWithRedux(<ButtonSection />, nextState);
+
+    expect(buttonSection.getByTestId('add-timespan-button')).toBeDisabled();
   });
 });
 

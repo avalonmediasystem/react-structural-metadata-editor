@@ -117,7 +117,7 @@ class ButtonSection extends Component {
       editingDisabled,
       structureRetrieved,
       waveformRetrieved,
-      streamMediaRetrieved
+      streamInfo
     } = this.props.forms;
 
     // Only return UI when both structure and waveform data exist
@@ -142,7 +142,7 @@ class ButtonSection extends Component {
               onClick={this.handleTimeSpanClick}
               disabled={
                 (this.state.disabled && editingDisabled) ||
-                !streamMediaRetrieved
+                (streamInfo.streamMediaError || streamInfo.streamMediaLoading)
               }
             >
               Add a Timespan

@@ -1,8 +1,9 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { createStore } from 'redux';
+import { createStore, applyMiddleware } from 'redux';
 import { render } from 'react-testing-library';
 import reducer from '../reducers';
+import thunk from 'redux-thunk';
 
 /**
  * Helper function for providing a Redux connected component for testing.
@@ -17,7 +18,10 @@ import reducer from '../reducers';
  */
 export function renderWithRedux(
   ui,
-  { initialState, store = createStore(reducer, initialState) } = {},
+  {
+    initialState,
+    store = createStore(reducer, initialState, applyMiddleware(thunk))
+  } = {},
   renderFn = render
 ) {
   const obj = {
@@ -99,6 +103,66 @@ export const testSmData = [
         type: 'div',
         label: 'A ',
         id: '123a-456b-789c-9d',
+        items: []
+      }
+    ]
+  }
+];
+
+export const testEmptyHeaderBefore = [
+  {
+    type: 'div',
+    label: 'Title',
+    id: '123a-456b-789c-0d',
+    items: [
+      {
+        type: 'div',
+        label: 'Scene 1',
+        id: '123a-456b-789c-1d',
+        items: []
+      },
+      {
+        type: 'div',
+        label: 'Scene 2',
+        id: '123a-456b-789c-2d',
+        items: [
+          {
+            type: 'span',
+            label: 'Act 1',
+            id: '123a-456b-789c-3d',
+            begin: '00:10:00.00',
+            end: '00:15:00.00'
+          }
+        ]
+      }
+    ]
+  }
+];
+
+export const testEmptyHeaderAfter = [
+  {
+    type: 'div',
+    label: 'Title',
+    id: '123a-456b-789c-0d',
+    items: [
+      {
+        type: 'div',
+        label: 'Scene 1',
+        id: '123a-456b-789c-1d',
+        items: [
+          {
+            type: 'span',
+            label: 'Act 1',
+            id: '123a-456b-789c-2d',
+            begin: '00:00:00.00',
+            end: '00:09:00.00'
+          }
+        ]
+      },
+      {
+        type: 'div',
+        label: 'Scene 2',
+        id: '123a-456b-789c-3d',
         items: []
       }
     ]

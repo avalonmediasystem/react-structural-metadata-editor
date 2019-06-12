@@ -32,6 +32,7 @@ class WaveformContainer extends Component {
 
   state = {
     alertObj: null,
+    streamAlert: {},
     hasError: false,
     masterFileID: this.props.masterFileID,
     baseURL: this.props.baseURL,
@@ -47,6 +48,12 @@ class WaveformContainer extends Component {
   clearAlert = () => {
     this.setState({
       alertObj: null
+    });
+  };
+
+  clearStreamAlert = () => {
+    this.setState({
+      streamAlert: null
     });
   };
 
@@ -112,7 +119,7 @@ class WaveformContainer extends Component {
   }
 
   render() {
-    const { alertObj, hasError } = this.state;
+    const { alertObj, hasError, streamAlert } = this.state;
     const { forms, audioStreamURL } = this.props;
 
     return (
@@ -124,6 +131,8 @@ class WaveformContainer extends Component {
             waveformRef={ref => (this.waveformContainer = ref)}
             mediaPlayerRef={ref => (this.mediaPlayer = ref)}
             audioStreamURL={audioStreamURL}
+            alertObj={streamAlert}
+            clearAlert={this.clearStreamAlert}
           />
         )}
       </section>

@@ -1,16 +1,16 @@
 import StructuralMetadataUtils from './StructuralMetadataUtils';
 import {
-  testMetadataStructure,
+  testSmData,
   testEmptyHeaderBefore,
   testEmptyHeaderAfter
-} from '../test/TestStructure';
+} from '../services/testing-helpers';
 import { cloneDeep } from 'lodash';
 
 const smu = new StructuralMetadataUtils();
 var testData = [];
 
 beforeEach(() => {
-  testData = cloneDeep(testMetadataStructure);
+  testData = cloneDeep(testSmData);
 });
 
 describe('StructuralMetadataUtils class', () => {

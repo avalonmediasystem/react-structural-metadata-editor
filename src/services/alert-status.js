@@ -9,8 +9,9 @@ export const WAVEFORM_INITIALIZE_ERROR =
   'There was an error initializing the waveform.';
 export const PEAKSJS_REACHED_END_OF_FILE =
   'There is no space available to insert a new timespan.';
-export const FETCH_STREAM_MEDIA_ERROR =
+export const STREAM_MEDIA_ERROR =
   'There was an error retrieving the media stream.';
+export const STREAM_MEDIA_LOADING = 'Media stream is loading...';
 
 /**
  * Helper function which prepares a configuration object to feed the AlertContainer component
@@ -35,7 +36,10 @@ export function configureAlert(status = 0, clearAlert) {
     alertObj.alertStyle = 'warning';
     alertObj.message = PEAKSJS_REACHED_END_OF_FILE;
   } else if (status === -5) {
-    alertObj.message = FETCH_STREAM_MEDIA_ERROR;
+    alertObj.alertStyle = 'info';
+    alertObj.message = STREAM_MEDIA_LOADING;
+  } else if (status === -6) {
+    alertObj.message = STREAM_MEDIA_ERROR;
   } else {
     alertObj.message = NETWORK_ERROR;
   }

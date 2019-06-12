@@ -20,7 +20,6 @@ class Waveform extends Component {
     this.state = {
       audioFile: this.props.audioStreamURL,
       alertObj: null,
-      hasError: false,
       volume: 100
     };
 
@@ -37,7 +36,7 @@ class Waveform extends Component {
       // Bind media player
       hls.attachMedia(this.mediaPlayer.current);
       // MEDIA_ATTACHED event is fired by hls object once MediaSource is ready
-      hls.on(Hls.Events.MEDIA_ATTACHED, function() {
+      hls.on(Hls.Events.MEDIA_ATTACHED, function(event, data) {
         hls.loadSource(audioFile);
       });
       hls.on(Hls.Events.ERROR, function(event, data) {
@@ -70,17 +69,14 @@ class Waveform extends Component {
       const status = data.response.code;
       status === 0
         ? this.setState({
-            alertObj: configureAlert(-5, this.clearAlert),
-            hasError: true
+            alertObj: configureAlert(-5, this.clearAlert)
           })
         : this.setState({
-            alertObj: configureAlert(data.response.code, this.clearAlert),
-            hasError: true
+            alertObj: configureAlert(data.response.code, this.clearAlert)
           });
     } else {
       this.setState({
-        alertObj: configureAlert(-5, this.clearAlert),
-        hasError: true
+        alertObj: configureAlert(-5, this.clearAlert)
       });
     }
   };
@@ -107,18 +103,18 @@ class Waveform extends Component {
   };
 
   render() {
-    const { alertObj, hasError, volume } = this.state;
+    const { alertObj, volume } = this.state;
     const { streamMediaRetrieved } = this.props;
     return (
-      <div>
+      <React.Fragment>
         <div
           id="waveform-container"
           ref={this.waveformContainer}
           aria-label={waveformLabel}
           tabIndex="0"
         />
-        {hasError && <AlertContainer {...alertObj} />}
-        <Row className="waveform-toolbar">
+        {!streamMediaRetrieved && <AlertContainer {...alertObj} />}
+        <Row data-testid="waveform-toolbar">
           <audio ref={this.mediaPlayer} hidden={true}>
             Your browser does not support the audio element.
           </audio>
@@ -132,33 +128,34 @@ class Waveform extends Component {
                 aria-label="Play"
                 onClick={this.playAudio}
                 disabled={!streamMediaRetrieved}
+                data-testid="waveform-play-button"
               />
               <Button
                 className="glyphicon glyphicon-pause"
                 aria-label="Pause"
                 onClick={this.pauseAudio}
                 disabled={!streamMediaRetrieved}
+                data-testid="waveform-pause-button"
               />
               <Button
                 className="glyphicon glyphicon-zoom-in"
                 aria-label="Zoom in"
                 onClick={this.zoomIn}
+                data-testid="waveform-zoomin-button"
               />
               <Button
                 className="glyphicon glyphicon-zoom-out"
                 aria-label="Zoom out"
                 onClick={this.zoomOut}
+                data-testid="waveform-zoomout-button"
               />
             </ButtonToolbar>
           </Col>
         </Row>
-      </div>
+      </React.Fragment>
     );
   }
 }
-
-// To use in tests as a disconnected component (to access state)
-export { Waveform as PureWaveform };
 
 const mapStateToProps = state => ({
   peaksInstance: state.peaksInstance,

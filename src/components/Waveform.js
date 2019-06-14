@@ -112,6 +112,7 @@ class Waveform extends Component {
           ref={this.waveformContainer}
           aria-label={waveformLabel}
           tabIndex="0"
+          data-testid="waveform"
         />
         {!streamMediaRetrieved && <AlertContainer {...alertObj} />}
         <Row data-testid="waveform-toolbar">

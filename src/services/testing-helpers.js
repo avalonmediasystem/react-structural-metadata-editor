@@ -1,8 +1,9 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { createStore } from 'redux';
+import { createStore, applyMiddleware } from 'redux';
 import { render } from 'react-testing-library';
 import reducer from '../reducers';
+import thunk from 'redux-thunk';
 
 /**
  * Helper function for providing a Redux connected component for testing.
@@ -17,7 +18,10 @@ import reducer from '../reducers';
  */
 export function renderWithRedux(
   ui,
-  { initialState, store = createStore(reducer, initialState) } = {},
+  {
+    initialState,
+    store = createStore(reducer, initialState, applyMiddleware(thunk))
+  } = {},
   renderFn = render
 ) {
   const obj = {

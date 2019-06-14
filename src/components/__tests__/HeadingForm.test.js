@@ -15,6 +15,11 @@ test('the HeadingForm renders', () => {
   expect(getByTestId('heading-form')).toBeInTheDocument();
 });
 
+test('save button is disabled at initial render', () => {
+  const { getByTestId } = renderWithRedux(<HeadingForm />);
+  expect(getByTestId('heading-form-save-button')).toBeDisabled();
+});
+
 test('select child options are available in dropdown', () => {
   const { container, getByTestId } = renderWithRedux(<HeadingForm />, {
     initialState

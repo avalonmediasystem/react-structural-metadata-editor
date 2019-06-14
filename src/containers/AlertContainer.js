@@ -48,7 +48,7 @@ class AlertContainer extends Component {
         onDismiss={this.handleDismiss}
         data-testid="alert-container"
       >
-        <p>{message}</p>
+        <p data-testid="alert-message">{message}</p>
       </Alert>
     );
   }

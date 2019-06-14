@@ -50,20 +50,22 @@ class StructureOutputContainer extends Component {
     this.setState({ alertObj });
   }
 
-  handleSaveItClick = () => {
+  handleSaveItClick = async () => {
     const { baseURL, masterFileID } = this.state;
     let postData = { json: this.props.smData[0] };
-    this.apiUtils
-      .postRequest(baseURL, masterFileID, 'structure.json', postData)
-      .then(response => {
-        const { status } = response;
-        const alertObj = configureAlert(status, this.clearAlert);
-
-        this.setState({ alertObj });
-      })
-      .catch(error => {
-        this.handleSaveError(error);
-      });
+    try {
+      const response = await this.apiUtils.postRequest(
+        baseURL,
+        masterFileID,
+        'structure.json',
+        postData
+      );
+      const { status } = response;
+      const alertObj = configureAlert(status, this.clearAlert);
+      this.setState({ alertObj });
+    } catch (error) {
+      this.handleSaveError(error);
+    }
   };
 
   render() {
@@ -71,16 +73,23 @@ class StructureOutputContainer extends Component {
     const { alertObj } = this.state;
 
     return (
-      <section className="structure-section">
+      <section
+        className="structure-section"
+        data-testid="structure-output-section"
+      >
         {!forms.structureRetrieved ? (
           <AlertContainer {...alertObj} />
         ) : (
-          <div>
+          <div data-testid="structure-output-list">
             <AlertContainer {...alertObj} />
             <List items={smData} />
             <Row>
               <Col xs={12} className="text-right">
-                <Button bsStyle="primary" onClick={this.handleSaveItClick}>
+                <Button
+                  bsStyle="primary"
+                  onClick={this.handleSaveItClick}
+                  data-testid="structure-save-button"
+                >
                   Save Structure
                 </Button>
               </Col>
@@ -92,17 +101,9 @@ class StructureOutputContainer extends Component {
   }
 }
 
-// For testing purposes
-export { StructureOutputContainer as PureStructureOutputContainer };
-
 const mapStateToProps = state => ({
   smData: state.smData,
   forms: state.forms
 });
-
-// const mapDispatchToProps = dispatch => ({
-//   buildSMUI: smData => dispatch(buildSMUI(smData)),
-//   retrieveStructureSuccess: () => dispatch(retrieveStructureSuccess())
-// });
 
 export default connect(mapStateToProps)(StructureOutputContainer);

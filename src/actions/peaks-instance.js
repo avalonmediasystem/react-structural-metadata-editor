@@ -24,54 +24,53 @@ export function initializeSMDataPeaks(
   duration,
   isError
 ) {
-  return (dispatch, getState) => {
-    apiUtils
-      .getRequest(baseURL, masterFileID, 'structure.json')
-      .then(response => {
-        let smData = [];
+  return async (dispatch, getState) => {
+    try {
+      const response = await apiUtils.getRequest(
+        baseURL,
+        masterFileID,
+        'structure.json'
+      );
+      let smData = [];
 
-        if (isEmpty(response.data)) {
-          smData = structuralMetadataUtils.addUUIds([
-            JSON.parse(initStructure)
-          ]);
-        } else {
-          smData = structuralMetadataUtils.addUUIds([response.data]);
+      if (isEmpty(response.data)) {
+        smData = structuralMetadataUtils.addUUIds([JSON.parse(initStructure)]);
+      } else {
+        smData = structuralMetadataUtils.addUUIds([response.data]);
+      }
+
+      // Mark the top element as 'root'
+      structuralMetadataUtils.markRootElement(smData);
+
+      // Initialize Redux state variable with structure
+      dispatch(buildSMUI(smData, duration));
+
+      // Update redux-store flag for structure file retrieval
+      dispatch(retrieveStructureSuccess());
+      if (!isError) {
+        dispatch(initPeaks(smData, options));
+
+        const { peaksInstance } = getState();
+
+        // Subscribe to Peaks event for dragging handles in a segment
+        if (peaksInstance.events !== undefined) {
+          peaksInstance.events.subscribe(segment => {
+            dispatch(dragSegment(segment, 1));
+          });
         }
+      }
+    } catch (error) {
+      console.log('TCL: Structure -> }catch -> error', error);
 
-        // Mark the top element as 'root'
-        structuralMetadataUtils.markRootElement(smData);
+      // Check whether fetching waveform.json was successful
+      if (!isError) {
+        // Initialize Peaks when structure.json is not found to show an empty waveform
+        dispatch(initPeaks([], options));
+      }
 
-        // Initialize Redux state variable with structure
-        dispatch(buildSMUI(smData, duration));
-
-        // Update redux-store flag for structure file retrieval
-        dispatch(retrieveStructureSuccess());
-
-        if (!isError) {
-          dispatch(initPeaks(smData, options));
-
-          const { peaksInstance } = getState();
-
-          // Subscribe to Peaks event for dragging handles in a segment
-          if (peaksInstance.events !== undefined) {
-            peaksInstance.events.subscribe(segment => {
-              dispatch(dragSegment(segment, 1));
-            });
-          }
-        }
-      })
-      .catch(error => {
-        console.log('TCL: Structure -> }catch -> error', error);
-
-        // Check whether fetching waveform.json was successful
-        if (!isError) {
-          // Initialize Peaks when structure.json is not found to show an empty waveform
-          dispatch(initPeaks([], options));
-        }
-
-        let status = error.response !== undefined ? error.response.status : -2;
-        dispatch(handleStructureError(1, status));
-      });
+      let status = error.response !== undefined ? error.response.status : -2;
+      dispatch(handleStructureError(1, status));
+    }
   };
 }
 

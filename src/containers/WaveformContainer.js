@@ -116,7 +116,7 @@ class WaveformContainer extends Component {
     const { forms, audioStreamURL } = this.props;
 
     return (
-      <section className="waveform-section">
+      <section className="waveform-section" data-testid="waveform-container">
         {!forms.waveformRetrieved && hasError ? (
           <AlertContainer {...alertObj} />
         ) : (
@@ -130,9 +130,6 @@ class WaveformContainer extends Component {
     );
   }
 }
-
-// For testing purposes
-export { WaveformContainer as PureWaveformContainer };
 
 const mapStateToProps = state => ({
   smData: state.smData,

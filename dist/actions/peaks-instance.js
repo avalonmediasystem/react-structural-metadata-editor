@@ -1,8 +1,8 @@
 "use strict";
 
-var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
-
 var _interopRequireWildcard = require("@babel/runtime/helpers/interopRequireWildcard");
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
 
 Object.defineProperty(exports, "__esModule", {
   value: true
@@ -18,6 +18,10 @@ exports.updateSegment = updateSegment;
 exports.dragSegment = dragSegment;
 exports.insertTempSegment = insertTempSegment;
 exports.deleteTempSegment = deleteTempSegment;
+
+var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
+
+var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
 
 var types = _interopRequireWildcard(require("./types"));
 
@@ -43,48 +47,79 @@ var structuralMetadataUtils = new _StructuralMetadataUtils["default"]();
  */
 
 function initializeSMDataPeaks(baseURL, masterFileID, initStructure, options, duration, isError) {
-  return function (dispatch, getState) {
-    apiUtils.getRequest(baseURL, masterFileID, 'structure.json').then(function (response) {
-      var smData = [];
+  return (
+    /*#__PURE__*/
+    function () {
+      var _ref = (0, _asyncToGenerator2["default"])(
+      /*#__PURE__*/
+      _regenerator["default"].mark(function _callee(dispatch, getState) {
+        var response, smData, _getState, peaksInstance, status;
 
-      if ((0, _lodash.isEmpty)(response.data)) {
-        smData = structuralMetadataUtils.addUUIds([JSON.parse(initStructure)]);
-      } else {
-        smData = structuralMetadataUtils.addUUIds([response.data]);
-      } // Mark the top element as 'root'
+        return _regenerator["default"].wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                _context.prev = 0;
+                _context.next = 3;
+                return apiUtils.getRequest(baseURL, masterFileID, 'structure.json');
+
+              case 3:
+                response = _context.sent;
+                smData = [];
+
+                if ((0, _lodash.isEmpty)(response.data)) {
+                  smData = structuralMetadataUtils.addUUIds([JSON.parse(initStructure)]);
+                } else {
+                  smData = structuralMetadataUtils.addUUIds([response.data]);
+                } // Mark the top element as 'root'
 
 
-      structuralMetadataUtils.markRootElement(smData); // Initialize Redux state variable with structure
+                structuralMetadataUtils.markRootElement(smData); // Initialize Redux state variable with structure
 
-      dispatch((0, _smData.buildSMUI)(smData, duration)); // Update redux-store flag for structure file retrieval
+                dispatch((0, _smData.buildSMUI)(smData, duration)); // Update redux-store flag for structure file retrieval
 
-      dispatch((0, _forms.retrieveStructureSuccess)());
+                dispatch((0, _forms.retrieveStructureSuccess)());
 
-      if (!isError) {
-        dispatch(initPeaks(smData, options));
+                if (!isError) {
+                  dispatch(initPeaks(smData, options));
+                  _getState = getState(), peaksInstance = _getState.peaksInstance; // Subscribe to Peaks event for dragging handles in a segment
 
-        var _getState = getState(),
-            peaksInstance = _getState.peaksInstance; // Subscribe to Peaks event for dragging handles in a segment
+                  if (peaksInstance.events !== undefined) {
+                    peaksInstance.events.subscribe(function (segment) {
+                      dispatch(dragSegment(segment, 1));
+                    });
+                  }
+                }
 
+                _context.next = 18;
+                break;
 
-        if (peaksInstance.events !== undefined) {
-          peaksInstance.events.subscribe(function (segment) {
-            dispatch(dragSegment(segment, 1));
-          });
-        }
-      }
-    })["catch"](function (error) {
-      console.log('TCL: Structure -> }catch -> error', error); // Check whether fetching waveform.json was successful
+              case 12:
+                _context.prev = 12;
+                _context.t0 = _context["catch"](0);
+                console.log('TCL: Structure -> }catch -> error', _context.t0); // Check whether fetching waveform.json was successful
 
-      if (!isError) {
-        // Initialize Peaks when structure.json is not found to show an empty waveform
-        dispatch(initPeaks([], options));
-      }
+                if (!isError) {
+                  // Initialize Peaks when structure.json is not found to show an empty waveform
+                  dispatch(initPeaks([], options));
+                }
 
-      var status = error.response !== undefined ? error.response.status : -2;
-      dispatch((0, _forms.handleStructureError)(1, status));
-    });
-  };
+                status = _context.t0.response !== undefined ? _context.t0.response.status : -2;
+                dispatch((0, _forms.handleStructureError)(1, status));
+
+              case 18:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, _callee, null, [[0, 12]]);
+      }));
+
+      return function (_x, _x2) {
+        return _ref.apply(this, arguments);
+      };
+    }()
+  );
 }
 
 function initPeaks(smData, options) {

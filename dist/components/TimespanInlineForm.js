@@ -7,7 +7,7 @@ var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefau
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports["default"] = exports.PureTimespanInlineForm = void 0;
+exports["default"] = void 0;
 
 var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
 
@@ -151,12 +151,14 @@ function (_Component) {
           endTime = _this$state3.endTime,
           timespanTitle = _this$state3.timespanTitle;
       return _react["default"].createElement(_reactBootstrap.Form, {
-        inline: true
+        inline: true,
+        "data-testid": "timespan-inline-form"
       }, _react["default"].createElement("div", {
         className: "row-wrapper"
       }, _react["default"].createElement("div", null, _react["default"].createElement(_reactBootstrap.FormGroup, {
         controlId: "timespanTitle",
-        validationState: (0, _formHelper.getValidationTitleState)(timespanTitle)
+        validationState: (0, _formHelper.getValidationTitleState)(timespanTitle),
+        "data-testid": "timespan-inline-form-title"
       }, _react["default"].createElement(_reactBootstrap.ControlLabel, null, "Title"), _react["default"].createElement(_reactBootstrap.FormControl, {
         type: "text",
         style: styles.formControl,
@@ -164,7 +166,8 @@ function (_Component) {
         onChange: this.handleInputChange
       })), _react["default"].createElement(_reactBootstrap.FormGroup, {
         controlId: "beginTime",
-        validationState: (0, _formHelper.getValidationBeginState)(beginTime, this.allSpans)
+        validationState: (0, _formHelper.getValidationBeginState)(beginTime, this.allSpans),
+        "data-testid": "timespan-inline-form-begintime"
       }, _react["default"].createElement(_reactBootstrap.ControlLabel, null, "Begin Time"), _react["default"].createElement(_reactBootstrap.FormControl, {
         type: "text",
         style: styles.formControl,
@@ -223,10 +226,8 @@ function (_Component) {
     }
   }]);
   return TimespanInlineForm;
-}(_react.Component); // For testing purposes
+}(_react.Component);
 
-
-exports.PureTimespanInlineForm = TimespanInlineForm;
 (0, _defineProperty2["default"])(TimespanInlineForm, "propTypes", {
   item: _propTypes["default"].object,
   cancelFn: _propTypes["default"].func,

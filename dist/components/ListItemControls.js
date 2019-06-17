@@ -126,23 +126,27 @@ function (_Component) {
           deleteMessage = _this$state.deleteMessage,
           showDeleteConfirm = _this$state.showDeleteConfirm;
       return _react["default"].createElement("div", {
-        className: "edit-controls-wrapper"
+        className: "edit-controls-wrapper",
+        "data-testid": "list-item-controls"
       }, item.type === 'span' && _react["default"].createElement(_reactBootstrap.Button, {
         bsStyle: "link",
         disabled: forms.editingDisabled && !item.active,
-        onClick: handleShowDropTargetsClick
+        onClick: handleShowDropTargetsClick,
+        "data-testid": "list-item-dnd-btn"
       }, _react["default"].createElement(_reactFontawesome.FontAwesomeIcon, {
         icon: "dot-circle"
       })), _react["default"].createElement(_reactBootstrap.Button, {
         bsStyle: "link",
         onClick: handleEditClick,
-        disabled: forms.editingDisabled
+        disabled: forms.editingDisabled,
+        "data-testid": "list-item-edit-btn"
       }, _react["default"].createElement(_reactFontawesome.FontAwesomeIcon, {
         icon: "pen"
       })), item.type !== 'root' && _react["default"].createElement(_react["default"].Fragment, null, _react["default"].createElement(_reactBootstrap.Button, {
         bsStyle: "link",
         onClick: this.handleDeleteClick,
-        disabled: forms.editingDisabled
+        disabled: forms.editingDisabled,
+        "data-testid": "list-item-delete-btn"
       }, _react["default"].createElement(_reactFontawesome.FontAwesomeIcon, {
         icon: "trash"
       })), _react["default"].createElement(_reactBootstrap.Overlay, {
@@ -153,20 +157,24 @@ function (_Component) {
       }, _react["default"].createElement(_reactBootstrap.Popover, {
         id: "popover-contained",
         title: "Confirm delete?",
-        style: styles.popover
+        style: styles.popover,
+        "data-testid": "delete-confirmation-popup"
       }, _react["default"].createElement("p", {
         dangerouslySetInnerHTML: {
           __html: deleteMessage
-        }
+        },
+        "data-testid": "delete-confirmation-message"
       }), _react["default"].createElement(_reactBootstrap.ButtonToolbar, {
         style: styles.buttonToolbar
       }, _react["default"].createElement(_reactBootstrap.Button, {
         bsStyle: "danger",
         bsSize: "xsmall",
-        onClick: this.handleConfirmDelete
+        onClick: this.handleConfirmDelete,
+        "data-testid": "delete-confirmation-confirm-btn"
       }, "Delete"), _react["default"].createElement(_reactBootstrap.Button, {
         bsSize: "xsmall",
-        onClick: this.cancelDeleteClick
+        onClick: this.cancelDeleteClick,
+        "data-testid": "delete-confirmation-cancel-btn"
       }, "Cancel"))))));
     }
   }]);

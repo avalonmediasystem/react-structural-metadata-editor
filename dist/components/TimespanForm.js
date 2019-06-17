@@ -7,7 +7,7 @@ var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefau
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports["default"] = exports.PureTimespanForm = void 0;
+exports["default"] = void 0;
 
 var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
 
@@ -59,7 +59,7 @@ function (_Component) {
         end: _this.state.endTime
       }; // Get spans in overall span list which fall before and after the new span
 
-      var wrapperSpans = structuralMetadataUtils.findWrapperSpans(newSpan, _this.allSpans); // Get all valid div headings
+      var wrapperSpans = structuralMetadataUtils.findWrapperSpans(newSpan, _this.state.allSpans); // Get all valid div headings
 
       var validHeadings = structuralMetadataUtils.getValidHeadings(newSpan, wrapperSpans, smData); // Update state with valid headings
 
@@ -126,33 +126,46 @@ function (_Component) {
       timespanTitle: '',
       validHeadings: [],
       peaksInstance: _this.props.peaksInstance,
-      isInitializing: _this.props.isInitializing
+      isInitializing: _this.props.isInitializing,
+      allSpans: null
     };
-    _this.allSpans = null;
     return _this;
   }
 
   (0, _createClass2["default"])(TimespanForm, [{
     key: "componentDidMount",
     value: function componentDidMount() {
-      var smData = this.props.smData;
-      this.allSpans = structuralMetadataUtils.getItemsOfType('span', smData);
+      var _this$props = this.props,
+          smData = _this$props.smData,
+          peaksInstance = _this$props.peaksInstance;
+      var _this$state2 = this.state,
+          beginTime = _this$state2.beginTime,
+          endTime = _this$state2.endTime;
+      this.setState({
+        allSpans: structuralMetadataUtils.getItemsOfType('span', smData)
+      });
+
+      if (peaksInstance && beginTime !== '' && endTime !== '') {
+        this.updateChildOfOptions();
+      }
     }
   }, {
     key: "componentDidUpdate",
     value: function componentDidUpdate(prevProps, prevState) {
       var smData = this.props.smData;
 
-      if (!(0, _lodash.isEqual)(smData, prevProps.smData)) {
-        this.allSpans = structuralMetadataUtils.getItemsOfType('span', smData); // Update valid headings when structure changes
+      if (!(0, _lodash.isEqual)(smData, prevProps.smData) && smData.length > 0) {
+        this.setState({
+          allSpans: structuralMetadataUtils.getItemsOfType('span', smData)
+        }); // Update valid headings when structure changes
 
         this.updateChildOfOptions();
       }
 
-      var _this$state2 = this.state,
-          beginTime = _this$state2.beginTime,
-          endTime = _this$state2.endTime,
-          isInitializing = _this$state2.isInitializing;
+      var _this$state3 = this.state,
+          beginTime = _this$state3.beginTime,
+          endTime = _this$state3.endTime,
+          isInitializing = _this$state3.isInitializing;
       var prevBeginTime = prevState.beginTime,
           prevEndTime = prevState.endTime;
 
@@ -202,25 +215,28 @@ function (_Component) {
   }, {
     key: "localValidTimespans",
     value: function localValidTimespans() {
-      var _this$state3 = this.state,
-          beginTime = _this$state3.beginTime,
-          endTime = _this$state3.endTime;
-      var allSpans = this.allSpans;
+      var _this$state4 = this.state,
+          beginTime = _this$state4.beginTime,
+          endTime = _this$state4.endTime,
+          allSpans = _this$state4.allSpans;
       return (0, _formHelper.validTimespans)(beginTime, endTime, allSpans, this.props.peaksInstance.peaks);
     }
   }, {
     key: "render",
     value: function render() {
-      var _this$state4 = this.state,
-          beginTime = _this$state4.beginTime,
-          endTime = _this$state4.endTime,
-          timespanChildOf = _this$state4.timespanChildOf,
-          timespanTitle = _this$state4.timespanTitle;
+      var _this$state5 = this.state,
+          beginTime = _this$state5.beginTime,
+          endTime = _this$state5.endTime,
+          timespanChildOf = _this$state5.timespanChildOf,
+          timespanTitle = _this$state5.timespanTitle,
+          allSpans = _this$state5.allSpans;
       return _react["default"].createElement("form", {
-        onSubmit: this.handleSubmit
+        onSubmit: this.handleSubmit,
+        "data-testid": "timespan-form"
       }, _react["default"].createElement(_reactBootstrap.FormGroup, {
         controlId: "timespanTitle",
-        validationState: (0, _formHelper.getValidationTitleState)(timespanTitle)
+        validationState: (0, _formHelper.getValidationTitleState)(timespanTitle),
+        "data-testid": "timespan-form-title"
       }, _react["default"].createElement(_reactBootstrap.ControlLabel, null, "Title"), _react["default"].createElement(_reactBootstrap.FormControl, {
         type: "text",
         value: timespanTitle,
@@ -229,7 +245,8 @@ function (_Component) {
         sm: 6
       }, _react["default"].createElement(_reactBootstrap.FormGroup, {
         controlId: "beginTime",
-        validationState: (0, _formHelper.getValidationBeginState)(beginTime, this.allSpans)
+        validationState: (0, _formHelper.getValidationBeginState)(beginTime, allSpans),
+        "data-testid": "timespan-form-begintime"
       }, _react["default"].createElement(_reactBootstrap.ControlLabel, null, "Begin Time"), _react["default"].createElement(_reactBootstrap.FormControl, {
         type: "text",
         value: beginTime,
@@ -239,14 +256,16 @@ function (_Component) {
         sm: 6
       }, _react["default"].createElement(_reactBootstrap.FormGroup, {
         controlId: "endTime",
-        validationState: (0, _formHelper.getValidationEndState)(beginTime, endTime, this.allSpans, this.props.peaksInstance.peaks)
+        validationState: (0, _formHelper.getValidationEndState)(beginTime, endTime, allSpans, this.props.peaksInstance.peaks),
+        "data-testid": "timespan-form-endtime"
       }, _react["default"].createElement(_reactBootstrap.ControlLabel, null, "End Time"), _react["default"].createElement(_reactBootstrap.FormControl, {
         type: "text",
         value: endTime,
         placeholder: "00:00:00",
         onChange: this.handleTimeChange
       }), _react["default"].createElement(_reactBootstrap.FormControl.Feedback, null)))), _react["default"].createElement(_reactBootstrap.FormGroup, {
-        controlId: "timespanChildOf"
+        controlId: "timespanChildOf",
+        "data-testid": "timespan-form-childof"
       }, _react["default"].createElement(_reactBootstrap.ControlLabel, null, "Child Of"), _react["default"].createElement(_reactBootstrap.FormControl, {
         componentClass: "select",
         placeholder: "select",
@@ -264,11 +283,13 @@ function (_Component) {
       }, _react["default"].createElement(_reactBootstrap.ButtonToolbar, {
         className: "pull-right"
       }, _react["default"].createElement(_reactBootstrap.Button, {
-        onClick: this.handleCancelClick
+        onClick: this.handleCancelClick,
+        "data-testid": "timespan-form-cancel-button"
       }, "Cancel"), _react["default"].createElement(_reactBootstrap.Button, {
         bsStyle: "primary",
         type: "submit",
-        disabled: !this.formIsValid()
+        disabled: !this.formIsValid(),
+        "data-testid": "timespan-form-save-button"
       }, "Save")))));
     }
   }], [{
@@ -278,12 +299,14 @@ function (_Component) {
         var initSegment = nextProps.initSegment,
             isInitializing = nextProps.isInitializing,
             peaksInstance = nextProps.peaksInstance,
-            segment = nextProps.segment;
+            segment = nextProps.segment,
+            smData = nextProps.smData;
 
         if (initSegment && isInitializing) {
           var startTime = initSegment.startTime,
               endTime = initSegment.endTime;
           return {
+            allSpans: structuralMetadataUtils.getItemsOfType('span', smData),
             beginTime: structuralMetadataUtils.toHHmmss(startTime),
             endTime: structuralMetadataUtils.toHHmmss(endTime),
             isInitializing: false
@@ -311,10 +334,7 @@ function (_Component) {
     }
   }]);
   return TimespanForm;
-}(_react.Component); // For testing purposes
-
-
-exports.PureTimespanForm = TimespanForm;
+}(_react.Component);
 
 var mapStateToProps = function mapStateToProps(state) {
   return {

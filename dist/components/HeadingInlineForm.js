@@ -95,12 +95,14 @@ function (_Component) {
     value: function render() {
       var headingTitle = this.state.headingTitle;
       return _react["default"].createElement(_reactBootstrap.Form, {
-        inline: true
+        inline: true,
+        "data-testid": "heading-inline-form"
       }, _react["default"].createElement("div", {
         className: "row-wrapper"
       }, _react["default"].createElement("div", null, _react["default"].createElement(_reactBootstrap.FormGroup, {
         controlId: "headingTitle",
-        validationState: (0, _formHelper.getValidationTitleState)(headingTitle)
+        validationState: (0, _formHelper.getValidationTitleState)(headingTitle),
+        "data-testid": "inline-heading-title-form-group"
       }, _react["default"].createElement(_reactBootstrap.ControlLabel, null, "Title"), _react["default"].createElement(_reactBootstrap.FormControl, {
         type: "text",
         style: styles.formControl,

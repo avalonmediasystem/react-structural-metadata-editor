@@ -1,29 +1,10 @@
 import WaveformDataUtils from './WaveformDataUtils';
-import { testMetadataStructure } from '../test/TestStructure';
+import { testSmData } from '../services/testing-helpers';
 import Peaks from 'peaks';
-
-// Mock third party library peaks.js
-jest.mock('peaks.js');
-import mockPeaks from 'peaks.js';
 
 const waveformUtils = new WaveformDataUtils();
 
 describe('WaveformDataUtils class', () => {
-  beforeEach(() => {
-    // Mock the Peaks.init() call for the test
-    mockPeaks.init.mockImplementationOnce(opts => {
-      return {
-        options: {
-          ...opts,
-          container: null,
-          mediaElement: null,
-          dataUri: 'http://localhost:3123/data/mock-response-waveform.json',
-          dataUriDefaultFormat: 'json'
-        }
-      };
-    });
-  });
-
   test('initializes peaks segments with empty metadata structure', () => {
     const value = waveformUtils.initSegments([], {});
     expect(value).toBeDefined();
@@ -55,7 +36,7 @@ describe('WaveformDataUtils class', () => {
       }
     ];
 
-    const value = waveformUtils.initSegments(testMetadataStructure);
+    const value = waveformUtils.initSegments(testSmData);
     expect(value).toBeDefined();
     expect(value).toHaveLength(3);
     expect(value).toEqual(expected);

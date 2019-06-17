@@ -7,7 +7,7 @@ var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefau
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports["default"] = exports.PureWaveformContainer = void 0;
+exports["default"] = void 0;
 
 var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
 
@@ -69,6 +69,7 @@ function (_Component) {
     _this = (0, _possibleConstructorReturn2["default"])(this, (0, _getPrototypeOf2["default"])(WaveformContainer).call(this, props));
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "state", {
       alertObj: null,
+      streamAlert: {},
       hasError: false,
       masterFileID: _this.props.masterFileID,
       baseURL: _this.props.baseURL,
@@ -77,6 +78,11 @@ function (_Component) {
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "clearAlert", function () {
       _this.setState({
         alertObj: null
+      });
+    });
+    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "clearStreamAlert", function () {
+      _this.setState({
+        streamAlert: null
       });
     });
     _this.waveformContainer = null;
@@ -107,12 +113,16 @@ function (_Component) {
                 isError = false;
                 _context.prev = 2;
                 _context.next = 5;
-                return apiUtils.getRequest(baseURL, masterFileID, 'waveform.json');
+                return apiUtils.headRequest(baseURL, masterFileID, 'waveform.json');
 
               case 5:
                 response = _context.sent;
+
                 // Set the masterfile URL as the URI for the waveform data file
-                peaksOptions.dataUri = response.request.responseURL; // Initialize Peaks
+                if (response.status >= 200 && response.status < 400) {
+                  peaksOptions.dataUri = response.request.responseURL;
+                } // Initialize Peaks
+
 
                 this.props.fetchDataAndBuildPeaks(baseURL, masterFileID, initStructure, peaksOptions, streamLength, isError); // Update redux-store flag for waveform file retrieval
 
@@ -169,12 +179,14 @@ function (_Component) {
 
       var _this$state2 = this.state,
           alertObj = _this$state2.alertObj,
-          hasError = _this$state2.hasError;
+          hasError = _this$state2.hasError,
+          streamAlert = _this$state2.streamAlert;
       var _this$props = this.props,
           forms = _this$props.forms,
           audioStreamURL = _this$props.audioStreamURL;
       return _react["default"].createElement("section", {
-        className: "waveform-section"
+        className: "waveform-section",
+        "data-testid": "waveform-container"
       }, !forms.waveformRetrieved && hasError ? _react["default"].createElement(_AlertContainer["default"], alertObj) : _react["default"].createElement(_Waveform["default"], {
         waveformRef: function waveformRef(ref) {
           return _this2.waveformContainer = ref;
@@ -182,15 +194,14 @@ function (_Component) {
         mediaPlayerRef: function mediaPlayerRef(ref) {
           return _this2.mediaPlayer = ref;
         },
-        audioStreamURL: audioStreamURL
+        audioStreamURL: audioStreamURL,
+        alertObj: streamAlert,
+        clearAlert: this.clearStreamAlert
       }));
     }
   }]);
   return WaveformContainer;
-}(_react.Component); // For testing purposes
-
-
-exports.PureWaveformContainer = WaveformContainer;
+}(_react.Component);
 
 var mapStateToProps = function mapStateToProps(state) {
   return {

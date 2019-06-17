@@ -24,5 +24,9 @@ describe('alert-status service', () => {
       'message',
       alertStatus.NETWORK_ERROR
     );
+    expect(alertStatus.configureAlert(-5)).toHaveProperty(
+      'message',
+      alertStatus.STREAM_MEDIA_LOADING
+    );
   });
 });

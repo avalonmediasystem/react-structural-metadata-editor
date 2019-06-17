@@ -176,7 +176,7 @@ function (_Component) {
           editingDisabled = _this$props$forms.editingDisabled,
           structureRetrieved = _this$props$forms.structureRetrieved,
           waveformRetrieved = _this$props$forms.waveformRetrieved,
-          streamMediaRetrieved = _this$props$forms.streamMediaRetrieved; // Only return UI when both structure and waveform data exist
+          streamInfo = _this$props$forms.streamInfo; // Only return UI when both structure and waveform data exist
 
       return structureRetrieved && waveformRetrieved ? _react["default"].createElement("section", null, _react["default"].createElement(_AlertContainer["default"], this.state.alertObj), _react["default"].createElement(_reactBootstrap.Row, {
         "data-testid": "button-row"
@@ -193,7 +193,7 @@ function (_Component) {
         "data-testid": "add-timespan-button",
         block: true,
         onClick: this.handleTimeSpanClick,
-        disabled: this.state.disabled && editingDisabled || !streamMediaRetrieved
+        disabled: this.state.disabled && editingDisabled || streamInfo.streamMediaError || streamInfo.streamMediaLoading
       }, "Add a Timespan"))), _react["default"].createElement(_reactBootstrap.Collapse, {
         "in": this.state.headingOpen
       }, _react["default"].createElement("div", {

@@ -184,9 +184,11 @@ function (_Component) {
       }), !this.state.editing && _react["default"].createElement("div", {
         className: "row-wrapper"
       }, type === 'span' && _react["default"].createElement("span", {
-        className: "structure-title"
+        className: "structure-title",
+        "data-testid": "timespan-label"
       }, label, " (", begin, " - ", end, ")"), (type === 'div' || type === 'root') && _react["default"].createElement("div", {
-        className: "structure-title heading"
+        className: "structure-title heading",
+        "data-testid": "heading-label"
       }, label), _react["default"].createElement(_ListItemControls["default"], {
         handleDelete: this.handleDelete,
         handleEditClick: this.handleEditClick,

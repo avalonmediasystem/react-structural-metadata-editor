@@ -13,9 +13,12 @@ var _ListItem = _interopRequireDefault(require("./ListItem"));
 
 var _PlaceholderItem = _interopRequireDefault(require("./PlaceholderItem"));
 
+var _propTypes = _interopRequireDefault(require("prop-types"));
+
 var List = function List(props) {
   return _react["default"].createElement("ul", {
-    className: "structure-list"
+    className: "structure-list",
+    "data-testid": "list"
   }, props.items.map(function (item, i) {
     if (!item) {
       return null;
@@ -35,5 +38,8 @@ var List = function List(props) {
   }));
 };
 
+List.propTypes = {
+  items: _propTypes["default"].array
+};
 var _default = List;
 exports["default"] = _default;

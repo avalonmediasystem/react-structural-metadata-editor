@@ -83,8 +83,11 @@ function (_Component) {
 
       return _react["default"].createElement(_reactBootstrap.Alert, {
         bsStyle: alertStyle,
-        onDismiss: this.handleDismiss
-      }, _react["default"].createElement("p", null, message));
+        onDismiss: this.handleDismiss,
+        "data-testid": "alert-container"
+      }, _react["default"].createElement("p", {
+        "data-testid": "alert-message"
+      }, message));
     }
   }], [{
     key: "getDerivedStateFromProps",

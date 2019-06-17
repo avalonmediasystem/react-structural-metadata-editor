@@ -23,14 +23,16 @@ var tooltip = function tooltip(tip) {
 
 var ListItemInlineEditControls = function ListItemInlineEditControls(props) {
   return _react["default"].createElement("div", {
-    className: "edit-controls-wrapper"
+    className: "edit-controls-wrapper",
+    "data-testid": "inline-form-controls"
   }, _react["default"].createElement(_reactBootstrap.OverlayTrigger, {
     placement: "left",
     overlay: tooltip('Save')
   }, _react["default"].createElement(_reactBootstrap.Button, {
     bsStyle: "link",
     disabled: !props.formIsValid,
-    onClick: props.handleSaveClick
+    onClick: props.handleSaveClick,
+    "data-testid": "inline-form-save-button"
   }, _react["default"].createElement(_reactFontawesome.FontAwesomeIcon, {
     icon: "save"
   }))), _react["default"].createElement(_reactBootstrap.OverlayTrigger, {
@@ -38,7 +40,8 @@ var ListItemInlineEditControls = function ListItemInlineEditControls(props) {
     overlay: tooltip('Cancel'),
     onClick: props.handleCancelClick
   }, _react["default"].createElement(_reactBootstrap.Button, {
-    bsStyle: "link"
+    bsStyle: "link",
+    "data-testid": "inline-form-cancel-button"
   }, _react["default"].createElement(_reactFontawesome.FontAwesomeIcon, {
     icon: "minus-circle"
   }))));

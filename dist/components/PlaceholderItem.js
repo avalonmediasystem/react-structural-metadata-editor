@@ -81,6 +81,7 @@ function (_Component) {
           connectDropTarget = _this$props.connectDropTarget;
       return connectDropTarget(_react["default"].createElement("li", {
         className: "row-wrapper",
+        "data-testid": "drop-list-item",
         style: isOver ? styles.liHovered : styles.li
       }, "Drop here"));
     }

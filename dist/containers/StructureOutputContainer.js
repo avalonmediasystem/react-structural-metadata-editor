@@ -7,7 +7,11 @@ var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefau
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports["default"] = exports.PureStructureOutputContainer = void 0;
+exports["default"] = void 0;
+
+var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
+
+var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
 
 var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
 
@@ -58,25 +62,50 @@ function (_Component) {
         alertObj: null
       });
     });
-    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "handleSaveItClick", function () {
-      var _this$state = _this.state,
-          baseURL = _this$state.baseURL,
-          masterFileID = _this$state.masterFileID;
-      var postData = {
-        json: _this.props.smData[0]
-      };
+    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "handleSaveItClick",
+    /*#__PURE__*/
+    (0, _asyncToGenerator2["default"])(
+    /*#__PURE__*/
+    _regenerator["default"].mark(function _callee() {
+      var _this$state, baseURL, masterFileID, postData, response, status, alertObj;
 
-      _this.apiUtils.postRequest(baseURL, masterFileID, 'structure.json', postData).then(function (response) {
-        var status = response.status;
-        var alertObj = (0, _alertStatus.configureAlert)(status, _this.clearAlert);
+      return _regenerator["default"].wrap(function _callee$(_context) {
+        while (1) {
+          switch (_context.prev = _context.next) {
+            case 0:
+              _this$state = _this.state, baseURL = _this$state.baseURL, masterFileID = _this$state.masterFileID;
+              postData = {
+                json: _this.props.smData[0]
+              };
+              _context.prev = 2;
+              _context.next = 5;
+              return _this.apiUtils.postRequest(baseURL, masterFileID, 'structure.json', postData);
 
-        _this.setState({
-          alertObj: alertObj
-        });
-      })["catch"](function (error) {
-        _this.handleSaveError(error);
-      });
-    });
+            case 5:
+              response = _context.sent;
+              status = response.status;
+              alertObj = (0, _alertStatus.configureAlert)(status, _this.clearAlert);
+
+              _this.setState({
+                alertObj: alertObj
+              });
+
+              _context.next = 14;
+              break;
+
+            case 11:
+              _context.prev = 11;
+              _context.t0 = _context["catch"](2);
+
+              _this.handleSaveError(_context.t0);
+
+            case 14:
+            case "end":
+              return _context.stop();
+          }
+        }
+      }, _callee, null, [[2, 11]]);
+    })));
     _this.apiUtils = new _Utils["default"]();
     return _this;
   }
@@ -99,15 +128,19 @@ function (_Component) {
           smData = _this$props.smData;
       var alertObj = this.state.alertObj;
       return _react["default"].createElement("section", {
-        className: "structure-section"
-      }, !forms.structureRetrieved ? _react["default"].createElement(_AlertContainer["default"], alertObj) : _react["default"].createElement("div", null, _react["default"].createElement(_AlertContainer["default"], alertObj), _react["default"].createElement(_List["default"], {
+        className: "structure-section",
+        "data-testid": "structure-output-section"
+      }, !forms.structureRetrieved ? _react["default"].createElement(_AlertContainer["default"], alertObj) : _react["default"].createElement("div", {
+        "data-testid": "structure-output-list"
+      }, _react["default"].createElement(_AlertContainer["default"], alertObj), _react["default"].createElement(_List["default"], {
         items: smData
       }), _react["default"].createElement(_reactBootstrap.Row, null, _react["default"].createElement(_reactBootstrap.Col, {
         xs: 12,
         className: "text-right"
       }, _react["default"].createElement(_reactBootstrap.Button, {
         bsStyle: "primary",
-        onClick: this.handleSaveItClick
+        onClick: this.handleSaveItClick,
+        "data-testid": "structure-save-button"
       }, "Save Structure")))));
     }
   }], [{
@@ -129,21 +162,14 @@ function (_Component) {
     }
   }]);
   return StructureOutputContainer;
-}(_react.Component); // For testing purposes
-
-
-exports.PureStructureOutputContainer = StructureOutputContainer;
+}(_react.Component);
 
 var mapStateToProps = function mapStateToProps(state) {
   return {
     smData: state.smData,
     forms: state.forms
   };
-}; // const mapDispatchToProps = dispatch => ({
-//   buildSMUI: smData => dispatch(buildSMUI(smData)),
-//   retrieveStructureSuccess: () => dispatch(retrieveStructureSuccess())
-// });
-
+};
 
 var _default = (0, _reactRedux.connect)(mapStateToProps)(StructureOutputContainer);
 

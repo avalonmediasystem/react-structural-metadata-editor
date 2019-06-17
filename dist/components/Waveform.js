@@ -7,7 +7,7 @@ var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefau
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports["default"] = exports.PureWaveform = void 0;
+exports["default"] = void 0;
 
 var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
 
@@ -28,8 +28,6 @@ var _react = _interopRequireWildcard(require("react"));
 var _reactBootstrap = require("react-bootstrap");
 
 var _reactRedux = require("react-redux");
-
-var _hls = _interopRequireDefault(require("hls.js"));
 
 var _AlertContainer = _interopRequireDefault(require("../containers/AlertContainer"));
 
@@ -55,61 +53,12 @@ function (_Component) {
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "componentDidMount", function () {
       var audioFile = _this.state.audioFile;
 
-      if (_hls["default"].isSupported()) {
-        var hls = new _hls["default"]();
-        var self = (0, _assertThisInitialized2["default"])(_this); // Bind media player
-
-        hls.attachMedia(_this.mediaPlayer.current); // MEDIA_ATTACHED event is fired by hls object once MediaSource is ready
-
-        hls.on(_hls["default"].Events.MEDIA_ATTACHED, function () {
-          hls.loadSource(audioFile);
-        });
-        hls.on(_hls["default"].Events.ERROR, function (event, data) {
-          if (data.fatal) {
-            switch (data.type) {
-              case _hls["default"].ErrorTypes.NETWORK_ERROR:
-                self.setAlert(data);
-                break;
-
-              case _hls["default"].ErrorTypes.MEDIA_ERROR:
-                self.setAlert(data);
-                break;
-
-              default:
-                break;
-            }
-          }
-        });
-      } // Grab the React `refs` now the component is mounted
+      _this.props.retrieveStreamMedia(audioFile, _this.mediaPlayer); // Grab the React `refs` now the component is mounted
 
 
       _this.props.waveformRef(_this.waveformContainer.current);
 
       _this.props.mediaPlayerRef(_this.mediaPlayer.current);
-    });
-    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "clearAlert", function () {
-      _this.setState({
-        alertObj: null
-      });
-    });
-    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "setAlert", function (data) {
-      _this.props.retrieveStreamMediaError();
-
-      if (data.response !== undefined) {
-        var status = data.response.code;
-        status === 0 ? _this.setState({
-          alertObj: (0, _alertStatus.configureAlert)(-5, _this.clearAlert),
-          hasError: true
-        }) : _this.setState({
-          alertObj: (0, _alertStatus.configureAlert)(data.response.code, _this.clearAlert),
-          hasError: true
-        });
-      } else {
-        _this.setState({
-          alertObj: (0, _alertStatus.configureAlert)(-5, _this.clearAlert),
-          hasError: true
-        });
-      }
     });
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "zoomIn", function () {
       _this.props.peaksInstance.peaks.zoom.zoomIn();
@@ -132,10 +81,9 @@ function (_Component) {
     });
     _this.state = {
       audioFile: _this.props.audioStreamURL,
-      alertObj: null,
-      hasError: false,
+      alertObj: _this.props.alertObj,
       volume: 100,
-      time: 0.0
+      streamMediaStatus: _this.props.streamInfo.streamMediaStatus
     }; // Create `refs`
 
     _this.waveformContainer = _react["default"].createRef();
@@ -148,16 +96,18 @@ function (_Component) {
     value: function render() {
       var _this$state = this.state,
           alertObj = _this$state.alertObj,
-          hasError = _this$state.hasError,
           volume = _this$state.volume;
-      var streamMediaRetrieved = this.props.streamMediaRetrieved;
-      return _react["default"].createElement("div", null, _react["default"].createElement("div", {
+      var _this$props$streamInf = this.props.streamInfo,
+          streamMediaError = _this$props$streamInf.streamMediaError,
+          streamMediaLoading = _this$props$streamInf.streamMediaLoading;
+      return _react["default"].createElement(_react["default"].Fragment, null, _react["default"].createElement("div", {
         id: "waveform-container",
         ref: this.waveformContainer,
         "aria-label": waveformLabel,
-        tabIndex: "0"
-      }), hasError && _react["default"].createElement(_AlertContainer["default"], alertObj), _react["default"].createElement(_reactBootstrap.Row, {
-        className: "waveform-toolbar"
+        tabIndex: "0",
+        "data-testid": "waveform"
+      }), (streamMediaError || streamMediaLoading) && _react["default"].createElement(_AlertContainer["default"], alertObj), _react["default"].createElement(_reactBootstrap.Row, {
+        "data-testid": "waveform-toolbar"
       }, _react["default"].createElement("audio", {
         ref: this.mediaPlayer,
         hidden: true
@@ -174,39 +124,60 @@ function (_Component) {
         className: "glyphicon glyphicon-play",
         "aria-label": "Play",
         onClick: this.playAudio,
-        disabled: !streamMediaRetrieved
+        "data-testid": "waveform-play-button",
+        disabled: streamMediaError || streamMediaLoading
       }), _react["default"].createElement(_reactBootstrap.Button, {
         className: "glyphicon glyphicon-pause",
         "aria-label": "Pause",
         onClick: this.pauseAudio,
-        disabled: !streamMediaRetrieved
+        "data-testid": "waveform-pause-button",
+        disabled: streamMediaError || streamMediaLoading
       }), _react["default"].createElement(_reactBootstrap.Button, {
         className: "glyphicon glyphicon-zoom-in",
         "aria-label": "Zoom in",
-        onClick: this.zoomIn
+        onClick: this.zoomIn,
+        "data-testid": "waveform-zoomin-button"
       }), _react["default"].createElement(_reactBootstrap.Button, {
         className: "glyphicon glyphicon-zoom-out",
         "aria-label": "Zoom out",
-        onClick: this.zoomOut
+        onClick: this.zoomOut,
+        "data-testid": "waveform-zoomout-button"
       })))));
+    }
+  }], [{
+    key: "getDerivedStateFromProps",
+    value: function getDerivedStateFromProps(nextProps, prevState) {
+      var streamMediaStatus = nextProps.streamInfo.streamMediaStatus;
+
+      if (prevState.streamMediaStatus !== streamMediaStatus) {
+        return {
+          streamMediaStatus: nextProps.streamInfo.streamMediaStatus,
+          alertObj: (0, _alertStatus.configureAlert)(nextProps.streamInfo.streamMediaStatus, nextProps.clearAlert)
+        };
+      }
+
+      if (nextProps.alertObj === null) {
+        return {
+          alertObj: null
+        };
+      }
+
+      return null;
     }
   }]);
   return Waveform;
-}(_react.Component); // To use in tests as a disconnected component (to access state)
-
-
-exports.PureWaveform = Waveform;
+}(_react.Component);
 
 var mapStateToProps = function mapStateToProps(state) {
   return {
     peaksInstance: state.peaksInstance,
-    streamMediaRetrieved: state.forms.streamMediaRetrieved
+    streamInfo: state.forms.streamInfo
   };
 };
 
 var mapDispatchToProps = {
-  retrieveStreamMediaError: _forms.retrieveStreamMediaError
-}; // To use in the app
+  retrieveStreamMedia: _forms.retrieveStreamMedia
+};
 
 var _default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(Waveform);
 

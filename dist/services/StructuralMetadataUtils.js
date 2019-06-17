@@ -579,7 +579,9 @@ function () {
 
       var allValidHeadings = [];
       var sortedHeadings = [];
-      var uniqueHeadings = [];
+      var uniqueHeadings = []; // New timespan falls between timespans in the same parent
+
+      var stuckInMiddle = false;
       var toMs = this.toMs;
       var before = wrapperSpans.before,
           after = wrapperSpans.after;
@@ -593,7 +595,7 @@ function () {
         var newBegin = newSpan.begin,
             newEnd = newSpan.end;
 
-        if (parentHeading) {
+        if (parentHeading && !stuckInMiddle) {
           var headingIndex = parentHeading.items.map(function (item) {
             return item.id;
           }).indexOf(heading.id);
@@ -667,6 +669,17 @@ function () {
           var _headings = exploreInwards(parentAfter, after, false);
 
           allValidHeadings = allValidHeadings.concat(_headings);
+        }
+      }
+
+      if (before && after) {
+        var _parentBefore = this.getParentDiv(before, allItems);
+
+        var _parentAfter = this.getParentDiv(after, allItems);
+
+        if (_parentBefore.id === _parentAfter.id) {
+          stuckInMiddle = true;
+          allValidHeadings.push(_parentBefore);
         }
       }
 
@@ -809,9 +822,7 @@ function () {
               return item.id;
             }).indexOf(siblingBefore.id) + 1;
           }
-        }
-
-        if (after) {
+        } else if (after) {
           var siblingAfter = getParentOfSpan(after);
 
           if (siblingAfter) {

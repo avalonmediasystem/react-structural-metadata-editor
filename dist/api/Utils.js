@@ -63,6 +63,23 @@ function () {
         headers: headers
       });
     }
+    /**
+     * Construct HEAD request with parameters,
+     * @param {String} baseURL - base URL of the server hosting master file
+     * @param {String} masterFile - master file ID on the server
+     * @param {String} urlEndPoint - end point to make the network request
+     * @param {Headers} headers
+     */
+
+  }, {
+    key: "headRequest",
+    value: function headRequest(baseURL, masterFile, urlEndPoint) {
+      var headers = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : defaultHeaders;
+      var url = useLocalData ? "".concat(BASE_URL).concat(urlEndPoint) : "".concat(baseURL, "/master_files/").concat(masterFile, "/").concat(urlEndPoint);
+      return _axios["default"].head(url, {
+        headers: headers
+      });
+    }
   }]);
   return APIUtils;
 }();

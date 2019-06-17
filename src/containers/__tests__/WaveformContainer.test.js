@@ -13,7 +13,10 @@ jest.mock('rxjs');
 const initialState = {
   smData: testSmData,
   forms: {
-    waveformRetrieved: false
+    waveformRetrieved: false,
+    streamInfo: {
+      streamMediaStatus: null
+    }
   }
 };
 

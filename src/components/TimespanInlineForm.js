@@ -227,7 +227,7 @@ class TimespanInlineForm extends Component {
 }
 
 const mapStateToProps = state => ({
-  smData: state.smData,
+  smData: state.structuralMetadata.smData,
   peaksInstance: state.peaksInstance,
   segment: state.peaksInstance.segment,
   isDragging: state.peaksInstance.isDragging

@@ -1025,6 +1025,53 @@ function () {
 
       return parseFloat(valueString);
     }
+    /**
+     * Remove a given key in the each object in the structure
+     * @param {Array} allitems - smData
+     * @param {String} key - object key to be removed in the structure
+     */
+
+  }, {
+    key: "filterObjectKey",
+    value: function filterObjectKey(allitems, key) {
+      var clonedItems = (0, _lodash.cloneDeep)(allitems);
+
+      var removeKey = function removeKey(items) {
+        var _iteratorNormalCompletion6 = true;
+        var _didIteratorError6 = false;
+        var _iteratorError6 = undefined;
+
+        try {
+          for (var _iterator6 = items[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
+            var item = _step6.value;
+
+            if (key in item) {
+              delete item.active;
+            }
+
+            if (item.items && item.items.length > 0) {
+              removeKey(item.items);
+            }
+          }
+        } catch (err) {
+          _didIteratorError6 = true;
+          _iteratorError6 = err;
+        } finally {
+          try {
+            if (!_iteratorNormalCompletion6 && _iterator6["return"] != null) {
+              _iterator6["return"]();
+            }
+          } finally {
+            if (_didIteratorError6) {
+              throw _iteratorError6;
+            }
+          }
+        }
+      };
+
+      removeKey(clonedItems, key);
+      return clonedItems;
+    }
   }]);
   return StructuralMetadataUtils;
 }();

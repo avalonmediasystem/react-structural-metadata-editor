@@ -25,11 +25,16 @@ const peaksOptions = {
 // Set up Redux store for tests
 const initialState = {
   forms: {
-    structureRetrieved: true,
-    structureStatus: null
+    structureInfo: {
+      structureRetrieved: true,
+      structureStatus: null
+    }
   },
-  smData: testSmData
+  structuralMetadata: {
+    smData: testSmData
+  }
 };
+const mockStructureIsSaved = jest.fn();
 
 // Wrap the component in DnD context
 let StructureOutputContext = null;
@@ -41,15 +46,18 @@ beforeEach(() => {
 afterEach(cleanup);
 
 test('StructureOutputContainer renders', () => {
-  const { getByTestId } = renderWithRedux(<StructureOutputContext />, {
-    initialState
-  });
+  const { getByTestId } = renderWithRedux(
+    <StructureOutputContext structureIsSaved={mockStructureIsSaved} />,
+    {
+      initialState
+    }
+  );
   expect(getByTestId('structure-output-section')).toBeInTheDocument();
 });
 
 test('shows structure list when there fetching structure.json is successful', () => {
   const { getByTestId, queryByTestId } = renderWithRedux(
-    <StructureOutputContext />,
+    <StructureOutputContext structureIsSaved={mockStructureIsSaved} />,
     { initialState }
   );
 
@@ -61,15 +69,19 @@ test('shows structure list when there fetching structure.json is successful', ()
 
 test('shows an error message when there is an error in fetching structure.json', () => {
   const { rerenderWithRedux, getByTestId } = renderWithRedux(
-    <StructureOutputContext />,
+    <StructureOutputContext structureIsSaved={mockStructureIsSaved} />,
     { initialState }
   );
   const nextState = {
     forms: {
-      structureRetrieved: false,
-      structureStatus: 401
+      structureInfo: {
+        structureRetrieved: false,
+        structureStatus: 401
+      }
     },
-    smData: testSmData,
+    structuralMetadata: {
+      smData: testSmData
+    },
     peaksInstance: {
       peaks: mockPeaks.init(peaksOptions)
     }
@@ -88,6 +100,7 @@ describe('saving structure back to server', () => {
       <StructureOutputContext
         baseURL={'https://example.com'}
         masterFileID={'12zd9s459'}
+        structureIsSaved={mockStructureIsSaved}
       />,
       { initialState }
     );

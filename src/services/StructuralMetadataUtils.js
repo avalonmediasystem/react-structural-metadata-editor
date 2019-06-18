@@ -823,4 +823,26 @@ export default class StructuralMetadataUtils {
     }
     return parseFloat(valueString);
   }
+
+  /**
+   * Remove a given key in the each object in the structure
+   * @param {Array} allitems - smData
+   * @param {String} key - object key to be removed in the structure
+   */
+  filterObjectKey(allitems, key) {
+    let clonedItems = cloneDeep(allitems);
+    let removeKey = items => {
+      for (let item of items) {
+        if (key in item) {
+          delete item.active;
+        }
+        if (item.items && item.items.length > 0) {
+          removeKey(item.items);
+        }
+      }
+    };
+    removeKey(clonedItems, key);
+
+    return clonedItems;
+  }
 }

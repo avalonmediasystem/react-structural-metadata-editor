@@ -185,7 +185,7 @@ const mapDispatchToProps = {
 };
 
 const mapStateToProps = state => ({
-  smData: state.smData,
+  smData: state.structuralMetadata.smData,
   peaksInstance: state.peaksInstance.peaks
 });
 

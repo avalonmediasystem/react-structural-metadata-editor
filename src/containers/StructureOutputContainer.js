@@ -5,6 +5,11 @@ import { Button, Col, Row } from 'react-bootstrap';
 import APIUtils from '../api/Utils';
 import AlertContainer from './AlertContainer';
 import { configureAlert } from '../services/alert-status';
+import { updateStructureStatus } from '../actions/forms';
+import { isEqual } from 'lodash';
+import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
+
+const smu = new StructuralMetadataUtils();
 
 class StructureOutputContainer extends Component {
   constructor(props) {
@@ -15,22 +20,36 @@ class StructureOutputContainer extends Component {
     alertObj: this.props.alertObj,
     baseURL: this.props.baseURL,
     masterFileID: this.props.masterFileID,
-    structureStatus: this.props.forms.structureStatus
+    structureStatus: this.props.structureInfo.structureStatus,
+    initialStructure: this.props.structuralMetadata.initSmData
   };
 
   static getDerivedStateFromProps(nextProps, prevState) {
-    if (prevState.structureStatus !== nextProps.forms.structureStatus) {
+    const { structureStatus, structureSaved } = nextProps.structureInfo;
+    if (prevState.structureStatus !== structureStatus) {
       return {
-        alertObj: configureAlert(
-          nextProps.forms.structureStatus,
-          nextProps.clearAlert
-        )
+        alertObj: configureAlert(structureStatus, nextProps.clearAlert)
       };
     }
     if (nextProps.alertObj === null) {
       return { alertObj: null };
     }
-    return null;
+    const { initSmData, smData } = nextProps.structuralMetadata;
+    if (!isEqual(initSmData, prevState.initialStructure)) {
+      return { initialStructure: initSmData };
+    }
+    if (structureSaved) {
+      nextProps.structureIsSaved(true);
+      return null;
+    } else {
+      const cleanSmData = smu.filterObjectKey(smData, 'active');
+      if (!isEqual(prevState.initialStructure, cleanSmData)) {
+        nextProps.structureIsSaved(false);
+      } else {
+        nextProps.structureIsSaved(true);
+      }
+      return null;
+    }
   }
 
   clearAlert = () => {
@@ -52,7 +71,7 @@ class StructureOutputContainer extends Component {
 
   handleSaveItClick = async () => {
     const { baseURL, masterFileID } = this.state;
-    let postData = { json: this.props.smData[0] };
+    let postData = { json: this.props.structuralMetadata.smData[0] };
     try {
       const response = await this.apiUtils.postRequest(
         baseURL,
@@ -62,6 +81,7 @@ class StructureOutputContainer extends Component {
       );
       const { status } = response;
       const alertObj = configureAlert(status, this.clearAlert);
+      this.props.postStructureSuccess(1);
       this.setState({ alertObj });
     } catch (error) {
       this.handleSaveError(error);
@@ -69,7 +89,7 @@ class StructureOutputContainer extends Component {
   };
 
   render() {
-    const { forms, smData } = this.props;
+    const { structureInfo, structuralMetadata } = this.props;
     const { alertObj } = this.state;
 
     return (
@@ -77,12 +97,12 @@ class StructureOutputContainer extends Component {
         className="structure-section"
         data-testid="structure-output-section"
       >
-        {!forms.structureRetrieved ? (
+        {!structureInfo.structureRetrieved ? (
           <AlertContainer {...alertObj} />
         ) : (
           <div data-testid="structure-output-list">
             <AlertContainer {...alertObj} />
-            <List items={smData} />
+            <List items={structuralMetadata.smData} />
             <Row>
               <Col xs={12} className="text-right">
                 <Button
@@ -102,8 +122,15 @@ class StructureOutputContainer extends Component {
 }
 
 const mapStateToProps = state => ({
-  smData: state.smData,
-  forms: state.forms
+  structuralMetadata: state.structuralMetadata,
+  structureInfo: state.forms.structureInfo
 });
 
-export default connect(mapStateToProps)(StructureOutputContainer);
+const mapDispatchToProps = {
+  postStructureSuccess: updateStructureStatus
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(StructureOutputContainer);

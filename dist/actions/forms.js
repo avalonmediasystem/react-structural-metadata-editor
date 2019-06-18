@@ -8,12 +8,16 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.retrieveStreamMedia = retrieveStreamMedia;
-exports.streamMediaSuccess = exports.streamMediaError = exports.streamMediaLoading = exports.handleStructureError = exports.retrieveWaveformSuccess = exports.retrieveStructureSuccess = exports.handleEditingTimespans = void 0;
+exports.streamMediaSuccess = exports.streamMediaError = exports.streamMediaLoading = exports.handleStructureError = exports.retrieveWaveformSuccess = exports.updateStructureStatus = exports.retrieveStructureSuccess = exports.handleEditingTimespans = void 0;
 
 var types = _interopRequireWildcard(require("./types"));
 
 var _hls = _interopRequireDefault(require("hls.js"));
 
+/**
+ * Enable/disable other editing actions when editing a list item
+ * @param {Integer} code - choose from; 1(true) | 0(false)
+ */
 var handleEditingTimespans = function handleEditingTimespans(code) {
   return {
     type: types.IS_EDITING_TIMESPAN,
@@ -28,14 +32,37 @@ var retrieveStructureSuccess = function retrieveStructureSuccess() {
     type: types.RETRIEVE_STRUCTURE_SUCCESS
   };
 };
+/**
+ * Initially the structure status isSaved (true) and changed to false
+ * when an edit action is performed on the structure
+ * @param {Integer} code - choose from; 1(true -> saved) | 0(false -> not saved)
+ */
+
 
 exports.retrieveStructureSuccess = retrieveStructureSuccess;
+
+var updateStructureStatus = function updateStructureStatus(code) {
+  return {
+    type: types.UPDATE_STRUCTURE_STATUS,
+    payload: code
+  };
+};
+
+exports.updateStructureStatus = updateStructureStatus;
 
 var retrieveWaveformSuccess = function retrieveWaveformSuccess() {
   return {
     type: types.RETRIEVE_WAVEFORM_SUCCESS
   };
 };
+/**
+ * Set the error status code for fetching structure.json in Redux
+ * store. This status code is then used to create the alert.
+ * @param {Integer} flag - choose from; 1(ture -> HTTP error occurred) |
+ * 0(false ->No error). No error -> structureStatus is set to null
+ * @param {Integer} status - HTTP error status code
+ */
+
 
 exports.retrieveWaveformSuccess = retrieveWaveformSuccess;
 
@@ -46,6 +73,12 @@ var handleStructureError = function handleStructureError(flag, status) {
     status: status
   };
 };
+/**
+ * streamMediaLoading flag in Redux store is set to true until at least
+ * part of the media file is loaded in the broswer, and show an alert in UI
+ * @param {Integer} code - choose from; 1(true -> loading) | 0(false -> finished loading)
+ */
+
 
 exports.handleStructureError = handleStructureError;
 
@@ -55,6 +88,12 @@ var streamMediaLoading = function streamMediaLoading(code) {
     payload: code
   };
 };
+/**
+ * streamMediaError flag in redux store is set to true when Hls.js runs out
+ * of retries and still cannot load the stream media
+ * @param {Integer} code - choose from; 1(true -> failed) | 0(false -> success)
+ */
+
 
 exports.streamMediaLoading = streamMediaLoading;
 

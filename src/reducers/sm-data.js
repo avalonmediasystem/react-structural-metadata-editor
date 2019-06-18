@@ -3,57 +3,75 @@ import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
 import { cloneDeep } from 'lodash';
 
 const structuralMetadataUtils = new StructuralMetadataUtils();
-const initialState = [];
+const initialState = {
+  smData: [],
+  initSmData: []
+};
 let stateClone = null;
 let newState = null;
 
-const smData = (state = initialState, action) => {
+const structuralMetadata = (state = initialState, action) => {
   switch (action.type) {
     case types.BUILD_SM_UI:
       newState = structuralMetadataUtils.buildSMUI(
         action.json,
         action.duration
       );
-      return newState;
+      return { ...state, smData: newState };
+
+    case types.SAVE_INIT_SMDATA:
+      return {
+        ...state,
+        initSmData: action.payload
+      };
 
     case types.DELETE_ITEM:
-      return structuralMetadataUtils.deleteListItem(action.id, state);
+      newState = structuralMetadataUtils.deleteListItem(
+        action.id,
+        state.smData
+      );
+      return { ...state, smData: newState };
 
     case types.ADD_DROP_TARGETS:
       newState = structuralMetadataUtils.determineDropTargets(
         action.payload,
-        state
+        state.smData
       );
-      return newState;
+      return { ...state, smData: newState };
 
     case types.REMOVE_DROP_TARGETS:
-      let noDropTargetsState = structuralMetadataUtils.removeDropTargets(state);
-      return noDropTargetsState;
+      let noDropTargetsState = structuralMetadataUtils.removeDropTargets(
+        state.smData
+      );
+      return { ...state, smData: noDropTargetsState };
 
     case types.SET_ACTIVE_DRAG_SOURCE:
       stateClone = cloneDeep(state);
-      let target = structuralMetadataUtils.findItem(action.id, stateClone);
+      let target = structuralMetadataUtils.findItem(
+        action.id,
+        stateClone.smData
+      );
       // Put an active flag on list item
       target.active = true;
-      return stateClone;
+      return { ...stateClone, smData: stateClone.smData };
 
     case types.REMOVE_ACTIVE_DRAG_SOURCES:
       let noActiveDragSourcesState = structuralMetadataUtils.removeActiveDragSources(
-        state
+        state.smData
       );
-      return noActiveDragSourcesState;
+      return { ...state, smData: noActiveDragSourcesState };
 
     case types.HANDLE_LIST_ITEM_DROP:
       newState = structuralMetadataUtils.handleListItemDrop(
         action.dragSource,
         action.dropTarget,
-        state
+        state.smData
       );
-      return newState;
+      return { ...state, smData: newState };
 
     default:
       return state;
   }
 };
 
-export default smData;
+export default structuralMetadata;

@@ -11,13 +11,16 @@ var types = _interopRequireWildcard(require("../actions/types"));
 
 var initialState = {
   editingDisabled: false,
-  structureRetrieved: false,
-  structureStatus: null,
   waveformRetrieved: false,
   streamInfo: {
     streamMediaError: false,
     streamMediaLoading: true,
     streamMediaStatus: null
+  },
+  structureInfo: {
+    structureRetrieved: false,
+    structureStatus: null,
+    structureSaved: true
   }
 };
 
@@ -39,7 +42,9 @@ var forms = function forms() {
 
     case types.RETRIEVE_STRUCTURE_SUCCESS:
       return Object.assign({}, state, {
-        structureRetrieved: true
+        structureInfo: Object.assign({}, state.structureInfo, {
+          structureRetrieved: true
+        })
       });
 
     case types.RETRIEVE_WAVEFORM_SUCCESS:
@@ -50,12 +55,15 @@ var forms = function forms() {
     case types.HANDLE_STRUCTURE_ERROR:
       if (action.flag === 0) {
         return Object.assign({}, state, {
-          structureStatus: null
+          structureInfo: Object.assign({}, state.structureInfo, {
+            structureStatus: null
+          })
         });
       } else {
         return Object.assign({}, state, {
-          structureRetrieved: false,
-          structureStatus: action.status
+          structureInfo: Object.assign({}, state.structureInfo, {
+            structureStatus: action.status
+          })
         });
       }
 
@@ -82,6 +90,21 @@ var forms = function forms() {
           streamMediaError: false
         })
       });
+
+    case types.UPDATE_STRUCTURE_STATUS:
+      if (action.payload === 1) {
+        return Object.assign({}, state, {
+          structureInfo: Object.assign({}, state.structureInfo, {
+            structureSaved: true
+          })
+        });
+      } else {
+        return Object.assign({}, state, {
+          structureInfo: Object.assign({}, state.structureInfo, {
+            structureSaved: false
+          })
+        });
+      }
 
     default:
       return state;

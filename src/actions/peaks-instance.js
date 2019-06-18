@@ -1,7 +1,7 @@
 import * as types from './types';
 import { isEmpty } from 'lodash';
 import APIUtils from '../api/Utils';
-import { buildSMUI } from './sm-data';
+import { buildSMUI, saveInitialStructure } from './sm-data';
 import { retrieveStructureSuccess, handleStructureError } from './forms';
 import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
 
@@ -38,6 +38,8 @@ export function initializeSMDataPeaks(
       } else {
         smData = structuralMetadataUtils.addUUIds([response.data]);
       }
+      const initSmData = smData;
+      dispatch(saveInitialStructure(initSmData));
 
       // Mark the top element as 'root'
       structuralMetadataUtils.markRootElement(smData);

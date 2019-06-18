@@ -205,7 +205,7 @@ function (_Component) {
 
 var mapStateToProps = function mapStateToProps(state) {
   return {
-    smData: state.smData,
+    smData: state.structuralMetadata.smData,
     forms: state.forms
   };
 };

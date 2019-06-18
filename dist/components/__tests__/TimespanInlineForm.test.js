@@ -16,7 +16,9 @@ const peaksOptions = {
   _zoomLevels: [512, 1024, 2048, 4096]
 };
 const initialState = {
-  smData: testSmData,
+  structuralMetadata: {
+    smData: testSmData
+  },
   peaksInstance: {
     peaks: Peaks.init(peaksOptions),
     segment: null
@@ -116,7 +118,9 @@ describe('form changes when segment in the waveform change', () => {
   test('move handles to overlap another segment', () => {
     // Update the redux store with new segment value
     const nextState = {
-      smData: testSmData,
+      structuralMetadata: {
+        smData: testSmData
+      },
       peaksInstance: {
         peaks: Peaks.init(peaksOptions),
         segment: {
@@ -148,7 +152,9 @@ describe('form changes when segment in the waveform change', () => {
   test('move handles another valid time', () => {
     // Update the redux store with new segment value
     const nextState = {
-      smData: testSmData,
+      structuralMetadata: {
+        smData: testSmData
+      },
       peaksInstance: {
         peaks: Peaks.init(peaksOptions),
         segment: {

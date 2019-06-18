@@ -88,7 +88,7 @@ function (_Component) {
 
       item = _this.addUpdatedValues(item, payload); // Send updated smData back to redux
 
-      _this.props.buildSMUI(clonedItems); // Turn off editing state
+      _this.props.reBuildSMUI(clonedItems); // Turn off editing state
 
 
       _this.props.handleEditFormCancel();
@@ -149,14 +149,14 @@ function (_Component) {
 
 var mapStateToProps = function mapStateToProps(state) {
   return {
-    smData: state.smData
+    smData: state.structuralMetadata.smData
   };
 };
 
 var mapDispathToProps = function mapDispathToProps(dispatch) {
   return {
-    buildSMUI: function buildSMUI(json) {
-      return dispatch((0, _smData.buildSMUI)(json));
+    reBuildSMUI: function reBuildSMUI(json) {
+      return dispatch((0, _smData.reBuildSMUI)(json));
     }
   };
 };

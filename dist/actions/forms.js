@@ -94,14 +94,16 @@ function retrieveStreamMedia(audioFile, mediaPlayer) {
       hls.on(_hls["default"].Events.ERROR, function (event, data) {
         var errorCode = null;
 
-        if (data.response !== undefined) {
-          var status = data.response.code;
-          status === 0 ? errorCode = -6 : errorCode = status;
-        } else {
-          errorCode = -6;
-        }
+        if (data.fatal) {
+          if (data.response !== undefined) {
+            var status = data.response.code;
+            status === 0 ? errorCode = -6 : errorCode = status;
+          } else {
+            errorCode = -6;
+          }
 
-        dispatch(streamMediaError(errorCode));
+          dispatch(streamMediaError(errorCode));
+        }
       });
     }
   };

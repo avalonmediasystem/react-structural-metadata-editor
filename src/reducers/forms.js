@@ -66,7 +66,8 @@ const forms = (state = initialState, action) => {
       return Object.assign({}, state, {
         streamInfo: Object.assign({}, state.streamInfo, {
           streamMediaLoading: false,
-          streamMediaStatus: null
+          streamMediaStatus: null,
+          streamMediaError: false
         })
       });
 

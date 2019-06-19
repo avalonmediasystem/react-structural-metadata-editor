@@ -5,7 +5,7 @@ var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefau
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports["default"] = void 0;
+exports["default"] = VolumeSlider;
 
 var _objectSpread2 = _interopRequireDefault(require("@babel/runtime/helpers/objectSpread"));
 
@@ -23,8 +23,6 @@ var _styles = require("@material-ui/core/styles");
 
 var _core = require("@material-ui/core");
 
-var _colorManipulator = require("@material-ui/core/styles/colorManipulator");
-
 var _reactBootstrap = require("react-bootstrap");
 
 /**
@@ -33,39 +31,43 @@ var _reactBootstrap = require("react-bootstrap");
  * https://github.com/digirati-co-uk/timeliner/blob/master/src/components/VolumeSliderCompact/VolumeSliderCompact.js
  *
  */
-var useStyles = (0, _styles.makeStyles)({
-  root: {
-    width: 200,
-    padding: 20
-  }
+var useStyles = (0, _styles.makeStyles)(function () {
+  return {
+    root: {
+      width: 200,
+      paddingLeft: 10,
+      paddingTop: 10,
+      paddingBottom: 10,
+      paddingRight: 25
+    }
+  };
 });
 var StyledSlider = (0, _styles.withStyles)({
+  root: {
+    color: '#000',
+    height: 2,
+    marginLeft: 20
+  },
   thumb: {
     height: 12,
     width: 12,
     backgroundColor: '#000',
     border: '2px solid #000',
-    '&$focused, &:hover': {
-      boxShadow: "0px 0px 0px ".concat(8, "px ", (0, _colorManipulator.fade)('#000', 0.16))
-    },
-    '&$activated': {
-      boxShadow: "0px 0px 0px ".concat(8 * 1.5, "px ").concat((0, _colorManipulator.fade)('#000', 0.16))
-    },
-    '&$jumped': {
-      boxShadow: "0px 0px 0px ".concat(8 * 1.5, "px ").concat((0, _colorManipulator.fade)('#000', 0.16))
+    '&:focus,&:hover,&$active': {
+      boxShadow: '#000'
     }
   },
+  active: {},
   track: {
-    backgroundColor: '#000',
     height: 2,
-    "float": 'left'
+    borderRadius: 4,
+    backgroundColor: '#000'
   },
-  trackAfter: {
-    backgroundColor: '#787D81'
-  },
-  focused: {},
-  activated: {},
-  jumped: {}
+  rail: {
+    height: 2,
+    borderRadius: 4,
+    backgroundColor: '#000'
+  }
 })(_Slider["default"]);
 
 function VolumeSlider(props) {
@@ -104,7 +106,8 @@ function VolumeSlider(props) {
   }, _react["default"].createElement("div", {
     onClick: onToggle,
     style: {
-      margin: -9
+      margin: 2,
+      paddingRight: 15
     }
   }, props.volume === 0 ? _react["default"].createElement(_VolumeOff["default"], {
     style: (0, _objectSpread2["default"])({}, SPEAKER_ICON_SIZE, {
@@ -122,6 +125,3 @@ function VolumeSlider(props) {
     onChange: handleChange
   }))));
 }
-
-var _default = VolumeSlider;
-exports["default"] = _default;

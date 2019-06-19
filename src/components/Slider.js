@@ -10,57 +10,56 @@ import VolumeUp from '@material-ui/icons/VolumeUp';
 import VolumeOff from '@material-ui/icons/VolumeOff';
 import { withStyles, makeStyles } from '@material-ui/core/styles';
 import { Paper } from '@material-ui/core';
-import { fade } from '@material-ui/core/styles/colorManipulator';
 import { Row, Col } from 'react-bootstrap';
 
-const useStyles = makeStyles({
+const useStyles = makeStyles(() => ({
   root: {
     width: 200,
-    padding: 20
+    paddingLeft: 10,
+    paddingTop: 10,
+    paddingBottom: 10,
+    paddingRight: 25
   }
-});
+}));
 
 const StyledSlider = withStyles({
+  root: {
+    color: '#000',
+    height: 2,
+    marginLeft: 20
+  },
   thumb: {
     height: 12,
     width: 12,
     backgroundColor: '#000',
     border: '2px solid #000',
-    '&$focused, &:hover': {
-      boxShadow: `0px 0px 0px ${8}px ${fade('#000', 0.16)}`
-    },
-    '&$activated': {
-      boxShadow: `0px 0px 0px ${8 * 1.5}px ${fade('#000', 0.16)}`
-    },
-    '&$jumped': {
-      boxShadow: `0px 0px 0px ${8 * 1.5}px ${fade('#000', 0.16)}`
+    '&:focus,&:hover,&$active': {
+      boxShadow: '#000'
     }
   },
+  active: {},
   track: {
-    backgroundColor: '#000',
     height: 2,
-    float: 'left'
+    borderRadius: 4,
+    backgroundColor: '#000'
   },
-  trackAfter: {
-    backgroundColor: '#787D81'
-  },
-  focused: {},
-  activated: {},
-  jumped: {}
+  rail: {
+    height: 2,
+    borderRadius: 4,
+    backgroundColor: '#000'
+  }
 })(Slider);
 
-function VolumeSlider(props) {
+export default function VolumeSlider(props) {
   const SPEAKER_ICON_SIZE = {
     width: 20,
     height: 20
   };
   const classes = useStyles();
   const [prevValue, setPrevValue] = React.useState(100);
-
   const handleChange = (e, value) => {
     props.setVolume(value);
   };
-
   const onToggle = () => {
     const { volume, setVolume } = props;
     if (volume === 0) {
@@ -70,12 +69,11 @@ function VolumeSlider(props) {
       setVolume(0);
     }
   };
-
   return (
     <Paper className={classes.root}>
       <Row>
         <Col xs={1} md={1}>
-          <div onClick={onToggle} style={{ margin: -9 }}>
+          <div onClick={onToggle} style={{ margin: 2, paddingRight: 15 }}>
             {props.volume === 0 ? (
               <VolumeOff
                 style={{ ...SPEAKER_ICON_SIZE, transform: 'translateX(1px)' }}
@@ -94,5 +92,3 @@ function VolumeSlider(props) {
     </Paper>
   );
 }
-
-export default VolumeSlider;

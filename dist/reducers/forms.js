@@ -78,7 +78,8 @@ var forms = function forms() {
       return Object.assign({}, state, {
         streamInfo: Object.assign({}, state.streamInfo, {
           streamMediaLoading: false,
-          streamMediaStatus: null
+          streamMediaStatus: null,
+          streamMediaError: false
         })
       });
 

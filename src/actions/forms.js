@@ -55,13 +55,15 @@ export function retrieveStreamMedia(audioFile, mediaPlayer) {
       // ERROR event is fired when fetching media stream is not successful
       hls.on(Hls.Events.ERROR, function(event, data) {
         let errorCode = null;
-        if (data.response !== undefined) {
-          const status = data.response.code;
-          status === 0 ? (errorCode = -6) : (errorCode = status);
-        } else {
-          errorCode = -6;
+        if (data.fatal) {
+          if (data.response !== undefined) {
+            const status = data.response.code;
+            status === 0 ? (errorCode = -6) : (errorCode = status);
+          } else {
+            errorCode = -6;
+          }
+          dispatch(streamMediaError(errorCode));
         }
-        dispatch(streamMediaError(errorCode));
       });
     }
   };

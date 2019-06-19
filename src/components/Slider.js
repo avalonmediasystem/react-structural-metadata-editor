@@ -15,9 +15,9 @@ import { Row, Col } from 'react-bootstrap';
 const useStyles = makeStyles(() => ({
   root: {
     width: 200,
-    paddingLeft: 10,
-    paddingTop: 10,
-    paddingBottom: 10,
+    paddingLeft: 12,
+    paddingTop: 8,
+    paddingBottom: 6,
     paddingRight: 25
   }
 }));
@@ -72,7 +72,7 @@ export default function VolumeSlider(props) {
   return (
     <Paper className={classes.root}>
       <Row>
-        <Col xs={1} md={1}>
+        <Col xs={2} md={2} style={{ paddingRight: 0, paddingLeft: 5 }}>
           <div onClick={onToggle} style={{ margin: 2, paddingRight: 15 }}>
             {props.volume === 0 ? (
               <VolumeOff
@@ -85,7 +85,7 @@ export default function VolumeSlider(props) {
             )}
           </div>
         </Col>
-        <Col xs={10} md={10}>
+        <Col xs={10} md={10} style={{ paddingRight: 25, paddingLeft: 0 }}>
           <StyledSlider value={props.volume} onChange={handleChange} />
         </Col>
       </Row>

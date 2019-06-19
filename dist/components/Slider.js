@@ -35,9 +35,9 @@ var useStyles = (0, _styles.makeStyles)(function () {
   return {
     root: {
       width: 200,
-      paddingLeft: 10,
-      paddingTop: 10,
-      paddingBottom: 10,
+      paddingLeft: 12,
+      paddingTop: 8,
+      paddingBottom: 6,
       paddingRight: 25
     }
   };
@@ -101,8 +101,12 @@ function VolumeSlider(props) {
   return _react["default"].createElement(_core.Paper, {
     className: classes.root
   }, _react["default"].createElement(_reactBootstrap.Row, null, _react["default"].createElement(_reactBootstrap.Col, {
-    xs: 1,
-    md: 1
+    xs: 2,
+    md: 2,
+    style: {
+      paddingRight: 0,
+      paddingLeft: 5
+    }
   }, _react["default"].createElement("div", {
     onClick: onToggle,
     style: {
@@ -119,7 +123,11 @@ function VolumeSlider(props) {
     })
   }))), _react["default"].createElement(_reactBootstrap.Col, {
     xs: 10,
-    md: 10
+    md: 10,
+    style: {
+      paddingRight: 25,
+      paddingLeft: 0
+    }
   }, _react["default"].createElement(StyledSlider, {
     value: props.volume,
     onChange: handleChange

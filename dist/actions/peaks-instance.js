@@ -53,7 +53,7 @@ function initializeSMDataPeaks(baseURL, masterFileID, initStructure, options, du
       var _ref = (0, _asyncToGenerator2["default"])(
       /*#__PURE__*/
       _regenerator["default"].mark(function _callee(dispatch, getState) {
-        var response, smData, initSmData, _getState, peaksInstance, status;
+        var response, smData, _getState, structuralMetadata, _getState2, peaksInstance, status;
 
         return _regenerator["default"].wrap(function _callee$(_context) {
           while (1) {
@@ -71,20 +71,20 @@ function initializeSMDataPeaks(baseURL, masterFileID, initStructure, options, du
                   smData = structuralMetadataUtils.addUUIds([JSON.parse(initStructure)]);
                 } else {
                   smData = structuralMetadataUtils.addUUIds([response.data]);
-                }
+                } // Mark the top element as 'root'
 
-                initSmData = smData;
-                dispatch((0, _smData.saveInitialStructure)(initSmData)); // Mark the top element as 'root'
 
                 structuralMetadataUtils.markRootElement(smData); // Initialize Redux state variable with structure
 
-                dispatch((0, _smData.buildSMUI)(smData, duration)); // Update redux-store flag for structure file retrieval
+                dispatch((0, _smData.buildSMUI)(smData, duration));
+                _getState = getState(), structuralMetadata = _getState.structuralMetadata;
+                dispatch((0, _smData.saveInitialStructure)(structuralMetadata.smData)); // Update redux-store flag for structure file retrieval
 
                 dispatch((0, _forms.retrieveStructureSuccess)());
 
                 if (!isError) {
                   dispatch(initPeaks(smData, options));
-                  _getState = getState(), peaksInstance = _getState.peaksInstance; // Subscribe to Peaks event for dragging handles in a segment
+                  _getState2 = getState(), peaksInstance = _getState2.peaksInstance; // Subscribe to Peaks event for dragging handles in a segment
 
                   if (peaksInstance.events !== undefined) {
                     peaksInstance.events.subscribe(function (segment) {

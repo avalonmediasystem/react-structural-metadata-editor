@@ -38,14 +38,15 @@ export function initializeSMDataPeaks(
       } else {
         smData = structuralMetadataUtils.addUUIds([response.data]);
       }
-      const initSmData = smData;
-      dispatch(saveInitialStructure(initSmData));
 
       // Mark the top element as 'root'
       structuralMetadataUtils.markRootElement(smData);
 
       // Initialize Redux state variable with structure
       dispatch(buildSMUI(smData, duration));
+
+      const { structuralMetadata } = getState();
+      dispatch(saveInitialStructure(structuralMetadata.smData));
 
       // Update redux-store flag for structure file retrieval
       dispatch(retrieveStructureSuccess());

@@ -73,7 +73,8 @@ function (_Component) {
       hasError: false,
       masterFileID: _this.props.masterFileID,
       baseURL: _this.props.baseURL,
-      initStructure: _this.props.initStructure
+      initStructure: _this.props.initStructure,
+      streamLength: _this.props.streamDuration
     });
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "clearAlert", function () {
       _this.setState({

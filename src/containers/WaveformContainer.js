@@ -36,7 +36,8 @@ class WaveformContainer extends Component {
     hasError: false,
     masterFileID: this.props.masterFileID,
     baseURL: this.props.baseURL,
-    initStructure: this.props.initStructure
+    initStructure: this.props.initStructure,
+    streamLength: this.props.streamDuration
   };
 
   componentDidMount() {

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import TimespanInlineForm from './TimespanInlineForm';
 import HeadingInlineForm from './HeadingInlineForm';
-import { buildSMUI } from '../actions/sm-data';
+import { reBuildSMUI } from '../actions/sm-data';
 import { cloneDeep } from 'lodash';
 import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
 
@@ -69,7 +69,7 @@ class ListItemEditForm extends Component {
     item = this.addUpdatedValues(item, payload);
 
     // Send updated smData back to redux
-    this.props.buildSMUI(clonedItems);
+    this.props.reBuildSMUI(clonedItems);
 
     // Turn off editing state
     this.props.handleEditFormCancel();
@@ -105,11 +105,11 @@ class ListItemEditForm extends Component {
 }
 
 const mapStateToProps = state => ({
-  smData: state.smData
+  smData: state.structuralMetadata.smData
 });
 
 const mapDispathToProps = dispatch => ({
-  buildSMUI: json => dispatch(buildSMUI(json))
+  reBuildSMUI: json => dispatch(reBuildSMUI(json))
 });
 
 export default connect(

@@ -141,7 +141,7 @@ class WaveformContainer extends Component {
 }
 
 const mapStateToProps = state => ({
-  smData: state.smData,
+  smData: state.structuralMetadata.smData,
   forms: state.forms
 });
 

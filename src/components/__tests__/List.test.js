@@ -6,7 +6,9 @@ import { renderWithRedux, testSmData } from '../../services/testing-helpers';
 import { wrapInTestContext } from 'react-dnd-test-utils';
 
 const initialState = {
-  smData: testSmData
+  structuralMetadata: {
+    smData: testSmData
+  }
 };
 
 let ListContext = null;

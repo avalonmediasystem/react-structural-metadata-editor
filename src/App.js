@@ -38,6 +38,10 @@ class App extends Component {
     this.props.handleStructureError(0);
   };
 
+  structureIsSaved = value => {
+    this.props.structureIsSaved(value);
+  };
+
   render() {
     return (
       <DragDropContextProvider backend={HTML5Backend}>

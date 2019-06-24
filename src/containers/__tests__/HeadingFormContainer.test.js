@@ -6,7 +6,7 @@ import { renderWithRedux, testSmData } from '../../services/testing-helpers';
 
 // Set up Redux store for tests
 const initialState = {
-  smData: testSmData
+  structuralMetadata: { smData: testSmData }
 };
 
 afterEach(cleanup);

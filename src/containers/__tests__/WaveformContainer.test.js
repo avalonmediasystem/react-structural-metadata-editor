@@ -11,7 +11,9 @@ jest.mock('rxjs');
 
 // Setup Redux store for tests
 const initialState = {
-  smData: testSmData,
+  structuralMetadata: {
+    smData: testSmData
+  },
   forms: {
     waveformRetrieved: false,
     streamInfo: {

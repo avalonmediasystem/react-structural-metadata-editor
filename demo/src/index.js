@@ -8,7 +8,8 @@ const props = {
   initStructure: '',
   audioStreamURL:
     'https://spruce.dlib.indiana.edu/master_files/12579s459/auto.m3u8',
-  streamDuration: 377338
+  streamDuration: 377338,
+  structureIsSaved: val => {}
 };
 
 render(<Root {...props} />, document.getElementById('root'));

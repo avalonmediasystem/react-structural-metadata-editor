@@ -5,7 +5,9 @@ import HeadingForm from '../HeadingForm';
 import { renderWithRedux, testSmData } from '../../services/testing-helpers';
 
 const initialState = {
-  smData: testSmData
+  structuralMetadata: {
+    smData: testSmData
+  }
 };
 
 afterEach(cleanup);

@@ -69,6 +69,9 @@ function (_Component) {
 
       _this.props.handleStructureError(0);
     });
+    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "structureIsSaved", function (value) {
+      _this.props.structureIsSaved(value);
+    });
     _this.state = {
       structureAlert: {}
     };

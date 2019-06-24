@@ -223,7 +223,7 @@ var mapDispatchToProps = {
 
 var mapStateToProps = function mapStateToProps(state) {
   return {
-    smData: state.smData,
+    smData: state.structuralMetadata.smData,
     peaksInstance: state.peaksInstance.peaks
   };
 };

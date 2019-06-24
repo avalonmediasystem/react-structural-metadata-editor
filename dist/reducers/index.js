@@ -21,7 +21,7 @@ var types = _interopRequireWildcard(require("../actions/types"));
 
 var appReducer = (0, _redux.combineReducers)({
   forms: _forms["default"],
-  smData: _smData["default"],
+  structuralMetadata: _smData["default"],
   peaksInstance: _peaksInstance["default"]
 });
 

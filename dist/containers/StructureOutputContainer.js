@@ -41,6 +41,14 @@ var _AlertContainer = _interopRequireDefault(require("./AlertContainer"));
 
 var _alertStatus = require("../services/alert-status");
 
+var _forms = require("../actions/forms");
+
+var _lodash = require("lodash");
+
+var _StructuralMetadataUtils = _interopRequireDefault(require("../services/StructuralMetadataUtils"));
+
+var smu = new _StructuralMetadataUtils["default"]();
+
 var StructureOutputContainer =
 /*#__PURE__*/
 function (_Component) {
@@ -55,7 +63,8 @@ function (_Component) {
       alertObj: _this.props.alertObj,
       baseURL: _this.props.baseURL,
       masterFileID: _this.props.masterFileID,
-      structureStatus: _this.props.forms.structureStatus
+      structureStatus: _this.props.structureInfo.structureStatus,
+      initialStructure: _this.props.structuralMetadata.initSmData
     });
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "clearAlert", function () {
       _this.setState({
@@ -75,7 +84,7 @@ function (_Component) {
             case 0:
               _this$state = _this.state, baseURL = _this$state.baseURL, masterFileID = _this$state.masterFileID;
               postData = {
-                json: _this.props.smData[0]
+                json: _this.props.structuralMetadata.smData[0]
               };
               _context.prev = 2;
               _context.next = 5;
@@ -86,25 +95,27 @@ function (_Component) {
               status = response.status;
               alertObj = (0, _alertStatus.configureAlert)(status, _this.clearAlert);
 
+              _this.props.postStructureSuccess(1);
+
               _this.setState({
                 alertObj: alertObj
               });
 
-              _context.next = 14;
+              _context.next = 15;
               break;
 
-            case 11:
-              _context.prev = 11;
+            case 12:
+              _context.prev = 12;
               _context.t0 = _context["catch"](2);
 
               _this.handleSaveError(_context.t0);
 
-            case 14:
+            case 15:
             case "end":
               return _context.stop();
           }
         }
-      }, _callee, null, [[2, 11]]);
+      }, _callee, null, [[2, 12]]);
     })));
     _this.apiUtils = new _Utils["default"]();
     return _this;
@@ -124,16 +135,16 @@ function (_Component) {
     key: "render",
     value: function render() {
       var _this$props = this.props,
-          forms = _this$props.forms,
-          smData = _this$props.smData;
+          structureInfo = _this$props.structureInfo,
+          structuralMetadata = _this$props.structuralMetadata;
       var alertObj = this.state.alertObj;
       return _react["default"].createElement("section", {
         className: "structure-section",
         "data-testid": "structure-output-section"
-      }, !forms.structureRetrieved ? _react["default"].createElement(_AlertContainer["default"], alertObj) : _react["default"].createElement("div", {
+      }, !structureInfo.structureRetrieved ? _react["default"].createElement(_AlertContainer["default"], alertObj) : _react["default"].createElement("div", {
         "data-testid": "structure-output-list"
       }, _react["default"].createElement(_AlertContainer["default"], alertObj), _react["default"].createElement(_List["default"], {
-        items: smData
+        items: structuralMetadata.smData
       }), _react["default"].createElement(_reactBootstrap.Row, null, _react["default"].createElement(_reactBootstrap.Col, {
         xs: 12,
         className: "text-right"
@@ -146,9 +157,13 @@ function (_Component) {
   }], [{
     key: "getDerivedStateFromProps",
     value: function getDerivedStateFromProps(nextProps, prevState) {
-      if (prevState.structureStatus !== nextProps.forms.structureStatus) {
+      var _nextProps$structureI = nextProps.structureInfo,
+          structureStatus = _nextProps$structureI.structureStatus,
+          structureSaved = _nextProps$structureI.structureSaved;
+
+      if (prevState.structureStatus !== structureStatus) {
         return {
-          alertObj: (0, _alertStatus.configureAlert)(nextProps.forms.structureStatus, nextProps.clearAlert)
+          alertObj: (0, _alertStatus.configureAlert)(structureStatus, nextProps.clearAlert)
         };
       }
 
@@ -158,7 +173,30 @@ function (_Component) {
         };
       }
 
-      return null;
+      var _nextProps$structural = nextProps.structuralMetadata,
+          initSmData = _nextProps$structural.initSmData,
+          smData = _nextProps$structural.smData;
+
+      if (!(0, _lodash.isEqual)(initSmData, prevState.initialStructure)) {
+        return {
+          initialStructure: initSmData
+        };
+      }
+
+      if (structureSaved) {
+        nextProps.structureIsSaved(true);
+        return null;
+      } else {
+        var cleanSmData = smu.filterObjectKey(smData, 'active');
+
+        if (!(0, _lodash.isEqual)(prevState.initialStructure, cleanSmData)) {
+          nextProps.structureIsSaved(false);
+        } else {
+          nextProps.structureIsSaved(true);
+        }
+
+        return null;
+      }
     }
   }]);
   return StructureOutputContainer;
@@ -166,11 +204,15 @@ function (_Component) {
 
 var mapStateToProps = function mapStateToProps(state) {
   return {
-    smData: state.smData,
-    forms: state.forms
+    structuralMetadata: state.structuralMetadata,
+    structureInfo: state.forms.structureInfo
   };
 };
 
-var _default = (0, _reactRedux.connect)(mapStateToProps)(StructureOutputContainer);
+var mapDispatchToProps = {
+  postStructureSuccess: _forms.updateStructureStatus
+};
+
+var _default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(StructureOutputContainer);
 
 exports["default"] = _default;

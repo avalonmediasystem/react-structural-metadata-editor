@@ -1,4 +1,12 @@
 import * as types from './types';
+import { updateStructureStatus } from './forms';
+
+export function reBuildSMUI(items) {
+  return dispatch => {
+    dispatch(buildSMUI(items));
+    dispatch(updateStructureStatus(0));
+  };
+}
 
 export function buildSMUI(json, duration) {
   return {
@@ -42,9 +50,23 @@ export function removeActiveDragSources() {
 }
 
 export function handleListItemDrop(dragSource, dropTarget) {
+  return dispatch => {
+    dispatch(handleItemDrop(dragSource, dropTarget));
+    dispatch(updateStructureStatus(0));
+  };
+}
+
+export function handleItemDrop(dragSource, dropTarget) {
   return {
     type: types.HANDLE_LIST_ITEM_DROP,
     dragSource,
     dropTarget
+  };
+}
+
+export function saveInitialStructure(initData) {
+  return {
+    type: types.SAVE_INIT_SMDATA,
+    payload: initData
   };
 }

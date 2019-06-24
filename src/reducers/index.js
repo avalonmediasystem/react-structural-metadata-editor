@@ -1,12 +1,12 @@
 import { combineReducers } from 'redux';
 import forms from './forms';
-import smData from './sm-data';
+import structuralMetadata from './sm-data';
 import peaksInstance from './peaks-instance';
 import * as types from '../actions/types';
 
 const appReducer = combineReducers({
   forms,
-  smData,
+  structuralMetadata,
   peaksInstance
 });
 

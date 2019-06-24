@@ -5,7 +5,9 @@ import HeadingInlineForm from '../HeadingInlineForm';
 import { renderWithRedux, testSmData } from '../../services/testing-helpers';
 
 const initialState = {
-  smData: testSmData
+  structuralMetadata: {
+    smData: testSmData
+  }
 };
 
 const validItem = {

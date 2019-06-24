@@ -115,13 +115,13 @@ class ButtonSection extends Component {
 
     const {
       editingDisabled,
-      structureRetrieved,
+      structureInfo,
       waveformRetrieved,
       streamInfo
     } = this.props.forms;
 
     // Only return UI when both structure and waveform data exist
-    return structureRetrieved && waveformRetrieved ? (
+    return structureInfo.structureRetrieved && waveformRetrieved ? (
       <section>
         <AlertContainer {...this.state.alertObj} />
         <Row data-testid="button-row">
@@ -174,7 +174,6 @@ class ButtonSection extends Component {
 }
 
 const mapStateToProps = state => ({
-  smData: state.smData,
   peaksInstance: state.peaksInstance,
   forms: state.forms
 });

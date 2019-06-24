@@ -98,7 +98,7 @@ class HeadingInlineForm extends Component {
 }
 
 const mapStateToProps = state => ({
-  smData: state.smData
+  smData: state.structuralMetadata.smData
 });
 
 export default connect(mapStateToProps)(HeadingInlineForm);

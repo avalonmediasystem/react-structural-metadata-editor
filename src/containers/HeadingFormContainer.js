@@ -26,23 +26,28 @@ class HeadingFormContainer extends Component {
     );
 
     // Update redux store
-    this.props.buildSMUI(updatedSmData);
+    this.props.reBuildSMUI(updatedSmData);
 
     // Close the form
     this.props.cancelClick();
   };
 
   render() {
-    return <HeadingForm onSubmit={this.submit} cancelClick={this.props.cancelClick} />;
+    return (
+      <HeadingForm
+        onSubmit={this.submit}
+        cancelClick={this.props.cancelClick}
+      />
+    );
   }
 }
 
 const mapDispatchToProps = dispatch => ({
-  buildSMUI: data => dispatch(smActions.buildSMUI(data))
+  reBuildSMUI: data => dispatch(smActions.reBuildSMUI(data))
 });
 
 const mapStateToProps = state => ({
-  smData: state.smData
+  smData: state.structuralMetadata.smData
 });
 
 export default connect(

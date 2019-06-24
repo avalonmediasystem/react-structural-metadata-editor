@@ -5,6 +5,7 @@ var _interopRequireWildcard = require("@babel/runtime/helpers/interopRequireWild
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.reBuildSMUI = reBuildSMUI;
 exports.buildSMUI = buildSMUI;
 exports.deleteItem = deleteItem;
 exports.addDropTargets = addDropTargets;
@@ -12,8 +13,19 @@ exports.removeDropTargets = removeDropTargets;
 exports.setActiveDragSource = setActiveDragSource;
 exports.removeActiveDragSources = removeActiveDragSources;
 exports.handleListItemDrop = handleListItemDrop;
+exports.handleItemDrop = handleItemDrop;
+exports.saveInitialStructure = saveInitialStructure;
 
 var types = _interopRequireWildcard(require("./types"));
+
+var _forms = require("./forms");
+
+function reBuildSMUI(items) {
+  return function (dispatch) {
+    dispatch(buildSMUI(items));
+    dispatch((0, _forms.updateStructureStatus)(0));
+  };
+}
 
 function buildSMUI(json, duration) {
   return {
@@ -57,9 +69,23 @@ function removeActiveDragSources() {
 }
 
 function handleListItemDrop(dragSource, dropTarget) {
+  return function (dispatch) {
+    dispatch(handleItemDrop(dragSource, dropTarget));
+    dispatch((0, _forms.updateStructureStatus)(0));
+  };
+}
+
+function handleItemDrop(dragSource, dropTarget) {
   return {
     type: types.HANDLE_LIST_ITEM_DROP,
     dragSource: dragSource,
     dropTarget: dropTarget
+  };
+}
+
+function saveInitialStructure(initData) {
+  return {
+    type: types.SAVE_INIT_SMDATA,
+    payload: initData
   };
 }

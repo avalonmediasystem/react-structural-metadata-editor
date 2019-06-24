@@ -17,18 +17,20 @@ const peaksOptions = {
 };
 const initialState = {
   forms: {
-    structureRetrieved: true,
     waveformRetrieved: true,
     streamInfo: {
       // stream URL works
       streamMediaError: false,
       streamMediaLoading: false
+    },
+    structureInfo: {
+      structureRetrieved: true
     }
   },
   peaksInstance: {
     peaks: Peaks.init(peaksOptions)
   },
-  smData: testSmData
+  structuralMetadata: { smData: testSmData }
 };
 
 afterEach(cleanup);

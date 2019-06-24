@@ -338,7 +338,7 @@ function (_Component) {
 
 var mapStateToProps = function mapStateToProps(state) {
   return {
-    smData: state.smData,
+    smData: state.structuralMetadata.smData,
     peaksInstance: state.peaksInstance,
     segment: state.peaksInstance.segment,
     isDragging: state.peaksInstance.isDragging

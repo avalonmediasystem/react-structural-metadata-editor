@@ -17,7 +17,9 @@ const peaksOptions = {
 };
 
 const initialState = {
-  smData: testSmData,
+  structuralMetadata: {
+    smData: testSmData
+  },
   peaksInstance: {
     peaks: Peaks.init(peaksOptions),
     isDragging: false,

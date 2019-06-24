@@ -16,7 +16,9 @@ const peaksOptions = {
   _zoomLevels: [512, 1024, 2048, 4096]
 };
 const initialState = {
-  smData: testSmData,
+  structuralMetadata: {
+    smData: testSmData
+  },
   peaksInstance: {
     peaks: Peaks.init(peaksOptions)
   }

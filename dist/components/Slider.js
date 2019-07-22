@@ -13,8 +13,6 @@ var _slicedToArray2 = _interopRequireDefault(require("@babel/runtime/helpers/sli
 
 var _react = _interopRequireDefault(require("react"));
 
-var _Slider = _interopRequireDefault(require("@material-ui/lab/Slider"));
-
 var _VolumeUp = _interopRequireDefault(require("@material-ui/icons/VolumeUp"));
 
 var _VolumeOff = _interopRequireDefault(require("@material-ui/icons/VolumeOff"));
@@ -68,7 +66,7 @@ var StyledSlider = (0, _styles.withStyles)({
     borderRadius: 4,
     backgroundColor: '#000'
   }
-})(_Slider["default"]);
+})(_core.Slider);
 
 function VolumeSlider(props) {
   var SPEAKER_ICON_SIZE = {

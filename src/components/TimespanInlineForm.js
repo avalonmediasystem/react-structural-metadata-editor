@@ -56,11 +56,10 @@ class TimespanInlineForm extends Component {
 
     // Get a fresh copy of store data
     this.tempSmData = cloneDeep(smData);
+    const tempPeaks = cloneDeep(peaksInstance.peaks);
 
     // Load existing form values
-    this.setState(
-      getExistingFormValues(item.id, this.tempSmData, peaksInstance.peaks)
-    );
+    this.setState(getExistingFormValues(item.id, this.tempSmData, tempPeaks));
 
     // Remove current list item from the data we're doing validation against in this form
     this.tempSmData = structuralMetadataUtils.deleteListItem(

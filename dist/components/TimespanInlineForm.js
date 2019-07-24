@@ -117,9 +117,10 @@ function (_Component) {
           peaksInstance = _this$props.peaksInstance;
       var segment = waveformUtils.convertTimespanToSegment(item); // Get a fresh copy of store data
 
-      this.tempSmData = (0, _lodash.cloneDeep)(smData); // Load existing form values
+      this.tempSmData = (0, _lodash.cloneDeep)(smData);
+      var tempPeaks = (0, _lodash.cloneDeep)(peaksInstance.peaks); // Load existing form values
 
-      this.setState((0, _formHelper.getExistingFormValues)(item.id, this.tempSmData, peaksInstance.peaks)); // Remove current list item from the data we're doing validation against in this form
+      this.setState((0, _formHelper.getExistingFormValues)(item.id, this.tempSmData, tempPeaks)); // Remove current list item from the data we're doing validation against in this form
 
       this.tempSmData = structuralMetadataUtils.deleteListItem(item.id, this.tempSmData); // Save a reference to all the spans for future calculations
 

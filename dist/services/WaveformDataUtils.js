@@ -214,11 +214,11 @@ function () {
     value: function rebuildPeaks(peaksInstance) {
       var _this3 = this;
 
-      var clonedSegments = this.sortSegments(peaksInstance, 'startTime');
-      peaksInstance.segments.removeAll();
-      clonedSegments.forEach(function (segment, index) {
-        segment.color = _this3.isOdd(index) ? COLOR_PALETTE[1] : COLOR_PALETTE[0];
-        peaksInstance.segments.add(segment);
+      var sortedSegments = this.sortSegments(peaksInstance, 'startTime');
+      sortedSegments.forEach(function (segment, index) {
+        segment.update({
+          color: _this3.isOdd(index) ? COLOR_PALETTE[1] : COLOR_PALETTE[0]
+        });
       });
       return peaksInstance;
     }
@@ -231,17 +231,12 @@ function () {
   }, {
     key: "activateSegment",
     value: function activateSegment(id, peaksInstance) {
-      // Remove the current segment
-      var _peaksInstance$segmen = peaksInstance.segments.removeById(id),
-          _peaksInstance$segmen2 = (0, _slicedToArray2["default"])(_peaksInstance$segmen, 1),
-          removedSegment = _peaksInstance$segmen2[0]; // Create a new segment with the same properties and set editable to true
-
-
-      peaksInstance.segments.add((0, _objectSpread2["default"])({}, removedSegment, {
+      var segment = peaksInstance.segments.getSegment(id);
+      segment.update({
         editable: true,
         color: COLOR_PALETTE[2]
-      }));
-      var startTime = peaksInstance.segments.getSegment(id).startTime; // Move play head to the start time of the selected segment
+      });
+      var startTime = segment.startTime; // Move play head to the start time of the selected segment
 
       peaksInstance.player.seek(startTime);
       return peaksInstance;
@@ -259,17 +254,12 @@ function () {
       var segments = this.sortSegments(peaksInstance, 'startTime');
       var index = segments.map(function (seg) {
         return seg.id;
-      }).indexOf(id); // Remove the current segment
-
-      var _peaksInstance$segmen3 = peaksInstance.segments.removeById(id),
-          _peaksInstance$segmen4 = (0, _slicedToArray2["default"])(_peaksInstance$segmen3, 1),
-          removedSegment = _peaksInstance$segmen4[0]; // Create a new segment and revert to its original color
-
-
-      peaksInstance.segments.add((0, _objectSpread2["default"])({}, removedSegment, {
+      }).indexOf(id);
+      var segment = peaksInstance.segments.getSegment(id);
+      segment.update({
         editable: false,
         color: this.isOdd(index) ? COLOR_PALETTE[1] : COLOR_PALETTE[0]
-      }));
+      });
       return peaksInstance;
     }
     /**
@@ -284,11 +274,10 @@ function () {
       var beginTime = currentState.beginTime,
           endTime = currentState.endTime,
           clonedSegment = currentState.clonedSegment;
-      peaksInstance.segments.removeById(clonedSegment.id);
-      peaksInstance.segments.add((0, _objectSpread2["default"])({}, clonedSegment, {
+      clonedSegment.update({
         startTime: this.toMs(beginTime),
         endTime: this.toMs(endTime)
-      }));
+      });
       return peaksInstance;
     }
     /**
@@ -300,8 +289,21 @@ function () {
   }, {
     key: "revertSegment",
     value: function revertSegment(clonedSegment, peaksInstance) {
-      peaksInstance.segments.removeById(clonedSegment.id);
-      peaksInstance.segments.add(clonedSegment);
+      var segment = peaksInstance.segments.getSegment(clonedSegment.id);
+      var startTime = clonedSegment.startTime,
+          endTime = clonedSegment.endTime,
+          labelText = clonedSegment.labelText,
+          id = clonedSegment.id,
+          color = clonedSegment.color,
+          editable = clonedSegment.editable;
+      segment.update({
+        startTime: startTime,
+        endTime: endTime,
+        labelText: labelText,
+        id: id,
+        color: color,
+        editable: editable
+      });
       return peaksInstance;
     }
     /**
@@ -318,26 +320,19 @@ function () {
           endTime = currentState.endTime;
       var beginSeconds = this.toMs(beginTime);
       var endSeconds = this.toMs(endTime);
+      var changeSegment = peaksInstance.segments.getSegment(segment.id);
 
       if (beginSeconds < segment.endTime && segment.startTime !== beginSeconds) {
-        var _peaksInstance$segmen5 = peaksInstance.segments.removeById(segment.id),
-            _peaksInstance$segmen6 = (0, _slicedToArray2["default"])(_peaksInstance$segmen5, 1),
-            removed = _peaksInstance$segmen6[0];
-
-        peaksInstance.segments.add((0, _objectSpread2["default"])({}, removed, {
+        changeSegment.update({
           startTime: beginSeconds
-        }));
+        });
         return peaksInstance;
       }
 
       if (endSeconds > segment.startTime && segment.endTime !== endSeconds) {
-        var _peaksInstance$segmen7 = peaksInstance.segments.removeById(segment.id),
-            _peaksInstance$segmen8 = (0, _slicedToArray2["default"])(_peaksInstance$segmen7, 1),
-            _removed = _peaksInstance$segmen8[0];
-
-        peaksInstance.segments.add((0, _objectSpread2["default"])({}, _removed, {
+        changeSegment.update({
           endTime: endSeconds
-        }));
+        });
         return peaksInstance;
       }
 
@@ -471,10 +466,11 @@ function () {
   }, {
     key: "sortSegments",
     value: function sortSegments(peaksInstance, sortBy) {
-      var allSegments = peaksInstance.segments.getSegments();
-      return allSegments.sort(function (x, y) {
+      var segments = peaksInstance.segments.getSegments();
+      segments.sort(function (x, y) {
         return x[sortBy] - y[sortBy];
       });
+      return segments;
     }
   }, {
     key: "roundOff",

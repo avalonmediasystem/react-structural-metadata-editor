@@ -141,11 +141,11 @@ export default class WaveformDataUtils {
    * @param {Object} peaksInstance - current peaks instance for the waveform
    */
   rebuildPeaks(peaksInstance) {
-    let clonedSegments = this.sortSegments(peaksInstance, 'startTime');
-    peaksInstance.segments.removeAll();
-    clonedSegments.forEach((segment, index) => {
-      segment.color = this.isOdd(index) ? COLOR_PALETTE[1] : COLOR_PALETTE[0];
-      peaksInstance.segments.add(segment);
+    let sortedSegments = this.sortSegments(peaksInstance, 'startTime');
+    sortedSegments.forEach((segment, index) => {
+      segment.update({
+        color: this.isOdd(index) ? COLOR_PALETTE[1] : COLOR_PALETTE[0]
+      });
     });
 
     return peaksInstance;
@@ -157,17 +157,12 @@ export default class WaveformDataUtils {
    * @param {Object} peaksInstance - current peaks instance for the waveform
    */
   activateSegment(id, peaksInstance) {
-    // Remove the current segment
-    const [removedSegment] = peaksInstance.segments.removeById(id);
-
-    // Create a new segment with the same properties and set editable to true
-    peaksInstance.segments.add({
-      ...removedSegment,
+    const segment = peaksInstance.segments.getSegment(id);
+    segment.update({
       editable: true,
       color: COLOR_PALETTE[2]
     });
-
-    let startTime = peaksInstance.segments.getSegment(id).startTime;
+    let startTime = segment.startTime;
     // Move play head to the start time of the selected segment
     peaksInstance.player.seek(startTime);
 
@@ -185,12 +180,8 @@ export default class WaveformDataUtils {
 
     let index = segments.map(seg => seg.id).indexOf(id);
 
-    // Remove the current segment
-    const [removedSegment] = peaksInstance.segments.removeById(id);
-
-    // Create a new segment and revert to its original color
-    peaksInstance.segments.add({
-      ...removedSegment,
+    const segment = peaksInstance.segments.getSegment(id);
+    segment.update({
       editable: false,
       color: this.isOdd(index) ? COLOR_PALETTE[1] : COLOR_PALETTE[0]
     });
@@ -205,9 +196,7 @@ export default class WaveformDataUtils {
    */
   saveSegment(currentState, peaksInstance) {
     const { beginTime, endTime, clonedSegment } = currentState;
-    peaksInstance.segments.removeById(clonedSegment.id);
-    peaksInstance.segments.add({
-      ...clonedSegment,
+    clonedSegment.update({
       startTime: this.toMs(beginTime),
       endTime: this.toMs(endTime)
     });
@@ -220,8 +209,23 @@ export default class WaveformDataUtils {
    * @param {Object} peaksInstance - current peaks instance for wavefrom
    */
   revertSegment(clonedSegment, peaksInstance) {
-    peaksInstance.segments.removeById(clonedSegment.id);
-    peaksInstance.segments.add(clonedSegment);
+    let segment = peaksInstance.segments.getSegment(clonedSegment.id);
+    const {
+      startTime,
+      endTime,
+      labelText,
+      id,
+      color,
+      editable
+    } = clonedSegment;
+    segment.update({
+      startTime: startTime,
+      endTime: endTime,
+      labelText: labelText,
+      id: id,
+      color: color,
+      editable: editable
+    });
     return peaksInstance;
   }
 
@@ -235,21 +239,14 @@ export default class WaveformDataUtils {
     const { beginTime, endTime } = currentState;
     let beginSeconds = this.toMs(beginTime);
     let endSeconds = this.toMs(endTime);
+    let changeSegment = peaksInstance.segments.getSegment(segment.id);
 
     if (beginSeconds < segment.endTime && segment.startTime !== beginSeconds) {
-      let [removed] = peaksInstance.segments.removeById(segment.id);
-      peaksInstance.segments.add({
-        ...removed,
-        startTime: beginSeconds
-      });
+      changeSegment.update({ startTime: beginSeconds });
       return peaksInstance;
     }
     if (endSeconds > segment.startTime && segment.endTime !== endSeconds) {
-      let [removed] = peaksInstance.segments.removeById(segment.id);
-      peaksInstance.segments.add({
-        ...removed,
-        endTime: endSeconds
-      });
+      changeSegment.update({ endTime: endSeconds });
       return peaksInstance;
     }
     return peaksInstance;
@@ -371,8 +368,9 @@ export default class WaveformDataUtils {
   }
 
   sortSegments(peaksInstance, sortBy) {
-    let allSegments = peaksInstance.segments.getSegments();
-    return allSegments.sort((x, y) => x[sortBy] - y[sortBy]);
+    let segments = peaksInstance.segments.getSegments();
+    segments.sort((x, y) => x[sortBy] - y[sortBy]);
+    return segments;
   }
 
   roundOff(value) {

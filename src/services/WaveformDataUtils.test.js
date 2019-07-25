@@ -1,8 +1,11 @@
 import WaveformDataUtils from './WaveformDataUtils';
 import { testSmData } from '../services/testing-helpers';
 import Peaks from 'peaks';
+import { cleanup } from 'react-testing-library';
 
 const waveformUtils = new WaveformDataUtils();
+
+afterEach(cleanup);
 
 describe('WaveformDataUtils class', () => {
   test('initializes peaks segments with empty metadata structure', () => {
@@ -73,7 +76,6 @@ describe('WaveformDataUtils class', () => {
         );
         expect(value.player.getCurrentTime()).toEqual(0);
       });
-
       test('when current time is in between an existing segment', () => {
         peaks.player.seek(450);
         const value = waveformUtils.insertTempSegment(peaks);
@@ -250,9 +252,10 @@ describe('WaveformDataUtils class', () => {
         });
 
         const value = waveformUtils.rebuildPeaks(peaks);
-        expect(value.segments._segments).toHaveLength(4);
+        const segments = value.segments.getSegments();
+        expect(segments).toHaveLength(4);
         // Tests adding color property to the new segment
-        expect(value.segments._segments).toEqual(
+        expect(segments).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
               id: '123a-456b-789c-9d',
@@ -261,7 +264,7 @@ describe('WaveformDataUtils class', () => {
           ])
         );
         // Tests changing the color of an exisiting segment to adhere to alternating colors in waveform
-        expect(value.segments._segments).toEqual(
+        expect(segments).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
               id: '123a-456b-789c-8d',
@@ -273,9 +276,10 @@ describe('WaveformDataUtils class', () => {
       test('when a segment is deleted', () => {
         peaks.segments.removeById('123a-456b-789c-4d');
         const value = waveformUtils.rebuildPeaks(peaks);
-        expect(value.segments._segments).toHaveLength(2);
+        const segments = value.segments.getSegments();
+        expect(segments).toHaveLength(2);
         // Tests changing the color of an exisiting segment to adhere to alternating colors in waveform
-        expect(value.segments._segments).toEqual(
+        expect(segments).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
               id: '123a-456b-789c-8d',
@@ -288,8 +292,9 @@ describe('WaveformDataUtils class', () => {
 
     test('activates a segment', () => {
       const value = waveformUtils.activateSegment('123a-456b-789c-4d', peaks);
-      expect(value.segments._segments).toHaveLength(3);
-      expect(value.segments._segments).toEqual(
+      const segments = value.segments.getSegments();
+      expect(segments).toHaveLength(3);
+      expect(segments).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
             id: '123a-456b-789c-4d',
@@ -302,8 +307,9 @@ describe('WaveformDataUtils class', () => {
 
     test('deactivates a segment', () => {
       const value = waveformUtils.deactivateSegment('123a-456b-789c-4d', peaks);
-      expect(value.segments._segments).toHaveLength(3);
-      expect(value.segments._segments).toEqual(
+      const segments = value.segments.getSegments();
+      expect(segments).toHaveLength(3);
+      expect(segments).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
             id: '123a-456b-789c-4d',
@@ -315,20 +321,16 @@ describe('WaveformDataUtils class', () => {
     });
 
     test('saves changes to an existing segment', () => {
+      const clonedSegment = peaks.segments.getSegment('123a-456b-789c-4d');
       const currentState = {
         beginTime: '00:00:10.33',
         endTime: '00:08:00.00',
-        clonedSegment: {
-          startTime: 11.23,
-          endTime: 480,
-          id: '123a-456b-789c-4d',
-          labelText: 'Segment 1.2',
-          color: '#2A5459'
-        }
+        clonedSegment
       };
       const value = waveformUtils.saveSegment(currentState, peaks);
-      expect(value.segments._segments).toHaveLength(3);
-      expect(value.segments._segments).toEqual(
+      const segments = value.segments.getSegments();
+      expect(segments).toHaveLength(3);
+      expect(segments).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
             startTime: 10.33,
@@ -353,8 +355,9 @@ describe('WaveformDataUtils class', () => {
       test('start time = 00:03:', () => {
         const currentState = { beginTime: '00:03:', endTime: '00:08:00.00' };
         const value = waveformUtils.updateSegment(segment, currentState, peaks);
-        expect(value.segments._segments).toHaveLength(3);
-        expect(value.segments._segments).toEqual(
+        const segments = value.segments.getSegments();
+        expect(segments).toHaveLength(3);
+        expect(segments).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
               startTime: 180,
@@ -367,8 +370,9 @@ describe('WaveformDataUtils class', () => {
       test('start time = 00:03:59', () => {
         const currentState = { beginTime: '00:03:59', endTime: '00:08:00.00' };
         const value = waveformUtils.updateSegment(segment, currentState, peaks);
-        expect(value.segments._segments).toHaveLength(3);
-        expect(value.segments._segments).toEqual(
+        const segments = value.segments.getSegments();
+        expect(segments).toHaveLength(3);
+        expect(segments).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
               startTime: 239,
@@ -384,8 +388,9 @@ describe('WaveformDataUtils class', () => {
           endTime: '00:08:00.00'
         };
         const value = waveformUtils.updateSegment(segment, currentState, peaks);
-        expect(value.segments._segments).toHaveLength(3);
-        expect(value.segments._segments).toEqual(
+        const segments = value.segments.getSegments();
+        expect(segments).toHaveLength(3);
+        expect(segments).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
               startTime: 239.99,

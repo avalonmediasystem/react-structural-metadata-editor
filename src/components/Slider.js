@@ -5,11 +5,10 @@
  *
  */
 import React from 'react';
-import Slider from '@material-ui/lab/Slider';
 import VolumeUp from '@material-ui/icons/VolumeUp';
 import VolumeOff from '@material-ui/icons/VolumeOff';
 import { withStyles, makeStyles } from '@material-ui/core/styles';
-import { Paper } from '@material-ui/core';
+import { Paper, Slider } from '@material-ui/core';
 import { Row, Col } from 'react-bootstrap';
 
 const useStyles = makeStyles(() => ({

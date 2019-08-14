@@ -25,7 +25,7 @@ const initialState = {
     isDragging: false,
     segment: {
       startTime: 0,
-      endTime: 3.32,
+      endTime: 3.321,
       label: '',
       id: 'temp-segment',
       editable: true,
@@ -51,8 +51,8 @@ const spanItem = {
   type: 'span',
   label: 'Segment 1.1',
   id: '123a-456b-789c-3d',
-  begin: '00:00:03.32',
-  end: '00:00:10.32'
+  begin: '00:00:03.321',
+  end: '00:00:10.321'
 };
 const divItemWithChildren = {
   type: 'div',
@@ -74,8 +74,8 @@ const divItemWithChildren = {
           type: 'span',
           label: 'Segment 2.1',
           id: '123a-456b-789c-8d',
-          begin: '00:09:03.24',
-          end: '00:15:00.00'
+          begin: '00:09:03.241',
+          end: '00:15:00.001'
         }
       ]
     }

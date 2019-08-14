@@ -51,8 +51,8 @@ test("ListItemEditForm renders TimespanInlineForm for item with type 'span'", ()
     type: 'span',
     label: 'Segment 1.2',
     id: '123a-456b-789c-4d',
-    begin: '00:00:11.23',
-    end: '00:08:00.00'
+    begin: '00:00:11.231',
+    end: '00:08:00.001'
   };
 
   const { getByTestId } = renderWithRedux(
@@ -70,8 +70,8 @@ test('clicking on cancel button calls the mock function for cancelling the form'
     type: 'span',
     label: 'Segment 1.2',
     id: '123a-456b-789c-4d',
-    begin: '00:00:11.23',
-    end: '00:08:00.00'
+    begin: '00:00:11.231',
+    end: '00:08:00.001'
   };
 
   const { getByTestId } = renderWithRedux(

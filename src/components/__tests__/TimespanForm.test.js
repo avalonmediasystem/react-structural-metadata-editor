@@ -25,7 +25,7 @@ const initialState = {
     isDragging: false,
     segment: {
       startTime: 0,
-      endTime: 3.32,
+      endTime: 3.321,
       labelText: '',
       id: 'temp-segment',
       editable: true,
@@ -43,7 +43,7 @@ const cancelMock = jest.fn();
 const props = {
   initSegment: {
     startTime: 0,
-    endTime: 3.32,
+    endTime: 3.321,
     editable: true,
     color: '#FBB040',
     id: 'temp-segment'
@@ -76,8 +76,8 @@ test('initial render with default begin/end time and save button disabled', () =
   expect(getByTestId('timespan-form-save-button')).toBeDisabled();
 
   // Begin Time and End Time is filled with default values
-  expect(getAllByPlaceholderText('00:00:00')[0].value).toBe('00:00:00.00');
-  expect(getAllByPlaceholderText('00:00:00')[1].value).toBe('00:00:03.32');
+  expect(getAllByPlaceholderText('00:00:00')[0].value).toBe('00:00:00.000');
+  expect(getAllByPlaceholderText('00:00:00')[1].value).toBe('00:00:03.321');
 
   // Child Of options list is filled with valid headings
   const childOfSelect = container.querySelector('#timespanChildOf');
@@ -159,7 +159,7 @@ describe('shows proper validation messages for begin/end time changes and save b
 
     const endTimeInput = timespanForm.getByLabelText(/end time/i);
     fireEvent.change(endTimeInput, {
-      target: { value: '00:00:04.00' }
+      target: { value: '00:00:04.001' }
     });
 
     expect(
@@ -184,7 +184,7 @@ describe('shows proper validation messages for begin/end time changes and save b
 
     const beginTimeInput = timespanForm.getByLabelText(/begin time/i);
     fireEvent.change(beginTimeInput, {
-      target: { value: '00:00:05.00' }
+      target: { value: '00:00:05.001' }
     });
 
     expect(
@@ -233,8 +233,8 @@ describe('submitting the form', () => {
   });
   test('save the new timespan', () => {
     const expectedPayload = {
-      beginTime: '00:00:00.00',
-      endTime: '00:00:03.32',
+      beginTime: '00:00:00.000',
+      endTime: '00:00:03.321',
       timespanChildOf: '123a-456b-789c-2d',
       timespanTitle: 'New Timespan'
     };

@@ -9,11 +9,15 @@ exports["default"] = void 0;
 
 var _slicedToArray2 = _interopRequireDefault(require("@babel/runtime/helpers/slicedToArray"));
 
-var _objectSpread2 = _interopRequireDefault(require("@babel/runtime/helpers/objectSpread"));
+var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/defineProperty"));
 
 var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
 
 var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
+
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { keys.push.apply(keys, Object.getOwnPropertySymbols(object)); } if (enumerableOnly) keys = keys.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { (0, _defineProperty2["default"])(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
 
 // Colors for segments from Avalon branding pallette
 var COLOR_PALETTE = ['#80A590', '#2A5459', '#FBB040'];
@@ -52,7 +56,7 @@ function () {
 
               var segment = _this.convertTimespanToSegment(item);
 
-              initSegments.push((0, _objectSpread2["default"])({}, segment, {
+              initSegments.push(_objectSpread({}, segment, {
                 color: COLOR_PALETTE[count]
               }));
               count++;
@@ -102,7 +106,7 @@ function () {
 
       currentSegments.map(function (segment) {
         if (rangeBeginTime >= segment.startTime && rangeBeginTime <= segment.endTime) {
-          // rounds upto 2 decimal points for accuracy
+          // rounds upto 3 decimal points for accuracy
           rangeBeginTime = _this2.roundOff(segment.endTime);
         }
 
@@ -110,9 +114,9 @@ function () {
       }); // Set the default end time of the temporary segment
 
       if (currentSegments.length === 0) {
-        rangeEndTime = fileEndTime < 60 ? fileEndTime : Math.round((rangeBeginTime + 60.0) * 100) / 100;
+        rangeEndTime = fileEndTime < 60 ? fileEndTime : Math.round((rangeBeginTime + 60.0) * 1000) / 1000;
       } else {
-        rangeEndTime = Math.round((rangeBeginTime + 60.0) * 100) / 100;
+        rangeEndTime = Math.round((rangeBeginTime + 60.0) * 1000) / 1000;
       } // Validate end time of the temporary segment
 
 
@@ -370,8 +374,8 @@ function () {
 
         if (startTime > current.startTime && endTime < current.endTime) {
           segment.startTime = current.endTime;
-          segment.endTime = current.endTime + 0.01;
-        } else if (duration - 0.01 <= endTime && endTime <= duration && after && after.id === current.id) {
+          segment.endTime = current.endTime + 0.001;
+        } else if (duration - 0.001 <= endTime && endTime <= duration && after && after.id === current.id) {
           segment.endTime = after.startTime;
         } else if (before && before.id === current.id && startTime < before.endTime) {
           segment.startTime = before.endTime;
@@ -382,7 +386,7 @@ function () {
         } else if (endTime > current.startTime && endTime < current.endTime) {
           segment.endTime = i < segmentIndex ? current.startTime : current.endTime;
         } else if (segment.startTime === segment.endTime) {
-          segment.endTime = segment.startTime + 0.01;
+          segment.endTime = segment.startTime + 0.001;
         } else if (endTime > duration) {
           segment.endTime = duration;
         }
@@ -427,7 +431,7 @@ function () {
       var startTime = currentSegment.startTime,
           endTime = currentSegment.endTime;
       var timeFixedSegments = allSegments.map(function (seg) {
-        return (0, _objectSpread2["default"])({}, seg, {
+        return _objectSpread({}, seg, {
           startTime: _this4.roundOff(seg.startTime),
           endTime: _this4.roundOff(seg.endTime)
         });
@@ -461,7 +465,7 @@ function () {
 
       var hoursAndMins = parseInt(hours) * 3600 + parseInt(minutes) * 60;
       var secondsIn = seconds === '' ? 0.0 : parseFloat(seconds);
-      return hoursAndMins + secondsIn;
+      return Math.round((hoursAndMins + secondsIn) * 1000) / 1000;
     }
   }, {
     key: "sortSegments",
@@ -485,7 +489,7 @@ function () {
       if (!decVal) {
         valueString = intVal;
       } else {
-        valueString = intVal + '.' + decVal.substring(0, 2);
+        valueString = intVal + '.' + decVal.substring(0, 3);
       }
 
       return parseFloat(valueString);

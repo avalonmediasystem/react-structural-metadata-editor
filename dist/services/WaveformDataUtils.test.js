@@ -17,22 +17,22 @@ describe('WaveformDataUtils class', () => {
   test('initializes peaks segments with metadata structure', () => {
     const expected = [
       {
-        startTime: 3.32,
-        endTime: 10.32,
+        startTime: 3.321,
+        endTime: 10.321,
         labelText: 'Segment 1.1',
         id: '123a-456b-789c-3d',
         color: '#80A590'
       },
       {
-        startTime: 11.23,
-        endTime: 480,
+        startTime: 11.231,
+        endTime: 480.001,
         labelText: 'Segment 1.2',
         id: '123a-456b-789c-4d',
         color: '#2A5459'
       },
       {
-        startTime: 543.24,
-        endTime: 900,
+        startTime: 543.241,
+        endTime: 900.001,
         labelText: 'Segment 2.1',
         id: '123a-456b-789c-8d',
         color: '#80A590'
@@ -67,7 +67,7 @@ describe('WaveformDataUtils class', () => {
           expect.arrayContaining([
             expect.objectContaining({
               startTime: 0,
-              endTime: 3.32,
+              endTime: 3.321,
               id: 'temp-segment',
               color: '#FBB040',
               editable: true
@@ -77,81 +77,81 @@ describe('WaveformDataUtils class', () => {
         expect(value.player.getCurrentTime()).toEqual(0);
       });
       test('when current time is in between an existing segment', () => {
-        peaks.player.seek(450);
+        peaks.player.seek(450.001);
         const value = waveformUtils.insertTempSegment(peaks);
         expect(value.segments._segments).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
-              startTime: 480.0,
-              endTime: 540.0,
+              startTime: 480.001,
+              endTime: 540.001,
               id: 'temp-segment',
               color: '#FBB040',
               editable: true
             })
           ])
         );
-        expect(value.player.getCurrentTime()).toEqual(480.0);
+        expect(value.player.getCurrentTime()).toEqual(480.001);
       });
 
       test('when current time is at the end time of an existing timespan', () => {
-        peaks.player.seek(480.0);
+        peaks.player.seek(480.001);
         const value = waveformUtils.insertTempSegment(peaks);
         expect(value.segments._segments).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
-              startTime: 480.0,
-              endTime: 540.0,
+              startTime: 480.001,
+              endTime: 540.001,
               id: 'temp-segment',
               color: '#FBB040',
               editable: true
             })
           ])
         );
-        expect(value.player.getCurrentTime()).toEqual(480.0);
+        expect(value.player.getCurrentTime()).toEqual(480.001);
       });
 
       test('when current time is at the begin time of an existing timespan', () => {
-        peaks.player.seek(543.24);
+        peaks.player.seek(543.241);
         const value = waveformUtils.insertTempSegment(peaks);
         expect(value.segments._segments).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
-              startTime: 900.0,
-              endTime: 960.0,
+              startTime: 900.001,
+              endTime: 960.001,
               id: 'temp-segment',
               color: '#FBB040',
               editable: true
             })
           ])
         );
-        expect(value.player.getCurrentTime()).toEqual(900.0);
+        expect(value.player.getCurrentTime()).toEqual(900.001);
       });
 
       test('when end time of temporary segment overlaps existing segment', () => {
-        peaks.player.seek(520);
+        peaks.player.seek(520.001);
         const value = waveformUtils.insertTempSegment(peaks);
         expect(value.segments._segments).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
-              startTime: 520,
-              endTime: 543.24,
+              startTime: 520.001,
+              endTime: 543.241,
               id: 'temp-segment',
               color: '#FBB040',
               editable: true
             })
           ])
         );
-        expect(value.player.getCurrentTime()).toEqual(520);
+        expect(value.player.getCurrentTime()).toEqual(520.001);
       });
 
       test('when current playhead time + 60 > duration of the media file', () => {
-        peaks.player.seek(1680);
+        peaks.player.seek(1680.001);
         const value = waveformUtils.insertTempSegment(peaks);
         expect(value.segments._segments).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
-              startTime: 1680,
-              endTime: 1738.94,
+              startTime: 1680.001,
+              endTime: 1738.945,
               id: 'temp-segment',
               color: '#FBB040',
               editable: true
@@ -162,19 +162,19 @@ describe('WaveformDataUtils class', () => {
 
       test('when there are multiple small segments with a length of less than 60 seconds', () => {
         peaks.segments.add({
-          startTime: 1690,
-          endTime: 1738.95,
+          startTime: 1690.001,
+          endTime: 1738.951,
           id: '123a-456b-789c-9d',
           color: '#2A5459',
           labelText: 'Test segment'
         });
-        peaks.player.seek(450);
+        peaks.player.seek(450.001);
         const value = waveformUtils.insertTempSegment(peaks);
         expect(value.segments._segments).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
-              startTime: 480.0,
-              endTime: 540.0,
+              startTime: 480.001,
+              endTime: 540.001,
               id: 'temp-segment',
               color: '#FBB040',
               editable: true
@@ -190,8 +190,8 @@ describe('WaveformDataUtils class', () => {
           type: 'span',
           label: 'Segment 1.2',
           id: '123a-456b-789c-4d',
-          begin: '00:00:11.23',
-          end: '00:08:00.00'
+          begin: '00:00:11.231',
+          end: '00:08:00.001'
         };
         const value = waveformUtils.deleteSegments(item, peaks);
         expect(value.segments._segments).toHaveLength(2);
@@ -224,8 +224,8 @@ describe('WaveformDataUtils class', () => {
               type: 'span',
               label: 'Segment 2.1',
               id: '123a-456b-789c-8d',
-              begin: '00:09:03.24',
-              end: '00:15:00.00'
+              begin: '00:09:03.241',
+              end: '00:15:00.001'
             }
           ]
         };
@@ -245,8 +245,8 @@ describe('WaveformDataUtils class', () => {
     describe('rebuilds waveform', () => {
       test('when a segment is added in between existing segments', () => {
         peaks.segments.add({
-          startTime: 500,
-          endTime: 540,
+          startTime: 500.001,
+          endTime: 540.001,
           id: '123a-456b-789c-9d',
           labelText: 'Added segment'
         });
@@ -323,8 +323,8 @@ describe('WaveformDataUtils class', () => {
     test('saves changes to an existing segment', () => {
       const clonedSegment = peaks.segments.getSegment('123a-456b-789c-4d');
       const currentState = {
-        beginTime: '00:00:10.33',
-        endTime: '00:08:00.00',
+        beginTime: '00:00:10.331',
+        endTime: '00:08:00.001',
         clonedSegment
       };
       const value = waveformUtils.saveSegment(currentState, peaks);
@@ -333,8 +333,8 @@ describe('WaveformDataUtils class', () => {
       expect(segments).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
-            startTime: 10.33,
-            endTime: 480,
+            startTime: 10.331,
+            endTime: 480.001,
             id: '123a-456b-789c-4d'
           })
         ])
@@ -345,22 +345,22 @@ describe('WaveformDataUtils class', () => {
       let segment;
       beforeEach(() => {
         segment = {
-          startTime: 11.23,
-          endTime: 480,
+          startTime: 11.231,
+          endTime: 480.001,
           id: '123a-456b-789c-4d',
           labelText: 'Segment 1.2',
           color: '#2A5459'
         };
       });
       test('start time = 00:03:', () => {
-        const currentState = { beginTime: '00:03:', endTime: '00:08:00.00' };
+        const currentState = { beginTime: '00:03:', endTime: '00:08:00.001' };
         const value = waveformUtils.updateSegment(segment, currentState, peaks);
         const segments = value.segments.getSegments();
         expect(segments).toHaveLength(3);
         expect(segments).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
-              startTime: 180,
+              startTime: 180.000,
               id: '123a-456b-789c-4d'
             })
           ])
@@ -368,24 +368,24 @@ describe('WaveformDataUtils class', () => {
       });
 
       test('start time = 00:03:59', () => {
-        const currentState = { beginTime: '00:03:59', endTime: '00:08:00.00' };
+        const currentState = { beginTime: '00:03:59', endTime: '00:08:00.001' };
         const value = waveformUtils.updateSegment(segment, currentState, peaks);
         const segments = value.segments.getSegments();
         expect(segments).toHaveLength(3);
         expect(segments).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
-              startTime: 239,
+              startTime: 239.000,
               id: '123a-456b-789c-4d'
             })
           ])
         );
       });
 
-      test('start time = 00:03:59.99', () => {
+      test('start time = 00:03:59.991', () => {
         const currentState = {
-          beginTime: '00:03:59.99',
-          endTime: '00:08:00.00'
+          beginTime: '00:03:59.991',
+          endTime: '00:08:00.001'
         };
         const value = waveformUtils.updateSegment(segment, currentState, peaks);
         const segments = value.segments.getSegments();
@@ -393,7 +393,7 @@ describe('WaveformDataUtils class', () => {
         expect(segments).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
-              startTime: 239.99,
+              startTime: 239.991,
               id: '123a-456b-789c-4d'
             })
           ])
@@ -404,19 +404,19 @@ describe('WaveformDataUtils class', () => {
     describe('prevents overlapping with existing segments', () => {
       test('when start time of an editing segment overlaps segment before', () => {
         const testSegment = {
-          startTime: 480,
-          endTime: 500,
+          startTime: 480.001,
+          endTime: 500.001,
           editable: true,
           id: 'test-segment',
           color: '#FBB040'
         };
         peaks.segments.add(testSegment);
         // Change start time to overlap with previous segment
-        testSegment.startTime = 479;
+        testSegment.startTime = 479.001;
         const value = waveformUtils.validateSegment(testSegment, peaks);
         expect(value).toEqual({
-          startTime: 480.0,
-          endTime: 500,
+          startTime: 480.001,
+          endTime: 500.001,
           editable: true,
           id: 'test-segment',
           color: '#FBB040'
@@ -425,19 +425,19 @@ describe('WaveformDataUtils class', () => {
 
       test('when end time of an editing segment overlaps segment after', () => {
         const testSegment = {
-          startTime: 490.99,
-          endTime: 540,
+          startTime: 490.991,
+          endTime: 540.001,
           editable: true,
           id: 'test-segment',
           color: '#FBB040'
         };
         peaks.segments.add(testSegment);
         // Change end time to overlap with following segment
-        testSegment.endTime = 543.25;
+        testSegment.endTime = 543.251;
         const value = waveformUtils.validateSegment(testSegment, peaks);
         expect(value).toEqual({
-          startTime: 490.99,
-          endTime: 543.24,
+          startTime: 490.991,
+          endTime: 543.241,
           editable: true,
           id: 'test-segment',
           color: '#FBB040'
@@ -446,19 +446,19 @@ describe('WaveformDataUtils class', () => {
 
       test('when a segment does not overlap neighboring segments', () => {
         const testSegment = {
-          startTime: 499.99,
-          endTime: 529.99,
+          startTime: 499.991,
+          endTime: 529.991,
           editable: true,
           id: 'test-segment',
           color: '#FBB040'
         };
         peaks.segments.add(testSegment);
         // Change end time of the segment
-        testSegment.endTime = 540.99;
+        testSegment.endTime = 540.991;
         const value = waveformUtils.validateSegment(testSegment, peaks);
         expect(value).toEqual({
-          startTime: 499.99,
-          endTime: 540.99,
+          startTime: 499.991,
+          endTime: 540.991,
           editable: true,
           id: 'test-segment',
           color: '#FBB040'
@@ -467,19 +467,19 @@ describe('WaveformDataUtils class', () => {
 
       test('when a segment overlaps the end time of the media file', () => {
         const testSegment = {
-          startTime: 1200.99,
-          endTime: 1699.99,
+          startTime: 1200.991,
+          endTime: 1699.991,
           editable: true,
           id: 'test-segment',
           color: '#FBB040'
         };
         peaks.segments.add(testSegment);
         // Change the end time to exceed the end time of the media file
-        testSegment.endTime = 1740;
+        testSegment.endTime = 1740.001;
         const value = waveformUtils.validateSegment(testSegment, peaks);
         expect(value).toEqual({
-          startTime: 1200.99,
-          endTime: 1738.94,
+          startTime: 1200.991,
+          endTime: 1738.945,
           editable: true,
           id: 'test-segment',
           color: '#FBB040'
@@ -488,19 +488,19 @@ describe('WaveformDataUtils class', () => {
 
       test('when there is a segment going until the end of the file over an existing segment', () => {
         const testSegment = {
-          startTime: 540.0,
-          endTime: 1738.94,
+          startTime: 540.001,
+          endTime: 1738.945,
           editable: true,
           id: 'test-segment',
           color: '#FBB040'
         };
         peaks.segments.add(testSegment);
         // Change the start time of the segment
-        testSegment.startTime = 541.43;
+        testSegment.startTime = 541.431;
         const value = waveformUtils.validateSegment(testSegment, peaks);
         expect(value).toEqual({
-          startTime: 541.43,
-          endTime: 543.24,
+          startTime: 541.431,
+          endTime: 543.241,
           editable: true,
           id: 'test-segment',
           color: '#FBB040'

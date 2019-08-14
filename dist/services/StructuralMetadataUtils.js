@@ -9,8 +9,6 @@ exports["default"] = void 0;
 
 var _objectWithoutProperties2 = _interopRequireDefault(require("@babel/runtime/helpers/objectWithoutProperties"));
 
-var _objectSpread2 = _interopRequireDefault(require("@babel/runtime/helpers/objectSpread"));
-
 var _slicedToArray2 = _interopRequireDefault(require("@babel/runtime/helpers/slicedToArray"));
 
 var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
@@ -24,6 +22,10 @@ var _lodash = require("lodash");
 var _moment = _interopRequireDefault(require("moment"));
 
 var _v = _interopRequireDefault(require("uuid/v1"));
+
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { keys.push.apply(keys, Object.getOwnPropertySymbols(object)); } if (enumerableOnly) keys = keys.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { (0, _defineProperty2["default"])(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
 
 /**
  * Rules - https://github.com/avalonmediasystem/avalon/issues/3022
@@ -154,9 +156,7 @@ function () {
 
       // Regex to match mm:ss OR single number
       var regexMMSS = /^([0-9]*:[0-9]*.[0-9]*)$/i;
-      var regexSS = /^([0-9]*.[0-9]*)$/i; // Round duration to 2 decimal places
-
-      var fileLength = Math.round(duration / 10) / 100; // Convert time to HH:mm:ss.ms format to use in validation logic
+      var regexSS = /^([0-9]*.[0-9]*)$/i; // Convert time to HH:mm:ss.ms format to use in validation logic
 
       var convertToHHmmss = function convertToHHmmss(time) {
         if (regexMMSS.test(time)) {
@@ -195,7 +195,7 @@ function () {
               item.begin = _this2.toHHmmss(beginTime);
 
               if (beginTime > endTime) {
-                item.end = _this2.toHHmmss(fileLength);
+                item.end = _this2.toHHmmss(duration);
               } else {
                 item.end = _this2.toHHmmss(endTime);
               }
@@ -489,7 +489,8 @@ function () {
             var item = _step3.value;
 
             if (item.type === type) {
-              var currentObj = (0, _objectSpread2["default"])({}, item);
+              var currentObj = _objectSpread({}, item);
+
               delete currentObj.items;
               options.push(currentObj);
             }
@@ -1003,7 +1004,7 @@ function () {
       var seconds = sec_num - minutes * 60 - hours * 3600;
       var hourStr = hours < 10 ? "0".concat(hours) : "".concat(hours);
       var minStr = minutes < 10 ? "0".concat(minutes) : "".concat(minutes);
-      var secStr = seconds.toFixed(2);
+      var secStr = seconds.toFixed(3);
       secStr = seconds < 10 ? "0".concat(secStr) : "".concat(secStr);
       return "".concat(hourStr, ":").concat(minStr, ":").concat(secStr);
     }
@@ -1020,7 +1021,7 @@ function () {
       if (!decVal) {
         valueString = intVal;
       } else {
-        valueString = intVal + '.' + decVal.substring(0, 2);
+        valueString = intVal + '.' + decVal.substring(0, 3);
       }
 
       return parseFloat(valueString);

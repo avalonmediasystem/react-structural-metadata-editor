@@ -71,9 +71,6 @@ export default class StructuralMetadataUtils {
     const regexMMSS = /^([0-9]*:[0-9]*.[0-9]*)$/i;
     const regexSS = /^([0-9]*.[0-9]*)$/i;
 
-    // Round duration to 2 decimal places
-    const fileLength = Math.round(duration / 10) / 100;
-
     // Convert time to HH:mm:ss.ms format to use in validation logic
     let convertToHHmmss = time => {
       if (regexMMSS.test(time)) {
@@ -97,7 +94,7 @@ export default class StructuralMetadataUtils {
           let endTime = convertToHHmmss(end);
           item.begin = this.toHHmmss(beginTime);
           if (beginTime > endTime) {
-            item.end = this.toHHmmss(fileLength);
+            item.end = this.toHHmmss(duration);
           } else {
             item.end = this.toHHmmss(endTime);
           }
@@ -807,7 +804,7 @@ export default class StructuralMetadataUtils {
 
     let hourStr = hours < 10 ? `0${hours}` : `${hours}`;
     let minStr = minutes < 10 ? `0${minutes}` : `${minutes}`;
-    let secStr = seconds.toFixed(2);
+    let secStr = seconds.toFixed(3);
     secStr = seconds < 10 ? `0${secStr}` : `${secStr}`;
 
     return `${hourStr}:${minStr}:${secStr}`;
@@ -819,7 +816,7 @@ export default class StructuralMetadataUtils {
     if (!decVal) {
       valueString = intVal;
     } else {
-      valueString = intVal + '.' + decVal.substring(0, 2);
+      valueString = intVal + '.' + decVal.substring(0, 3);
     }
     return parseFloat(valueString);
   }

@@ -55,7 +55,7 @@ export default class WaveformDataUtils {
         rangeBeginTime >= segment.startTime &&
         rangeBeginTime <= segment.endTime
       ) {
-        // rounds upto 2 decimal points for accuracy
+        // rounds upto 3 decimal points for accuracy
         rangeBeginTime = this.roundOff(segment.endTime);
       }
       return rangeBeginTime;
@@ -66,9 +66,9 @@ export default class WaveformDataUtils {
       rangeEndTime =
         fileEndTime < 60
           ? fileEndTime
-          : Math.round((rangeBeginTime + 60.0) * 100) / 100;
+          : Math.round((rangeBeginTime + 60.0) * 1000) / 1000;
     } else {
-      rangeEndTime = Math.round((rangeBeginTime + 60.0) * 100) / 100;
+      rangeEndTime = Math.round((rangeBeginTime + 60.0) * 1000) / 1000;
     }
 
     // Validate end time of the temporary segment
@@ -276,9 +276,9 @@ export default class WaveformDataUtils {
       }
       if (startTime > current.startTime && endTime < current.endTime) {
         segment.startTime = current.endTime;
-        segment.endTime = current.endTime + 0.01;
+        segment.endTime = current.endTime + 0.001;
       } else if (
-        duration - 0.01 <= endTime &&
+        duration - 0.001 <= endTime &&
         endTime <= duration &&
         after &&
         after.id === current.id
@@ -303,7 +303,7 @@ export default class WaveformDataUtils {
         segment.endTime =
           i < segmentIndex ? current.startTime : current.endTime;
       } else if (segment.startTime === segment.endTime) {
-        segment.endTime = segment.startTime + 0.01;
+        segment.endTime = segment.startTime + 0.001;
       } else if (endTime > duration) {
         segment.endTime = duration;
       }
@@ -364,7 +364,7 @@ export default class WaveformDataUtils {
     let [hours, minutes, seconds] = strTime.split(':');
     let hoursAndMins = parseInt(hours) * 3600 + parseInt(minutes) * 60;
     let secondsIn = seconds === '' ? 0.0 : parseFloat(seconds);
-    return hoursAndMins + secondsIn;
+    return Math.round((hoursAndMins + secondsIn) * 1000) / 1000;
   }
 
   sortSegments(peaksInstance, sortBy) {
@@ -379,7 +379,7 @@ export default class WaveformDataUtils {
     if (!decVal) {
       valueString = intVal;
     } else {
-      valueString = intVal + '.' + decVal.substring(0, 2);
+      valueString = intVal + '.' + decVal.substring(0, 3);
     }
     return parseFloat(valueString);
   }

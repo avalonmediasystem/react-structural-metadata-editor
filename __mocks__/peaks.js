@@ -60,24 +60,24 @@ export const Peaks = jest.fn(opts => {
     _segments: [
       new Segment({
         parent: peaks,
-        startTime: 3.32,
-        endTime: 10.32,
+        startTime: 3.321,
+        endTime: 10.321,
         id: '123a-456b-789c-3d',
         labelText: 'Segment 1.1',
         color: '#80A590'
       }),
       new Segment({
         parent: peaks,
-        startTime: 11.23,
-        endTime: 480,
+        startTime: 11.231,
+        endTime: 480.001,
         id: '123a-456b-789c-4d',
         labelText: 'Segment 1.2',
         color: '#2A5459'
       }),
       new Segment({
         parent: peaks,
-        startTime: 543.24,
-        endTime: 900,
+        startTime: 543.241,
+        endTime: 900.001,
         id: '123a-456b-789c-8d',
         labelText: 'Segment 2.1',
         color: '#80A590'

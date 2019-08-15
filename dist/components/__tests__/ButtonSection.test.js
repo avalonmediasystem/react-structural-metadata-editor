@@ -100,10 +100,10 @@ describe('timespan button', () => {
     });
     // Begin Time and End Time is already filled with default values
     expect(buttonSection.getAllByPlaceholderText('00:00:00')[0].value).toBe(
-      '00:00:00.00'
+      '00:00:00.000'
     );
     expect(buttonSection.getAllByPlaceholderText('00:00:00')[1].value).toBe(
-      '00:00:03.32'
+      '00:00:03.321'
     );
     // Save button is disabled
     expect(

@@ -9,7 +9,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports["default"] = void 0;
 
-var _objectSpread2 = _interopRequireDefault(require("@babel/runtime/helpers/objectSpread"));
+var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/defineProperty"));
 
 var types = _interopRequireWildcard(require("../actions/types"));
 
@@ -18,6 +18,10 @@ var _WaveformDataUtils = _interopRequireDefault(require("../services/WaveformDat
 var _peaks = _interopRequireDefault(require("peaks.js"));
 
 var _rxjs = require("rxjs");
+
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { keys.push.apply(keys, Object.getOwnPropertySymbols(object)); } if (enumerableOnly) keys = keys.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { (0, _defineProperty2["default"])(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
 
 var waveformUtils = new _WaveformDataUtils["default"]();
 var initialState = {
@@ -37,80 +41,80 @@ var peaksInstance = function peaksInstance() {
     case types.INIT_PEAKS:
       var segments = waveformUtils.initSegments(action.smData);
 
-      var _peaksInstance = _peaks["default"].init((0, _objectSpread2["default"])({}, action.options, {
+      var _peaksInstance = _peaks["default"].init(_objectSpread({}, action.options, {
         segments: segments
       }));
 
       return {
         peaks: _peaksInstance,
         events: (0, _rxjs.fromEvent)(_peaksInstance, 'segments.dragged'),
-        segment: (0, _objectSpread2["default"])({}, state.segment)
+        segment: _objectSpread({}, state.segment)
       };
 
     case types.INSERT_SEGMENT:
       state.peaks.segments.add(waveformUtils.convertTimespanToSegment(action.payload));
-      newPeaks = waveformUtils.rebuildPeaks((0, _objectSpread2["default"])({}, state.peaks));
-      return (0, _objectSpread2["default"])({}, state, {
+      newPeaks = waveformUtils.rebuildPeaks(_objectSpread({}, state.peaks));
+      return _objectSpread({}, state, {
         peaks: newPeaks
       });
 
     case types.DELETE_SEGMENT:
-      newPeaks = waveformUtils.deleteSegments(action.payload, (0, _objectSpread2["default"])({}, state.peaks));
-      return (0, _objectSpread2["default"])({}, state, {
+      newPeaks = waveformUtils.deleteSegments(action.payload, _objectSpread({}, state.peaks));
+      return _objectSpread({}, state, {
         peaks: waveformUtils.rebuildPeaks(newPeaks)
       });
 
     case types.ACTIVATE_SEGMENT:
-      newPeaks = waveformUtils.activateSegment(action.payload, (0, _objectSpread2["default"])({}, state.peaks));
-      return (0, _objectSpread2["default"])({}, state, {
+      newPeaks = waveformUtils.activateSegment(action.payload, _objectSpread({}, state.peaks));
+      return _objectSpread({}, state, {
         peaks: newPeaks
       });
 
     case types.SAVE_SEGMENT:
-      newPeaks = waveformUtils.deactivateSegment(action.payload.clonedSegment.id, (0, _objectSpread2["default"])({}, state.peaks));
-      var rebuiltPeaks = waveformUtils.saveSegment(action.payload, (0, _objectSpread2["default"])({}, newPeaks));
-      return (0, _objectSpread2["default"])({}, state, {
+      newPeaks = waveformUtils.deactivateSegment(action.payload.clonedSegment.id, _objectSpread({}, state.peaks));
+      var rebuiltPeaks = waveformUtils.saveSegment(action.payload, _objectSpread({}, newPeaks));
+      return _objectSpread({}, state, {
         peaks: rebuiltPeaks
       });
 
     case types.REVERT_SEGMENT:
-      newPeaks = waveformUtils.deactivateSegment(action.payload.id, (0, _objectSpread2["default"])({}, state.peaks));
-      return (0, _objectSpread2["default"])({}, state, {
-        peaks: waveformUtils.revertSegment(action.payload, (0, _objectSpread2["default"])({}, newPeaks))
+      newPeaks = waveformUtils.deactivateSegment(action.payload.id, _objectSpread({}, state.peaks));
+      return _objectSpread({}, state, {
+        peaks: waveformUtils.revertSegment(action.payload, _objectSpread({}, newPeaks))
       });
 
     case types.UPDATE_SEGMENT:
-      newPeaks = waveformUtils.updateSegment(action.segment, action.state, (0, _objectSpread2["default"])({}, state.peaks));
+      newPeaks = waveformUtils.updateSegment(action.segment, action.state, _objectSpread({}, state.peaks));
       updatedSegment = newPeaks.segments.getSegment(action.segment.id);
-      return (0, _objectSpread2["default"])({}, state, {
-        peaks: (0, _objectSpread2["default"])({}, newPeaks),
+      return _objectSpread({}, state, {
+        peaks: _objectSpread({}, newPeaks),
         segment: updatedSegment
       });
 
     case types.IS_DRAGGING:
       if (action.flag === 0) {
-        return (0, _objectSpread2["default"])({}, state, {
+        return _objectSpread({}, state, {
           segment: action.segment,
           isDragging: false
         });
       }
 
       if (action.flag === 1) {
-        return (0, _objectSpread2["default"])({}, state, {
+        return _objectSpread({}, state, {
           segment: action.segment,
           isDragging: true
         });
       }
 
     case types.TEMP_INSERT_SEGMENT:
-      newPeaks = waveformUtils.insertTempSegment((0, _objectSpread2["default"])({}, state.peaks));
-      return (0, _objectSpread2["default"])({}, state, {
-        peaks: (0, _objectSpread2["default"])({}, newPeaks)
+      newPeaks = waveformUtils.insertTempSegment(_objectSpread({}, state.peaks));
+      return _objectSpread({}, state, {
+        peaks: _objectSpread({}, newPeaks)
       });
 
     case types.TEMP_DELETE_SEGMENT:
       state.peaks.segments.removeById(action.payload);
-      return (0, _objectSpread2["default"])({}, state);
+      return _objectSpread({}, state);
 
     default:
       return state;

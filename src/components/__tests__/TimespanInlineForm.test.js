@@ -37,8 +37,8 @@ const props = {
     type: 'span',
     label: 'Segment 2.1',
     id: '123a-456b-789c-8d',
-    begin: '00:09:03.24',
-    end: '00:15:00.00'
+    begin: '00:09:03.241',
+    end: '00:15:00.001'
   },
   isTyping: false,
   isInitializing: true,
@@ -55,8 +55,8 @@ test('TimespanInlineForm renders with existing values', () => {
   );
   expect(getByTestId('timespan-inline-form')).toBeInTheDocument();
   expect(getByLabelText(/title/i).value).toBe('Segment 2.1');
-  expect(getByLabelText(/begin time/i).value).toBe('00:09:03.24');
-  expect(getByLabelText(/end time/i).value).toBe('00:15:00.00');
+  expect(getByLabelText(/begin time/i).value).toBe('00:09:03.241');
+  expect(getByLabelText(/end time/i).value).toBe('00:15:00.001');
 });
 
 test('timespan title input shows proper validation messages', () => {
@@ -100,7 +100,7 @@ test('shows proper validation messages for begin/end time changes and save butto
   expect(saveButton).toBeDisabled();
 
   fireEvent.change(beginTimeInput, {
-    target: { value: '00:09:00.00' }
+    target: { value: '00:09:00.001' }
   });
   expect(beginTimeForm.classList.contains('has-error')).toBeFalsy();
   expect(beginTimeForm.classList.contains('has-success')).toBeTruthy();
@@ -124,8 +124,8 @@ describe('form changes when segment in the waveform change', () => {
       peaksInstance: {
         peaks: Peaks.init(peaksOptions),
         segment: {
-          startTime: 450, // changed from 00:09:03.24 -> 00:07:30.00
-          endTime: 900,
+          startTime: 450.001, // changed from 00:09:03.241 -> 00:07:30.001
+          endTime: 900.001,
           labelText: 'Segment 2.1',
           id: '123a-456b-789c-8d',
           editable: true,
@@ -139,13 +139,13 @@ describe('form changes when segment in the waveform change', () => {
       nextState
     );
 
-    // expects begin value to be the last possible valid value: 00:08:00.00
+    // expects begin value to be the last possible valid value: 00:08:00.001
     expect(timespanInlineForm.getByLabelText(/begin time/i).value).toBe(
-      '00:08:00.00'
+      '00:08:00.001'
     );
     // end time does not change
     expect(timespanInlineForm.getByLabelText(/end time/i).value).toBe(
-      '00:15:00.00'
+      '00:15:00.001'
     );
     expect(saveButton).toBeEnabled();
   });
@@ -158,8 +158,8 @@ describe('form changes when segment in the waveform change', () => {
       peaksInstance: {
         peaks: Peaks.init(peaksOptions),
         segment: {
-          startTime: 540, // changed from 00:09:03.24 -> 00:09:00.00
-          endTime: 900,
+          startTime: 540.001, // changed from 00:09:03.241 -> 00:09:00.001
+          endTime: 900.001,
           labelText: 'Segment 2.1',
           id: '123a-456b-789c-8d',
           editable: true,
@@ -174,11 +174,11 @@ describe('form changes when segment in the waveform change', () => {
     );
 
     expect(timespanInlineForm.getByLabelText(/begin time/i).value).toBe(
-      '00:09:00.00'
+      '00:09:00.001'
     );
     // end time does not change
     expect(timespanInlineForm.getByLabelText(/end time/i).value).toBe(
-      '00:15:00.00'
+      '00:15:00.001'
     );
     expect(saveButton).toBeEnabled();
   });
@@ -192,14 +192,14 @@ describe('submit the inline timespan form', () => {
       { initialState }
     );
     fireEvent.change(timespanInlineForm.getByLabelText(/end time/i), {
-      target: { value: '00:10:00.00' }
+      target: { value: '00:10:00.001' }
     });
   });
   test('save the edited timespan', () => {
     fireEvent.click(timespanInlineForm.getByTestId('inline-form-save-button'));
     expect(saveFnMock).toHaveBeenCalledWith('123a-456b-789c-8d', {
-      beginTime: '00:09:03.24',
-      endTime: '00:10:00.00',
+      beginTime: '00:09:03.241',
+      endTime: '00:10:00.001',
       timespanTitle: 'Segment 2.1'
     });
     expect(saveFnMock).toHaveBeenCalledTimes(1);

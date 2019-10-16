@@ -1,5 +1,5 @@
-import WaveformDataUtils from './WaveformDataUtils';
-import { testSmData } from '../services/testing-helpers';
+import WaveformDataUtils from '../WaveformDataUtils';
+import { testSmData } from '../testing-helpers';
 import Peaks from 'peaks';
 import { cleanup } from 'react-testing-library';
 

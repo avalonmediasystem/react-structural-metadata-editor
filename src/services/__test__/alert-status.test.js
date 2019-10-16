@@ -1,4 +1,4 @@
-import * as alertStatus from './alert-status';
+import * as alertStatus from '../alert-status';
 
 describe('alert-status service', () => {
   it('returns a default configuration object', () => {

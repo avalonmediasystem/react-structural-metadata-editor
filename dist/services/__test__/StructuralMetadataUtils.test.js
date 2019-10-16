@@ -1,9 +1,9 @@
-import StructuralMetadataUtils from './StructuralMetadataUtils';
+import StructuralMetadataUtils from '../StructuralMetadataUtils';
 import {
   testSmData,
   testEmptyHeaderBefore,
   testEmptyHeaderAfter
-} from '../services/testing-helpers';
+} from '../testing-helpers';
 import { cloneDeep } from 'lodash';
 
 const smu = new StructuralMetadataUtils();

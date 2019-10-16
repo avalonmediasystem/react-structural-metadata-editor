@@ -1,6 +1,7 @@
 import { findIndex, cloneDeep } from 'lodash';
 import moment from 'moment';
 import uuidv1 from 'uuid/v1';
+// import { sanitizeLabel } from './form-helper';
 
 /**
  * Rules - https://github.com/avalonmediasystem/avalon/issues/3022
@@ -85,9 +86,20 @@ export default class StructuralMetadataUtils {
         return this.toMs(time) / 1000;
       }
     };
+
+    let stripHTMLCodes = lableText => {
+      return lableText
+                .replace(/&amp;/g, "&")
+                .replace(/&lt;/g, "<")
+                .replace(/&gt;/g, ">")
+                .replace(/&quot;/g, '"')
+                .replace(/&apos;/g, "'")
+    }
+
     // Recursive function to traverse whole data structure
-    let formatTime = items => {
+    let formatItems = items => {
       for (let item of items) {
+        item.label = stripHTMLCodes(item.label);
         if (item.type === 'span') {
           const { begin, end } = item;
           let beginTime = convertToHHmmss(begin);
@@ -100,12 +112,12 @@ export default class StructuralMetadataUtils {
           }
         }
         if (item.items) {
-          formatTime(item.items);
+          formatItems(item.items);
         }
       }
     };
 
-    formatTime(allItems);
+    formatItems(allItems);
     return allItems;
   }
 

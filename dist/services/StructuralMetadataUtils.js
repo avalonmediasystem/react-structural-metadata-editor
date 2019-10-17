@@ -23,9 +23,11 @@ var _moment = _interopRequireDefault(require("moment"));
 
 var _v = _interopRequireDefault(require("uuid/v1"));
 
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { keys.push.apply(keys, Object.getOwnPropertySymbols(object)); } if (enumerableOnly) keys = keys.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); return keys; }
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { (0, _defineProperty2["default"])(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+// import { sanitizeLabel } from './form-helper';
 
 /**
  * Rules - https://github.com/avalonmediasystem/avalon/issues/3022
@@ -175,10 +177,14 @@ function () {
         } else {
           return _this2.toMs(time) / 1000;
         }
+      };
+
+      var stripHTMLCodes = function stripHTMLCodes(lableText) {
+        return lableText.replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&apos;/g, "'");
       }; // Recursive function to traverse whole data structure
 
 
-      var formatTime = function formatTime(items) {
+      var formatItems = function formatItems(items) {
         var _iteratorNormalCompletion = true;
         var _didIteratorError = false;
         var _iteratorError = undefined;
@@ -186,6 +192,7 @@ function () {
         try {
           for (var _iterator = items[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
             var item = _step.value;
+            item.label = stripHTMLCodes(item.label);
 
             if (item.type === 'span') {
               var begin = item.begin,
@@ -202,7 +209,7 @@ function () {
             }
 
             if (item.items) {
-              formatTime(item.items);
+              formatItems(item.items);
             }
           }
         } catch (err) {
@@ -221,7 +228,7 @@ function () {
         }
       };
 
-      formatTime(allItems);
+      formatItems(allItems);
       return allItems;
     }
     /**

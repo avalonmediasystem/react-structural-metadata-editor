@@ -1,13 +1,14 @@
 import StructuralMetadataUtils from '../StructuralMetadataUtils';
 import {
   testSmData,
+  testDataFromServer,
   testEmptyHeaderBefore,
   testEmptyHeaderAfter
 } from '../testing-helpers';
 import { cloneDeep } from 'lodash';
 
 const smu = new StructuralMetadataUtils();
-var testData = [];
+let testData = [];
 
 beforeEach(() => {
   testData = cloneDeep(testSmData);
@@ -110,8 +111,35 @@ describe('StructuralMetadataUtils class', () => {
     });
   });
 
+  describe('tests building the structure from structure in the server', () => {
+    let structure = [];
+    beforeEach(() => {
+      structure = smu.buildSMUI(testDataFromServer, 1738945);
+    });
+    test('when time is in mm.ss (15.30) format', () => {
+      const timespan = smu.findItem('123a-456b-789c-3d', structure);
+      expect(timespan.begin).toEqual('00:15:30.000');
+    });
+    test('when time is in integer (3) format', () => {
+      const timespan = smu.findItem('123a-456b-789c-1d', structure);
+      expect(timespan.begin).toEqual('00:03:00.000');
+    });
+    test('when time is in hh:mm:ss (00:10:42) format', () => {
+      const timespan = smu.findItem('123a-456b-789c-2d', structure);
+      expect(timespan.begin).toEqual('00:10:42.000');
+    });
+    test('when time is in hh:mm:ss.ms (00:15:00.23) format', () => {
+      const timespan = smu.findItem('123a-456b-789c-2d', structure);
+      expect(timespan.end).toEqual('00:15:00.230');
+    });
+    test('when end time exceeds (00:38:58.000) file duration (00:28:58.950)', () => {
+      const timespan = smu.findItem('123a-456b-789c-3d', structure);
+      expect(timespan.end).toEqual('00:28:58.950');
+    });
+  });
+
   describe('tests new time overlaps existing time ranges', () => {
-    var allSpans = [];
+    let allSpans = [];
     beforeEach(() => {
       allSpans = smu.getItemsOfType('span', testData);
     });
@@ -131,14 +159,14 @@ describe('StructuralMetadataUtils class', () => {
       const time = '00:00:10.451';
       expect(smu.doesTimeOverlap(time, allSpans)).toBeTruthy();
     });
-    test('time == 00:15:00.001 (end of the last timespan)', () => {
-      const time = '00:15:00.001';
-      expect(smu.doesTimeOverlap(time, allSpans)).toBeTruthy();
+    test('time exceeds file duration', () => {
+      const time = '00:39:34.000';
+      expect(smu.doesTimeOverlap(time, allSpans, 1738.945306)).toBeFalsy();
     });
   });
 
   describe('tests new timespan overlaps existing timespans', () => {
-    var allSpans = [];
+    let allSpans = [];
     beforeEach(() => {
       allSpans = smu.getItemsOfType('span', testData);
     });
@@ -172,7 +200,7 @@ describe('StructuralMetadataUtils class', () => {
   });
 
   describe('finds wrapping timespans of a new timespan, ', () => {
-    var allSpans = [];
+    let allSpans = [];
     beforeEach(() => {
       allSpans = smu.getItemsOfType('span', testData);
     });

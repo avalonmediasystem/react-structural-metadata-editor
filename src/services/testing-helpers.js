@@ -109,6 +109,37 @@ export const testSmData = [
   }
 ];
 
+export const testDataFromServer = [
+  {
+    type: 'root',
+    label: 'Ima Title',
+    id: '123a-456b-789c-0d',
+    items: [
+      {
+        type: 'span',
+        label: 'First segment',
+        id: '123a-456b-789c-1d',
+        begin: '3',
+        end: '10.42'
+      },
+      {
+        type: 'span',
+        label: 'Middle segment',
+        id: '123a-456b-789c-2d',
+        begin: '00:10:42',
+        end: '00:15:00.23'
+      },
+      {
+        type: 'span',
+        label: 'Final segment',
+        id: '123a-456b-789c-3d',
+        begin: '15.30',
+        end: '00:38:58'
+      }
+    ]
+  }
+];
+
 export const testEmptyHeaderBefore = [
   {
     type: 'div',

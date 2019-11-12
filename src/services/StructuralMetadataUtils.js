@@ -68,45 +68,53 @@ export default class StructuralMetadataUtils {
    * @param {Float} duration - end time of the media file in Milliseconds
    */
   buildSMUI(allItems, duration) {
-    // Regex to match mm:ss OR single number
-    const regexMMSS = /^([0-9]*:[0-9]*.[0-9]*)$/i;
+    // Regex to match mm:ss OR seconds(as a float)/minutes(as an int)
+    const regexHHMMSS = /^([0-9]*:[0-9]*:[0-9]*.[0-9]*)$/i;
     const regexSS = /^([0-9]*.[0-9]*)$/i;
 
+    // Convert file duration to seconds
+    const durationInSeconds = Math.round(duration / 10) / 100;
+
     // Convert time to HH:mm:ss.ms format to use in validation logic
-    let convertToHHmmss = time => {
-      if (regexMMSS.test(time)) {
-        let [minutes, seconds] = time.split(':');
-        let minutesIn = parseInt(minutes) * 60;
-        let secondsIn = seconds === '' ? 0.0 : parseFloat(seconds);
-        return minutesIn + secondsIn;
-      }
+    let convertToSeconds = time => {
       if (regexSS.test(time)) {
-        return parseFloat(time);
-      } else {
-        return this.toMs(time) / 1000;
+        let [minutes, seconds] = time.split('.');
+        let minutesInS = parseInt(minutes) * 60;
+        let secondsNum = seconds ? parseFloat(seconds) : 0.0;
+        return minutesInS + secondsNum;
       }
+      if (regexHHMMSS.test(time)) {
+        let [seconds, minutes, hours] = time.split(':').reverse();
+        let hoursInS = hours ? parseInt(hours) * 3600 : 0;
+        let minutesInS = parseInt(minutes) * 60;
+        let secondsNum = seconds === '' ? 0.0 : parseFloat(seconds);
+        return hoursInS + minutesInS + secondsNum;
+      }
+      return this.toMs(time) / 1000;
     };
 
-    let stripHTMLCodes = lableText => {
+    let decodeHTML = lableText => {
       return lableText
-                .replace(/&amp;/g, "&")
-                .replace(/&lt;/g, "<")
-                .replace(/&gt;/g, ">")
-                .replace(/&quot;/g, '"')
-                .replace(/&apos;/g, "'")
-    }
+        .replace(/&amp;/g, '&')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&quot;/g, '"')
+        .replace(/&apos;/g, "'");
+    };
 
     // Recursive function to traverse whole data structure
     let formatItems = items => {
       for (let item of items) {
-        item.label = stripHTMLCodes(item.label);
+        item.label = decodeHTML(item.label);
         if (item.type === 'span') {
           const { begin, end } = item;
-          let beginTime = convertToHHmmss(begin);
-          let endTime = convertToHHmmss(end);
+          let beginTime = convertToSeconds(begin);
+          let endTime = convertToSeconds(end);
           item.begin = this.toHHmmss(beginTime);
           if (beginTime > endTime) {
-            item.end = this.toHHmmss(duration);
+            item.end = this.toHHmmss(durationInSeconds);
+          } else if (endTime > durationInSeconds) {
+            item.end = this.toHHmmss(durationInSeconds);
           } else {
             item.end = this.toHHmmss(endTime);
           }
@@ -287,6 +295,7 @@ export default class StructuralMetadataUtils {
    * Determine whether a time overlaps (or falls between), an existing timespan's range
    * @param {String} time - form input value
    * @param {*} allSpans - all timespans in the data structure
+   * @param {Float} duration - file length in seconds
    * @return {Boolean}
    */
   doesTimeOverlap(time, allSpans, duration = Number.MAX_SAFE_INTEGER) {
@@ -805,7 +814,7 @@ export default class StructuralMetadataUtils {
   }
 
   /**
-   * Convert seconds to string format hh:mm:ss
+   * Convert seconds to string format hh:mm:ss.ms
    * @param {Number} secTime - time in seconds
    */
   toHHmmss(secTime) {

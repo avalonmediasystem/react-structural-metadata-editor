@@ -156,31 +156,45 @@ function () {
     value: function buildSMUI(allItems, duration) {
       var _this2 = this;
 
-      // Regex to match mm:ss OR single number
-      var regexMMSS = /^([0-9]*:[0-9]*.[0-9]*)$/i;
-      var regexSS = /^([0-9]*.[0-9]*)$/i; // Convert time to HH:mm:ss.ms format to use in validation logic
+      // Regex to match mm:ss OR seconds(as a float)/minutes(as an int)
+      var regexHHMMSS = /^([0-9]*:[0-9]*:[0-9]*.[0-9]*)$/i;
+      var regexSS = /^([0-9]*.[0-9]*)$/i; // Convert file duration to seconds
 
-      var convertToHHmmss = function convertToHHmmss(time) {
-        if (regexMMSS.test(time)) {
-          var _time$split = time.split(':'),
+      var durationInSeconds = Math.round(duration / 10) / 100; // Convert time to HH:mm:ss.ms format to use in validation logic
+
+      var convertToSeconds = function convertToSeconds(time) {
+        if (regexSS.test(time)) {
+          var _time$split = time.split('.'),
               _time$split2 = (0, _slicedToArray2["default"])(_time$split, 2),
               minutes = _time$split2[0],
               seconds = _time$split2[1];
 
-          var minutesIn = parseInt(minutes) * 60;
-          var secondsIn = seconds === '' ? 0.0 : parseFloat(seconds);
-          return minutesIn + secondsIn;
+          var minutesInS = parseInt(minutes) * 60;
+          var secondsNum = seconds ? parseFloat(seconds) : 0.0;
+          return minutesInS + secondsNum;
         }
 
-        if (regexSS.test(time)) {
-          return parseFloat(time);
-        } else {
-          return _this2.toMs(time) / 1000;
+        if (regexHHMMSS.test(time)) {
+          var _time$split$reverse = time.split(':').reverse(),
+              _time$split$reverse2 = (0, _slicedToArray2["default"])(_time$split$reverse, 3),
+              _seconds = _time$split$reverse2[0],
+              _minutes = _time$split$reverse2[1],
+              hours = _time$split$reverse2[2];
+
+          var hoursInS = hours ? parseInt(hours) * 3600 : 0;
+
+          var _minutesInS = parseInt(_minutes) * 60;
+
+          var _secondsNum = _seconds === '' ? 0.0 : parseFloat(_seconds);
+
+          return hoursInS + _minutesInS + _secondsNum;
         }
+
+        return _this2.toMs(time) / 1000;
       };
 
-      var stripHTMLCodes = function stripHTMLCodes(lableText) {
-        return lableText.replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&apos;/g, "'");
+      var decodeHTML = function decodeHTML(lableText) {
+        return lableText.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&apos;/g, "'");
       }; // Recursive function to traverse whole data structure
 
 
@@ -192,17 +206,19 @@ function () {
         try {
           for (var _iterator = items[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
             var item = _step.value;
-            item.label = stripHTMLCodes(item.label);
+            item.label = decodeHTML(item.label);
 
             if (item.type === 'span') {
               var begin = item.begin,
                   end = item.end;
-              var beginTime = convertToHHmmss(begin);
-              var endTime = convertToHHmmss(end);
+              var beginTime = convertToSeconds(begin);
+              var endTime = convertToSeconds(end);
               item.begin = _this2.toHHmmss(beginTime);
 
               if (beginTime > endTime) {
-                item.end = _this2.toHHmmss(duration);
+                item.end = _this2.toHHmmss(durationInSeconds);
+              } else if (endTime > durationInSeconds) {
+                item.end = _this2.toHHmmss(durationInSeconds);
               } else {
                 item.end = _this2.toHHmmss(endTime);
               }
@@ -331,6 +347,7 @@ function () {
      * Determine whether a time overlaps (or falls between), an existing timespan's range
      * @param {String} time - form input value
      * @param {*} allSpans - all timespans in the data structure
+     * @param {Float} duration - file length in seconds
      * @return {Boolean}
      */
     value: function doesTimeOverlap(time, allSpans) {
@@ -998,7 +1015,7 @@ function () {
       return _moment["default"].duration(strTime).asMilliseconds();
     }
     /**
-     * Convert seconds to string format hh:mm:ss
+     * Convert seconds to string format hh:mm:ss.ms
      * @param {Number} secTime - time in seconds
      */
 

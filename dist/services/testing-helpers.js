@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.renderWithRedux = renderWithRedux;
-exports.testEmptyHeaderAfter = exports.testEmptyHeaderBefore = exports.testSmData = void 0;
+exports.testEmptyHeaderAfter = exports.testEmptyHeaderBefore = exports.testDataFromServer = exports.testSmData = void 0;
 
 var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/defineProperty"));
 
@@ -125,6 +125,31 @@ var testSmData = [{
   }]
 }];
 exports.testSmData = testSmData;
+var testDataFromServer = [{
+  type: 'root',
+  label: 'Ima Title',
+  id: '123a-456b-789c-0d',
+  items: [{
+    type: 'span',
+    label: 'First segment',
+    id: '123a-456b-789c-1d',
+    begin: '3',
+    end: '10.42'
+  }, {
+    type: 'span',
+    label: 'Middle segment',
+    id: '123a-456b-789c-2d',
+    begin: '00:10:42',
+    end: '00:15:00.23'
+  }, {
+    type: 'span',
+    label: 'Final segment',
+    id: '123a-456b-789c-3d',
+    begin: '15.30',
+    end: '00:38:58'
+  }]
+}];
+exports.testDataFromServer = testDataFromServer;
 var testEmptyHeaderBefore = [{
   type: 'div',
   label: 'Title',

@@ -130,7 +130,7 @@ class ButtonSection extends Component {
               data-testid="add-heading-button"
               block
               onClick={this.handleHeadingClick}
-              disabled={this.state.disabled && editingDisabled}
+              disabled={(this.state.disabled && editingDisabled) || streamInfo.streamMediaLoading}
             >
               Add a Heading
             </Button>

@@ -8,7 +8,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.retrieveStreamMedia = retrieveStreamMedia;
-exports.streamMediaSuccess = exports.streamMediaError = exports.streamMediaLoading = exports.handleStructureError = exports.retrieveWaveformSuccess = exports.updateStructureStatus = exports.retrieveStructureSuccess = exports.handleEditingTimespans = void 0;
+exports.streamMediaSuccess = exports.streamMediaError = exports.handleStructureError = exports.retrieveWaveformSuccess = exports.updateStructureStatus = exports.retrieveStructureSuccess = exports.handleEditingTimespans = void 0;
 
 var types = _interopRequireWildcard(require("./types"));
 
@@ -74,28 +74,13 @@ var handleStructureError = function handleStructureError(flag, status) {
   };
 };
 /**
- * streamMediaLoading flag in Redux store is set to true until at least
- * part of the media file is loaded in the broswer, and show an alert in UI
- * @param {Integer} code - choose from; 1(true -> loading) | 0(false -> finished loading)
- */
-
-
-exports.handleStructureError = handleStructureError;
-
-var streamMediaLoading = function streamMediaLoading(code) {
-  return {
-    type: types.STREAM_MEDIA_LOADING,
-    payload: code
-  };
-};
-/**
  * streamMediaError flag in redux store is set to true when Hls.js runs out
  * of retries and still cannot load the stream media
  * @param {Integer} code - choose from; 1(true -> failed) | 0(false -> success)
  */
 
 
-exports.streamMediaLoading = streamMediaLoading;
+exports.handleStructureError = handleStructureError;
 
 var streamMediaError = function streamMediaError(code) {
   return {
@@ -117,8 +102,7 @@ exports.streamMediaSuccess = streamMediaSuccess;
 function retrieveStreamMedia(audioFile, mediaPlayer) {
   return function (dispatch, getState) {
     if (_hls["default"].isSupported()) {
-      var hls = new _hls["default"]();
-      dispatch(streamMediaLoading(-5)); // Bind media player
+      var hls = new _hls["default"](); // Bind media player
 
       hls.attachMedia(mediaPlayer.current); // MEDIA_ATTACHED event is fired by hls object once MediaSource is ready
 

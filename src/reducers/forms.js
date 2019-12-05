@@ -55,16 +55,10 @@ const forms = (state = initialState, action) => {
         });
       }
 
-    case types.STREAM_MEDIA_LOADING:
+      case types.STREAM_MEDIA_ERROR:
       return Object.assign({}, state, {
         streamInfo: Object.assign({}, state.streamInfo, {
-          streamMediaStatus: action.payload
-        })
-      });
-
-    case types.STREAM_MEDIA_ERROR:
-      return Object.assign({}, state, {
-        streamInfo: Object.assign({}, state.streamInfo, {
+          streamMediaLoading: false,
           streamMediaError: true,
           streamMediaStatus: action.payload
         })

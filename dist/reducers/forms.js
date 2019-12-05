@@ -67,16 +67,10 @@ var forms = function forms() {
         });
       }
 
-    case types.STREAM_MEDIA_LOADING:
-      return Object.assign({}, state, {
-        streamInfo: Object.assign({}, state.streamInfo, {
-          streamMediaStatus: action.payload
-        })
-      });
-
     case types.STREAM_MEDIA_ERROR:
       return Object.assign({}, state, {
         streamInfo: Object.assign({}, state.streamInfo, {
+          streamMediaLoading: false,
           streamMediaError: true,
           streamMediaStatus: action.payload
         })

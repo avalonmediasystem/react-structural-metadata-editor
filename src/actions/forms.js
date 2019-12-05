@@ -42,16 +42,6 @@ export const handleStructureError = (flag, status) => ({
 });
 
 /**
- * streamMediaLoading flag in Redux store is set to true until at least
- * part of the media file is loaded in the broswer, and show an alert in UI
- * @param {Integer} code - choose from; 1(true -> loading) | 0(false -> finished loading)
- */
-export const streamMediaLoading = code => ({
-  type: types.STREAM_MEDIA_LOADING,
-  payload: code
-});
-
-/**
  * streamMediaError flag in redux store is set to true when Hls.js runs out
  * of retries and still cannot load the stream media
  * @param {Integer} code - choose from; 1(true -> failed) | 0(false -> success)
@@ -69,8 +59,6 @@ export function retrieveStreamMedia(audioFile, mediaPlayer) {
   return (dispatch, getState) => {
     if (Hls.isSupported()) {
       const hls = new Hls();
-
-      dispatch(streamMediaLoading(-5));
 
       // Bind media player
       hls.attachMedia(mediaPlayer.current);

@@ -5,6 +5,7 @@ import AlertContainer from '../containers/AlertContainer';
 import { configureAlert } from '../services/alert-status';
 import { retrieveStreamMedia } from '../actions/forms';
 import VolumeSlider from './Slider';
+import LoadingSpinner from '../services/LoadingSpinner';
 
 // Content of aria-label for UI components
 const waveformLabel = `Two interactive waveforms, plotted one after the other using data from a masterfile in the back-end server.
@@ -87,47 +88,54 @@ class Waveform extends Component {
           tabIndex="0"
           data-testid="waveform"
         />
-        {(streamMediaError || streamMediaLoading) && (
-          <AlertContainer {...alertObj} />
+        {(streamMediaLoading && !streamMediaError) && (
+          <div data-testid="loading-spinner">
+            <LoadingSpinner isLoading={streamMediaLoading} />
+          </div>
         )}
-        <Row data-testid="waveform-toolbar">
-          <audio ref={this.mediaPlayer} hidden={true}>
-            Your browser does not support the audio element.
-          </audio>
-          <Col xs={6} md={6}>
-            <VolumeSlider volume={volume} setVolume={this.setVolume} />
-          </Col>
-          <Col xs={12} md={6}>
-            <ButtonToolbar>
-              <Button
-                className="glyphicon glyphicon-play"
-                aria-label="Play"
-                onClick={this.playAudio}
-                data-testid="waveform-play-button"
-                disabled={streamMediaError || streamMediaLoading}
-              />
-              <Button
-                className="glyphicon glyphicon-pause"
-                aria-label="Pause"
-                onClick={this.pauseAudio}
-                data-testid="waveform-pause-button"
-                disabled={streamMediaError || streamMediaLoading}
-              />
-              <Button
-                className="glyphicon glyphicon-zoom-in"
-                aria-label="Zoom in"
-                onClick={this.zoomIn}
-                data-testid="waveform-zoomin-button"
-              />
-              <Button
-                className="glyphicon glyphicon-zoom-out"
-                aria-label="Zoom out"
-                onClick={this.zoomOut}
-                data-testid="waveform-zoomout-button"
-              />
-            </ButtonToolbar>
-          </Col>
-        </Row>
+        {streamMediaError &&
+          <AlertContainer {...alertObj} />
+        }
+        <audio ref={this.mediaPlayer} hidden={true}>
+          Your browser does not support the audio element.
+        </audio>
+        {(!streamMediaLoading && !streamMediaError) && (
+          <Row data-testid="waveform-toolbar">
+            <Col xs={6} md={6}>
+              <VolumeSlider volume={volume} setVolume={this.setVolume} />
+            </Col>
+            <Col xs={12} md={6}>
+              <ButtonToolbar>
+                <Button
+                  className="glyphicon glyphicon-play"
+                  aria-label="Play"
+                  onClick={this.playAudio}
+                  data-testid="waveform-play-button"
+                  disabled={streamMediaError || streamMediaLoading}
+                />
+                <Button
+                  className="glyphicon glyphicon-pause"
+                  aria-label="Pause"
+                  onClick={this.pauseAudio}
+                  data-testid="waveform-pause-button"
+                  disabled={streamMediaError || streamMediaLoading}
+                />
+                <Button
+                  className="glyphicon glyphicon-zoom-in"
+                  aria-label="Zoom in"
+                  onClick={this.zoomIn}
+                  data-testid="waveform-zoomin-button"
+                />
+                <Button
+                  className="glyphicon glyphicon-zoom-out"
+                  aria-label="Zoom out"
+                  onClick={this.zoomOut}
+                  data-testid="waveform-zoomout-button"
+                />
+              </ButtonToolbar>
+            </Col>
+          </Row>
+        )}
       </React.Fragment>
     );
   }

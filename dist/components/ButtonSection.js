@@ -186,7 +186,7 @@ function (_Component) {
         "data-testid": "add-heading-button",
         block: true,
         onClick: this.handleHeadingClick,
-        disabled: this.state.disabled && editingDisabled
+        disabled: this.state.disabled && editingDisabled || streamInfo.streamMediaLoading
       }, "Add a Heading")), _react["default"].createElement(_reactBootstrap.Col, {
         xs: 6
       }, _react["default"].createElement(_reactBootstrap.Button, {

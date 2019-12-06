@@ -136,7 +136,8 @@ function (_Component) {
     value: function render() {
       var _this$props = this.props,
           structureInfo = _this$props.structureInfo,
-          structuralMetadata = _this$props.structuralMetadata;
+          structuralMetadata = _this$props.structuralMetadata,
+          editingDisabled = _this$props.editingDisabled;
       var alertObj = this.state.alertObj;
       return _react["default"].createElement("section", {
         className: "structure-section",
@@ -151,7 +152,8 @@ function (_Component) {
       }, _react["default"].createElement(_reactBootstrap.Button, {
         bsStyle: "primary",
         onClick: this.handleSaveItClick,
-        "data-testid": "structure-save-button"
+        "data-testid": "structure-save-button",
+        disabled: editingDisabled
       }, "Save Structure")))));
     }
   }], [{
@@ -205,7 +207,8 @@ function (_Component) {
 var mapStateToProps = function mapStateToProps(state) {
   return {
     structuralMetadata: state.structuralMetadata,
-    structureInfo: state.forms.structureInfo
+    structureInfo: state.forms.structureInfo,
+    editingDisabled: state.forms.editingDisabled
   };
 };
 

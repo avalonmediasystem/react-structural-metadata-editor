@@ -60,3 +60,34 @@ section {
 .overview-container {
   height: 85px;
 }
+
+/* Loading spinner from https://github.com/avalonmediasystem/avalon/blob/develop/app/assets/stylesheets/avalon/_loading-spinner.scss*/
+.loading-spinner {
+  display: inline-block;
+  width: 80px;
+  height: 80px;
+  position: absolute;
+  z-index: 10;
+  left: 0;
+  right: 0;
+  margin: auto;
+}
+.loading-spinner:after {
+  content: ' ';
+  display: block;
+  width: 64px;
+  height: 64px;
+  margin: 8px;
+  border-radius: 50%;
+  border: 6px solid #80a590;
+  border-color: #80a590 transparent #80a590 transparent;
+  animation: loading-spinner 1.2s linear infinite;
+}
+@keyframes loading-spinner {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

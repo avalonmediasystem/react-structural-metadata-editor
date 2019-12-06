@@ -37,6 +37,8 @@ var _forms = require("../actions/forms");
 
 var _Slider = _interopRequireDefault(require("./Slider"));
 
+var _LoadingSpinner = _interopRequireDefault(require("../services/LoadingSpinner"));
+
 // Content of aria-label for UI components
 var waveformLabel = "Two interactive waveforms, plotted one after the other using data from a masterfile in the back-end server.\nThere are time-based visual sections plotted in these 2 waveforms representing each timespan in the structure below. \nFirst one contains a selected zoomed-in section from the entire waveform, while the second waveform shows an overview of the entire audio file.\nThere are multiple zoom levels, which can be changed using the zoom-in and zoom-out buttons in the waveform toolbar. \nThese time-based visual sections will be updated by editing the matching timespans in the structure.";
 
@@ -106,12 +108,16 @@ function (_Component) {
         "aria-label": waveformLabel,
         tabIndex: "0",
         "data-testid": "waveform"
-      }), (streamMediaError || streamMediaLoading) && _react["default"].createElement(_AlertContainer["default"], alertObj), _react["default"].createElement(_reactBootstrap.Row, {
-        "data-testid": "waveform-toolbar"
-      }, _react["default"].createElement("audio", {
+      }), streamMediaLoading && !streamMediaError && _react["default"].createElement("div", {
+        "data-testid": "loading-spinner"
+      }, _react["default"].createElement(_LoadingSpinner["default"], {
+        isLoading: streamMediaLoading
+      })), streamMediaError && _react["default"].createElement(_AlertContainer["default"], alertObj), _react["default"].createElement("audio", {
         ref: this.mediaPlayer,
         hidden: true
-      }, "Your browser does not support the audio element."), _react["default"].createElement(_reactBootstrap.Col, {
+      }, "Your browser does not support the audio element."), !streamMediaLoading && !streamMediaError && _react["default"].createElement(_reactBootstrap.Row, {
+        "data-testid": "waveform-toolbar"
+      }, _react["default"].createElement(_reactBootstrap.Col, {
         xs: 6,
         md: 6
       }, _react["default"].createElement(_Slider["default"], {

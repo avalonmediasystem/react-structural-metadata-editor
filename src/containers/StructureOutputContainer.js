@@ -89,7 +89,7 @@ class StructureOutputContainer extends Component {
   };
 
   render() {
-    const { structureInfo, structuralMetadata } = this.props;
+    const { structureInfo, structuralMetadata, editingDisabled } = this.props;
     const { alertObj } = this.state;
 
     return (
@@ -109,6 +109,7 @@ class StructureOutputContainer extends Component {
                   bsStyle="primary"
                   onClick={this.handleSaveItClick}
                   data-testid="structure-save-button"
+                  disabled={editingDisabled}
                 >
                   Save Structure
                 </Button>
@@ -123,7 +124,8 @@ class StructureOutputContainer extends Component {
 
 const mapStateToProps = state => ({
   structuralMetadata: state.structuralMetadata,
-  structureInfo: state.forms.structureInfo
+  structureInfo: state.forms.structureInfo,
+  editingDisabled: state.forms.editingDisabled
 });
 
 const mapDispatchToProps = {

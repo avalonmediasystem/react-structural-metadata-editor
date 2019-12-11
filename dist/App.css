@@ -62,32 +62,48 @@ section {
 }
 
 /* Loading spinner from https://github.com/avalonmediasystem/avalon/blob/develop/app/assets/stylesheets/avalon/_loading-spinner.scss*/
+/* Modified to block the background while loading */
 .loading-spinner {
-  display: inline-block;
-  width: 80px;
-  height: 80px;
+  width: 100%;
+  height: 100%;
   position: absolute;
   z-index: 10;
   left: 0;
   right: 0;
-  margin: auto;
+  top: 0;
+  bottom: 0;
+  background-color: rgba(220, 218, 218, 0.3);
 }
+
 .loading-spinner:after {
   content: ' ';
   display: block;
+  position: absolute;
   width: 64px;
   height: 64px;
-  margin: 8px;
+  left: 48%;
+  top: 40%;
   border-radius: 50%;
   border: 6px solid #80a590;
-  border-color: #80a590 transparent #80a590 transparent;
+  border-color:#80a590 transparent #80a590 transparent;
+  -webkit-animation: loading-spinner 1.2s linear infinite;
   animation: loading-spinner 1.2s linear infinite;
 }
+
 @keyframes loading-spinner {
   0% {
     transform: rotate(0deg);
   }
   100% {
     transform: rotate(360deg);
+  }
+}
+
+@-webkit-keyframes loading-spinner {
+  0% {
+    -webkit-transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
   }
 }

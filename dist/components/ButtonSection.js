@@ -186,14 +186,14 @@ function (_Component) {
         "data-testid": "add-heading-button",
         block: true,
         onClick: this.handleHeadingClick,
-        disabled: this.state.disabled && editingDisabled || streamInfo.streamMediaLoading
+        disabled: this.state.disabled && editingDisabled
       }, "Add a Heading")), _react["default"].createElement(_reactBootstrap.Col, {
         xs: 6
       }, _react["default"].createElement(_reactBootstrap.Button, {
         "data-testid": "add-timespan-button",
         block: true,
         onClick: this.handleTimeSpanClick,
-        disabled: this.state.disabled && editingDisabled || streamInfo.streamMediaError || streamInfo.streamMediaLoading
+        disabled: this.state.disabled && editingDisabled || streamInfo.streamMediaError
       }, "Add a Timespan"))), _react["default"].createElement(_reactBootstrap.Collapse, {
         "in": this.state.headingOpen
       }, _react["default"].createElement("div", {

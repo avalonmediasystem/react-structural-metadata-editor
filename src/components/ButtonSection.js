@@ -130,7 +130,7 @@ class ButtonSection extends Component {
               data-testid="add-heading-button"
               block
               onClick={this.handleHeadingClick}
-              disabled={(this.state.disabled && editingDisabled) || streamInfo.streamMediaLoading}
+              disabled={this.state.disabled && editingDisabled}
             >
               Add a Heading
             </Button>
@@ -140,10 +140,8 @@ class ButtonSection extends Component {
               data-testid="add-timespan-button"
               block
               onClick={this.handleTimeSpanClick}
-              disabled={
-                (this.state.disabled && editingDisabled) ||
-                (streamInfo.streamMediaError || streamInfo.streamMediaLoading)
-              }
+              disabled={(this.state.disabled && editingDisabled)
+                 || (streamInfo.streamMediaError)}
             >
               Add a Timespan
             </Button>

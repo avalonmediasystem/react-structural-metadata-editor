@@ -45,7 +45,7 @@ class App extends Component {
   render() {
     return (
       <DragDropContextProvider backend={HTML5Backend}>
-        <div className="container">
+        <div className="sme-container">
           <WaveformContainer
             {...this.props}
             structureAlert={this.state.structureAlert}

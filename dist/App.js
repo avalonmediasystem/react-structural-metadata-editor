@@ -91,7 +91,7 @@ function (_Component) {
       return _react["default"].createElement(_reactDnd.DragDropContextProvider, {
         backend: _reactDndHtml5Backend["default"]
       }, _react["default"].createElement("div", {
-        className: "container"
+        className: "sme-container"
       }, _react["default"].createElement(_WaveformContainer["default"], (0, _extends2["default"])({}, this.props, {
         structureAlert: this.state.structureAlert
       })), _react["default"].createElement(_ButtonSection["default"], null), _react["default"].createElement(_StructureOutputContainer["default"], (0, _extends2["default"])({

@@ -45,6 +45,8 @@ var _actions = require("./actions");
 
 var _forms = require("./actions/forms");
 
+var _ErrorBoundary = _interopRequireDefault(require("./components/ErrorBoundary"));
+
 var _fontawesomeSvgCore = require("@fortawesome/fontawesome-svg-core");
 
 var _freeSolidSvgIcons = require("@fortawesome/free-solid-svg-icons");
@@ -94,10 +96,10 @@ function (_Component) {
         className: "sme-container"
       }, _react["default"].createElement(_WaveformContainer["default"], (0, _extends2["default"])({}, this.props, {
         structureAlert: this.state.structureAlert
-      })), _react["default"].createElement(_ButtonSection["default"], null), _react["default"].createElement(_StructureOutputContainer["default"], (0, _extends2["default"])({
+      })), _react["default"].createElement(_ErrorBoundary["default"], null, _react["default"].createElement(_ButtonSection["default"], null), _react["default"].createElement(_StructureOutputContainer["default"], (0, _extends2["default"])({
         alertObj: this.state.structureAlert,
         clearAlert: this.clearStructureAlert
-      }, this.props))));
+      }, this.props)))));
     }
   }]);
   return App;

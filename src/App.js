@@ -8,6 +8,7 @@ import HTML5Backend from 'react-dnd-html5-backend';
 import { connect } from 'react-redux';
 import { resetReduxStore } from './actions';
 import { handleStructureError } from './actions/forms';
+import ErrorBoundary from './components/ErrorBoundary';
 
 // Font Awesome Imports
 import { library } from '@fortawesome/fontawesome-svg-core';
@@ -50,12 +51,14 @@ class App extends Component {
             {...this.props}
             structureAlert={this.state.structureAlert}
           />
-          <ButtonSection />
-          <StructureOutputContainer
-            alertObj={this.state.structureAlert}
-            clearAlert={this.clearStructureAlert}
-            {...this.props}
-          />
+          <ErrorBoundary>
+            <ButtonSection />
+            <StructureOutputContainer
+              alertObj={this.state.structureAlert}
+              clearAlert={this.clearStructureAlert}
+              {...this.props}
+            />
+          </ErrorBoundary>
         </div>
       </DragDropContextProvider>
     );
@@ -67,7 +70,4 @@ const mapDispatchToProps = {
   handleStructureError: handleStructureError
 };
 
-export default connect(
-  null,
-  mapDispatchToProps
-)(App);
+export default connect(null, mapDispatchToProps)(App);

@@ -68,8 +68,9 @@ export default class StructuralMetadataUtils {
    * @param {Float} duration - end time of the media file in Milliseconds
    */
   buildSMUI(allItems, duration) {
-    // Regex to match mm:ss OR seconds(as a float)/minutes(as an int)
+    // Regex to match hh:mm:ss, mm:ss OR seconds(as a float)/minutes(as an int)
     const regexHHMMSS = /^([0-9]*:[0-9]*:[0-9]*.[0-9]*)$/i;
+    const regexMMSS = /^([0-9]*:[0-9]*)$/i;
     const regexSS = /^([0-9]*.[0-9]*)$/i;
 
     // Convert file duration to seconds
@@ -77,19 +78,24 @@ export default class StructuralMetadataUtils {
 
     // Convert time to HH:mm:ss.ms format to use in validation logic
     let convertToSeconds = time => {
-      if (regexSS.test(time)) {
-        let [minutes, seconds] = time.split('.');
+      if (regexMMSS.test(time)) {
+        let [minutes, seconds] = time.split(':');
         let minutesInS = parseInt(minutes) * 60;
         let secondsNum = seconds ? parseFloat(seconds) : 0.0;
         return minutesInS + secondsNum;
-      }
-      if (regexHHMMSS.test(time)) {
+      } else if (regexHHMMSS.test(time)) {
         let [seconds, minutes, hours] = time.split(':').reverse();
         let hoursInS = hours ? parseInt(hours) * 3600 : 0;
         let minutesInS = parseInt(minutes) * 60;
         let secondsNum = seconds === '' ? 0.0 : parseFloat(seconds);
         return hoursInS + minutesInS + secondsNum;
+      } else if (regexSS.test(time)) {
+        let [minutes, seconds] = time.split('.');
+        let minutesInS = parseInt(minutes) * 60;
+        let secondsNum = seconds ? parseFloat(seconds) : 0.0;
+        return minutesInS + secondsNum;
       }
+
       return this.toMs(time) / 1000;
     };
 

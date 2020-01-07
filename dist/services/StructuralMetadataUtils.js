@@ -156,15 +156,16 @@ function () {
     value: function buildSMUI(allItems, duration) {
       var _this2 = this;
 
-      // Regex to match mm:ss OR seconds(as a float)/minutes(as an int)
+      // Regex to match hh:mm:ss, mm:ss OR seconds(as a float)/minutes(as an int)
       var regexHHMMSS = /^([0-9]*:[0-9]*:[0-9]*.[0-9]*)$/i;
+      var regexMMSS = /^([0-9]*:[0-9]*)$/i;
       var regexSS = /^([0-9]*.[0-9]*)$/i; // Convert file duration to seconds
 
       var durationInSeconds = Math.round(duration / 10) / 100; // Convert time to HH:mm:ss.ms format to use in validation logic
 
       var convertToSeconds = function convertToSeconds(time) {
-        if (regexSS.test(time)) {
-          var _time$split = time.split('.'),
+        if (regexMMSS.test(time)) {
+          var _time$split = time.split(':'),
               _time$split2 = (0, _slicedToArray2["default"])(_time$split, 2),
               minutes = _time$split2[0],
               seconds = _time$split2[1];
@@ -172,9 +173,7 @@ function () {
           var minutesInS = parseInt(minutes) * 60;
           var secondsNum = seconds ? parseFloat(seconds) : 0.0;
           return minutesInS + secondsNum;
-        }
-
-        if (regexHHMMSS.test(time)) {
+        } else if (regexHHMMSS.test(time)) {
           var _time$split$reverse = time.split(':').reverse(),
               _time$split$reverse2 = (0, _slicedToArray2["default"])(_time$split$reverse, 3),
               _seconds = _time$split$reverse2[0],
@@ -188,6 +187,17 @@ function () {
           var _secondsNum = _seconds === '' ? 0.0 : parseFloat(_seconds);
 
           return hoursInS + _minutesInS + _secondsNum;
+        } else if (regexSS.test(time)) {
+          var _time$split3 = time.split('.'),
+              _time$split4 = (0, _slicedToArray2["default"])(_time$split3, 2),
+              _minutes2 = _time$split4[0],
+              _seconds2 = _time$split4[1];
+
+          var _minutesInS2 = parseInt(_minutes2) * 60;
+
+          var _secondsNum2 = _seconds2 ? parseFloat(_seconds2) : 0.0;
+
+          return _minutesInS2 + _secondsNum2;
         }
 
         return _this2.toMs(time) / 1000;

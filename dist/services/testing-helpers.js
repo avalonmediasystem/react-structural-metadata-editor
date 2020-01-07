@@ -133,8 +133,8 @@ var testDataFromServer = [{
     type: 'span',
     label: 'First segment',
     id: '123a-456b-789c-1d',
-    begin: '3',
-    end: '10.42'
+    begin: '41.45',
+    end: '42'
   }, {
     type: 'span',
     label: 'Middle segment',
@@ -143,10 +143,22 @@ var testDataFromServer = [{
     end: '00:15:00.23'
   }, {
     type: 'span',
-    label: 'Final segment',
+    label: 'Segmet 1',
     id: '123a-456b-789c-3d',
     begin: '15:30',
+    end: '16:00.23'
+  }, {
+    type: 'span',
+    label: 'Segment 2',
+    id: '123a-456b-789c-4d',
+    begin: '16:30',
     end: '00:38:58'
+  }, {
+    type: 'span',
+    label: 'Final segment',
+    id: '123a-456b-789c-5d',
+    begin: '17:00',
+    end: 'NaN:NaN:NaN'
   }]
 }];
 exports.testDataFromServer = testDataFromServer;

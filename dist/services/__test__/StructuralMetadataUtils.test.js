@@ -116,14 +116,6 @@ describe('StructuralMetadataUtils class', () => {
     beforeEach(() => {
       structure = smu.buildSMUI(testDataFromServer, 1738945);
     });
-    test('when time is in mm.ss (15.30) format', () => {
-      const timespan = smu.findItem('123a-456b-789c-3d', structure);
-      expect(timespan.begin).toEqual('00:15:30.000');
-    });
-    test('when time is in integer (3) format', () => {
-      const timespan = smu.findItem('123a-456b-789c-1d', structure);
-      expect(timespan.begin).toEqual('00:03:00.000');
-    });
     test('when time is in hh:mm:ss (00:10:42) format', () => {
       const timespan = smu.findItem('123a-456b-789c-2d', structure);
       expect(timespan.begin).toEqual('00:10:42.000');
@@ -132,8 +124,28 @@ describe('StructuralMetadataUtils class', () => {
       const timespan = smu.findItem('123a-456b-789c-2d', structure);
       expect(timespan.end).toEqual('00:15:00.230');
     });
-    test('when end time exceeds (00:38:58.000) file duration (00:28:58.950)', () => {
+    test('when time is in mm:ss (15:30) format', () => {
       const timespan = smu.findItem('123a-456b-789c-3d', structure);
+      expect(timespan.begin).toEqual('00:15:30.000');
+    });
+    test('when time is in mm:ss.ms (16:00.23) format', () => {
+      const timespan = smu.findItem('123a-456b-789c-3d', structure);
+      expect(timespan.end).toEqual('00:16:00.230');
+    });
+    test('when time is in ss (42) format', () => {
+      const timespan = smu.findItem('123a-456b-789c-1d', structure);
+      expect(timespan.end).toEqual('00:00:42.000');
+    });
+    test('when time is in ss.ms (41.45) format', () => {
+      const timespan = smu.findItem('123a-456b-789c-1d', structure);
+      expect(timespan.begin).toEqual('00:00:41.450');
+    });
+    test('when end time exceeds (00:38:58.000) file duration (00:28:58.950)', () => {
+      const timespan = smu.findItem('123a-456b-789c-4d', structure);
+      expect(timespan.end).toEqual('00:28:58.950');
+    });
+    test('when end time is missing', () => {
+      const timespan = smu.findItem('123a-456b-789c-5d', structure);
       expect(timespan.end).toEqual('00:28:58.950');
     });
   });

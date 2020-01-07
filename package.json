@@ -56,7 +56,6 @@
     "base-64": "^0.1.0",
     "hls.js": "0.12.3-canary.4258",
     "lodash": "4.17.13",
-    "moment": "^2.22.2",
     "peaks.js": "0.10.1",
     "prop-types": "^15.6.2",
     "react-bootstrap": "^0.32.4",

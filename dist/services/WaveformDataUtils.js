@@ -15,12 +15,15 @@ var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/cl
 
 var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
 
+var _StructuralMetadataUtils = _interopRequireDefault(require("./StructuralMetadataUtils"));
+
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { (0, _defineProperty2["default"])(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
 
 // Colors for segments from Avalon branding pallette
 var COLOR_PALETTE = ['#80A590', '#2A5459', '#FBB040'];
+var smu = new _StructuralMetadataUtils["default"]();
 
 var WaveformDataUtils =
 /*#__PURE__*/
@@ -279,8 +282,8 @@ function () {
           endTime = currentState.endTime,
           clonedSegment = currentState.clonedSegment;
       clonedSegment.update({
-        startTime: this.toMs(beginTime),
-        endTime: this.toMs(endTime)
+        startTime: smu.toMs(beginTime) / 1000,
+        endTime: smu.toMs(endTime) / 1000
       });
       return peaksInstance;
     }
@@ -322,8 +325,8 @@ function () {
     value: function updateSegment(segment, currentState, peaksInstance) {
       var beginTime = currentState.beginTime,
           endTime = currentState.endTime;
-      var beginSeconds = this.toMs(beginTime);
-      var endSeconds = this.toMs(endTime);
+      var beginSeconds = smu.toMs(beginTime) / 1000;
+      var endSeconds = smu.toMs(endTime) / 1000;
       var changeSegment = peaksInstance.segments.getSegment(segment.id);
 
       if (beginSeconds < segment.endTime && segment.startTime !== beginSeconds) {
@@ -358,12 +361,7 @@ function () {
 
       var _this$findWrapperSegm = this.findWrapperSegments(segment, allSegments),
           before = _this$findWrapperSegm.before,
-          after = _this$findWrapperSegm.after; // index of the segment in the arrays
-
-
-      var segmentIndex = allSegments.map(function (seg) {
-        return seg.id;
-      }).indexOf(segment.id);
+          after = _this$findWrapperSegm.after;
 
       for (var i = 0; i < allSegments.length; i++) {
         var current = allSegments[i];
@@ -377,14 +375,10 @@ function () {
           segment.endTime = current.endTime + 0.001;
         } else if (duration - 0.001 <= endTime && endTime <= duration && after && after.id === current.id) {
           segment.endTime = after.startTime;
-        } else if (before && before.id === current.id && startTime < before.endTime) {
-          segment.startTime = before.endTime;
-        } else if (after && after.id === current.id && endTime > after.startTime) {
-          segment.endTime = after.startTime;
         } else if (startTime > current.startTime && startTime < current.endTime) {
-          segment.startTime = i < segmentIndex ? current.endTime : current.startTime;
+          segment.startTime = current.endTime;
         } else if (endTime > current.startTime && endTime < current.endTime) {
-          segment.endTime = i < segmentIndex ? current.startTime : current.endTime;
+          segment.endTime = current.startTime;
         } else if (segment.startTime === segment.endTime) {
           segment.endTime = segment.startTime + 0.001;
         } else if (endTime > duration) {
@@ -407,8 +401,8 @@ function () {
           label = timespan.label,
           id = timespan.id;
       return {
-        startTime: this.toMs(begin),
-        endTime: this.toMs(end),
+        startTime: smu.toMs(begin) / 1000,
+        endTime: smu.toMs(end) / 1000,
         labelText: label,
         id: id
       };
@@ -453,19 +447,6 @@ function () {
     key: "isOdd",
     value: function isOdd(num) {
       return num % 2;
-    }
-  }, {
-    key: "toMs",
-    value: function toMs(strTime) {
-      var _strTime$split = strTime.split(':'),
-          _strTime$split2 = (0, _slicedToArray2["default"])(_strTime$split, 3),
-          hours = _strTime$split2[0],
-          minutes = _strTime$split2[1],
-          seconds = _strTime$split2[2];
-
-      var hoursAndMins = parseInt(hours) * 3600 + parseInt(minutes) * 60;
-      var secondsIn = seconds === '' ? 0.0 : parseFloat(seconds);
-      return Math.round((hoursAndMins + secondsIn) * 1000) / 1000;
     }
   }, {
     key: "sortSegments",

@@ -1,5 +1,9 @@
+import StructuralMetadataUtils from './StructuralMetadataUtils';
+
 // Colors for segments from Avalon branding pallette
 const COLOR_PALETTE = ['#80A590', '#2A5459', '#FBB040'];
+
+const smu = new StructuralMetadataUtils();
 
 export default class WaveformDataUtils {
   /**
@@ -197,8 +201,8 @@ export default class WaveformDataUtils {
   saveSegment(currentState, peaksInstance) {
     const { beginTime, endTime, clonedSegment } = currentState;
     clonedSegment.update({
-      startTime: this.toMs(beginTime),
-      endTime: this.toMs(endTime)
+      startTime: smu.toMs(beginTime) / 1000,
+      endTime: smu.toMs(endTime) / 1000
     });
     return peaksInstance;
   }
@@ -237,8 +241,8 @@ export default class WaveformDataUtils {
    */
   updateSegment(segment, currentState, peaksInstance) {
     const { beginTime, endTime } = currentState;
-    let beginSeconds = this.toMs(beginTime);
-    let endSeconds = this.toMs(endTime);
+    let beginSeconds = smu.toMs(beginTime) / 1000;
+    let endSeconds = smu.toMs(endTime) / 1000;
     let changeSegment = peaksInstance.segments.getSegment(segment.id);
 
     if (beginSeconds < segment.endTime && segment.startTime !== beginSeconds) {
@@ -266,9 +270,6 @@ export default class WaveformDataUtils {
     // segments before and after the editing segment
     const { before, after } = this.findWrapperSegments(segment, allSegments);
 
-    // index of the segment in the arrays
-    const segmentIndex = allSegments.map(seg => seg.id).indexOf(segment.id);
-
     for (let i = 0; i < allSegments.length; i++) {
       const current = allSegments[i];
       if (current.id == segment.id) {
@@ -284,24 +285,10 @@ export default class WaveformDataUtils {
         after.id === current.id
       ) {
         segment.endTime = after.startTime;
-      } else if (
-        before &&
-        before.id === current.id &&
-        startTime < before.endTime
-      ) {
-        segment.startTime = before.endTime;
-      } else if (
-        after &&
-        after.id === current.id &&
-        endTime > after.startTime
-      ) {
-        segment.endTime = after.startTime;
       } else if (startTime > current.startTime && startTime < current.endTime) {
-        segment.startTime =
-          i < segmentIndex ? current.endTime : current.startTime;
+        segment.startTime = current.endTime;
       } else if (endTime > current.startTime && endTime < current.endTime) {
-        segment.endTime =
-          i < segmentIndex ? current.startTime : current.endTime;
+        segment.endTime = current.startTime;
       } else if (segment.startTime === segment.endTime) {
         segment.endTime = segment.startTime + 0.001;
       } else if (endTime > duration) {
@@ -318,8 +305,8 @@ export default class WaveformDataUtils {
   convertTimespanToSegment(timespan) {
     const { begin, end, label, id } = timespan;
     return {
-      startTime: this.toMs(begin),
-      endTime: this.toMs(end),
+      startTime: smu.toMs(begin) / 1000,
+      endTime: smu.toMs(end) / 1000,
       labelText: label,
       id: id
     };
@@ -358,13 +345,6 @@ export default class WaveformDataUtils {
 
   isOdd(num) {
     return num % 2;
-  }
-
-  toMs(strTime) {
-    let [hours, minutes, seconds] = strTime.split(':');
-    let hoursAndMins = parseInt(hours) * 3600 + parseInt(minutes) * 60;
-    let secondsIn = seconds === '' ? 0.0 : parseFloat(seconds);
-    return Math.round((hoursAndMins + secondsIn) * 1000) / 1000;
   }
 
   sortSegments(peaksInstance, sortBy) {

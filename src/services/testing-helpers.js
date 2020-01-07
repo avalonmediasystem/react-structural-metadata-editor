@@ -133,7 +133,7 @@ export const testDataFromServer = [
         type: 'span',
         label: 'Final segment',
         id: '123a-456b-789c-3d',
-        begin: '15.30',
+        begin: '15:30',
         end: '00:38:58'
       }
     ]

@@ -1,7 +1,5 @@
 import { findIndex, cloneDeep } from 'lodash';
-import moment from 'moment';
 import uuidv1 from 'uuid/v1';
-// import { sanitizeLabel } from './form-helper';
 
 /**
  * Rules - https://github.com/avalonmediasystem/avalon/issues/3022
@@ -68,35 +66,18 @@ export default class StructuralMetadataUtils {
    * @param {Float} duration - end time of the media file in Milliseconds
    */
   buildSMUI(allItems, duration) {
-    // Regex to match hh:mm:ss, mm:ss OR seconds(as a float)/minutes(as an int)
-    const regexHHMMSS = /^([0-9]*:[0-9]*:[0-9]*.[0-9]*)$/i;
-    const regexMMSS = /^([0-9]*:[0-9]*)$/i;
-    const regexSS = /^([0-9]*.[0-9]*)$/i;
-
     // Convert file duration to seconds
     const durationInSeconds = Math.round(duration / 10) / 100;
 
     // Convert time to HH:mm:ss.ms format to use in validation logic
     let convertToSeconds = time => {
-      if (regexMMSS.test(time)) {
-        let [minutes, seconds] = time.split(':');
-        let minutesInS = parseInt(minutes) * 60;
-        let secondsNum = seconds ? parseFloat(seconds) : 0.0;
-        return minutesInS + secondsNum;
-      } else if (regexHHMMSS.test(time)) {
-        let [seconds, minutes, hours] = time.split(':').reverse();
-        let hoursInS = hours ? parseInt(hours) * 3600 : 0;
-        let minutesInS = parseInt(minutes) * 60;
-        let secondsNum = seconds === '' ? 0.0 : parseFloat(seconds);
-        return hoursInS + minutesInS + secondsNum;
-      } else if (regexSS.test(time)) {
-        let [minutes, seconds] = time.split('.');
-        let minutesInS = parseInt(minutes) * 60;
-        let secondsNum = seconds ? parseFloat(seconds) : 0.0;
-        return minutesInS + secondsNum;
+      let timeSeconds = this.toMs(time) / 1000;
+      // When time property is missing
+      if (isNaN(timeSeconds)) {
+        return 0;
+      } else {
+        return timeSeconds;
       }
-
-      return this.toMs(time) / 1000;
     };
 
     let decodeHTML = lableText => {
@@ -308,7 +289,6 @@ export default class StructuralMetadataUtils {
     const { toMs } = this;
     let valid = true;
     time = toMs(time);
-
     // Loop through all spans
     for (let i in allSpans) {
       let spanBegin = toMs(allSpans[i].begin);
@@ -812,11 +792,16 @@ export default class StructuralMetadataUtils {
   }
 
   /**
-   * Moment.js helper millisecond converter to make calculations consistent
+   * Convert hh:mm:ss to milliseconds to make calculations consistent
    * @param {String} strTime form input value
    */
   toMs(strTime) {
-    return moment.duration(strTime).asMilliseconds();
+    let [seconds, minutes, hours] = strTime.split(':').reverse();
+    let hoursInS = hours ? parseInt(hours) * 3600 : 0;
+    let minutesInS = minutes ? parseInt(minutes) * 60 : 0;
+    let secondsNum = seconds === '' ? 0.0 : parseFloat(seconds);
+    let timeSeconds = hoursInS + minutesInS + secondsNum;
+    return timeSeconds * 1000;
   }
 
   /**
@@ -826,7 +811,7 @@ export default class StructuralMetadataUtils {
   toHHmmss(secTime) {
     let sec_num = this.roundOff(secTime);
     let hours = Math.floor(sec_num / 3600);
-    let minutes = Math.floor(sec_num / 60);
+    let minutes = Math.floor((sec_num % 3600) / 60);
     let seconds = sec_num - minutes * 60 - hours * 3600;
 
     let hourStr = hours < 10 ? `0${hours}` : `${hours}`;

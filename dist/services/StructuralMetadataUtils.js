@@ -7,9 +7,9 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports["default"] = void 0;
 
-var _objectWithoutProperties2 = _interopRequireDefault(require("@babel/runtime/helpers/objectWithoutProperties"));
-
 var _slicedToArray2 = _interopRequireDefault(require("@babel/runtime/helpers/slicedToArray"));
+
+var _objectWithoutProperties2 = _interopRequireDefault(require("@babel/runtime/helpers/objectWithoutProperties"));
 
 var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
 
@@ -19,15 +19,11 @@ var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/de
 
 var _lodash = require("lodash");
 
-var _moment = _interopRequireDefault(require("moment"));
-
 var _v = _interopRequireDefault(require("uuid/v1"));
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { (0, _defineProperty2["default"])(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
-
-// import { sanitizeLabel } from './form-helper';
 
 /**
  * Rules - https://github.com/avalonmediasystem/avalon/issues/3022
@@ -156,51 +152,17 @@ function () {
     value: function buildSMUI(allItems, duration) {
       var _this2 = this;
 
-      // Regex to match hh:mm:ss, mm:ss OR seconds(as a float)/minutes(as an int)
-      var regexHHMMSS = /^([0-9]*:[0-9]*:[0-9]*.[0-9]*)$/i;
-      var regexMMSS = /^([0-9]*:[0-9]*)$/i;
-      var regexSS = /^([0-9]*.[0-9]*)$/i; // Convert file duration to seconds
-
+      // Convert file duration to seconds
       var durationInSeconds = Math.round(duration / 10) / 100; // Convert time to HH:mm:ss.ms format to use in validation logic
 
       var convertToSeconds = function convertToSeconds(time) {
-        if (regexMMSS.test(time)) {
-          var _time$split = time.split(':'),
-              _time$split2 = (0, _slicedToArray2["default"])(_time$split, 2),
-              minutes = _time$split2[0],
-              seconds = _time$split2[1];
+        var timeSeconds = _this2.toMs(time) / 1000; // When time property is missing
 
-          var minutesInS = parseInt(minutes) * 60;
-          var secondsNum = seconds ? parseFloat(seconds) : 0.0;
-          return minutesInS + secondsNum;
-        } else if (regexHHMMSS.test(time)) {
-          var _time$split$reverse = time.split(':').reverse(),
-              _time$split$reverse2 = (0, _slicedToArray2["default"])(_time$split$reverse, 3),
-              _seconds = _time$split$reverse2[0],
-              _minutes = _time$split$reverse2[1],
-              hours = _time$split$reverse2[2];
-
-          var hoursInS = hours ? parseInt(hours) * 3600 : 0;
-
-          var _minutesInS = parseInt(_minutes) * 60;
-
-          var _secondsNum = _seconds === '' ? 0.0 : parseFloat(_seconds);
-
-          return hoursInS + _minutesInS + _secondsNum;
-        } else if (regexSS.test(time)) {
-          var _time$split3 = time.split('.'),
-              _time$split4 = (0, _slicedToArray2["default"])(_time$split3, 2),
-              _minutes2 = _time$split4[0],
-              _seconds2 = _time$split4[1];
-
-          var _minutesInS2 = parseInt(_minutes2) * 60;
-
-          var _secondsNum2 = _seconds2 ? parseFloat(_seconds2) : 0.0;
-
-          return _minutesInS2 + _secondsNum2;
+        if (isNaN(timeSeconds)) {
+          return 0;
+        } else {
+          return timeSeconds;
         }
-
-        return _this2.toMs(time) / 1000;
       };
 
       var decodeHTML = function decodeHTML(lableText) {
@@ -1015,14 +977,24 @@ function () {
       }
     }
     /**
-     * Moment.js helper millisecond converter to make calculations consistent
+     * Convert hh:mm:ss to milliseconds to make calculations consistent
      * @param {String} strTime form input value
      */
 
   }, {
     key: "toMs",
     value: function toMs(strTime) {
-      return _moment["default"].duration(strTime).asMilliseconds();
+      var _strTime$split$revers = strTime.split(':').reverse(),
+          _strTime$split$revers2 = (0, _slicedToArray2["default"])(_strTime$split$revers, 3),
+          seconds = _strTime$split$revers2[0],
+          minutes = _strTime$split$revers2[1],
+          hours = _strTime$split$revers2[2];
+
+      var hoursInS = hours ? parseInt(hours) * 3600 : 0;
+      var minutesInS = minutes ? parseInt(minutes) * 60 : 0;
+      var secondsNum = seconds === '' ? 0.0 : parseFloat(seconds);
+      var timeSeconds = hoursInS + minutesInS + secondsNum;
+      return timeSeconds * 1000;
     }
     /**
      * Convert seconds to string format hh:mm:ss.ms
@@ -1034,7 +1006,7 @@ function () {
     value: function toHHmmss(secTime) {
       var sec_num = this.roundOff(secTime);
       var hours = Math.floor(sec_num / 3600);
-      var minutes = Math.floor(sec_num / 60);
+      var minutes = Math.floor(sec_num % 3600 / 60);
       var seconds = sec_num - minutes * 60 - hours * 3600;
       var hourStr = hours < 10 ? "0".concat(hours) : "".concat(hours);
       var minStr = minutes < 10 ? "0".concat(minutes) : "".concat(minutes);

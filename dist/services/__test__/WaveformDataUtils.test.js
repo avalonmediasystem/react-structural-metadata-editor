@@ -360,7 +360,7 @@ describe('WaveformDataUtils class', () => {
         expect(segments).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
-              startTime: 180.000,
+              startTime: 180.0,
               id: '123a-456b-789c-4d'
             })
           ])
@@ -375,7 +375,7 @@ describe('WaveformDataUtils class', () => {
         expect(segments).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
-              startTime: 239.000,
+              startTime: 239.0,
               id: '123a-456b-789c-4d'
             })
           ])
@@ -398,6 +398,58 @@ describe('WaveformDataUtils class', () => {
             })
           ])
         );
+      });
+    });
+
+    describe('find wrapping segments', () => {
+      let allSegments = [];
+      beforeEach(() => {
+        allSegments = peaks.segments.getSegments();
+      });
+      test('for first segment', () => {
+        const currentSegment = {
+          labelText: 'Segment 1.1',
+          id: '123a-456b-789c-3d',
+          startTime: 3.321,
+          endTime: 10.321
+        };
+        const { before, after } = waveformUtils.findWrapperSegments(
+          currentSegment,
+          allSegments,
+          1738.951
+        );
+        expect(before).toEqual(undefined);
+        expect(after.id).toEqual('123a-456b-789c-4d');
+      });
+      test('for middle segment', () => {
+        const currentSegment = {
+          labelText: 'Segment 1.2',
+          id: '123a-456b-789c-4d',
+          startTime: 11.231,
+          endTime: 480.001
+        };
+        const { before, after } = waveformUtils.findWrapperSegments(
+          currentSegment,
+          allSegments,
+          1738.951
+        );
+        expect(before.id).toEqual('123a-456b-789c-3d');
+        expect(after.id).toEqual('123a-456b-789c-8d');
+      });
+      test('for last segment', () => {
+        const currentSegment = {
+          labelText: 'Segment 2.1',
+          id: '123a-456b-789c-8d',
+          startTime: 543.241,
+          endTime: 900.001
+        };
+        const { before, after } = waveformUtils.findWrapperSegments(
+          currentSegment,
+          allSegments,
+          1738.951
+        );
+        expect(before.id).toEqual('123a-456b-789c-4d');
+        expect(after).toEqual(undefined);
       });
     });
 

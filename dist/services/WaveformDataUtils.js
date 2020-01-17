@@ -148,15 +148,19 @@ function () {
       });
 
       if (rangeBeginTime < fileEndTime && rangeEndTime > rangeBeginTime) {
-        // Move playhead to start of the temporary segment
-        peaksInstance.player.seek(rangeBeginTime);
-        peaksInstance.segments.add({
-          startTime: rangeBeginTime,
-          endTime: rangeEndTime,
-          editable: true,
-          color: COLOR_PALETTE[2],
-          id: 'temp-segment'
-        });
+        var tempSegmentLength = rangeEndTime - rangeBeginTime; // Continue if temp segment has a length greater than 1ms
+
+        if (tempSegmentLength > 0.1) {
+          // Move playhead to start of the temporary segment
+          peaksInstance.player.seek(rangeBeginTime);
+          peaksInstance.segments.add({
+            startTime: rangeBeginTime,
+            endTime: rangeEndTime,
+            editable: true,
+            color: COLOR_PALETTE[2],
+            id: 'temp-segment'
+          });
+        }
       }
 
       return peaksInstance;
@@ -238,14 +242,57 @@ function () {
   }, {
     key: "activateSegment",
     value: function activateSegment(id, peaksInstance) {
-      var segment = peaksInstance.segments.getSegment(id);
+      var validatedPeaks = this.initialSegmentValidation(id, peaksInstance);
+      var segment = validatedPeaks.segments.getSegment(id);
       segment.update({
         editable: true,
         color: COLOR_PALETTE[2]
       });
       var startTime = segment.startTime; // Move play head to the start time of the selected segment
 
-      peaksInstance.player.seek(startTime);
+      validatedPeaks.player.seek(startTime);
+      return validatedPeaks;
+    }
+    /**
+     * Adjust segment's end time to depict the valid time range for it to be spanned
+     * At initial load of the editor for all segments with invalid end times,
+     * segment.endTime is set to duration by default
+     * @param {String} id - ID of the segment being edited
+     * @param {Object} peaksInstance - current peaks instance for the waveform
+     */
+
+  }, {
+    key: "initialSegmentValidation",
+    value: function initialSegmentValidation(id, peaksInstance) {
+      var segment = peaksInstance.segments.getSegment(id);
+      var duration = Math.round(peaksInstance.player.getDuration() * 100) / 100; // Segments before and after the current segment
+
+      var _this$findWrapperSegm = this.findWrapperSegments(segment, peaksInstance),
+          before = _this$findWrapperSegm.before,
+          after = _this$findWrapperSegm.after; // Check for margin of +/- 0.02 milliseconds to be considered
+
+
+      var isDuration = function isDuration(time) {
+        return time <= duration + 0.02 && time >= duration - 0.02;
+      };
+
+      if (before && segment.startTime < before.endTime && !isDuration(before.endTime)) {
+        segment.update({
+          startTime: before.endTime
+        });
+      } else if (isDuration(segment.endTime)) {
+        var allSegments = this.sortSegments(peaksInstance, 'startTime');
+        segment.update({
+          endTime: allSegments.filter(function (seg) {
+            return seg.startTime > segment.startTime;
+          })[0].startTime
+        });
+      } else if (after && segment.endTime > after.startTime && !isDuration(after.endTime)) {
+        segment.update({
+          endTime: after.startTime
+        });
+      }
+
       return peaksInstance;
     }
     /**
@@ -348,41 +395,44 @@ function () {
     /**
      * Prevent the times of segment being edited overlapping with the existing segments
      * @param {Object} segment - segement being edited in the waveform
+     * @param {Boolean} inMarker - true -> start time changed, false -> end time changed
      * @param {Object} peaksInstance - current peaks instance for waveform
      */
 
   }, {
     key: "validateSegment",
-    value: function validateSegment(segment, peaksInstance) {
-      var allSegments = peaksInstance.segments.getSegments();
+    value: function validateSegment(segment, inMarker, peaksInstance) {
       var duration = this.roundOff(peaksInstance.player.getDuration());
       var startTime = segment.startTime,
           endTime = segment.endTime; // segments before and after the editing segment
 
-      var _this$findWrapperSegm = this.findWrapperSegments(segment, allSegments),
-          before = _this$findWrapperSegm.before,
-          after = _this$findWrapperSegm.after;
+      var _this$findWrapperSegm2 = this.findWrapperSegments(segment, peaksInstance),
+          before = _this$findWrapperSegm2.before,
+          after = _this$findWrapperSegm2.after;
 
-      for (var i = 0; i < allSegments.length; i++) {
-        var current = allSegments[i];
-
-        if (current.id == segment.id) {
-          continue;
+      if (inMarker) {
+        if (before && startTime < before.endTime) {
+          segment.update({
+            startTime: before.endTime
+          });
+        } else if (startTime > endTime) {
+          segment.update({
+            startTime: segment.endTime - 0.001
+          });
         }
-
-        if (startTime > current.startTime && endTime < current.endTime) {
-          segment.startTime = current.endTime;
-          segment.endTime = current.endTime + 0.001;
-        } else if (duration - 0.001 <= endTime && endTime <= duration && after && after.id === current.id) {
-          segment.endTime = after.startTime;
-        } else if (startTime > current.startTime && startTime < current.endTime) {
-          segment.startTime = current.endTime;
-        } else if (endTime > current.startTime && endTime < current.endTime) {
-          segment.endTime = current.startTime;
-        } else if (segment.startTime === segment.endTime) {
-          segment.endTime = segment.startTime + 0.001;
+      } else {
+        if (after && endTime > after.startTime) {
+          segment.update({
+            endTime: after.startTime
+          });
+        } else if (endTime < startTime) {
+          segment.update({
+            endTime: segment.startTime + 0.001
+          });
         } else if (endTime > duration) {
-          segment.endTime = duration;
+          segment.update({
+            endTime: duration
+          });
         }
       }
 
@@ -410,21 +460,25 @@ function () {
     /**
      * Find the before and after segments of a given segment
      * @param {Object} currentSegment - current segment being added/edited
-     * @param {Array} allSegments - segments in the current peaks instance
+     * @param {Object} peaksInstance - current peaks instance
      */
 
   }, {
     key: "findWrapperSegments",
-    value: function findWrapperSegments(currentSegment, allSegments) {
+    value: function findWrapperSegments(currentSegment, peaksInstance) {
       var _this4 = this;
 
       var wrapperSegments = {
         before: null,
         after: null
-      };
-      var startTime = currentSegment.startTime,
-          endTime = currentSegment.endTime;
-      var timeFixedSegments = allSegments.map(function (seg) {
+      }; // All segments sorted by start time
+
+      var allSegments = this.sortSegments(peaksInstance, 'startTime');
+      var otherSegments = allSegments.filter(function (seg) {
+        return seg.id !== currentSegment.id;
+      });
+      var startTime = currentSegment.startTime;
+      var timeFixedSegments = otherSegments.map(function (seg) {
         return _objectSpread({}, seg, {
           startTime: _this4.roundOff(seg.startTime),
           endTime: _this4.roundOff(seg.endTime)
@@ -433,21 +487,27 @@ function () {
       wrapperSegments.after = timeFixedSegments.filter(function (seg) {
         return seg.startTime > startTime;
       })[0];
-      var segmentsBefore = timeFixedSegments.filter(function (seg) {
-        return seg.endTime < endTime;
-      });
-
-      if (segmentsBefore) {
-        wrapperSegments.before = segmentsBefore[segmentsBefore.length - 1];
-      }
-
+      wrapperSegments.before = timeFixedSegments.filter(function (seg) {
+        return seg.startTime < startTime;
+      }).reverse()[0];
       return wrapperSegments;
     }
+    /**
+     * Check a given number is odd
+     * @param {Number} num
+     */
+
   }, {
     key: "isOdd",
     value: function isOdd(num) {
       return num % 2;
     }
+    /**
+     * Sort segments in ascending order by the the given property
+     * @param {Object} peaksInstance - current peaks instance
+     * @param {String} sortBy - name of the property to sort the segments
+     */
+
   }, {
     key: "sortSegments",
     value: function sortSegments(peaksInstance, sortBy) {
@@ -457,6 +517,11 @@ function () {
       });
       return segments;
     }
+    /**
+     * Round off time in seconds to 3 decimal places
+     * @param {Number} value - time value in seconds
+     */
+
   }, {
     key: "roundOff",
     value: function roundOff(value) {

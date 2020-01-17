@@ -99,16 +99,20 @@ export default class WaveformDataUtils {
     });
 
     if (rangeBeginTime < fileEndTime && rangeEndTime > rangeBeginTime) {
-      // Move playhead to start of the temporary segment
-      peaksInstance.player.seek(rangeBeginTime);
+      const tempSegmentLength = rangeEndTime - rangeBeginTime;
+      // Continue if temp segment has a length greater than 1ms
+      if (tempSegmentLength > 0.1) {
+        // Move playhead to start of the temporary segment
+        peaksInstance.player.seek(rangeBeginTime);
 
-      peaksInstance.segments.add({
-        startTime: rangeBeginTime,
-        endTime: rangeEndTime,
-        editable: true,
-        color: COLOR_PALETTE[2],
-        id: 'temp-segment'
-      });
+        peaksInstance.segments.add({
+          startTime: rangeBeginTime,
+          endTime: rangeEndTime,
+          editable: true,
+          color: COLOR_PALETTE[2],
+          id: 'temp-segment'
+        });
+      }
     }
 
     return peaksInstance;
@@ -161,15 +165,55 @@ export default class WaveformDataUtils {
    * @param {Object} peaksInstance - current peaks instance for the waveform
    */
   activateSegment(id, peaksInstance) {
-    const segment = peaksInstance.segments.getSegment(id);
+    const validatedPeaks = this.initialSegmentValidation(id, peaksInstance);
+    const segment = validatedPeaks.segments.getSegment(id);
     segment.update({
       editable: true,
       color: COLOR_PALETTE[2]
     });
     let startTime = segment.startTime;
     // Move play head to the start time of the selected segment
-    peaksInstance.player.seek(startTime);
+    validatedPeaks.player.seek(startTime);
 
+    return validatedPeaks;
+  }
+
+  /**
+   * Adjust segment's end time to depict the valid time range for it to be spanned
+   * At initial load of the editor for all segments with invalid end times,
+   * segment.endTime is set to duration by default
+   * @param {String} id - ID of the segment being edited
+   * @param {Object} peaksInstance - current peaks instance for the waveform
+   */
+  initialSegmentValidation(id, peaksInstance) {
+    const segment = peaksInstance.segments.getSegment(id);
+    const duration = Math.round(peaksInstance.player.getDuration() * 100) / 100;
+    // Segments before and after the current segment
+    const { before, after } = this.findWrapperSegments(segment, peaksInstance);
+
+    // Check for margin of +/- 0.02 milliseconds to be considered
+    let isDuration = time => {
+      return time <= duration + 0.02 && time >= duration - 0.02;
+    };
+    if (
+      before &&
+      segment.startTime < before.endTime &&
+      !isDuration(before.endTime)
+    ) {
+      segment.update({ startTime: before.endTime });
+    } else if (isDuration(segment.endTime)) {
+      const allSegments = this.sortSegments(peaksInstance, 'startTime');
+      segment.update({
+        endTime: allSegments.filter(seg => seg.startTime > segment.startTime)[0]
+          .startTime
+      });
+    } else if (
+      after &&
+      segment.endTime > after.startTime &&
+      !isDuration(after.endTime)
+    ) {
+      segment.update({ endTime: after.startTime });
+    }
     return peaksInstance;
   }
 
@@ -259,40 +303,30 @@ export default class WaveformDataUtils {
   /**
    * Prevent the times of segment being edited overlapping with the existing segments
    * @param {Object} segment - segement being edited in the waveform
+   * @param {Boolean} inMarker - true -> start time changed, false -> end time changed
    * @param {Object} peaksInstance - current peaks instance for waveform
    */
-  validateSegment(segment, peaksInstance) {
-    const allSegments = peaksInstance.segments.getSegments();
+  validateSegment(segment, inMarker, peaksInstance) {
     const duration = this.roundOff(peaksInstance.player.getDuration());
 
     const { startTime, endTime } = segment;
 
     // segments before and after the editing segment
-    const { before, after } = this.findWrapperSegments(segment, allSegments);
+    const { before, after } = this.findWrapperSegments(segment, peaksInstance);
 
-    for (let i = 0; i < allSegments.length; i++) {
-      const current = allSegments[i];
-      if (current.id == segment.id) {
-        continue;
+    if (inMarker) {
+      if (before && startTime < before.endTime) {
+        segment.update({ startTime: before.endTime });
+      } else if (startTime > endTime) {
+        segment.update({ startTime: segment.endTime - 0.001 });
       }
-      if (startTime > current.startTime && endTime < current.endTime) {
-        segment.startTime = current.endTime;
-        segment.endTime = current.endTime + 0.001;
-      } else if (
-        duration - 0.001 <= endTime &&
-        endTime <= duration &&
-        after &&
-        after.id === current.id
-      ) {
-        segment.endTime = after.startTime;
-      } else if (startTime > current.startTime && startTime < current.endTime) {
-        segment.startTime = current.endTime;
-      } else if (endTime > current.startTime && endTime < current.endTime) {
-        segment.endTime = current.startTime;
-      } else if (segment.startTime === segment.endTime) {
-        segment.endTime = segment.startTime + 0.001;
+    } else {
+      if (after && endTime > after.startTime) {
+        segment.update({ endTime: after.startTime });
+      } else if (endTime < startTime) {
+        segment.update({ endTime: segment.startTime + 0.001 });
       } else if (endTime > duration) {
-        segment.endTime = duration;
+        segment.update({ endTime: duration });
       }
     }
     return segment;
@@ -315,15 +349,21 @@ export default class WaveformDataUtils {
   /**
    * Find the before and after segments of a given segment
    * @param {Object} currentSegment - current segment being added/edited
-   * @param {Array} allSegments - segments in the current peaks instance
+   * @param {Object} peaksInstance - current peaks instance
    */
-  findWrapperSegments(currentSegment, allSegments) {
+  findWrapperSegments(currentSegment, peaksInstance) {
     let wrapperSegments = {
       before: null,
       after: null
     };
-    const { startTime, endTime } = currentSegment;
-    const timeFixedSegments = allSegments.map(seg => {
+
+    // All segments sorted by start time
+    const allSegments = this.sortSegments(peaksInstance, 'startTime');
+    const otherSegments = allSegments.filter(
+      seg => seg.id !== currentSegment.id
+    );
+    const { startTime } = currentSegment;
+    const timeFixedSegments = otherSegments.map(seg => {
       return {
         ...seg,
         startTime: this.roundOff(seg.startTime),
@@ -334,25 +374,35 @@ export default class WaveformDataUtils {
     wrapperSegments.after = timeFixedSegments.filter(
       seg => seg.startTime > startTime
     )[0];
-    const segmentsBefore = timeFixedSegments.filter(
-      seg => seg.endTime < endTime
-    );
-    if (segmentsBefore) {
-      wrapperSegments.before = segmentsBefore[segmentsBefore.length - 1];
-    }
+    wrapperSegments.before = timeFixedSegments
+      .filter(seg => seg.startTime < startTime)
+      .reverse()[0];
     return wrapperSegments;
   }
 
+  /**
+   * Check a given number is odd
+   * @param {Number} num
+   */
   isOdd(num) {
     return num % 2;
   }
 
+  /**
+   * Sort segments in ascending order by the the given property
+   * @param {Object} peaksInstance - current peaks instance
+   * @param {String} sortBy - name of the property to sort the segments
+   */
   sortSegments(peaksInstance, sortBy) {
     let segments = peaksInstance.segments.getSegments();
     segments.sort((x, y) => x[sortBy] - y[sortBy]);
     return segments;
   }
 
+  /**
+   * Round off time in seconds to 3 decimal places
+   * @param {Number} value - time value in seconds
+   */
   roundOff(value) {
     var valueString = '';
     var [intVal, decVal] = value.toString().split('.');

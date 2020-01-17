@@ -75,6 +75,13 @@ class ListItemEditForm extends Component {
     this.props.handleEditFormCancel();
   };
 
+  componentWillUnmount() {
+    this.setState({
+      isInitializing: true,
+      isTyping: false
+    });
+  }
+
   render() {
     const { item } = this.props;
 
@@ -112,7 +119,4 @@ const mapDispathToProps = dispatch => ({
   reBuildSMUI: json => dispatch(reBuildSMUI(json))
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispathToProps
-)(ListItemEditForm);
+export default connect(mapStateToProps, mapDispathToProps)(ListItemEditForm);

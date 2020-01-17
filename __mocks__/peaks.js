@@ -1,13 +1,6 @@
 export const Peaks = jest.fn(opts => {
   let peaks = {};
   peaks.options = opts;
-  peaks.updateSegments = jest.fn(seg => {
-    peaks.segments.removeById(seg.id);
-    peaks.segments.add(seg);
-    peaks.segments
-      .getSegments()
-      .sort((x, y) => x['startTime'] - y['startTime']);
-  });
   peaks.player = {
     seek: jest.fn(time => {
       peaks.player._mediaElement.currentTime = time;
@@ -96,24 +89,21 @@ export const Segment = jest.fn(opts => {
     return false;
   };
   segment.update = jest.fn(newOpts => {
-    segment = {
-      parent: segment.parent,
-      startTime: checkProp(newOpts, 'startTime')
-        ? newOpts.startTime
-        : segment.startTime,
-      endTime: checkProp(newOpts, 'endTime')
-        ? newOpts.endTime
-        : segment.endTime,
-      labelText: checkProp(newOpts, 'labelText')
-        ? newOpts.labelText
-        : segment.labelText,
-      id: checkProp(newOpts, 'id') ? newOpts.id : segment.id,
-      editable: checkProp(newOpts, 'editable')
-        ? newOpts.editable
-        : segment.editable,
-      color: checkProp(newOpts, 'color') ? newOpts.color : segment.color
-    };
-    segment.parent.updateSegments(segment);
+    checkProp(newOpts, 'startTime')
+      ? (segment.startTime = newOpts.startTime)
+      : (segment.startTime = segment.startTime);
+    checkProp(newOpts, 'endTime')
+      ? (segment.endTime = newOpts.endTime)
+      : (segment.endTime = segment.endTime);
+    checkProp(newOpts, 'labelText')
+      ? (segment.labelText = newOpts.labelText)
+      : (segment.labelText = segment.labelText);
+    checkProp(newOpts, 'editable')
+      ? (segment.editable = newOpts.editable)
+      : (segment.editable = segment.editable);
+    checkProp(newOpts, 'color')
+      ? (segment.color = newOpts.color)
+      : (segment.color = segment.color);
   });
   return segment;
 });

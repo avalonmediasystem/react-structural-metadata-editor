@@ -28,7 +28,8 @@ var initialState = {
   peaks: {},
   events: null,
   segment: null,
-  isDragging: false
+  isDragging: false,
+  inMarker: null
 };
 var newPeaks = null;
 var updatedSegment = null;
@@ -74,12 +75,14 @@ var peaksInstance = function peaksInstance() {
       newPeaks = waveformUtils.deactivateSegment(action.payload.clonedSegment.id, _objectSpread({}, state.peaks));
       var rebuiltPeaks = waveformUtils.saveSegment(action.payload, _objectSpread({}, newPeaks));
       return _objectSpread({}, state, {
+        isDragging: false,
         peaks: rebuiltPeaks
       });
 
     case types.REVERT_SEGMENT:
       newPeaks = waveformUtils.deactivateSegment(action.payload.id, _objectSpread({}, state.peaks));
       return _objectSpread({}, state, {
+        isDragging: false,
         peaks: waveformUtils.revertSegment(action.payload, _objectSpread({}, newPeaks))
       });
 
@@ -94,14 +97,14 @@ var peaksInstance = function peaksInstance() {
     case types.IS_DRAGGING:
       if (action.flag === 0) {
         return _objectSpread({}, state, {
-          segment: action.segment,
+          segment: state.peaks.segments.getSegment(action.segmentID),
+          inMarker: action.inMarker,
           isDragging: false
         });
-      }
-
-      if (action.flag === 1) {
+      } else {
         return _objectSpread({}, state, {
-          segment: action.segment,
+          segment: state.peaks.segments.getSegment(action.segmentID),
+          inMarker: action.inMarker,
           isDragging: true
         });
       }

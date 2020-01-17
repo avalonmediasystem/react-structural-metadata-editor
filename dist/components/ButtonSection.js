@@ -143,7 +143,7 @@ function (_Component) {
         });
       } else {
         // Initialize Redux store with temporary segment
-        _this.props.bindInitSegment(tempSegment, 0);
+        _this.props.dragSegment(tempSegment.id, null, 0);
 
         _this.setState({
           initSegment: tempSegment,
@@ -224,7 +224,7 @@ var mapStateToProps = function mapStateToProps(state) {
 var mapDispatchToProps = {
   createTempSegment: peaksActions.insertTempSegment,
   deleteTempSegment: peaksActions.deleteTempSegment,
-  bindInitSegment: peaksActions.dragSegment,
+  dragSegment: peaksActions.dragSegment,
   handleEditingTimespans: _forms.handleEditingTimespans
 };
 

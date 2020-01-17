@@ -86,7 +86,7 @@ class ButtonSection extends Component {
       });
     } else {
       // Initialize Redux store with temporary segment
-      this.props.bindInitSegment(tempSegment, 0);
+      this.props.dragSegment(tempSegment.id, null, 0);
       this.setState({
         initSegment: tempSegment,
         headingOpen: false,
@@ -140,8 +140,10 @@ class ButtonSection extends Component {
               data-testid="add-timespan-button"
               block
               onClick={this.handleTimeSpanClick}
-              disabled={(this.state.disabled && editingDisabled)
-                 || (streamInfo.streamMediaError)}
+              disabled={
+                (this.state.disabled && editingDisabled) ||
+                streamInfo.streamMediaError
+              }
             >
               Add a Timespan
             </Button>
@@ -179,11 +181,8 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = {
   createTempSegment: peaksActions.insertTempSegment,
   deleteTempSegment: peaksActions.deleteTempSegment,
-  bindInitSegment: peaksActions.dragSegment,
+  dragSegment: peaksActions.dragSegment,
   handleEditingTimespans: handleEditingTimespans
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(ButtonSection);
+export default connect(mapStateToProps, mapDispatchToProps)(ButtonSection);

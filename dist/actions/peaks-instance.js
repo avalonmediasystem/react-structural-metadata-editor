@@ -21,6 +21,8 @@ exports.deleteTempSegment = deleteTempSegment;
 
 var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
 
+var _slicedToArray2 = _interopRequireDefault(require("@babel/runtime/helpers/slicedToArray"));
+
 var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
 
 var types = _interopRequireWildcard(require("./types"));
@@ -87,8 +89,14 @@ function initializeSMDataPeaks(baseURL, masterFileID, initStructure, options, du
                   _getState2 = getState(), peaksInstance = _getState2.peaksInstance; // Subscribe to Peaks event for dragging handles in a segment
 
                   if (peaksInstance.events !== undefined) {
-                    peaksInstance.events.subscribe(function (segment) {
-                      dispatch(dragSegment(segment, 1));
+                    peaksInstance.events.subscribe(function (eProps) {
+                      // inMarker = true -> handle at the start of the segment is being dragged
+                      // inMarker = flase -> handle at the end of the segment is being dragged
+                      var _eProps = (0, _slicedToArray2["default"])(eProps, 2),
+                          segment = _eProps[0],
+                          inMarker = _eProps[1];
+
+                      dispatch(dragSegment(segment.id, inMarker, 1));
                     });
                   }
                 }
@@ -175,10 +183,11 @@ function updateSegment(segment, state) {
   };
 }
 
-function dragSegment(segment, flag) {
+function dragSegment(segmentID, inMarker, flag) {
   return {
     type: types.IS_DRAGGING,
-    segment: segment,
+    segmentID: segmentID,
+    inMarker: inMarker,
     flag: flag
   };
 }

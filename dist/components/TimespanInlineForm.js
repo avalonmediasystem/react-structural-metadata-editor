@@ -69,7 +69,8 @@ function (_Component) {
       timespanTitle: '',
       clonedSegment: {},
       peaksInstance: _this.props.peaksInstance,
-      segment: _this.props.segment
+      segment: _this.props.segment,
+      inMarker: _this.props.inMarker
     });
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "handleCancelClick", function () {
       // Revert to segment to the state before
@@ -78,15 +79,18 @@ function (_Component) {
       _this.props.cancelFn();
     });
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "handleInputChange", function (e) {
-      // Lock disabling isTyping flag before updating DOM from form inputs
-      _this.props.changeEditSegment(_this.props.segment, 0); // Enable updating state from form inputs
+      var _this$props = _this.props,
+          segment = _this$props.segment,
+          inMarker = _this$props.inMarker; // Lock disabling isTyping flag before updating DOM from form inputs
+
+      _this.props.dragSegment(segment.id, inMarker, 0); // Enable updating state from form inputs
 
 
       _this.props.setIsTyping(1);
 
       _this.setState((0, _defineProperty2["default"])({}, e.target.id, e.target.value), function () {
         // Update waveform segment with user inputs in the form
-        _this.props.updateSegment(_this.props.segment, _this.state);
+        _this.props.updateSegment(segment, _this.state);
       });
     });
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "handleSaveClick", function () {
@@ -111,11 +115,11 @@ function (_Component) {
   (0, _createClass2["default"])(TimespanInlineForm, [{
     key: "componentDidMount",
     value: function componentDidMount() {
-      var _this$props = this.props,
-          smData = _this$props.smData,
-          item = _this$props.item,
-          peaksInstance = _this$props.peaksInstance;
-      var segment = waveformUtils.convertTimespanToSegment(item); // Get a fresh copy of store data
+      var _this$props2 = this.props,
+          smData = _this$props2.smData,
+          item = _this$props2.item,
+          peaksInstance = _this$props2.peaksInstance,
+          inMarker = _this$props2.inMarker; // Get a fresh copy of store data
 
       this.tempSmData = (0, _lodash.cloneDeep)(smData);
       var tempPeaks = (0, _lodash.cloneDeep)(peaksInstance.peaks); // Load existing form values
@@ -126,13 +130,15 @@ function (_Component) {
 
       this.allSpans = structuralMetadataUtils.getItemsOfType('span', this.tempSmData); // Make segment related to timespan editable
 
-      this.props.activateSegment(item.id); // Set the selected segment in the component's state
+      this.props.activateSegment(item.id); // Get segment from current peaks instance
+
+      var segment = peaksInstance.peaks.segments.getSegment(item.id); // Set the selected segment in the component's state
 
       this.setState({
         segment: segment
       }); // Initialize the segment in Redux store with the selected item
 
-      this.props.changeEditSegment(segment, 0);
+      this.props.dragSegment(segment.id, inMarker, 0);
     }
   }, {
     key: "formIsValid",
@@ -195,7 +201,8 @@ function (_Component) {
           segment = nextProps.segment,
           isTyping = nextProps.isTyping,
           isDragging = nextProps.isDragging,
-          isInitializing = nextProps.isInitializing;
+          isInitializing = nextProps.isInitializing,
+          inMarker = nextProps.inMarker;
 
       if (!isDragging && isInitializing && !isTyping && !(0, _lodash.isEmpty)(segment)) {
         var startTime = segment.startTime,
@@ -212,7 +219,7 @@ function (_Component) {
         isTyping ? nextProps.setIsTyping(0) : null;
 
         if (prevState.peaksInstance !== peaksInstance) {
-          var _waveformUtils$valida = waveformUtils.validateSegment(segment, peaksInstance.peaks),
+          var _waveformUtils$valida = waveformUtils.validateSegment(segment, inMarker, peaksInstance.peaks),
               _startTime = _waveformUtils$valida.startTime,
               _endTime = _waveformUtils$valida.endTime;
 
@@ -240,7 +247,8 @@ var mapStateToProps = function mapStateToProps(state) {
     smData: state.structuralMetadata.smData,
     peaksInstance: state.peaksInstance,
     segment: state.peaksInstance.segment,
-    isDragging: state.peaksInstance.isDragging
+    isDragging: state.peaksInstance.isDragging,
+    inMarker: state.peaksInstance.inMarker
   };
 };
 
@@ -249,7 +257,7 @@ var mapDispatchToProps = {
   revertSegment: peaksActions.revertSegment,
   saveSegment: peaksActions.saveSegment,
   updateSegment: peaksActions.updateSegment,
-  changeEditSegment: peaksActions.dragSegment
+  dragSegment: peaksActions.dragSegment
 };
 
 var _default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(TimespanInlineForm);

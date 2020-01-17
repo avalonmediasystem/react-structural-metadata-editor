@@ -21,7 +21,8 @@ const initialState = {
   },
   peaksInstance: {
     peaks: Peaks.init(peaksOptions),
-    segment: null
+    segment: null,
+    inMarker: null
   }
 };
 
@@ -108,14 +109,20 @@ test('shows proper validation messages for begin/end time changes and save butto
 });
 
 describe('form changes when segment in the waveform change', () => {
-  let timespanInlineForm, saveButton;
+  let timespanInlineForm, saveButton, segment;
   beforeEach(() => {
     timespanInlineForm = renderWithRedux(<TimespanInlineForm {...props} />, {
       initialState
     });
     saveButton = timespanInlineForm.getByTestId('inline-form-save-button');
+    segment = initialState.peaksInstance.peaks.segments.getSegment(
+      '123a-456b-789c-8d'
+    );
   });
   test('move handles to overlap another segment', () => {
+    // Changed from 00:09:03.241 -> 00:07:30.001
+    segment.update({ startTime: 450.001 });
+
     // Update the redux store with new segment value
     const nextState = {
       structuralMetadata: {
@@ -123,15 +130,9 @@ describe('form changes when segment in the waveform change', () => {
       },
       peaksInstance: {
         peaks: Peaks.init(peaksOptions),
-        segment: {
-          startTime: 450.001, // changed from 00:09:03.241 -> 00:07:30.001
-          endTime: 900.001,
-          labelText: 'Segment 2.1',
-          id: '123a-456b-789c-8d',
-          editable: true,
-          color: '#FB040'
-        },
-        isDragging: true
+        segment: segment,
+        isDragging: true,
+        inMarker: true
       }
     };
     timespanInlineForm.rerenderWithRedux(
@@ -150,6 +151,8 @@ describe('form changes when segment in the waveform change', () => {
     expect(saveButton).toBeEnabled();
   });
   test('move handles another valid time', () => {
+    // Changed from 00:09:03.241 -> 00:09:00.001
+    segment.update({ startTime: 540.001 });
     // Update the redux store with new segment value
     const nextState = {
       structuralMetadata: {
@@ -157,15 +160,9 @@ describe('form changes when segment in the waveform change', () => {
       },
       peaksInstance: {
         peaks: Peaks.init(peaksOptions),
-        segment: {
-          startTime: 540.001, // changed from 00:09:03.241 -> 00:09:00.001
-          endTime: 900.001,
-          labelText: 'Segment 2.1',
-          id: '123a-456b-789c-8d',
-          editable: true,
-          color: '#FB040'
-        },
-        isDragging: true
+        segment: segment,
+        isDragging: true,
+        inMarker: true
       }
     };
     timespanInlineForm.rerenderWithRedux(

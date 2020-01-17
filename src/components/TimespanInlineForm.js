@@ -47,12 +47,12 @@ class TimespanInlineForm extends Component {
     timespanTitle: '',
     clonedSegment: {},
     peaksInstance: this.props.peaksInstance,
-    segment: this.props.segment
+    segment: this.props.segment,
+    inMarker: this.props.inMarker
   };
 
   componentDidMount() {
-    const { smData, item, peaksInstance } = this.props;
-    const segment = waveformUtils.convertTimespanToSegment(item);
+    const { smData, item, peaksInstance, inMarker } = this.props;
 
     // Get a fresh copy of store data
     this.tempSmData = cloneDeep(smData);
@@ -76,11 +76,14 @@ class TimespanInlineForm extends Component {
     // Make segment related to timespan editable
     this.props.activateSegment(item.id);
 
+    // Get segment from current peaks instance
+    const segment = peaksInstance.peaks.segments.getSegment(item.id);
+
     // Set the selected segment in the component's state
     this.setState({ segment });
 
     // Initialize the segment in Redux store with the selected item
-    this.props.changeEditSegment(segment, 0);
+    this.props.dragSegment(segment.id, inMarker, 0);
   }
 
   static getDerivedStateFromProps(nextProps, prevState) {
@@ -89,9 +92,9 @@ class TimespanInlineForm extends Component {
       segment,
       isTyping,
       isDragging,
-      isInitializing
+      isInitializing,
+      inMarker
     } = nextProps;
-
     if (!isDragging && isInitializing && !isTyping && !isEmpty(segment)) {
       const { startTime, endTime } = segment;
       return {
@@ -106,6 +109,7 @@ class TimespanInlineForm extends Component {
       if (prevState.peaksInstance !== peaksInstance) {
         const { startTime, endTime } = waveformUtils.validateSegment(
           segment,
+          inMarker,
           peaksInstance.peaks
         );
         return {
@@ -114,7 +118,6 @@ class TimespanInlineForm extends Component {
         };
       }
     }
-
     return null;
   }
 
@@ -138,15 +141,16 @@ class TimespanInlineForm extends Component {
   };
 
   handleInputChange = e => {
+    const { segment, inMarker } = this.props;
     // Lock disabling isTyping flag before updating DOM from form inputs
-    this.props.changeEditSegment(this.props.segment, 0);
+    this.props.dragSegment(segment.id, inMarker, 0);
 
     // Enable updating state from form inputs
     this.props.setIsTyping(1);
 
     this.setState({ [e.target.id]: e.target.value }, () => {
       // Update waveform segment with user inputs in the form
-      this.props.updateSegment(this.props.segment, this.state);
+      this.props.updateSegment(segment, this.state);
     });
   };
 
@@ -229,7 +233,8 @@ const mapStateToProps = state => ({
   smData: state.structuralMetadata.smData,
   peaksInstance: state.peaksInstance,
   segment: state.peaksInstance.segment,
-  isDragging: state.peaksInstance.isDragging
+  isDragging: state.peaksInstance.isDragging,
+  inMarker: state.peaksInstance.inMarker
 });
 
 const mapDispatchToProps = {
@@ -237,10 +242,7 @@ const mapDispatchToProps = {
   revertSegment: peaksActions.revertSegment,
   saveSegment: peaksActions.saveSegment,
   updateSegment: peaksActions.updateSegment,
-  changeEditSegment: peaksActions.dragSegment
+  dragSegment: peaksActions.dragSegment
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(TimespanInlineForm);
+export default connect(mapStateToProps, mapDispatchToProps)(TimespanInlineForm);

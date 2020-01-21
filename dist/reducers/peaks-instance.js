@@ -29,7 +29,7 @@ var initialState = {
   events: null,
   segment: null,
   isDragging: false,
-  inMarker: null
+  startTimeChanged: null
 };
 var newPeaks = null;
 var updatedSegment = null;
@@ -95,19 +95,11 @@ var peaksInstance = function peaksInstance() {
       });
 
     case types.IS_DRAGGING:
-      if (action.flag === 0) {
-        return _objectSpread({}, state, {
-          segment: state.peaks.segments.getSegment(action.segmentID),
-          inMarker: action.inMarker,
-          isDragging: false
-        });
-      } else {
-        return _objectSpread({}, state, {
-          segment: state.peaks.segments.getSegment(action.segmentID),
-          inMarker: action.inMarker,
-          isDragging: true
-        });
-      }
+      return _objectSpread({}, state, {
+        segment: state.peaks.segments.getSegment(action.segmentID),
+        startTimeChanged: action.startTimeChanged,
+        isDragging: action.flag === 1 ? true : false
+      });
 
     case types.TEMP_INSERT_SEGMENT:
       newPeaks = waveformUtils.insertTempSegment(_objectSpread({}, state.peaks));

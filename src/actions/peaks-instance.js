@@ -58,10 +58,10 @@ export function initializeSMDataPeaks(
         // Subscribe to Peaks event for dragging handles in a segment
         if (peaksInstance.events !== undefined) {
           peaksInstance.events.subscribe(eProps => {
-            // inMarker = true -> handle at the start of the segment is being dragged
-            // inMarker = flase -> handle at the end of the segment is being dragged
-            const [segment, inMarker] = eProps;
-            dispatch(dragSegment(segment.id, inMarker, 1));
+            // startTimeChanged = true -> handle at the start of the segment is being dragged
+            // startTimeChanged = flase -> handle at the end of the segment is being dragged
+            const [segment, startTimeChanged] = eProps;
+            dispatch(dragSegment(segment.id, startTimeChanged, 1));
           });
         }
       }
@@ -131,11 +131,11 @@ export function updateSegment(segment, state) {
   };
 }
 
-export function dragSegment(segmentID, inMarker, flag) {
+export function dragSegment(segmentID, startTimeChanged, flag) {
   return {
     type: types.IS_DRAGGING,
     segmentID,
-    inMarker,
+    startTimeChanged,
     flag
   };
 }

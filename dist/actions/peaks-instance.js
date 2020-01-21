@@ -90,13 +90,13 @@ function initializeSMDataPeaks(baseURL, masterFileID, initStructure, options, du
 
                   if (peaksInstance.events !== undefined) {
                     peaksInstance.events.subscribe(function (eProps) {
-                      // inMarker = true -> handle at the start of the segment is being dragged
-                      // inMarker = flase -> handle at the end of the segment is being dragged
+                      // startTimeChanged = true -> handle at the start of the segment is being dragged
+                      // startTimeChanged = flase -> handle at the end of the segment is being dragged
                       var _eProps = (0, _slicedToArray2["default"])(eProps, 2),
                           segment = _eProps[0],
-                          inMarker = _eProps[1];
+                          startTimeChanged = _eProps[1];
 
-                      dispatch(dragSegment(segment.id, inMarker, 1));
+                      dispatch(dragSegment(segment.id, startTimeChanged, 1));
                     });
                   }
                 }
@@ -183,11 +183,11 @@ function updateSegment(segment, state) {
   };
 }
 
-function dragSegment(segmentID, inMarker, flag) {
+function dragSegment(segmentID, startTimeChanged, flag) {
   return {
     type: types.IS_DRAGGING,
     segmentID: segmentID,
-    inMarker: inMarker,
+    startTimeChanged: startTimeChanged,
     flag: flag
   };
 }

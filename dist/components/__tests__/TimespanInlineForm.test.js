@@ -22,7 +22,7 @@ const initialState = {
   peaksInstance: {
     peaks: Peaks.init(peaksOptions),
     segment: null,
-    inMarker: null
+    startTimeChanged: null
   }
 };
 
@@ -132,7 +132,7 @@ describe('form changes when segment in the waveform change', () => {
         peaks: Peaks.init(peaksOptions),
         segment: segment,
         isDragging: true,
-        inMarker: true
+        startTimeChanged: true
       }
     };
     timespanInlineForm.rerenderWithRedux(
@@ -162,7 +162,7 @@ describe('form changes when segment in the waveform change', () => {
         peaks: Peaks.init(peaksOptions),
         segment: segment,
         isDragging: true,
-        inMarker: true
+        startTimeChanged: true
       }
     };
     timespanInlineForm.rerenderWithRedux(

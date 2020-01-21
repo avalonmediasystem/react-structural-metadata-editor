@@ -70,7 +70,7 @@ function (_Component) {
       clonedSegment: {},
       peaksInstance: _this.props.peaksInstance,
       segment: _this.props.segment,
-      inMarker: _this.props.inMarker
+      startTimeChanged: _this.props.startTimeChanged
     });
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "handleCancelClick", function () {
       // Revert to segment to the state before
@@ -81,9 +81,9 @@ function (_Component) {
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "handleInputChange", function (e) {
       var _this$props = _this.props,
           segment = _this$props.segment,
-          inMarker = _this$props.inMarker; // Lock disabling isTyping flag before updating DOM from form inputs
+          startTimeChanged = _this$props.startTimeChanged; // Lock disabling isTyping flag before updating DOM from form inputs
 
-      _this.props.dragSegment(segment.id, inMarker, 0); // Enable updating state from form inputs
+      _this.props.dragSegment(segment.id, startTimeChanged, 0); // Enable updating state from form inputs
 
 
       _this.props.setIsTyping(1);
@@ -119,7 +119,7 @@ function (_Component) {
           smData = _this$props2.smData,
           item = _this$props2.item,
           peaksInstance = _this$props2.peaksInstance,
-          inMarker = _this$props2.inMarker; // Get a fresh copy of store data
+          startTimeChanged = _this$props2.startTimeChanged; // Get a fresh copy of store data
 
       this.tempSmData = (0, _lodash.cloneDeep)(smData);
       var tempPeaks = (0, _lodash.cloneDeep)(peaksInstance.peaks); // Load existing form values
@@ -138,7 +138,7 @@ function (_Component) {
         segment: segment
       }); // Initialize the segment in Redux store with the selected item
 
-      this.props.dragSegment(segment.id, inMarker, 0);
+      this.props.dragSegment(segment.id, startTimeChanged, 0);
     }
   }, {
     key: "formIsValid",
@@ -202,7 +202,7 @@ function (_Component) {
           isTyping = nextProps.isTyping,
           isDragging = nextProps.isDragging,
           isInitializing = nextProps.isInitializing,
-          inMarker = nextProps.inMarker;
+          startTimeChanged = nextProps.startTimeChanged;
 
       if (!isDragging && isInitializing && !isTyping && !(0, _lodash.isEmpty)(segment)) {
         var startTime = segment.startTime,
@@ -219,7 +219,7 @@ function (_Component) {
         isTyping ? nextProps.setIsTyping(0) : null;
 
         if (prevState.peaksInstance !== peaksInstance) {
-          var _waveformUtils$valida = waveformUtils.validateSegment(segment, inMarker, peaksInstance.peaks),
+          var _waveformUtils$valida = waveformUtils.validateSegment(segment, startTimeChanged, peaksInstance.peaks),
               _startTime = _waveformUtils$valida.startTime,
               _endTime = _waveformUtils$valida.endTime;
 
@@ -248,7 +248,7 @@ var mapStateToProps = function mapStateToProps(state) {
     peaksInstance: state.peaksInstance,
     segment: state.peaksInstance.segment,
     isDragging: state.peaksInstance.isDragging,
-    inMarker: state.peaksInstance.inMarker
+    startTimeChanged: state.peaksInstance.startTimeChanged
   };
 };
 

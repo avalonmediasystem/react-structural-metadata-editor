@@ -9,7 +9,7 @@ const initialState = {
   events: null,
   segment: null,
   isDragging: false,
-  inMarker: null
+  startTimeChanged: null
 };
 let newPeaks = null;
 let updatedSegment = null;
@@ -96,21 +96,12 @@ const peaksInstance = (state = initialState, action) => {
       };
 
     case types.IS_DRAGGING:
-      if (action.flag === 0) {
-        return {
-          ...state,
-          segment: state.peaks.segments.getSegment(action.segmentID),
-          inMarker: action.inMarker,
-          isDragging: false
-        };
-      } else {
-        return {
-          ...state,
-          segment: state.peaks.segments.getSegment(action.segmentID),
-          inMarker: action.inMarker,
-          isDragging: true
-        };
-      }
+      return {
+        ...state,
+        segment: state.peaks.segments.getSegment(action.segmentID),
+        startTimeChanged: action.startTimeChanged,
+        isDragging: action.flag === 1 ? true : false
+      };
 
     case types.TEMP_INSERT_SEGMENT:
       newPeaks = waveformUtils.insertTempSegment({ ...state.peaks });

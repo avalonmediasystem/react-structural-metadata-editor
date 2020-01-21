@@ -48,11 +48,11 @@ class TimespanInlineForm extends Component {
     clonedSegment: {},
     peaksInstance: this.props.peaksInstance,
     segment: this.props.segment,
-    inMarker: this.props.inMarker
+    startTimeChanged: this.props.startTimeChanged
   };
 
   componentDidMount() {
-    const { smData, item, peaksInstance, inMarker } = this.props;
+    const { smData, item, peaksInstance, startTimeChanged } = this.props;
 
     // Get a fresh copy of store data
     this.tempSmData = cloneDeep(smData);
@@ -83,7 +83,7 @@ class TimespanInlineForm extends Component {
     this.setState({ segment });
 
     // Initialize the segment in Redux store with the selected item
-    this.props.dragSegment(segment.id, inMarker, 0);
+    this.props.dragSegment(segment.id, startTimeChanged, 0);
   }
 
   static getDerivedStateFromProps(nextProps, prevState) {
@@ -93,7 +93,7 @@ class TimespanInlineForm extends Component {
       isTyping,
       isDragging,
       isInitializing,
-      inMarker
+      startTimeChanged
     } = nextProps;
     if (!isDragging && isInitializing && !isTyping && !isEmpty(segment)) {
       const { startTime, endTime } = segment;
@@ -109,7 +109,7 @@ class TimespanInlineForm extends Component {
       if (prevState.peaksInstance !== peaksInstance) {
         const { startTime, endTime } = waveformUtils.validateSegment(
           segment,
-          inMarker,
+          startTimeChanged,
           peaksInstance.peaks
         );
         return {
@@ -141,9 +141,9 @@ class TimespanInlineForm extends Component {
   };
 
   handleInputChange = e => {
-    const { segment, inMarker } = this.props;
+    const { segment, startTimeChanged } = this.props;
     // Lock disabling isTyping flag before updating DOM from form inputs
-    this.props.dragSegment(segment.id, inMarker, 0);
+    this.props.dragSegment(segment.id, startTimeChanged, 0);
 
     // Enable updating state from form inputs
     this.props.setIsTyping(1);
@@ -234,7 +234,7 @@ const mapStateToProps = state => ({
   peaksInstance: state.peaksInstance,
   segment: state.peaksInstance.segment,
   isDragging: state.peaksInstance.isDragging,
-  inMarker: state.peaksInstance.inMarker
+  startTimeChanged: state.peaksInstance.startTimeChanged
 });
 
 const mapDispatchToProps = {

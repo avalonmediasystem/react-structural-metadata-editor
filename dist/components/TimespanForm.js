@@ -98,9 +98,9 @@ function (_Component) {
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "handleTimeChange", function (e) {
       var _this$props = _this.props,
           segment = _this$props.segment,
-          inMarker = _this$props.inMarker; // Lock setting isTyping to false before updating the DOM
+          startTimeChanged = _this$props.startTimeChanged; // Lock setting isTyping to false before updating the DOM
 
-      _this.props.dragSegment(segment.id, inMarker, 0); // Set isTyping flag in props to true
+      _this.props.dragSegment(segment.id, startTimeChanged, 0); // Set isTyping flag in props to true
 
 
       _this.props.setIsTyping(1);
@@ -304,7 +304,7 @@ function (_Component) {
             peaksInstance = nextProps.peaksInstance,
             segment = nextProps.segment,
             smData = nextProps.smData,
-            inMarker = nextProps.inMarker;
+            startTimeChanged = nextProps.startTimeChanged;
 
         if (initSegment && isInitializing) {
           var startTime = initSegment.startTime,
@@ -318,7 +318,7 @@ function (_Component) {
         }
 
         if (prevState.peaksInstance !== peaksInstance && !isInitializing) {
-          var _waveformDataUtils$va = waveformDataUtils.validateSegment(segment, inMarker, peaksInstance.peaks),
+          var _waveformDataUtils$va = waveformDataUtils.validateSegment(segment, startTimeChanged, peaksInstance.peaks),
               _startTime = _waveformDataUtils$va.startTime,
               _endTime = _waveformDataUtils$va.endTime;
 
@@ -345,7 +345,7 @@ var mapStateToProps = function mapStateToProps(state) {
     smData: state.structuralMetadata.smData,
     peaksInstance: state.peaksInstance,
     segment: state.peaksInstance.segment,
-    inMarker: state.peaksInstance.inMarker,
+    startTimeChanged: state.peaksInstance.startTimeChanged,
     isDragging: state.peaksInstance.isDragging
   };
 };

@@ -77,7 +77,8 @@ class TimespanForm extends Component {
         isInitializing,
         peaksInstance,
         segment,
-        smData
+        smData,
+        startTimeChanged
       } = nextProps;
 
       if (initSegment && isInitializing) {
@@ -93,6 +94,7 @@ class TimespanForm extends Component {
       if (prevState.peaksInstance !== peaksInstance && !isInitializing) {
         const { startTime, endTime } = waveformDataUtils.validateSegment(
           segment,
+          startTimeChanged,
           peaksInstance.peaks
         );
         return {
@@ -180,8 +182,9 @@ class TimespanForm extends Component {
   };
 
   handleTimeChange = e => {
+    const { segment, startTimeChanged } = this.props;
     // Lock setting isTyping to false before updating the DOM
-    this.props.setIsDragging(this.props.segment, 0);
+    this.props.dragSegment(segment.id, startTimeChanged, 0);
 
     // Set isTyping flag in props to true
     this.props.setIsTyping(1);
@@ -190,7 +193,7 @@ class TimespanForm extends Component {
       this.updateChildOfOptions();
       // Update waveform segment with user inputs in the form
       if (this.localValidTimespans().valid) {
-        this.props.updateSegment(this.props.segment, this.state);
+        this.props.updateSegment(segment, this.state);
       }
     });
   };
@@ -341,15 +344,13 @@ const mapStateToProps = state => ({
   smData: state.structuralMetadata.smData,
   peaksInstance: state.peaksInstance,
   segment: state.peaksInstance.segment,
+  startTimeChanged: state.peaksInstance.startTimeChanged,
   isDragging: state.peaksInstance.isDragging
 });
 
 const mapDispatchToProps = {
   updateSegment: peaksActions.updateSegment,
-  setIsDragging: peaksActions.dragSegment
+  dragSegment: peaksActions.dragSegment
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(TimespanForm);
+export default connect(mapStateToProps, mapDispatchToProps)(TimespanForm);

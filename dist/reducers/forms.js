@@ -30,14 +30,8 @@ var forms = function forms() {
 
   switch (action.type) {
     case types.IS_EDITING_TIMESPAN:
-      if (action.code === 1) {
-        return Object.assign({}, state, {
-          editingDisabled: true
-        });
-      }
-
       return Object.assign({}, state, {
-        editingDisabled: false
+        editingDisabled: action.code === 1 ? true : false
       });
 
     case types.RETRIEVE_STRUCTURE_SUCCESS:
@@ -53,19 +47,11 @@ var forms = function forms() {
       });
 
     case types.HANDLE_STRUCTURE_ERROR:
-      if (action.flag === 0) {
-        return Object.assign({}, state, {
-          structureInfo: Object.assign({}, state.structureInfo, {
-            structureStatus: null
-          })
-        });
-      } else {
-        return Object.assign({}, state, {
-          structureInfo: Object.assign({}, state.structureInfo, {
-            structureStatus: action.status
-          })
-        });
-      }
+      return Object.assign({}, state, {
+        structureInfo: Object.assign({}, state.structureInfo, {
+          structureStatus: action.flag === 0 ? null : action.status
+        })
+      });
 
     case types.STREAM_MEDIA_ERROR:
       return Object.assign({}, state, {
@@ -86,19 +72,11 @@ var forms = function forms() {
       });
 
     case types.UPDATE_STRUCTURE_STATUS:
-      if (action.payload === 1) {
-        return Object.assign({}, state, {
-          structureInfo: Object.assign({}, state.structureInfo, {
-            structureSaved: true
-          })
-        });
-      } else {
-        return Object.assign({}, state, {
-          structureInfo: Object.assign({}, state.structureInfo, {
-            structureSaved: false
-          })
-        });
-      }
+      return Object.assign({}, state, {
+        structureInfo: Object.assign({}, state.structureInfo, {
+          structureSaved: action.payload === 1 ? true : false
+        })
+      });
 
     default:
       return state;

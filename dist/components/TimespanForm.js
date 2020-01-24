@@ -96,8 +96,11 @@ function (_Component) {
       _this.clearFormValues();
     });
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "handleTimeChange", function (e) {
-      // Lock setting isTyping to false before updating the DOM
-      _this.props.setIsDragging(_this.props.segment, 0); // Set isTyping flag in props to true
+      var _this$props = _this.props,
+          segment = _this$props.segment,
+          startTimeChanged = _this$props.startTimeChanged; // Lock setting isTyping to false before updating the DOM
+
+      _this.props.dragSegment(segment.id, startTimeChanged, 0); // Set isTyping flag in props to true
 
 
       _this.props.setIsTyping(1);
@@ -107,7 +110,7 @@ function (_Component) {
 
 
         if (_this.localValidTimespans().valid) {
-          _this.props.updateSegment(_this.props.segment, _this.state);
+          _this.props.updateSegment(segment, _this.state);
         }
       });
     });
@@ -135,9 +138,9 @@ function (_Component) {
   (0, _createClass2["default"])(TimespanForm, [{
     key: "componentDidMount",
     value: function componentDidMount() {
-      var _this$props = this.props,
-          smData = _this$props.smData,
-          peaksInstance = _this$props.peaksInstance;
+      var _this$props2 = this.props,
+          smData = _this$props2.smData,
+          peaksInstance = _this$props2.peaksInstance;
       var _this$state2 = this.state,
           beginTime = _this$state2.beginTime,
           endTime = _this$state2.endTime;
@@ -300,7 +303,8 @@ function (_Component) {
             isInitializing = nextProps.isInitializing,
             peaksInstance = nextProps.peaksInstance,
             segment = nextProps.segment,
-            smData = nextProps.smData;
+            smData = nextProps.smData,
+            startTimeChanged = nextProps.startTimeChanged;
 
         if (initSegment && isInitializing) {
           var startTime = initSegment.startTime,
@@ -314,7 +318,7 @@ function (_Component) {
         }
 
         if (prevState.peaksInstance !== peaksInstance && !isInitializing) {
-          var _waveformDataUtils$va = waveformDataUtils.validateSegment(segment, peaksInstance.peaks),
+          var _waveformDataUtils$va = waveformDataUtils.validateSegment(segment, startTimeChanged, peaksInstance.peaks),
               _startTime = _waveformDataUtils$va.startTime,
               _endTime = _waveformDataUtils$va.endTime;
 
@@ -341,13 +345,14 @@ var mapStateToProps = function mapStateToProps(state) {
     smData: state.structuralMetadata.smData,
     peaksInstance: state.peaksInstance,
     segment: state.peaksInstance.segment,
+    startTimeChanged: state.peaksInstance.startTimeChanged,
     isDragging: state.peaksInstance.isDragging
   };
 };
 
 var mapDispatchToProps = {
   updateSegment: peaksActions.updateSegment,
-  setIsDragging: peaksActions.dragSegment
+  dragSegment: peaksActions.dragSegment
 };
 
 var _default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(TimespanForm);

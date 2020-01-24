@@ -8,7 +8,8 @@ const initialState = {
   peaks: {},
   events: null,
   segment: null,
-  isDragging: false
+  isDragging: false,
+  startTimeChanged: null
 };
 let newPeaks = null;
 let updatedSegment = null;
@@ -67,6 +68,7 @@ const peaksInstance = (state = initialState, action) => {
       });
       return {
         ...state,
+        isDragging: false,
         peaks: rebuiltPeaks
       };
 
@@ -76,6 +78,7 @@ const peaksInstance = (state = initialState, action) => {
       });
       return {
         ...state,
+        isDragging: false,
         peaks: waveformUtils.revertSegment(action.payload, {
           ...newPeaks
         })
@@ -93,12 +96,12 @@ const peaksInstance = (state = initialState, action) => {
       };
 
     case types.IS_DRAGGING:
-      if (action.flag === 0) {
-        return { ...state, segment: action.segment, isDragging: false };
-      }
-      if (action.flag === 1) {
-        return { ...state, segment: action.segment, isDragging: true };
-      }
+      return {
+        ...state,
+        segment: state.peaks.segments.getSegment(action.segmentID),
+        startTimeChanged: action.startTimeChanged,
+        isDragging: action.flag === 1 ? true : false
+      };
 
     case types.TEMP_INSERT_SEGMENT:
       newPeaks = waveformUtils.insertTempSegment({ ...state.peaks });

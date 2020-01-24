@@ -114,6 +114,14 @@ function (_Component) {
       return item;
     }
   }, {
+    key: "componentWillUnmount",
+    value: function componentWillUnmount() {
+      this.setState({
+        isInitializing: true,
+        isTyping: false
+      });
+    }
+  }, {
     key: "render",
     value: function render() {
       var item = this.props.item;

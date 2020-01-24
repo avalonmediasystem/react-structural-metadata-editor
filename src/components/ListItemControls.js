@@ -3,7 +3,10 @@ import { Button, ButtonToolbar, Overlay, Popover } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { connect } from 'react-redux';
-import { handleEditingTimespans } from '../actions/forms';
+import {
+  handleEditingTimespans,
+  updateStructureStatus
+} from '../actions/forms';
 
 const styles = {
   buttonToolbar: {
@@ -43,6 +46,8 @@ class ListItemControls extends Component {
     this.props.handleDelete();
     this.enableEditing();
     this.setState({ deleteMessage: '', showDeleteConfirm: false });
+    // Change structureIsSaved to false
+    this.props.updateStructureStatus(0);
   };
 
   handleDeleteClick = e => {
@@ -154,14 +159,12 @@ class ListItemControls extends Component {
 }
 
 const mapDispatchToProps = dispatch => ({
-  handleEditingTimespans: code => dispatch(handleEditingTimespans(code))
+  handleEditingTimespans: code => dispatch(handleEditingTimespans(code)),
+  updateStructureStatus: code => dispatch(updateStructureStatus(code))
 });
 
 const mapStateToProps = state => ({
   forms: state.forms
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(ListItemControls);
+export default connect(mapStateToProps, mapDispatchToProps)(ListItemControls);

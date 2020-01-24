@@ -76,7 +76,10 @@ function (_Component) {
       _this.setState({
         deleteMessage: '',
         showDeleteConfirm: false
-      });
+      }); // Change structureIsSaved to false
+
+
+      _this.props.updateStructureStatus(0);
     });
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "handleDeleteClick", function (e) {
       var _this$props$item = _this.props.item,
@@ -196,6 +199,9 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
   return {
     handleEditingTimespans: function handleEditingTimespans(code) {
       return dispatch((0, _forms.handleEditingTimespans)(code));
+    },
+    updateStructureStatus: function updateStructureStatus(code) {
+      return dispatch((0, _forms.updateStructureStatus)(code));
     }
   };
 };

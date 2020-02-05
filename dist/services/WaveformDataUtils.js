@@ -280,7 +280,15 @@ function () {
         segment.update({
           startTime: before.endTime
         });
-      } else if (isDuration(segment.endTime)) {
+      }
+
+      if (after && segment.endTime > after.startTime && after.startTime != segment.startTime) {
+        segment.update({
+          endTime: after.startTime
+        });
+      }
+
+      if (isDuration(segment.endTime)) {
         var allSegments = this.sortSegments(peaksInstance, 'startTime');
         var afterSegments = allSegments.filter(function (seg) {
           return seg.startTime > segment.startTime;
@@ -291,10 +299,6 @@ function () {
             endTime: afterSegments[0].startTime
           });
         }
-      } else if (after && segment.endTime > after.startTime) {
-        segment.update({
-          endTime: after.startTime
-        });
       }
 
       return peaksInstance;
@@ -415,10 +419,15 @@ function () {
 
       var _this$findWrapperSegm2 = this.findWrapperSegments(segment, peaksInstance),
           before = _this$findWrapperSegm2.before,
-          after = _this$findWrapperSegm2.after;
+          after = _this$findWrapperSegm2.after; // Check for margin of +/- 0.02 milliseconds to be considered
+
+
+      var isDuration = function isDuration(time) {
+        return time <= duration + 0.02 && time >= duration - 0.02;
+      };
 
       if (startTimeChanged) {
-        if (before && startTime < before.endTime) {
+        if (before && startTime < before.endTime && !isDuration(before.endTime)) {
           // when start handle is dragged over the segment before
           segment.update({
             startTime: before.endTime

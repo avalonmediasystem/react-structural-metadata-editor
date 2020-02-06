@@ -5,7 +5,7 @@
   margin-left: auto;
 }
 
-section {
+.sme-container section {
   margin-bottom: 10px;
 }
 
@@ -92,7 +92,7 @@ section {
   top: 40%;
   border-radius: 50%;
   border: 6px solid #80a590;
-  border-color:#80a590 transparent #80a590 transparent;
+  border-color: #80a590 transparent #80a590 transparent;
   -webkit-animation: loading-spinner 1.2s linear infinite;
   animation: loading-spinner 1.2s linear infinite;
 }

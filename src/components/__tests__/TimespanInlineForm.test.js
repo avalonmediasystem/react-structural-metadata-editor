@@ -3,7 +3,8 @@ import { cleanup, fireEvent } from 'react-testing-library';
 import 'jest-dom/extend-expect';
 import TimespanInlineForm from '../TimespanInlineForm';
 import { renderWithRedux, testSmData } from '../../services/testing-helpers';
-import Peaks from 'peaks';
+
+import mockPeaks from '../../../__mocks__/peaks';
 
 // Set up a redux store for the tests
 const peaksOptions = {
@@ -13,17 +14,17 @@ const peaksOptions = {
   dataUriDefaultFormat: 'json',
   keyboard: true,
   _zoomLevelIndex: 0,
-  _zoomLevels: [512, 1024, 2048, 4096]
+  _zoomLevels: [512, 1024, 2048, 4096],
 };
 const initialState = {
   structuralMetadata: {
-    smData: testSmData
+    smData: testSmData,
   },
   peaksInstance: {
-    peaks: Peaks.init(peaksOptions),
+    peaks: mockPeaks.init(peaksOptions),
     segment: null,
-    startTimeChanged: null
-  }
+    startTimeChanged: null,
+  },
 };
 
 afterEach(cleanup);
@@ -39,14 +40,14 @@ const props = {
     label: 'Segment 2.1',
     id: '123a-456b-789c-8d',
     begin: '00:09:03.241',
-    end: '00:15:00.001'
+    end: '00:15:00.001',
   },
   isTyping: false,
   isInitializing: true,
   setIsTyping: setTypingMock,
   setIsInitializing: setInitializingMock,
   saveFn: saveFnMock,
-  cancelFn: cancelFnMock
+  cancelFn: cancelFnMock,
 };
 
 test('TimespanInlineForm renders with existing values', () => {
@@ -81,7 +82,7 @@ test('shows proper validation messages for begin/end time changes and save butto
   const { getByTestId, getByLabelText, rerenderWithRedux } = renderWithRedux(
     <TimespanInlineForm {...props} />,
     {
-      initialState
+      initialState,
     }
   );
   const saveButton = getByTestId('inline-form-save-button');
@@ -95,13 +96,13 @@ test('shows proper validation messages for begin/end time changes and save butto
   );
 
   fireEvent.change(beginTimeInput, {
-    target: { value: '00:' }
+    target: { value: '00:' },
   });
   expect(beginTimeForm.classList.contains('has-error')).toBeTruthy();
   expect(saveButton).toBeDisabled();
 
   fireEvent.change(beginTimeInput, {
-    target: { value: '00:09:00.001' }
+    target: { value: '00:09:00.001' },
   });
   expect(beginTimeForm.classList.contains('has-error')).toBeFalsy();
   expect(beginTimeForm.classList.contains('has-success')).toBeTruthy();
@@ -112,7 +113,7 @@ describe('form changes when segment in the waveform change', () => {
   let timespanInlineForm, saveButton, segment;
   beforeEach(() => {
     timespanInlineForm = renderWithRedux(<TimespanInlineForm {...props} />, {
-      initialState
+      initialState,
     });
     saveButton = timespanInlineForm.getByTestId('inline-form-save-button');
     segment = initialState.peaksInstance.peaks.segments.getSegment(
@@ -126,14 +127,14 @@ describe('form changes when segment in the waveform change', () => {
     // Update the redux store with new segment value
     const nextState = {
       structuralMetadata: {
-        smData: testSmData
+        smData: testSmData,
       },
       peaksInstance: {
-        peaks: Peaks.init(peaksOptions),
+        peaks: mockPeaks.init(peaksOptions),
         segment: segment,
         isDragging: true,
-        startTimeChanged: true
-      }
+        startTimeChanged: true,
+      },
     };
     timespanInlineForm.rerenderWithRedux(
       <TimespanInlineForm {...props} />,
@@ -156,14 +157,14 @@ describe('form changes when segment in the waveform change', () => {
     // Update the redux store with new segment value
     const nextState = {
       structuralMetadata: {
-        smData: testSmData
+        smData: testSmData,
       },
       peaksInstance: {
-        peaks: Peaks.init(peaksOptions),
+        peaks: mockPeaks.init(peaksOptions),
         segment: segment,
         isDragging: true,
-        startTimeChanged: true
-      }
+        startTimeChanged: true,
+      },
     };
     timespanInlineForm.rerenderWithRedux(
       <TimespanInlineForm {...props} />,
@@ -189,7 +190,7 @@ describe('submit the inline timespan form', () => {
       { initialState }
     );
     fireEvent.change(timespanInlineForm.getByLabelText(/end time/i), {
-      target: { value: '00:10:00.001' }
+      target: { value: '00:10:00.001' },
     });
   });
   test('save the edited timespan', () => {
@@ -197,7 +198,7 @@ describe('submit the inline timespan form', () => {
     expect(saveFnMock).toHaveBeenCalledWith('123a-456b-789c-8d', {
       beginTime: '00:09:03.241',
       endTime: '00:10:00.001',
-      timespanTitle: 'Segment 2.1'
+      timespanTitle: 'Segment 2.1',
     });
     expect(saveFnMock).toHaveBeenCalledTimes(1);
   });

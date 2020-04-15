@@ -4,7 +4,8 @@ import { cleanup, fireEvent } from 'react-testing-library';
 import { renderWithRedux, testSmData } from '../../services/testing-helpers';
 import 'jest-dom/extend-expect';
 import { wrapInTestContext } from 'react-dnd-test-utils';
-import Peaks from 'peaks';
+
+import mockPeaks from '../../../__mocks__/peaks';
 
 const peaksOptions = {
   container: null,
@@ -13,15 +14,15 @@ const peaksOptions = {
   dataUriDefaultFormat: 'json',
   keyboard: true,
   _zoomLevelIndex: 0,
-  _zoomLevels: [512, 1024, 2048, 4096]
+  _zoomLevels: [512, 1024, 2048, 4096],
 };
 
 const initialState = {
   structuralMetadata: {
-    smData: testSmData
+    smData: testSmData,
   },
   peaksInstance: {
-    peaks: Peaks.init(peaksOptions),
+    peaks: mockPeaks.init(peaksOptions),
     isDragging: false,
     segment: {
       startTime: 0,
@@ -29,30 +30,30 @@ const initialState = {
       label: '',
       id: 'temp-segment',
       editable: true,
-      color: '#FBB040'
+      color: '#FBB040',
     },
-    events: null
+    events: null,
   },
-  forms: {}
+  forms: {},
 };
 const divItem = {
   type: 'div',
   label: 'Sub-Segment 1.1',
   id: '123a-456b-789c-2d',
-  items: []
+  items: [],
 };
 const rootItem = {
   type: 'root',
   label: 'Ima Title',
   id: '123a-456b-789c-0d',
-  items: []
+  items: [],
 };
 const spanItem = {
   type: 'span',
   label: 'Segment 1.1',
   id: '123a-456b-789c-3d',
   begin: '00:00:03.321',
-  end: '00:00:10.321'
+  end: '00:00:10.321',
 };
 const divItemWithChildren = {
   type: 'div',
@@ -68,18 +69,18 @@ const divItemWithChildren = {
           type: 'div',
           label: 'Sub-Segment 2.1.1',
           id: '123a-456b-789c-7d',
-          items: []
+          items: [],
         },
         {
           type: 'span',
           label: 'Segment 2.1',
           id: '123a-456b-789c-8d',
           begin: '00:09:03.241',
-          end: '00:15:00.001'
-        }
-      ]
-    }
-  ]
+          end: '00:15:00.001',
+        },
+      ],
+    },
+  ],
 };
 
 let ListItemContext = null;
@@ -94,7 +95,7 @@ describe('initial ListItem render', () => {
 
   beforeEach(() => {
     utils = renderWithRedux(<ListItemContext item={divItem} />, {
-      initialState
+      initialState,
     });
   });
 
@@ -112,7 +113,7 @@ describe('initial ListItem render', () => {
 
 it('ListItem renders the correct html element based on item.type', () => {
   const utils = renderWithRedux(<ListItemContext item={divItem} />, {
-    initialState
+    initialState,
   });
 
   expect(utils.getByTestId('heading-label')).toBeInTheDocument();
@@ -128,7 +129,7 @@ it('ListItem renders the correct html element based on item.type', () => {
 
 it('timespan item displays a begin and end time with its label', () => {
   const utils = renderWithRedux(<ListItemContext item={spanItem} />, {
-    initialState
+    initialState,
   });
 
   expect(utils.getByText(spanItem.begin, { exact: false })).toBeInTheDocument();
@@ -138,7 +139,7 @@ it('timespan item displays a begin and end time with its label', () => {
 
 it('heading item displays a submenu list if the item object contains items', () => {
   const utils = renderWithRedux(<ListItemContext item={divItem} />, {
-    initialState
+    initialState,
   });
   expect(utils.queryAllByTestId('list')).toHaveLength(0);
 
@@ -151,7 +152,7 @@ it('heading item displays a submenu list if the item object contains items', () 
 
 it('adds an active class to an active list item', () => {
   const utils = renderWithRedux(<ListItemContext item={divItem} />, {
-    initialState
+    initialState,
   });
   expect(utils.container.querySelector('.active')).toBeNull();
 
@@ -173,7 +174,7 @@ describe('editing a list item', () => {
 
   beforeEach(() => {
     utils = renderWithRedux(<ListItemContext item={testItem} />, {
-      initialState
+      initialState,
     });
     editButton = utils.getByTestId('list-item-edit-btn');
   });
@@ -213,7 +214,7 @@ describe('editing a list item', () => {
     expect(cancelButton).toBeInTheDocument();
 
     fireEvent.change(input, {
-      target: { value: 'foobar' }
+      target: { value: 'foobar' },
     });
     expect(input.value).toEqual('foobar');
     expect(utils.queryByText(label)).not.toBeInTheDocument();
@@ -229,7 +230,7 @@ describe('editing a list item', () => {
     const input = utils.getByLabelText(/^Title$/);
 
     fireEvent.change(input, {
-      target: { value: 'foobar' }
+      target: { value: 'foobar' },
     });
     expect(input.value).toEqual('foobar');
 

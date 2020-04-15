@@ -1,9 +1,10 @@
 import React from 'react';
-import Peaks from 'peaks';
 import { fireEvent, cleanup, wait } from 'react-testing-library';
 import 'jest-dom/extend-expect';
 import { renderWithRedux, testSmData } from '../../services/testing-helpers';
 import ButtonSection from '../ButtonSection';
+
+import mockPeaks from '../../../__mocks__/peaks';
 
 // Set up a redux store for the tests
 const peaksOptions = {
@@ -13,7 +14,7 @@ const peaksOptions = {
   dataUriDefaultFormat: 'json',
   keyboard: true,
   _zoomLevelIndex: 0,
-  _zoomLevels: [512, 1024, 2048, 4096]
+  _zoomLevels: [512, 1024, 2048, 4096],
 };
 const initialState = {
   forms: {
@@ -21,16 +22,16 @@ const initialState = {
     streamInfo: {
       // stream URL works
       streamMediaError: false,
-      streamMediaLoading: false
+      streamMediaLoading: false,
     },
     structureInfo: {
-      structureRetrieved: true
-    }
+      structureRetrieved: true,
+    },
   },
   peaksInstance: {
-    peaks: Peaks.init(peaksOptions)
+    peaks: mockPeaks.init(peaksOptions),
   },
-  structuralMetadata: { smData: testSmData }
+  structuralMetadata: { smData: testSmData },
 };
 
 afterEach(cleanup);
@@ -38,7 +39,7 @@ afterEach(cleanup);
 test('loads and displays initial add heading and timespan buttons', () => {
   // Arrange
   const { getByTestId, getByText } = renderWithRedux(<ButtonSection />, {
-    initialState
+    initialState,
   });
 
   // Assert
@@ -59,7 +60,7 @@ describe('heading button', () => {
   test('clicking the heading button opens the heading form with a disabled save button on initial load', async () => {
     // Arrange
     const { getByTestId } = renderWithRedux(<ButtonSection />, {
-      initialState
+      initialState,
     });
 
     // Act
@@ -74,7 +75,7 @@ describe('heading button', () => {
 
   test('clicking the cancel button closes the form', async () => {
     const { getByTestId } = renderWithRedux(<ButtonSection />, {
-      initialState
+      initialState,
     });
 
     fireEvent.click(getByTestId('heading-form-cancel-button'));
@@ -88,7 +89,7 @@ describe('timespan button', () => {
   let buttonSection;
   beforeEach(() => {
     buttonSection = renderWithRedux(<ButtonSection />, {
-      initialState
+      initialState,
     });
     fireEvent.click(buttonSection.getByTestId('add-timespan-button'));
   });
@@ -125,9 +126,9 @@ describe('timespan button', () => {
         ...initialState.forms,
         streamInfo: {
           streamMediaError: true,
-          streamMediaLoading: false
-        }
-      }
+          streamMediaLoading: false,
+        },
+      },
     };
     buttonSection.rerenderWithRedux(<ButtonSection />, nextState);
 
@@ -137,7 +138,7 @@ describe('timespan button', () => {
 
 test('when one form is open, clicking the button for the other form closes current form and opens the new form', async () => {
   const { getByTestId, getByText } = renderWithRedux(<ButtonSection />, {
-    initialState
+    initialState,
   });
 
   fireEvent.click(getByTestId('add-heading-button'));

@@ -57,7 +57,7 @@ export function initializeSMDataPeaks(
 
         // Subscribe to Peaks event for dragging handles in a segment
         if (peaksInstance.events !== undefined) {
-          peaksInstance.events.subscribe(eProps => {
+          peaksInstance.events.subscribe((eProps) => {
             // startTimeChanged = true -> handle at the start of the segment is being dragged
             // startTimeChanged = flase -> handle at the end of the segment is being dragged
             const [segment, startTimeChanged] = eProps;
@@ -84,42 +84,42 @@ export function initPeaks(smData, options) {
   return {
     type: types.INIT_PEAKS,
     smData,
-    options
+    options,
   };
 }
 
 export function insertNewSegment(span) {
   return {
     type: types.INSERT_SEGMENT,
-    payload: span
+    payload: span,
   };
 }
 
 export function deleteSegment(item) {
   return {
     type: types.DELETE_SEGMENT,
-    payload: item
+    payload: item,
   };
 }
 
 export function activateSegment(id) {
   return {
     type: types.ACTIVATE_SEGMENT,
-    payload: id
+    payload: id,
   };
 }
 
 export function revertSegment(clone) {
   return {
     type: types.REVERT_SEGMENT,
-    payload: clone
+    payload: clone,
   };
 }
 
 export function saveSegment(state) {
   return {
     type: types.SAVE_SEGMENT,
-    payload: state
+    payload: state,
   };
 }
 
@@ -127,7 +127,7 @@ export function updateSegment(segment, state) {
   return {
     type: types.UPDATE_SEGMENT,
     segment,
-    state
+    state,
   };
 }
 
@@ -136,19 +136,19 @@ export function dragSegment(segmentID, startTimeChanged, flag) {
     type: types.IS_DRAGGING,
     segmentID,
     startTimeChanged,
-    flag
+    flag,
   };
 }
 
 export function insertTempSegment() {
   return {
-    type: types.TEMP_INSERT_SEGMENT
+    type: types.TEMP_INSERT_SEGMENT,
   };
 }
 
 export function deleteTempSegment(id) {
   return {
     type: types.TEMP_DELETE_SEGMENT,
-    payload: id
+    payload: id,
   };
 }

@@ -15,7 +15,7 @@ var types = _interopRequireWildcard(require("../actions/types"));
 
 var _WaveformDataUtils = _interopRequireDefault(require("../services/WaveformDataUtils"));
 
-var _peaks = _interopRequireDefault(require("peaks.js"));
+require("../../vendor/javascript/peaks");
 
 var _rxjs = require("rxjs");
 
@@ -42,7 +42,7 @@ var peaksInstance = function peaksInstance() {
     case types.INIT_PEAKS:
       var segments = waveformUtils.initSegments(action.smData);
 
-      var _peaksInstance = _peaks["default"].init(_objectSpread({}, action.options, {
+      var _peaksInstance = peaks.init(_objectSpread({}, action.options, {
         segments: segments
       }));
 

@@ -6,8 +6,8 @@ import { renderWithRedux, testSmData } from '../../services/testing-helpers';
 
 const initialState = {
   structuralMetadata: {
-    smData: testSmData
-  }
+    smData: testSmData,
+  },
 };
 
 afterEach(cleanup);
@@ -23,8 +23,8 @@ test('save button is disabled at initial render', () => {
 });
 
 test('select child options are available in dropdown', () => {
-  const { container, getByTestId } = renderWithRedux(<HeadingForm />, {
-    initialState
+  const { container } = renderWithRedux(<HeadingForm />, {
+    initialState,
   });
   const el = container.querySelector('#headingChildOf');
   expect(el.children.length).toBe(8);
@@ -32,20 +32,17 @@ test('select child options are available in dropdown', () => {
 });
 
 test('heading title input shows proper validation messages', async () => {
-  const { container, getByLabelText, getByTestId, debug } = renderWithRedux(
-    <HeadingForm />,
-    {
-      initialState
-    }
-  );
+  const { getByLabelText, getByTestId } = renderWithRedux(<HeadingForm />, {
+    initialState,
+  });
 
   const titleInput = getByLabelText(/title/i);
   const formGroup = getByTestId('heading-title-form-group');
 
   fireEvent.change(titleInput, {
     target: {
-      value: 'abcde'
-    }
+      value: 'abcde',
+    },
   });
   expect(formGroup.classList.contains('has-success'));
 
@@ -58,7 +55,7 @@ test('Save button has enabled state only when heading form is valid', () => {
   const { getByLabelText, getByTestId, debug } = renderWithRedux(
     <HeadingForm />,
     {
-      initialState
+      initialState,
     }
   );
 
@@ -71,13 +68,13 @@ test('Save button has enabled state only when heading form is valid', () => {
 
   // Make title valid
   fireEvent.change(titleInput, {
-    target: { value: 'A title here' }
+    target: { value: 'A title here' },
   });
   expect(submitButton).toBeDisabled();
 
   // Make child of valid
   fireEvent.change(childOfSelect, {
-    target: { value: '123a-456b-789c-5d' }
+    target: { value: '123a-456b-789c-5d' },
   });
   expect(submitButton).toBeEnabled();
 
@@ -92,13 +89,13 @@ describe('submitting the form', () => {
 
   beforeEach(() => {
     utils = renderWithRedux(<HeadingForm onSubmit={onSubmitMock} />, {
-      initialState
+      initialState,
     });
     fireEvent.change(utils.getByLabelText(/title/i), {
-      target: { value: 'A title here' }
+      target: { value: 'A title here' },
     });
     fireEvent.change(utils.getByLabelText(/child of/i), {
-      target: { value: '123a-456b-789c-5d' }
+      target: { value: '123a-456b-789c-5d' },
     });
     fireEvent.click(utils.getByTestId('heading-form-save-button'));
   });
@@ -106,7 +103,7 @@ describe('submitting the form', () => {
   test('submits the correct data and payload structure', () => {
     const expectedPayload = {
       headingChildOf: '123a-456b-789c-5d',
-      headingTitle: 'A title here'
+      headingTitle: 'A title here',
     };
 
     expect(onSubmitMock).toBeCalledWith(expectedPayload);

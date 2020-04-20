@@ -20,10 +20,10 @@ const peaksOptions = {
   pointMarkerColor: '#006eb0',
   showPlayheadTime: true,
   zoomWaveformColor: 'rgba(117, 117, 117, 1)',
-  overviewWaveformColor: 'rgba(117, 117, 117, 1)'
+  overviewWaveformColor: 'rgba(117, 117, 117, 1)',
 };
 
-class WaveformContainer extends Component {
+export class WaveformContainer extends Component {
   constructor(props) {
     super(props);
     this.waveformContainer = null;
@@ -37,7 +37,7 @@ class WaveformContainer extends Component {
     masterFileID: this.props.masterFileID,
     baseURL: this.props.baseURL,
     initStructure: this.props.initStructure,
-    streamLength: this.props.streamDuration
+    streamLength: this.props.streamDuration,
   };
 
   componentDidMount() {
@@ -48,13 +48,13 @@ class WaveformContainer extends Component {
 
   clearAlert = () => {
     this.setState({
-      alertObj: null
+      alertObj: null,
     });
   };
 
   clearStreamAlert = () => {
     this.setState({
-      streamAlert: null
+      streamAlert: null,
     });
   };
 
@@ -129,8 +129,8 @@ class WaveformContainer extends Component {
           <AlertContainer {...alertObj} />
         ) : (
           <Waveform
-            waveformRef={ref => (this.waveformContainer = ref)}
-            mediaPlayerRef={ref => (this.mediaPlayer = ref)}
+            waveformRef={(ref) => (this.waveformContainer = ref)}
+            mediaPlayerRef={(ref) => (this.mediaPlayer = ref)}
             audioStreamURL={audioStreamURL}
             alertObj={streamAlert}
             clearAlert={this.clearStreamAlert}
@@ -141,18 +141,15 @@ class WaveformContainer extends Component {
   }
 }
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   smData: state.structuralMetadata.smData,
-  forms: state.forms
+  forms: state.forms,
 });
 
 const mapDispatchToProps = {
   fetchDataAndBuildPeaks: initializeSMDataPeaks,
   retrieveWaveformSuccess: retrieveWaveformSuccess,
-  handleEditingTimespans: handleEditingTimespans
+  handleEditingTimespans: handleEditingTimespans,
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(WaveformContainer);
+export default connect(mapStateToProps, mapDispatchToProps)(WaveformContainer);

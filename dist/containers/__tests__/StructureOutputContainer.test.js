@@ -6,10 +6,10 @@ import { renderWithRedux, testSmData } from '../../services/testing-helpers';
 import { wrapInTestContext } from 'react-dnd-test-utils';
 import mockAxios from 'axios';
 
-const mockPeaks = jest.genMockFromModule('peaks.js');
-mockPeaks.init = jest.fn(options => {
+const mockPeaks = jest.genMockFromModule('../../../vendor/javascript/peaks');
+mockPeaks.init = jest.fn((options) => {
   return {
-    options: options
+    options: options,
   };
 });
 
@@ -20,19 +20,19 @@ const peaksOptions = {
   dataUriDefaultFormat: 'json',
   keyboard: true,
   _zoomLevelIndex: 0,
-  _zoomLevels: [512, 1024, 2048, 4096]
+  _zoomLevels: [512, 1024, 2048, 4096],
 };
 // Set up Redux store for tests
 const initialState = {
   forms: {
     structureInfo: {
       structureRetrieved: true,
-      structureStatus: null
-    }
+      structureStatus: null,
+    },
   },
   structuralMetadata: {
-    smData: testSmData
-  }
+    smData: testSmData,
+  },
 };
 const mockStructureIsSaved = jest.fn();
 
@@ -49,7 +49,7 @@ test('StructureOutputContainer renders', () => {
   const { getByTestId } = renderWithRedux(
     <StructureOutputContext structureIsSaved={mockStructureIsSaved} />,
     {
-      initialState
+      initialState,
     }
   );
   expect(getByTestId('structure-output-section')).toBeInTheDocument();
@@ -68,7 +68,10 @@ test('shows structure list when there fetching structure.json is successful', ()
 });
 
 test('shows an error message when there is an error in fetching structure.json', () => {
-  const { rerenderWithRedux, getByTestId } = renderWithRedux(
+  const {
+    rerenderWithRedux,
+    getByTestId,
+  } = renderWithRedux(
     <StructureOutputContext structureIsSaved={mockStructureIsSaved} />,
     { initialState }
   );
@@ -76,15 +79,15 @@ test('shows an error message when there is an error in fetching structure.json',
     forms: {
       structureInfo: {
         structureRetrieved: false,
-        structureStatus: 401
-      }
+        structureStatus: 401,
+      },
     },
     structuralMetadata: {
-      smData: testSmData
+      smData: testSmData,
     },
     peaksInstance: {
-      peaks: mockPeaks.init(peaksOptions)
-    }
+      peaks: mockPeaks.init(peaksOptions),
+    },
   };
   rerenderWithRedux(<StructureOutputContext />, nextState);
   expect(getByTestId('alert-container')).toBeInTheDocument();
@@ -109,7 +112,7 @@ describe('saving structure back to server', () => {
   test('is successful', async () => {
     mockAxios.post.mockImplementationOnce(() => {
       return Promise.resolve({
-        status: 200
+        status: 200,
       });
     });
 
@@ -136,8 +139,8 @@ describe('saving structure back to server', () => {
     mockAxios.post.mockImplementationOnce(() => {
       return Promise.reject({
         response: {
-          status: 404
-        }
+          status: 404,
+        },
       });
     });
 

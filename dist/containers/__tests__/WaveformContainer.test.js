@@ -1,51 +1,43 @@
 import React from 'react';
 import { cleanup, wait } from 'react-testing-library';
 import 'jest-dom/extend-expect';
-import WaveformContainer from '../WaveformContainer';
+import { WaveformContainer } from '../WaveformContainer';
 import { renderWithRedux, testSmData } from '../../services/testing-helpers';
 import mockAxios from 'axios';
+import mockPeaks from '../../../__mocks__/peaks';
 
-// Mocking the external libraries used in the component execution
-jest.mock('peaks.js');
-jest.mock('rxjs');
+const initializeSMDataPeaksMock = jest.fn((opts) => {
+  mockPeaks.init(opts);
+});
+const handleEditingMock = jest.fn();
 
 // Setup Redux store for tests
 const initialState = {
   structuralMetadata: {
-    smData: testSmData
+    smData: testSmData,
   },
   forms: {
-    waveformRetrieved: false,
+    waveformRetrieved: true,
     streamInfo: {
-      streamMediaStatus: null
-    }
-  }
+      streamMediaStatus: null,
+    },
+  },
+};
+
+const initProps = {
+  baseURL: 'https://mockurl.edu',
+  masterFileID: '3421d4fg',
+  fetchDataAndBuildPeaks: initializeSMDataPeaksMock,
+  handleEditingTimespans: handleEditingMock,
+  ...initialState,
 };
 
 afterEach(cleanup);
 
 test('WaveformContainer renders', async () => {
-  mockAxios.head.mockImplementationOnce(() => {
-    return Promise.resolve({
-      status: 200,
-      request: {
-        responseURL: 'https://mockurl.edu/master_files/3421d4fg/waveform.json'
-      }
-    });
-  });
-
-  mockAxios.get.mockImplementationOnce(() => {
-    return Promise.resolve({
-      data: testSmData[0]
-    });
-  });
-
   const { getByTestId } = renderWithRedux(
-    <WaveformContainer
-      baseURL={'https://mockurl.edu'}
-      masterFileID={'3421d4fg'}
-    />,
-    { initialState }
+    <WaveformContainer {...initProps} />,
+    {}
   );
 
   await wait(() => {
@@ -57,27 +49,33 @@ test('WaveformContainer renders', async () => {
 test('shows alert when there is an error fetching waveform.json', async () => {
   mockAxios.head.mockImplementationOnce(() => {
     return Promise.reject({
-      response: { status: 404 }
+      response: { status: 404 },
     });
   });
 
   mockAxios.get.mockImplementationOnce(() => {
     return Promise.resolve({
-      data: testSmData[0]
+      data: testSmData[0],
     });
   });
 
+  const nextProps = {
+    ...initProps,
+    forms: {
+      waveformRetrieved: false,
+    },
+  };
+
   const { getByTestId, queryByTestId } = renderWithRedux(
-    <WaveformContainer
-      baseURL={'https://mockurl.edu'}
-      masterFileID={'3421d4fg'}
-    />,
-    { initialState }
+    <WaveformContainer {...nextProps} />,
+    {}
   );
 
   await wait(() => {
     expect(mockAxios.head).toHaveBeenCalledTimes(1);
-    expect(mockAxios.head).toHaveBeenCalledWith(
+    expect(
+      mockAxios.head
+    ).toHaveBeenCalledWith(
       'https://mockurl.edu/master_files/3421d4fg/waveform.json',
       { headers: { 'Content-Type': 'application/json' } }
     );
@@ -91,32 +89,19 @@ test('shows alert when there is an error fetching waveform.json', async () => {
 });
 
 test('waveform renders when there is an error in fetching structure.json', async () => {
-  mockAxios.head.mockImplementationOnce(() => {
-    return Promise.resolve({
-      status: 200,
-      request: {
-        responseURL: 'https://mockurl.edu/master_files/3421d4fg/waveform.json'
-      }
-    });
-  });
-  mockAxios.get.mockImplementationOnce(() => {
-    return Promise.reject({ error: 'Network Error' });
-  });
+  const nextProps = {
+    ...initProps,
+    forms: {
+      waveformRetrieved: true,
+    },
+  };
 
   const { getByTestId } = renderWithRedux(
-    <WaveformContainer
-      baseURL={'https://mockurl.edu'}
-      masterFileID={'3421d4fg'}
-    />,
-    { initialState }
+    <WaveformContainer {...nextProps} />,
+    {}
   );
 
   await wait(() => {
-    expect(mockAxios.get).toHaveBeenCalledTimes(1);
-    expect(mockAxios.get).toHaveBeenCalledWith(
-      'https://mockurl.edu/master_files/3421d4fg/structure.json',
-      { headers: { 'Content-Type': 'application/json' } }
-    );
     expect(getByTestId('waveform')).toBeInTheDocument();
   });
 });

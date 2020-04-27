@@ -54,7 +54,8 @@ var peaksOptions = {
   pointMarkerColor: '#006eb0',
   showPlayheadTime: true,
   zoomWaveformColor: 'rgba(117, 117, 117, 1)',
-  overviewWaveformColor: 'rgba(117, 117, 117, 1)'
+  overviewWaveformColor: 'rgba(117, 117, 117, 1)',
+  timeLabelPrecision: 3
 };
 
 var WaveformContainer =

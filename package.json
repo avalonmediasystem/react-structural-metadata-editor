@@ -56,7 +56,7 @@
     "base-64": "^0.1.0",
     "hls.js": "0.12.3-canary.4258",
     "lodash": "4.17.13",
-    "peaks.js": "^0.17.0",
+    "peaks.js": "^0.20.0",
     "prop-types": "^15.6.2",
     "react-bootstrap": "0.33.1",
     "react-dnd": "^7.0.2",

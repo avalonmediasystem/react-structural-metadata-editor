@@ -5,13 +5,13 @@ import Hls from 'hls.js';
  * Enable/disable other editing actions when editing a list item
  * @param {Integer} code - choose from; 1(true) | 0(false)
  */
-export const handleEditingTimespans = code => ({
+export const handleEditingTimespans = (code) => ({
   type: types.IS_EDITING_TIMESPAN,
-  code
+  code,
 });
 
 export const retrieveStructureSuccess = () => ({
-  type: types.RETRIEVE_STRUCTURE_SUCCESS
+  type: types.RETRIEVE_STRUCTURE_SUCCESS,
 });
 
 /**
@@ -19,13 +19,13 @@ export const retrieveStructureSuccess = () => ({
  * when an edit action is performed on the structure
  * @param {Integer} code - choose from; 1(true -> saved) | 0(false -> not saved)
  */
-export const updateStructureStatus = code => ({
+export const updateStructureStatus = (code) => ({
   type: types.UPDATE_STRUCTURE_STATUS,
-  payload: code
+  payload: code,
 });
 
 export const retrieveWaveformSuccess = () => ({
-  type: types.RETRIEVE_WAVEFORM_SUCCESS
+  type: types.RETRIEVE_WAVEFORM_SUCCESS,
 });
 
 /**
@@ -38,7 +38,7 @@ export const retrieveWaveformSuccess = () => ({
 export const handleStructureError = (flag, status) => ({
   type: types.HANDLE_STRUCTURE_ERROR,
   flag,
-  status
+  status,
 });
 
 /**
@@ -46,13 +46,13 @@ export const handleStructureError = (flag, status) => ({
  * of retries and still cannot load the stream media
  * @param {Integer} code - choose from; 1(true -> failed) | 0(false -> success)
  */
-export const streamMediaError = code => ({
+export const streamMediaError = (code) => ({
   type: types.STREAM_MEDIA_ERROR,
-  payload: code
+  payload: code,
 });
 
 export const streamMediaSuccess = () => ({
-  type: types.STREAM_MEDIA_SUCCESS
+  type: types.STREAM_MEDIA_SUCCESS,
 });
 
 export function retrieveStreamMedia(audioFile, mediaPlayer) {
@@ -63,18 +63,21 @@ export function retrieveStreamMedia(audioFile, mediaPlayer) {
       // Bind media player
       hls.attachMedia(mediaPlayer.current);
       // MEDIA_ATTACHED event is fired by hls object once MediaSource is ready
-      hls.on(Hls.Events.MEDIA_ATTACHED, function() {
+      hls.on(Hls.Events.MEDIA_ATTACHED, function () {
         hls.loadSource(audioFile);
         // BUFFER_CREATED event is fired when fetching the media stream is successful
-        hls.on(Hls.Events.BUFFER_CREATED, function() {
+        hls.on(Hls.Events.BUFFER_CREATED, function () {
           dispatch(streamMediaSuccess());
         });
       });
 
       // ERROR event is fired when fetching media stream is not successful
-      hls.on(Hls.Events.ERROR, function(event, data) {
+      hls.on(Hls.Events.ERROR, function (event, data) {
         let errorCode = null;
-        if (data.fatal) {
+        // When there are errors in the HLS build this block catches it and flashes
+        // the warning message for a split second. The ErrorType for these errors is
+        // OTHER_ERROR. Issue in HLS.js: https://github.com/video-dev/hls.js/issues/2435
+        if (data.fatal && data.type !== Hls.ErrorTypes.OTHER_ERROR) {
           if (data.response !== undefined) {
             const status = data.response.code;
             status === 0 ? (errorCode = -6) : (errorCode = status);

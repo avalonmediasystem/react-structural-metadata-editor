@@ -2889,12 +2889,7 @@ eventemitter2@~6.3.1:
   resolved "https://registry.yarnpkg.com/eventemitter2/-/eventemitter2-6.3.1.tgz#14ec7db8c659aa9b36ad2ce4bfcaba95ad525536"
   integrity sha512-cxfu3g0IBn/JEhAPV33NZTi8llQQ5j62D0Yf4ir1U9uQ1DlRZLL3Hh2E/+TWDprSy4BETWvrGBZMUexuC2b6Lw==
 
-eventemitter3@3.1.0:
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/eventemitter3/-/eventemitter3-3.1.0.tgz#090b4d6cdbd645ed10bf750d4b5407942d7ba163"
-  integrity sha512-ivIvhpq/Y0uSjcHDcOIccjmYjGLcP09MFGE7ysAwkAvkXfpZlC985pH2/ui64DKazbTW/4kN3yqozUxlXzI6cA==
-
-eventemitter3@^4.0.0:
+eventemitter3@4.0.0, eventemitter3@^4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/eventemitter3/-/eventemitter3-4.0.0.tgz#d65176163887ee59f386d64c82610b696a4a74eb"
   integrity sha512-qerSRB0p+UDEssxTtm6EDKcE7W4OaoisfIMl4CngyEhjpYglocpNg6UEqCvemdGhosAsg4sO2dXJOdyBifPGCg==
@@ -3467,12 +3462,12 @@ he@1.2.x:
   resolved "https://registry.yarnpkg.com/he/-/he-1.2.0.tgz#84ae65fa7eafb165fddb61566ae14baf05664f0f"
   integrity sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw==
 
-hls.js@0.12.3-canary.4258:
-  version "0.12.3-canary.4258"
-  resolved "https://registry.yarnpkg.com/hls.js/-/hls.js-0.12.3-canary.4258.tgz#9ef7e89a85609222497512b9baed806712246901"
-  integrity sha512-uSNt4fDVNb5rMpgMGjFvVaIqWwwRnIFiCrTY2zHCIQbaKgw8DOhA3QC5ImYdv8nXiZod5LS69dYxjnj/u8+3nw==
+hls.js@^0.13.3-canary.5556:
+  version "0.13.3-canary.5556"
+  resolved "https://registry.yarnpkg.com/hls.js/-/hls.js-0.13.3-canary.5556.tgz#061dc478ff9472c68c1c9c421c9b7cfa696169d6"
+  integrity sha512-7lzGB3Q0PSySlahRjF2imhoO9F0NvCCaTwpeEeSam8hFTVmC+STKwcqj+K5+C79hPJJXVwPICLHAtDdpG4IYDw==
   dependencies:
-    eventemitter3 "3.1.0"
+    eventemitter3 "4.0.0"
     url-toolkit "^2.1.6"
 
 hmac-drbg@^1.0.0:

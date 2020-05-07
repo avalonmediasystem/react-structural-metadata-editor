@@ -115,9 +115,11 @@ function retrieveStreamMedia(audioFile, mediaPlayer) {
       }); // ERROR event is fired when fetching media stream is not successful
 
       hls.on(_hls["default"].Events.ERROR, function (event, data) {
-        var errorCode = null;
+        var errorCode = null; // When there are errors in the HLS build this block catches it and flashes
+        // the warning message for a split second. The ErrorType for these errors is
+        // OTHER_ERROR. Issue in HLS.js: https://github.com/video-dev/hls.js/issues/2435
 
-        if (data.fatal) {
+        if (data.fatal && data.type !== _hls["default"].ErrorTypes.OTHER_ERROR) {
           if (data.response !== undefined) {
             var status = data.response.code;
             status === 0 ? errorCode = -6 : errorCode = status;

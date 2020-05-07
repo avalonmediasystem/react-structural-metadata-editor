@@ -14,17 +14,17 @@ class ListItemEditForm extends Component {
     super(props);
     this.state = {
       isTyping: false,
-      isInitializing: true
+      isInitializing: true,
     };
   }
 
   static propTypes = {
     handleEditFormCancel: PropTypes.func,
-    item: PropTypes.object.isRequired
+    item: PropTypes.object.isRequired,
   };
 
   // Toggle isTyping flag on and off from events in TimespanInlinForm
-  setIsTyping = value => {
+  setIsTyping = (value) => {
     if (value === 1) {
       this.setState({ isTyping: true });
     } else {
@@ -33,7 +33,7 @@ class ListItemEditForm extends Component {
   };
 
   // Toggle isInitializing flag on and off from events in TimespanInlinForm
-  setIsInitializing = value => {
+  setIsInitializing = (value) => {
     if (value === 1) {
       this.setState({ isInitializing: true });
     } else {
@@ -52,7 +52,7 @@ class ListItemEditForm extends Component {
     return item;
   }
 
-  handleCancelClick = e => {
+  handleCancelClick = (e) => {
     this.props.handleEditFormCancel();
   };
 
@@ -78,7 +78,7 @@ class ListItemEditForm extends Component {
   componentWillUnmount() {
     this.setState({
       isInitializing: true,
-      isTyping: false
+      isTyping: false,
     });
   }
 
@@ -111,12 +111,12 @@ class ListItemEditForm extends Component {
   }
 }
 
-const mapStateToProps = state => ({
-  smData: state.structuralMetadata.smData
+const mapStateToProps = (state) => ({
+  smData: state.structuralMetadata.smData,
 });
 
-const mapDispathToProps = dispatch => ({
-  reBuildSMUI: json => dispatch(reBuildSMUI(json))
+const mapDispathToProps = (dispatch) => ({
+  reBuildSMUI: (json) => dispatch(reBuildSMUI(json)),
 });
 
 export default connect(mapStateToProps, mapDispathToProps)(ListItemEditForm);

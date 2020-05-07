@@ -8,7 +8,7 @@ import {
   ControlLabel,
   FormControl,
   FormGroup,
-  Row
+  Row,
 } from 'react-bootstrap';
 import * as actions from '../actions/forms';
 import PropTypes from 'prop-types';
@@ -20,7 +20,7 @@ class HeadingForm extends Component {
   state = {
     headingTitle: '',
     headingChildOf: '',
-    childOfOptions: []
+    childOfOptions: [],
   };
 
   componentDidMount() {
@@ -39,7 +39,7 @@ class HeadingForm extends Component {
     this.setState({
       headingTitle: '',
       headingChildOf: '',
-      childOfOptions: []
+      childOfOptions: [],
     });
   }
 
@@ -61,7 +61,7 @@ class HeadingForm extends Component {
       this.props.smData
     );
     const allHeaders = rootHeader.concat(divHeaders);
-    const options = allHeaders.map(header => (
+    const options = allHeaders.map((header) => (
       <option value={header.id} key={header.id}>
         {header.label}
       </option>
@@ -74,15 +74,15 @@ class HeadingForm extends Component {
     this.props.toggleHeading();
   };
 
-  handleChildOfChange = e => {
+  handleChildOfChange = (e) => {
     this.setState({ headingChildOf: e.target.value });
   };
 
-  handleHeadingChange = e => {
+  handleHeadingChange = (e) => {
     this.setState({ headingTitle: e.target.value });
   };
 
-  handleSubmit = e => {
+  handleSubmit = (e) => {
     const { headingChildOf, headingTitle } = this.state;
     let submitItem = { headingChildOf, headingTitle };
 
@@ -159,14 +159,11 @@ class HeadingForm extends Component {
 
 HeadingForm.propTypes = {
   cancelClick: PropTypes.func,
-  onSubmit: PropTypes.func
+  onSubmit: PropTypes.func,
 };
 
-const mapStateToProps = state => ({
-  smData: state.structuralMetadata.smData
+const mapStateToProps = (state) => ({
+  smData: state.structuralMetadata.smData,
 });
 
-export default connect(
-  mapStateToProps,
-  actions
-)(HeadingForm);
+export default connect(mapStateToProps, actions)(HeadingForm);

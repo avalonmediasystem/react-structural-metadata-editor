@@ -25,6 +25,8 @@ var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/de
 
 var _react = _interopRequireWildcard(require("react"));
 
+var _reactDom = require("react-dom");
+
 var _List = _interopRequireDefault(require("./List"));
 
 var _reactRedux = require("react-redux");
@@ -46,6 +48,10 @@ var _ListItemEditForm = _interopRequireDefault(require("./ListItemEditForm"));
 var _ListItemControls = _interopRequireDefault(require("./ListItemControls"));
 
 var spanSource = {
+  // When focused on item disable dragging
+  canDrag: function canDrag(props) {
+    return props.canDrag;
+  },
   beginDrag: function beginDrag(props) {
     return {
       id: props.item.id
@@ -97,8 +103,10 @@ function (_Component) {
 
     _this = (0, _possibleConstructorReturn2["default"])(this, (_getPrototypeOf2 = (0, _getPrototypeOf3["default"])(ListItem)).call.apply(_getPrototypeOf2, [this].concat(args)));
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "state", {
-      editing: false
+      editing: false,
+      canDrag: _this.props.canDrag
     });
+    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "node", undefined);
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "handleDelete", function () {
       var item = _this.props.item;
 
@@ -151,14 +159,40 @@ function (_Component) {
 
       setActiveDragSource(item.id);
     });
+    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "getInputElements", function (node) {
+      return node ? Array.prototype.slice.call(node.getElementsByTagName('input')).filter(function (e) {
+        return !e.readOnly;
+      }) : [];
+    });
+    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "onHoverOverInput", function () {
+      _this.props.setCanDrag(false);
+    });
+    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "onHoverOutOfInput", function () {
+      _this.props.setCanDrag(true);
+    });
+    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "detachEventListeners", function (node) {
+      _this.getInputElements(node).map(function (e) {
+        e.removeEventListener('mouseleave', _this.onHoverOutOfInput);
+        e.removeEventListener('mouseenter', _this.onHoverOverInput);
+      });
+    });
     return _this;
   }
 
   (0, _createClass2["default"])(ListItem, [{
+    key: "componentWillUnmount",
+    value: function componentWillUnmount() {
+      this.detachEventListeners(this.node);
+      this.node = undefined;
+    }
+  }, {
     key: "render",
     value: function render() {
+      var _this2 = this;
+
       var _this$props2 = this.props,
           item = _this$props2.item,
+          canDrag = _this$props2.canDrag,
           begin = _this$props2.item.begin,
           end = _this$props2.item.end,
           items = _this$props2.item.items,
@@ -177,7 +211,22 @@ function (_Component) {
         active: item.active
       };
       return connectDragSource(connectDropTarget(_react["default"].createElement("li", {
-        className: active ? 'active' : ''
+        className: active ? 'active' : '',
+        ref: function ref(instance) {
+          _this2.detachEventListeners(_this2.node);
+
+          _this2.node = (0, _reactDom.findDOMNode)(instance);
+
+          if (canDrag) {
+            _this2.getInputElements(_this2.node).map(function (e) {
+              e.addEventListener('mouseenter', _this2.onHoverOverInput);
+            });
+          } else {
+            _this2.getInputElements(_this2.node).map(function (e) {
+              e.addEventListener('mouseleave', _this2.onHoverOutOfInput);
+            });
+          }
+        }
       }, this.state.editing && _react["default"].createElement(_ListItemEditForm["default"], {
         item: item,
         handleEditFormCancel: this.handleEditFormCancel

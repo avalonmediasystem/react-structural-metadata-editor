@@ -13,15 +13,15 @@ const peaksOptions = {
   dataUriDefaultFormat: 'json',
   keyboard: true,
   _zoomLevelIndex: 0,
-  _zoomLevels: [512, 1024, 2048, 4096]
+  _zoomLevels: [512, 1024, 2048, 4096],
 };
 const initialState = {
   structuralMetadata: {
-    smData: testSmData
+    smData: testSmData,
   },
   peaksInstance: {
-    peaks: Peaks.init(peaksOptions)
-  }
+    peaks: Peaks.init(peaksOptions),
+  },
 };
 
 const handleCancelMock = jest.fn();
@@ -33,13 +33,13 @@ test("ListItemEditForm renders HeadingInlineForm for item with type 'div'", () =
     type: 'div',
     label: 'Sub-Segment 1.1',
     id: '123a-456b-789c-2d',
-    items: []
+    items: [],
   };
 
   const { getByTestId } = renderWithRedux(
     <ListItemEditForm item={itemProp} />,
     {
-      initialState
+      initialState,
     }
   );
   expect(getByTestId('heading-inline-form')).toBeInTheDocument();
@@ -52,13 +52,13 @@ test("ListItemEditForm renders TimespanInlineForm for item with type 'span'", ()
     label: 'Segment 1.2',
     id: '123a-456b-789c-4d',
     begin: '00:00:11.231',
-    end: '00:08:00.001'
+    end: '00:08:00.001',
   };
 
   const { getByTestId } = renderWithRedux(
     <ListItemEditForm item={itemProp} />,
     {
-      initialState
+      initialState,
     }
   );
   expect(getByTestId('timespan-inline-form')).toBeInTheDocument();
@@ -71,7 +71,7 @@ test('clicking on cancel button calls the mock function for cancelling the form'
     label: 'Segment 1.2',
     id: '123a-456b-789c-4d',
     begin: '00:00:11.231',
-    end: '00:08:00.001'
+    end: '00:08:00.001',
   };
 
   const { getByTestId } = renderWithRedux(

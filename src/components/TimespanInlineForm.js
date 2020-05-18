@@ -7,7 +7,7 @@ import {
   getValidationEndState,
   getValidationTitleState,
   isTitleValid,
-  validTimespans
+  validTimespans,
 } from '../services/form-helper';
 import { connect } from 'react-redux';
 import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
@@ -21,8 +21,8 @@ const waveformUtils = new WaveformDataUtils();
 
 const styles = {
   formControl: {
-    margin: '0 5px'
-  }
+    margin: '0 5px',
+  },
 };
 
 class TimespanInlineForm extends Component {
@@ -38,7 +38,7 @@ class TimespanInlineForm extends Component {
   static propTypes = {
     item: PropTypes.object,
     cancelFn: PropTypes.func,
-    saveFn: PropTypes.func
+    saveFn: PropTypes.func,
   };
 
   state = {
@@ -48,7 +48,7 @@ class TimespanInlineForm extends Component {
     clonedSegment: {},
     peaksInstance: this.props.peaksInstance,
     segment: this.props.segment,
-    startTimeChanged: this.props.startTimeChanged
+    startTimeChanged: this.props.startTimeChanged,
   };
 
   componentDidMount() {
@@ -93,13 +93,13 @@ class TimespanInlineForm extends Component {
       isTyping,
       isDragging,
       isInitializing,
-      startTimeChanged
+      startTimeChanged,
     } = nextProps;
     if (!isDragging && isInitializing && !isTyping && !isEmpty(segment)) {
       const { startTime, endTime } = segment;
       return {
         beginTime: structuralMetadataUtils.toHHmmss(startTime),
-        endTime: structuralMetadataUtils.toHHmmss(endTime)
+        endTime: structuralMetadataUtils.toHHmmss(endTime),
       };
     }
     if (isDragging) {
@@ -114,7 +114,7 @@ class TimespanInlineForm extends Component {
         );
         return {
           beginTime: structuralMetadataUtils.toHHmmss(startTime),
-          endTime: structuralMetadataUtils.toHHmmss(endTime)
+          endTime: structuralMetadataUtils.toHHmmss(endTime),
         };
       }
     }
@@ -140,7 +140,7 @@ class TimespanInlineForm extends Component {
     this.props.cancelFn();
   };
 
-  handleInputChange = e => {
+  handleInputChange = (e) => {
     const { segment, startTimeChanged } = this.props;
     // Lock disabling isTyping flag before updating DOM from form inputs
     this.props.dragSegment(segment.id, startTimeChanged, 0);
@@ -160,7 +160,7 @@ class TimespanInlineForm extends Component {
     this.props.saveFn(this.props.segment.id, {
       beginTime,
       endTime,
-      timespanTitle
+      timespanTitle,
     });
   };
 
@@ -229,12 +229,12 @@ class TimespanInlineForm extends Component {
   }
 }
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   smData: state.structuralMetadata.smData,
   peaksInstance: state.peaksInstance,
   segment: state.peaksInstance.segment,
   isDragging: state.peaksInstance.isDragging,
-  startTimeChanged: state.peaksInstance.startTimeChanged
+  startTimeChanged: state.peaksInstance.startTimeChanged,
 });
 
 const mapDispatchToProps = {
@@ -242,7 +242,7 @@ const mapDispatchToProps = {
   revertSegment: peaksActions.revertSegment,
   saveSegment: peaksActions.saveSegment,
   updateSegment: peaksActions.updateSegment,
-  dragSegment: peaksActions.dragSegment
+  dragSegment: peaksActions.dragSegment,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(TimespanInlineForm);

@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { findDOMNode } from 'react-dom';
 import List from './List';
 import { connect } from 'react-redux';
 import * as smActions from '../actions/sm-data';
@@ -11,22 +12,28 @@ import ListItemEditForm from './ListItemEditForm';
 import ListItemControls from './ListItemControls';
 
 const spanSource = {
+  // canDrag prop is turned false/true based on mouse events mouseenter/mouseleave
+  // respectively. This takes place when an item is being edited inline.
+  canDrag(props) {
+    // props.canDrag = false => dragging is disabled
+    return props.canDrag;
+  },
   beginDrag(props) {
     return { id: props.item.id };
-  }
+  },
 };
 
 const spanTarget = {
   canDrop(props, monitor) {
     // You can disallow drop based on props or item
     return true;
-  }
+  },
 };
 
 function collectDrag(connect, monitor) {
   return {
     connectDragSource: connect.dragSource(),
-    isDragging: monitor.isDragging()
+    isDragging: monitor.isDragging(),
   };
 }
 
@@ -37,7 +44,7 @@ function collectDrop(connect, monitor) {
     isOver: monitor.isOver(),
     isOverCurrent: monitor.isOver({ shallow: true }),
     canDrop: monitor.canDrop(),
-    itemType: monitor.getItemType()
+    itemType: monitor.getItemType(),
   };
 }
 
@@ -50,13 +57,15 @@ class ListItem extends Component {
       items: PropTypes.array,
       id: PropTypes.string,
       type: PropTypes.string,
-      editing: PropTypes.bool
-    })
+      editing: PropTypes.bool,
+    }),
   };
 
   state = {
-    editing: false
+    editing: false,
+    canDrag: this.props.canDrag,
   };
+  node = undefined;
 
   handleDelete = () => {
     const { item } = this.props;
@@ -85,7 +94,7 @@ class ListItem extends Component {
       item,
       removeActiveDragSources,
       removeDropTargets,
-      setActiveDragSource
+      setActiveDragSource,
     } = this.props;
 
     // Disable other editing actions
@@ -112,9 +121,38 @@ class ListItem extends Component {
     setActiveDragSource(item.id);
   };
 
+  getInputElements = (node) => {
+    return node
+      ? Array.prototype.slice
+          .call(node.getElementsByTagName('input'))
+          .filter((e) => !e.readOnly)
+      : [];
+  };
+
+  onHoverOverInput = () => {
+    this.props.setCanDrag(false);
+  };
+
+  onHoverOutOfInput = () => {
+    this.props.setCanDrag(true);
+  };
+
+  detachEventListeners = (node) => {
+    this.getInputElements(node).map((e) => {
+      e.removeEventListener('mouseleave', this.onHoverOutOfInput);
+      e.removeEventListener('mouseenter', this.onHoverOverInput);
+    });
+  };
+
+  componentWillUnmount() {
+    this.detachEventListeners(this.node);
+    this.node = undefined;
+  }
+
   render() {
     const {
       item,
+      canDrag,
       item: { begin },
       item: { end },
       item: { items },
@@ -122,7 +160,7 @@ class ListItem extends Component {
       item: { type },
       item: { active },
       connectDragSource,
-      connectDropTarget
+      connectDropTarget,
     } = this.props;
 
     const subMenu = items && items.length > 0 ? <List items={items} /> : null;
@@ -130,12 +168,28 @@ class ListItem extends Component {
       childrenCount: item.items ? item.items.length : 0,
       label: item.label,
       type: item.type,
-      active: item.active
+      active: item.active,
     };
 
     return connectDragSource(
       connectDropTarget(
-        <li className={active ? 'active' : ''}>
+        <li
+          className={active ? 'active' : ''}
+          ref={(instance) => {
+            this.detachEventListeners(this.node);
+            this.node = findDOMNode(instance);
+
+            if (canDrag) {
+              this.getInputElements(this.node).map((e) => {
+                e.addEventListener('mouseenter', this.onHoverOverInput);
+              });
+            } else {
+              this.getInputElements(this.node).map((e) => {
+                e.addEventListener('mouseleave', this.onHoverOutOfInput);
+              });
+            }
+          }}
+        >
           {this.state.editing && (
             <ListItemEditForm
               item={item}
@@ -181,19 +235,16 @@ const mapDispatchToProps = {
   removeActiveDragSources: smActions.removeActiveDragSources,
   setActiveDragSource: smActions.setActiveDragSource,
   deleteSegment: deleteSegment,
-  handleEditingTimespans: handleEditingTimespans
+  handleEditingTimespans: handleEditingTimespans,
 };
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   smData: state.structuralMetadata.smData,
-  peaksInstance: state.peaksInstance.peaks
+  peaksInstance: state.peaksInstance.peaks,
 });
 
 const ConnectedDropTarget = DropTarget(ItemTypes.SPAN, spanTarget, collectDrop);
 const ConnectedDragSource = DragSource(ItemTypes.SPAN, spanSource, collectDrag);
 const DragConnected = ConnectedDropTarget(ConnectedDragSource(ListItem));
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(DragConnected);
+export default connect(mapStateToProps, mapDispatchToProps)(DragConnected);

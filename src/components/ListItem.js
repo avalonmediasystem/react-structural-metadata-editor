@@ -12,8 +12,10 @@ import ListItemEditForm from './ListItemEditForm';
 import ListItemControls from './ListItemControls';
 
 const spanSource = {
-  // When focused on item disable dragging
+  // canDrag prop is turned false/true based on mouse events mouseenter/mouseleave
+  // respectively. This takes place when an item is being edited inline.
   canDrag(props) {
+    // props.canDrag = false => dragging is disabled
     return props.canDrag;
   },
   beginDrag(props) {

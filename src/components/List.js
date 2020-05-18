@@ -6,10 +6,6 @@ import PropTypes from 'prop-types';
 const List = (props) => {
   const [canDrag, setCanDrag] = React.useState(true);
 
-  const updateCanDrag = (flag) => {
-    setCanDrag(flag);
-  };
-
   return (
     <ul className="structure-list" data-testid="list">
       {props.items.map((item, i) => {
@@ -24,7 +20,7 @@ const List = (props) => {
             key={item.id}
             item={item}
             canDrag={canDrag}
-            setCanDrag={updateCanDrag}
+            setCanDrag={(flag) => setCanDrag(flag)}
           />
         );
       })}

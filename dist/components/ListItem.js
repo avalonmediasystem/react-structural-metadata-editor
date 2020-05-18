@@ -48,8 +48,10 @@ var _ListItemEditForm = _interopRequireDefault(require("./ListItemEditForm"));
 var _ListItemControls = _interopRequireDefault(require("./ListItemControls"));
 
 var spanSource = {
-  // When focused on item disable dragging
+  // canDrag prop is turned false/true based on mouse events mouseenter/mouseleave
+  // respectively. This takes place when an item is being edited inline.
   canDrag: function canDrag(props) {
+    // props.canDrag = false => dragging is disabled
     return props.canDrag;
   },
   beginDrag: function beginDrag(props) {

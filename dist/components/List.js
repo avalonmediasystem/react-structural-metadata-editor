@@ -21,11 +21,7 @@ var List = function List(props) {
   var _React$useState = _react["default"].useState(true),
       _React$useState2 = (0, _slicedToArray2["default"])(_React$useState, 2),
       canDrag = _React$useState2[0],
-      setCanDrag = _React$useState2[1];
-
-  var updateCanDrag = function updateCanDrag(flag) {
-    setCanDrag(flag);
-  };
+      _setCanDrag = _React$useState2[1];
 
   return _react["default"].createElement("ul", {
     className: "structure-list",
@@ -46,7 +42,9 @@ var List = function List(props) {
       key: item.id,
       item: item,
       canDrag: canDrag,
-      setCanDrag: updateCanDrag
+      setCanDrag: function setCanDrag(flag) {
+        return _setCanDrag(flag);
+      }
     });
   }));
 };

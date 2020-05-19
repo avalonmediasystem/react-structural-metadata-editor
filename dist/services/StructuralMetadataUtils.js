@@ -520,38 +520,40 @@ function () {
       var foundDiv = null;
 
       var findItem = function findItem(child, items) {
-        var _iteratorNormalCompletion4 = true;
-        var _didIteratorError4 = false;
-        var _iteratorError4 = undefined;
+        if (items && items.length > 0) {
+          var _iteratorNormalCompletion4 = true;
+          var _didIteratorError4 = false;
+          var _iteratorError4 = undefined;
 
-        try {
-          for (var _iterator4 = items[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-            var item = _step4.value;
-
-            if (item.items) {
-              var childItem = item.items.filter(function (currentChild) {
-                return child.id === currentChild.id;
-              }); // Found it
-
-              if (childItem.length > 0) {
-                foundDiv = item;
-                break;
-              }
-
-              findItem(child, item.items);
-            }
-          }
-        } catch (err) {
-          _didIteratorError4 = true;
-          _iteratorError4 = err;
-        } finally {
           try {
-            if (!_iteratorNormalCompletion4 && _iterator4["return"] != null) {
-              _iterator4["return"]();
+            for (var _iterator4 = items[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+              var item = _step4.value;
+
+              if (item.items) {
+                var childItem = item.items.filter(function (currentChild) {
+                  return child.id === currentChild.id;
+                }); // Found it
+
+                if (childItem.length > 0) {
+                  foundDiv = item;
+                  break;
+                }
+
+                findItem(child, item.items);
+              }
             }
+          } catch (err) {
+            _didIteratorError4 = true;
+            _iteratorError4 = err;
           } finally {
-            if (_didIteratorError4) {
-              throw _iteratorError4;
+            try {
+              if (!_iteratorNormalCompletion4 && _iterator4["return"] != null) {
+                _iterator4["return"]();
+              }
+            } finally {
+              if (_didIteratorError4) {
+                throw _iteratorError4;
+              }
             }
           }
         }
@@ -633,6 +635,10 @@ function () {
           divsAfter = wrapperParent.items.filter(function (item, i) {
             return i > spanIndex;
           });
+
+          var nextDivs = _this3.getItemsAfter(wrapperParent, allItems, []);
+
+          divsAfter = divsAfter.concat(nextDivs);
         } else {
           divsBefore = wrapperParent.items.filter(function (item, i) {
             return i < spanIndex;
@@ -709,6 +715,31 @@ function () {
         }
       });
       return uniqueHeadings;
+    }
+    /**
+     * Get items after a given item in the structure
+     * @param {Object} currentItem
+     * @param {Array} allItems all items in the structure
+     * @param {Array} nextDivs heading items after the current item
+     */
+
+  }, {
+    key: "getItemsAfter",
+    value: function getItemsAfter(currentItem, allItems, nextDivs) {
+      var parentItem = this.getParentDiv(currentItem, allItems);
+      var currentIndex = parentItem.items.map(function (item) {
+        return item.id;
+      }).indexOf(currentItem.id);
+      var nextItem = parentItem.items.filter(function (item, i) {
+        return i > currentIndex;
+      });
+      nextDivs = nextDivs.concat(nextItem);
+
+      if (this.getParentDiv(parentItem, allItems)) {
+        return this.getItemsAfter(parentItem, allItems, nextDivs);
+      }
+
+      return nextDivs;
     }
     /**
      * Helper function which handles React Dnd's dropping of a dragSource onto a dropTarget

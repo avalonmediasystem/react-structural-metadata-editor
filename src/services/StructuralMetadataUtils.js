@@ -23,7 +23,7 @@ export default class StructuralMetadataUtils {
   createDropZoneObject() {
     return {
       type: 'optional',
-      id: uuidv1()
+      id: uuidv1(),
     };
   }
 
@@ -38,7 +38,7 @@ export default class StructuralMetadataUtils {
       type: 'span',
       label: obj.timespanTitle,
       begin: obj.beginTime,
-      end: obj.endTime
+      end: obj.endTime,
     };
   }
 
@@ -70,7 +70,7 @@ export default class StructuralMetadataUtils {
     const durationInSeconds = Math.round(duration / 10) / 100;
 
     // Convert time to HH:mm:ss.ms format to use in validation logic
-    let convertToSeconds = time => {
+    let convertToSeconds = (time) => {
       let timeSeconds = this.toMs(time) / 1000;
       // When time property is missing
       if (isNaN(timeSeconds)) {
@@ -80,7 +80,7 @@ export default class StructuralMetadataUtils {
       }
     };
 
-    let decodeHTML = lableText => {
+    let decodeHTML = (lableText) => {
       return lableText
         .replace(/&amp;/g, '&')
         .replace(/&lt;/g, '<')
@@ -90,7 +90,7 @@ export default class StructuralMetadataUtils {
     };
 
     // Recursive function to traverse whole data structure
-    let formatItems = items => {
+    let formatItems = (items) => {
       for (let item of items) {
         item.label = decodeHTML(item.label);
         if (item.type === 'span') {
@@ -133,7 +133,7 @@ export default class StructuralMetadataUtils {
       let parentDiv = this.getParentDiv(dragSource, clonedItems);
       let siblings = parentDiv ? parentDiv.items : [];
       let spanIndex = siblings
-        .map(sibling => sibling.id)
+        .map((sibling) => sibling.id)
         .indexOf(dragSource.id);
       let stuckInMiddle = this.dndHelper.stuckInMiddle(
         spanIndex,
@@ -175,11 +175,11 @@ export default class StructuralMetadataUtils {
       if (grandParentDiv !== null) {
         let siblingTimespans = this.getItemsOfType('span', siblings);
         let timespanIndex = siblingTimespans
-          .map(sibling => sibling.id)
+          .map((sibling) => sibling.id)
           .indexOf(dragSource.id);
 
         let parentIndex = grandParentDiv.items
-          .map(item => item.id)
+          .map((item) => item.id)
           .indexOf(parentDiv.id);
         if (timespanIndex === 0) {
           grandParentDiv.items.splice(
@@ -190,7 +190,7 @@ export default class StructuralMetadataUtils {
         }
         if (timespanIndex === siblingTimespans.length - 1) {
           let newPI = grandParentDiv.items
-            .map(item => item.id)
+            .map((item) => item.id)
             .indexOf(parentDiv.id);
           grandParentDiv.items.splice(
             newPI + 1,
@@ -230,7 +230,7 @@ export default class StructuralMetadataUtils {
       let beforeParent = this.getParentDiv(wrapperSpanBefore, allItems);
       let beforeSiblings = beforeParent.items;
       let beforeIndex = beforeSiblings
-        .map(item => item.id)
+        .map((item) => item.id)
         .indexOf(wrapperSpanBefore.id);
       // Before the insert, check that the dropTarget index doesn't already exist
       if (
@@ -245,7 +245,7 @@ export default class StructuralMetadataUtils {
       let afterParent = this.getParentDiv(wrapperSpanAfter, allItems);
       let afterSiblings = afterParent.items;
       let afterIndex = afterSiblings
-        .map(item => item.id)
+        .map((item) => item.id)
         .indexOf(wrapperSpanAfter.id);
       if (
         afterSiblings[afterIndex - 1] &&
@@ -275,7 +275,7 @@ export default class StructuralMetadataUtils {
           wrapperParents.after.items = [this.createDropZoneObject()];
         }
       }
-    }
+    },
   };
 
   /**
@@ -311,7 +311,7 @@ export default class StructuralMetadataUtils {
   doesTimespanOverlap(beginTime, endTime, allSpans) {
     const { toMs } = this;
     // Filter out only spans where new begin time is before an existing begin time
-    let filteredSpans = allSpans.filter(span => {
+    let filteredSpans = allSpans.filter((span) => {
       return toMs(beginTime) < toMs(span.begin);
     });
     // Return whether new end time overlaps the next begin time, if there are timespans after the current timespan
@@ -329,7 +329,7 @@ export default class StructuralMetadataUtils {
    */
   findItem(id, items) {
     let foundItem = null;
-    let fn = items => {
+    let fn = (items) => {
       for (let item of items) {
         if (item.id === id) {
           foundItem = item;
@@ -354,13 +354,13 @@ export default class StructuralMetadataUtils {
     const { toMs } = this;
     let wrapperSpans = {
       before: null,
-      after: null
+      after: null,
     };
     let spansBefore = allSpans.filter(
-      span => toMs(newSpan.begin) >= toMs(span.end)
+      (span) => toMs(newSpan.begin) >= toMs(span.end)
     );
     let spansAfter = allSpans.filter(
-      span => toMs(newSpan.end) <= toMs(span.begin)
+      (span) => toMs(newSpan.end) <= toMs(span.begin)
     );
 
     wrapperSpans.before =
@@ -378,16 +378,16 @@ export default class StructuralMetadataUtils {
   findWrapperHeaders(parentDiv, allItems) {
     const wrapperHeadings = {
       before: null,
-      after: null
+      after: null,
     };
     let grandParentDiv = this.getParentDiv(parentDiv, allItems);
     if (grandParentDiv != null) {
       let grandParentItems = grandParentDiv.items.filter(
-        item => item.type !== 'optional'
+        (item) => item.type !== 'optional'
       );
 
       let parentIndex = grandParentItems
-        .map(item => item.label)
+        .map((item) => item.label)
         .indexOf(parentDiv.label);
 
       wrapperHeadings.before =
@@ -411,7 +411,7 @@ export default class StructuralMetadataUtils {
     let options = [];
 
     // Recursive function to search the whole data structure
-    let getItems = items => {
+    let getItems = (items) => {
       for (let item of items) {
         if (item.type === type) {
           let currentObj = { ...item };
@@ -432,17 +432,19 @@ export default class StructuralMetadataUtils {
     let foundDiv = null;
 
     let findItem = (child, items) => {
-      for (let item of items) {
-        if (item.items) {
-          let childItem = item.items.filter(
-            currentChild => child.id === currentChild.id
-          );
-          // Found it
-          if (childItem.length > 0) {
-            foundDiv = item;
-            break;
+      if (items && items.length > 0) {
+        for (let item of items) {
+          if (item.items) {
+            let childItem = item.items.filter(
+              (currentChild) => child.id === currentChild.id
+            );
+            // Found it
+            if (childItem.length > 0) {
+              foundDiv = item;
+              break;
+            }
+            findItem(child, item.items);
           }
-          findItem(child, item.items);
         }
       }
     };
@@ -472,13 +474,13 @@ export default class StructuralMetadataUtils {
     );
 
     // Explore possible headings traversing outwards from a suggested heading
-    let exploreOutwards = heading => {
+    let exploreOutwards = (heading) => {
       let invalid = false;
       const parentHeading = this.getParentDiv(heading, allItems);
       const { begin: newBegin, end: newEnd } = newSpan;
       if (parentHeading && !stuckInMiddle) {
         const headingIndex = parentHeading.items
-          .map(item => item.id)
+          .map((item) => item.id)
           .indexOf(heading.id);
         const siblings = parentHeading.items;
         siblings.forEach((sibling, i) => {
@@ -504,12 +506,14 @@ export default class StructuralMetadataUtils {
     // Find relevant headings traversing into suggested headings
     let exploreInwards = (wrapperParent, wrapperSpan, isBefore) => {
       const spanIndex = wrapperParent.items
-        .map(item => item.id)
+        .map((item) => item.id)
         .indexOf(wrapperSpan.id);
       let divsAfter = [],
         divsBefore = [];
       if (isBefore) {
         divsAfter = wrapperParent.items.filter((item, i) => i > spanIndex);
+        const nextDivs = this.getItemsAfter(wrapperParent, allItems, []);
+        divsAfter = divsAfter.concat(nextDivs);
       } else {
         divsBefore = wrapperParent.items.filter((item, i) => i < spanIndex);
       }
@@ -545,12 +549,12 @@ export default class StructuralMetadataUtils {
       }
     }
 
-    allValidHeadings.map(heading => exploreOutwards(heading));
+    allValidHeadings.map((heading) => exploreOutwards(heading));
 
     // Sort valid headings to comply with the order in the metadata structure
-    allHeadings.forEach(key => {
+    allHeadings.forEach((key) => {
       let found = false;
-      allValidHeadings.filter(heading => {
+      allValidHeadings.filter((heading) => {
         if (!found && heading.label === key.label) {
           const { items, ...cloneWOItems } = heading;
           sortedHeadings.push(cloneWOItems);
@@ -563,8 +567,8 @@ export default class StructuralMetadataUtils {
     });
 
     // Filter the duplicated headings
-    sortedHeadings.map(heading => {
-      const indexIn = uniqueHeadings.map(h => h.id).indexOf(heading.id);
+    sortedHeadings.map((heading) => {
+      const indexIn = uniqueHeadings.map((h) => h.id).indexOf(heading.id);
       if (indexIn === -1) {
         uniqueHeadings.push(heading);
       }
@@ -572,6 +576,24 @@ export default class StructuralMetadataUtils {
     return uniqueHeadings;
   }
 
+  /**
+   * Get items after a given item in the structure
+   * @param {Object} currentItem
+   * @param {Array} allItems all items in the structure
+   * @param {Array} nextDivs heading items after the current item
+   */
+  getItemsAfter(currentItem, allItems, nextDivs) {
+    const parentItem = this.getParentDiv(currentItem, allItems);
+    const currentIndex = parentItem.items
+      .map((item) => item.id)
+      .indexOf(currentItem.id);
+    const nextItem = parentItem.items.filter((item, i) => i > currentIndex);
+    nextDivs = nextDivs.concat(nextItem);
+    if (this.getParentDiv(parentItem, allItems)) {
+      return this.getItemsAfter(parentItem, allItems, nextDivs);
+    }
+    return nextDivs;
+  }
   /**
    * Helper function which handles React Dnd's dropping of a dragSource onto a dropTarget
    * It needs to re-arrange the data structure to reflect the new positions
@@ -587,14 +609,14 @@ export default class StructuralMetadataUtils {
     // Slice out previous position of itemToMove
     let itemToMoveParent = this.getParentDiv(itemToMove, clonedItems);
     let itemToMoveItemIndex = itemToMoveParent.items
-      .map(item => item.id)
+      .map((item) => item.id)
       .indexOf(itemToMove.id);
     itemToMoveParent.items.splice(itemToMoveItemIndex, 1);
 
     // Place itemToMove right after the placeholder array position
     let dropTargetParent = this.getParentDiv(dropTarget, clonedItems);
     let dropTargetItemIndex = dropTargetParent.items
-      .map(item => item.id)
+      .map((item) => item.id)
       .indexOf(dropTarget.id);
     dropTargetParent.items.splice(dropTargetItemIndex, 0, itemToMove);
 
@@ -619,7 +641,7 @@ export default class StructuralMetadataUtils {
         id: uuidv1(),
         type: 'div',
         label: obj.headingTitle,
-        items: []
+        items: [],
       });
     }
 
@@ -643,11 +665,11 @@ export default class StructuralMetadataUtils {
     // Index the new timespan to be inserted
     let insertIndex = 0;
 
-    let getParentOfSpan = item => {
+    let getParentOfSpan = (item) => {
       let inFoundDiv = false;
       let closestSibling = null;
       const siblings = foundDiv.items;
-      siblings.map(sibling => {
+      siblings.map((sibling) => {
         if (sibling.id === item.id) {
           inFoundDiv = true;
           closestSibling = sibling;
@@ -669,13 +691,13 @@ export default class StructuralMetadataUtils {
         let siblingBefore = getParentOfSpan(before);
         if (siblingBefore) {
           insertIndex =
-            foundDiv.items.map(item => item.id).indexOf(siblingBefore.id) + 1;
+            foundDiv.items.map((item) => item.id).indexOf(siblingBefore.id) + 1;
         }
       } else if (after) {
         let siblingAfter = getParentOfSpan(after);
         if (siblingAfter) {
           let siblingAfterIndex = foundDiv.items
-            .map(item => item.id)
+            .map((item) => item.id)
             .indexOf(siblingAfter.id);
           insertIndex = siblingAfterIndex === 0 ? 0 : siblingAfterIndex - 1;
         }
@@ -696,14 +718,14 @@ export default class StructuralMetadataUtils {
    * @returns {Array}
    */
   removeActiveDragSources(allItems) {
-    let removeActive = parent => {
+    let removeActive = (parent) => {
       if (!parent.items) {
         if (parent.active) {
           parent.active = false;
         }
         return parent;
       }
-      parent.items = parent.items.map(child => removeActive(child));
+      parent.items = parent.items.map((child) => removeActive(child));
 
       return parent;
     };
@@ -724,8 +746,8 @@ export default class StructuralMetadataUtils {
       }
 
       parent.items = parent.items
-        .filter(child => child.type !== childTypeToRemove)
-        .map(child => removeFromTree(child, childTypeToRemove));
+        .filter((child) => child.type !== childTypeToRemove)
+        .map((child) => removeFromTree(child, childTypeToRemove));
 
       return parent;
     };
@@ -763,7 +785,7 @@ export default class StructuralMetadataUtils {
     let structureWithIds = cloneDeep(structureJS);
 
     // Recursively loop through data structure
-    let fn = items => {
+    let fn = (items) => {
       for (let item of items) {
         // Create and add an id
         item.id = uuidv1();
@@ -840,7 +862,7 @@ export default class StructuralMetadataUtils {
    */
   filterObjectKey(allitems, key) {
     let clonedItems = cloneDeep(allitems);
-    let removeKey = items => {
+    let removeKey = (items) => {
       for (let item of items) {
         if (key in item) {
           delete item.active;

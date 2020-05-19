@@ -3,7 +3,7 @@ import {
   testSmData,
   testDataFromServer,
   testEmptyHeaderBefore,
-  testEmptyHeaderAfter
+  testEmptyHeaderAfter,
 } from '../testing-helpers';
 import { cloneDeep } from 'lodash';
 
@@ -26,7 +26,7 @@ describe('StructuralMetadataUtils class', () => {
       beginTime: '00:00:011',
       endTime: '00:00:021',
       timespanChildOf: '3bf42620-2321-11e9-aa56-f9563015e266',
-      timespanTitle: 'Tester'
+      timespanTitle: 'Tester',
     };
     const value = smu.createSpanObject(obj);
 
@@ -43,7 +43,7 @@ describe('StructuralMetadataUtils class', () => {
         type: 'div',
         label: 'Sub-Segment 1.1',
         id: '123a-456b-789c-2d',
-        items: []
+        items: [],
       };
       const value = smu.deleteListItem(obj.id, testData);
       expect(value).not.toContain(obj);
@@ -52,7 +52,7 @@ describe('StructuralMetadataUtils class', () => {
         label: 'Segment 1.1',
         id: '123a-456b-789c-3d',
         begin: '00:00:03.321',
-        end: '00:00:10.321'
+        end: '00:00:10.321',
       });
     });
     test('deletes a header with children', () => {
@@ -65,23 +65,23 @@ describe('StructuralMetadataUtils class', () => {
             type: 'div',
             label: 'Sub-Segment 1.1',
             id: '123a-456b-789c-2d',
-            items: []
+            items: [],
           },
           {
             type: 'span',
             label: 'Segment 1.1',
             id: '123a-456b-789c-3d',
             begin: '00:00:03.321',
-            end: '00:00:10.321'
+            end: '00:00:10.321',
           },
           {
             type: 'span',
             label: 'Segment 1.2',
             id: '123a-456b-789c-4d',
             begin: '00:00:11.231',
-            end: '00:08:00.001'
-          }
-        ]
+            end: '00:08:00.001',
+          },
+        ],
       };
       const value = smu.deleteListItem(obj.id, testData);
       expect(value).not.toContain(obj);
@@ -89,7 +89,7 @@ describe('StructuralMetadataUtils class', () => {
         type: 'div',
         label: 'Sub-Segment 2.1.1',
         id: '123a-456b-789c-7d',
-        items: []
+        items: [],
       });
     });
     test('deletes a childless header', () => {
@@ -97,7 +97,7 @@ describe('StructuralMetadataUtils class', () => {
         type: 'div',
         label: 'Sub-Segment 2.1.1',
         id: '123a-456b-789c-7d',
-        items: []
+        items: [],
       };
       const value = smu.deleteListItem(obj.id, testData);
       expect(value).not.toContain(obj);
@@ -106,7 +106,7 @@ describe('StructuralMetadataUtils class', () => {
         label: 'Segment 2.1',
         id: '123a-456b-789c-8d',
         begin: '00:09:03.241',
-        end: '00:15:00.001'
+        end: '00:15:00.001',
       });
     });
   });
@@ -205,7 +205,7 @@ describe('StructuralMetadataUtils class', () => {
       type: 'div',
       label: 'Sub-Segment 1.1',
       id: '123a-456b-789c-2d',
-      items: []
+      items: [],
     };
     const value = smu.findItem('123a-456b-789c-2d', testData);
     expect(value).toEqual(obj);
@@ -219,7 +219,7 @@ describe('StructuralMetadataUtils class', () => {
     test('before first timespan', () => {
       const obj = {
         begin: '00:00:00.000',
-        end: '00:00:03.321'
+        end: '00:00:03.321',
       };
       const expected = {
         before: null,
@@ -228,8 +228,8 @@ describe('StructuralMetadataUtils class', () => {
           label: 'Segment 1.1',
           begin: '00:00:03.321',
           end: '00:00:10.321',
-          id: '123a-456b-789c-3d'
-        }
+          id: '123a-456b-789c-3d',
+        },
       };
       const value = smu.findWrapperSpans(obj, allSpans);
       expect(value).toEqual(expected);
@@ -237,7 +237,7 @@ describe('StructuralMetadataUtils class', () => {
     test('in between existing timespans', () => {
       const obj = {
         begin: '00:00:10.321',
-        end: '00:00:11.231'
+        end: '00:00:11.231',
       };
       const expected = {
         before: {
@@ -245,15 +245,15 @@ describe('StructuralMetadataUtils class', () => {
           label: 'Segment 1.1',
           begin: '00:00:03.321',
           end: '00:00:10.321',
-          id: '123a-456b-789c-3d'
+          id: '123a-456b-789c-3d',
         },
         after: {
           type: 'span',
           label: 'Segment 1.2',
           id: '123a-456b-789c-4d',
           begin: '00:00:11.231',
-          end: '00:08:00.001'
-        }
+          end: '00:08:00.001',
+        },
       };
       const value = smu.findWrapperSpans(obj, allSpans);
       expect(value).toEqual(expected);
@@ -261,7 +261,7 @@ describe('StructuralMetadataUtils class', () => {
     test('after last timespan', () => {
       const obj = {
         begin: '00:15:00.001',
-        end: '00:20:00.001'
+        end: '00:20:00.001',
       };
       const expected = {
         before: {
@@ -269,9 +269,9 @@ describe('StructuralMetadataUtils class', () => {
           label: 'Segment 2.1',
           begin: '00:09:03.241',
           end: '00:15:00.001',
-          id: '123a-456b-789c-8d'
+          id: '123a-456b-789c-8d',
         },
-        after: null
+        after: null,
       };
       const value = smu.findWrapperSpans(obj, allSpans);
       expect(value).toEqual(expected);
@@ -290,9 +290,9 @@ describe('StructuralMetadataUtils class', () => {
             label: 'Act 1',
             id: '123a-456b-789c-3d',
             begin: '00:10:00.001',
-            end: '00:15:00.001'
-          }
-        ]
+            end: '00:15:00.001',
+          },
+        ],
       };
       const value = smu.findWrapperHeaders(obj, testEmptyHeaderBefore);
       const expected = {
@@ -300,9 +300,9 @@ describe('StructuralMetadataUtils class', () => {
           type: 'div',
           label: 'Scene 1',
           id: '123a-456b-789c-1d',
-          items: []
+          items: [],
         },
-        after: null
+        after: null,
       };
       expect(value).toEqual(expected);
     });
@@ -317,9 +317,9 @@ describe('StructuralMetadataUtils class', () => {
             label: 'Act 1',
             id: '123a-456b-789c-2d',
             begin: '00:00:00.000',
-            end: '00:09:00.001'
-          }
-        ]
+            end: '00:09:00.001',
+          },
+        ],
       };
       const value = smu.findWrapperHeaders(obj, testEmptyHeaderAfter);
       const expected = {
@@ -328,8 +328,8 @@ describe('StructuralMetadataUtils class', () => {
           type: 'div',
           label: 'Scene 2',
           id: '123a-456b-789c-3d',
-          items: []
-        }
+          items: [],
+        },
       };
       expect(value).toEqual(expected);
     });
@@ -341,40 +341,40 @@ describe('StructuralMetadataUtils class', () => {
         {
           type: 'div',
           label: 'Title',
-          id: '123a-456b-789c-0d'
+          id: '123a-456b-789c-0d',
         },
         {
           type: 'div',
           label: 'First segment',
-          id: '123a-456b-789c-1d'
+          id: '123a-456b-789c-1d',
         },
         {
           type: 'div',
           label: 'Sub-Segment 1.1',
-          id: '123a-456b-789c-2d'
+          id: '123a-456b-789c-2d',
         },
         {
           type: 'div',
           label: 'Second segment',
-          id: '123a-456b-789c-5d'
+          id: '123a-456b-789c-5d',
         },
         {
           type: 'div',
           label: 'Sub-Segment 2.1',
-          id: '123a-456b-789c-6d'
+          id: '123a-456b-789c-6d',
         },
         {
           type: 'div',
           label: 'Sub-Segment 2.1.1',
-          id: '123a-456b-789c-7d'
-        }
+          id: '123a-456b-789c-7d',
+        },
       ];
       const value = smu.getItemsOfType('div', testData);
       expect(value).toHaveLength(allDivs.length);
       expect(value).toContainEqual({
         type: 'div',
         label: 'Sub-Segment 2.1',
-        id: '123a-456b-789c-6d'
+        id: '123a-456b-789c-6d',
       });
     });
     test('type === span', () => {
@@ -384,22 +384,22 @@ describe('StructuralMetadataUtils class', () => {
           label: 'Segment 1.1',
           id: '123a-456b-789c-3d',
           begin: '00:00:03.321',
-          end: '00:00:10.321'
+          end: '00:00:10.321',
         },
         {
           type: 'span',
           label: 'Segment 1.2',
           id: '123a-456b-789c-4d',
           begin: '00:00:11.231',
-          end: '00:08:00.001'
+          end: '00:08:00.001',
         },
         {
           type: 'span',
           label: 'Segment 2.1',
           id: '123a-456b-789c-8d',
           begin: '00:09:03.241',
-          end: '00:15:00.001'
-        }
+          end: '00:15:00.001',
+        },
       ];
       const value = smu.getItemsOfType('span', testData);
       expect(value).toHaveLength(allSpans.length);
@@ -408,7 +408,7 @@ describe('StructuralMetadataUtils class', () => {
         label: 'Segment 2.1',
         id: '123a-456b-789c-8d',
         begin: '00:09:03.241',
-        end: '00:15:00.001'
+        end: '00:15:00.001',
       });
     });
   });
@@ -420,7 +420,7 @@ describe('StructuralMetadataUtils class', () => {
         label: 'Segment 1.2',
         id: '123a-456b-789c-4d',
         begin: '00:00:11.231',
-        end: '00:08:00.001'
+        end: '00:08:00.001',
       };
       const expected = {
         type: 'div',
@@ -431,23 +431,23 @@ describe('StructuralMetadataUtils class', () => {
             type: 'div',
             label: 'Sub-Segment 1.1',
             id: '123a-456b-789c-2d',
-            items: []
+            items: [],
           },
           {
             type: 'span',
             label: 'Segment 1.1',
             id: '123a-456b-789c-3d',
             begin: '00:00:03.321',
-            end: '00:00:10.321'
+            end: '00:00:10.321',
           },
           {
             type: 'span',
             label: 'Segment 1.2',
             id: '123a-456b-789c-4d',
             begin: '00:00:11.231',
-            end: '00:08:00.001'
-          }
-        ]
+            end: '00:08:00.001',
+          },
+        ],
       };
       const value = smu.getParentDiv(obj, testData);
       expect(value).toEqual(expected);
@@ -457,7 +457,7 @@ describe('StructuralMetadataUtils class', () => {
         type: 'div',
         label: 'Sub-Segment 2.1.1',
         id: '123a-456b-789c-7d',
-        items: []
+        items: [],
       };
       const expected = {
         type: 'div',
@@ -468,16 +468,16 @@ describe('StructuralMetadataUtils class', () => {
             type: 'div',
             label: 'Sub-Segment 2.1.1',
             id: '123a-456b-789c-7d',
-            items: []
+            items: [],
           },
           {
             type: 'span',
             label: 'Segment 2.1',
             id: '123a-456b-789c-8d',
             begin: '00:09:03.241',
-            end: '00:15:00.001'
-          }
-        ]
+            end: '00:15:00.001',
+          },
+        ],
       };
       const value = smu.getParentDiv(obj, testData);
       expect(value).toEqual(expected);
@@ -489,7 +489,7 @@ describe('StructuralMetadataUtils class', () => {
       const newSpan = { begin: '00:00:00.011', end: '00:02:00.001' };
       const wrapperSpans = {
         before: null,
-        after: null
+        after: null,
       };
       const structure = [
         {
@@ -501,40 +501,40 @@ describe('StructuralMetadataUtils class', () => {
               type: 'div',
               label: 'Scene 1',
               id: '123a-456b-789c-1d',
-              items: []
+              items: [],
             },
             {
               type: 'div',
               label: 'Scene 2',
               id: '123a-456b-789c-2d',
-              items: []
-            }
-          ]
-        }
+              items: [],
+            },
+          ],
+        },
       ];
       const expected = [
         {
           type: 'div',
           label: 'Title',
-          id: '123a-456b-789c-0d'
+          id: '123a-456b-789c-0d',
         },
         {
           type: 'div',
           label: 'Scene 1',
-          id: '123a-456b-789c-1d'
+          id: '123a-456b-789c-1d',
         },
         {
           type: 'div',
           label: 'Scene 2',
-          id: '123a-456b-789c-2d'
-        }
+          id: '123a-456b-789c-2d',
+        },
       ];
       const value = smu.getValidHeadings(newSpan, wrapperSpans, structure);
       expect(value).toHaveLength(expected.length);
       expect(value).toContainEqual({
         type: 'div',
         label: 'Scene 1',
-        id: '123a-456b-789c-1d'
+        id: '123a-456b-789c-1d',
       });
     });
     test('wrapped by existing timespans', () => {
@@ -545,44 +545,44 @@ describe('StructuralMetadataUtils class', () => {
           label: 'Segment 1.2',
           id: '123a-456b-789c-4d',
           begin: '00:00:11.231',
-          end: '00:08:00.001'
+          end: '00:08:00.001',
         },
         after: {
           type: 'span',
           label: 'Segment 2.1',
           id: '123a-456b-789c-8d',
           begin: '00:09:03.241',
-          end: '00:15:00.001'
-        }
+          end: '00:15:00.001',
+        },
       };
       const expected = [
         {
           type: 'div',
           label: 'First segment',
-          id: '123a-456b-789c-1d'
+          id: '123a-456b-789c-1d',
         },
         {
           type: 'div',
           label: 'Second segment',
-          id: '123a-456b-789c-5d'
+          id: '123a-456b-789c-5d',
         },
         {
           type: 'div',
           label: 'Sub-Segment 2.1',
-          id: '123a-456b-789c-6d'
+          id: '123a-456b-789c-6d',
         },
         {
           type: 'div',
           label: 'Sub-Segment 2.1.1',
-          id: '123a-456b-789c-7d'
-        }
+          id: '123a-456b-789c-7d',
+        },
       ];
       const value = smu.getValidHeadings(newSpan, wrapperSpans, testData);
       expect(value).toHaveLength(expected.length);
       expect(value).toContainEqual({
         type: 'div',
         label: 'Sub-Segment 2.1',
-        id: '123a-456b-789c-6d'
+        id: '123a-456b-789c-6d',
       });
     });
     test('no wrapping timespans after', () => {
@@ -593,33 +593,38 @@ describe('StructuralMetadataUtils class', () => {
           label: 'Segment 2.1',
           id: '123a-456b-789c-8d',
           begin: '00:09:03.241',
-          end: '00:15:00.001'
+          end: '00:15:00.001',
         },
-        after: null
+        after: null,
       };
       const expected = [
         {
           type: 'div',
           label: 'Title',
-          id: '123a-456b-789c-0d'
+          id: '123a-456b-789c-0d',
         },
         {
           type: 'div',
           label: 'Second segment',
-          id: '123a-456b-789c-5d'
+          id: '123a-456b-789c-5d',
         },
         {
           type: 'div',
           label: 'Sub-Segment 2.1',
-          id: '123a-456b-789c-6d'
-        }
+          id: '123a-456b-789c-6d',
+        },
+        {
+          type: 'div',
+          label: 'A ',
+          id: '123a-456b-789c-9d',
+        },
       ];
       const value = smu.getValidHeadings(newSpan, wrapperSpans, testData);
       expect(value).toHaveLength(expected.length);
       expect(value).toContainEqual({
         type: 'div',
         label: 'Sub-Segment 2.1',
-        id: '123a-456b-789c-6d'
+        id: '123a-456b-789c-6d',
       });
     });
     test('no wrapping span before', () => {
@@ -631,33 +636,124 @@ describe('StructuralMetadataUtils class', () => {
           label: 'Act 1',
           id: '123a-456b-789c-3d',
           begin: '00:00:03.321',
-          end: '00:00:10.321'
-        }
+          end: '00:00:10.321',
+        },
       };
       const expected = [
         {
           type: 'div',
           label: 'Title',
-          id: '123a-456b-789c-0d'
+          id: '123a-456b-789c-0d',
         },
         {
           type: 'div',
           label: 'First segment',
-          id: '123a-456b-789c-1d'
+          id: '123a-456b-789c-1d',
         },
         {
           type: 'div',
           label: 'Sub-Segment 1.1',
-          id: '123a-456b-789c-2d'
-        }
+          id: '123a-456b-789c-2d',
+        },
       ];
       const value = smu.getValidHeadings(newSpan, wrapperSpans, testData);
       expect(value).toHaveLength(expected.length);
       expect(value).toContainEqual({
         type: 'div',
         label: 'Sub-Segment 1.1',
-        id: '123a-456b-789c-2d'
+        id: '123a-456b-789c-2d',
       });
+    });
+  });
+
+  describe('get element after', () => {
+    test('a timespan in the middle of the structure', () => {
+      const expected = [
+        {
+          type: 'span',
+          label: 'Segment 1.2',
+          id: '123a-456b-789c-4d',
+          begin: '00:00:11.231',
+          end: '00:08:00.001',
+        },
+        {
+          type: 'div',
+          label: 'Second segment',
+          id: '123a-456b-789c-5d',
+          items: [
+            {
+              type: 'div',
+              label: 'Sub-Segment 2.1',
+              id: '123a-456b-789c-6d',
+              items: [
+                {
+                  type: 'div',
+                  label: 'Sub-Segment 2.1.1',
+                  id: '123a-456b-789c-7d',
+                  items: [],
+                },
+                {
+                  type: 'span',
+                  label: 'Segment 2.1',
+                  id: '123a-456b-789c-8d',
+                  begin: '00:09:03.241',
+                  end: '00:15:00.001',
+                },
+              ],
+            },
+          ],
+        },
+        {
+          type: 'div',
+          label: 'A ',
+          id: '123a-456b-789c-9d',
+          items: [],
+        },
+      ];
+      const currentItem = {
+        type: 'span',
+        label: 'Segment 1.1',
+        id: '123a-456b-789c-3d',
+        begin: '00:00:03.321',
+        end: '00:00:10.321',
+      };
+      const value = smu.getItemsAfter(currentItem, testData, []);
+      expect(value).toHaveLength(expected.length);
+      expect(value).toEqual(expected);
+    });
+
+    test('last leaf node in the structure', () => {
+      const currentItem = {
+        type: 'span',
+        label: 'Segment 2.1',
+        id: '123a-456b-789c-8d',
+        begin: '00:09:03.241',
+        end: '00:15:00.001',
+      };
+
+      const expected = [
+        {
+          type: 'div',
+          label: 'A ',
+          id: '123a-456b-789c-9d',
+          items: [],
+        },
+      ];
+      const value = smu.getItemsAfter(currentItem, testData, []);
+      expect(value).toHaveLength(expected.length);
+      expect(value).toEqual(expected);
+    });
+
+    test('last node in the structure', () => {
+      const currentItem = {
+        type: 'div',
+        label: 'A',
+        id: '123a-456b-789c-9d',
+        items: [],
+      };
+
+      const value = smu.getItemsAfter(currentItem, testData, []);
+      expect(value).toHaveLength(0);
     });
   });
 

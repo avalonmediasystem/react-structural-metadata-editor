@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Alert } from 'react-bootstrap';
 import { isEmpty } from 'lodash';
@@ -7,18 +8,14 @@ class AlertContainer extends Component {
   static propTypes = {
     message: PropTypes.string,
     alertStyle: PropTypes.oneOf(['success', 'warning', 'danger', 'info']),
-    clearAlert: PropTypes.func
+    clearAlert: PropTypes.func,
   };
 
   state = {
-    show: false
+    show: false,
   };
-
-  componentDidMount() {
-    if (this.props.message) {
-      this.setState({ show: true });
-    }
-  }
+  // Timer to hide save feedback alert
+  hideAlertTimer = null;
 
   static getDerivedStateFromProps(nextProps, prevState) {
     if (isEmpty(nextProps)) {
@@ -30,9 +27,32 @@ class AlertContainer extends Component {
     return null;
   }
 
+  componentDidUpdate() {
+    const { delay, editingDisabled, type } = this.props;
+    const self = this;
+    // For successfull save flash messages
+    if (type === 'SAVE_FEEDBACK') {
+      // remove flash message after the given delay time in milliseconds
+      if (delay > 0 && !this.hideAlertTimer) {
+        self.hideAlertTimer = setTimeout(function () {
+          self.state.show ? self.handleDismiss() : null;
+        }, delay);
+      }
+      // remove flash message when editing the structure
+      // within 2000ms after saving previous changes
+      if (editingDisabled) {
+        self.handleDismiss();
+      }
+    }
+  }
+
   handleDismiss = () => {
-    this.setState({ show: false });
     this.props.clearAlert();
+    this.setState({ show: false });
+    if (this.hideAlertTimer) {
+      clearTimeout(this.hideAlertTimer);
+      this.hideAlertTimer = null;
+    }
   };
 
   render() {
@@ -53,5 +73,8 @@ class AlertContainer extends Component {
     );
   }
 }
+const mapStateToProps = (state) => ({
+  editingDisabled: state.forms.editingDisabled,
+});
 
-export default AlertContainer;
+export default connect(mapStateToProps)(AlertContainer);

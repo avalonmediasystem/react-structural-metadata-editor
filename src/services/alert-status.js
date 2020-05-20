@@ -27,6 +27,8 @@ export function configureAlert(status = 0, clearAlert) {
   } else if (status >= 200 && status < 300) {
     alertObj.alertStyle = 'success';
     alertObj.message = SAVED_MASTERFILE_SUCCESS;
+    alertObj.delay = 2000;
+    alertObj.type = 'SAVE_FEEDBACK';
   } else if (status === -2) {
     alertObj.message = FETCH_STRUCTURED_DATA_ERROR;
   } else if (status === -3) {

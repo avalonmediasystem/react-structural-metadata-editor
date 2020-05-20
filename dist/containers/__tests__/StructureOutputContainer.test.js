@@ -7,9 +7,9 @@ import { wrapInTestContext } from 'react-dnd-test-utils';
 import mockAxios from 'axios';
 
 const mockPeaks = jest.genMockFromModule('peaks.js');
-mockPeaks.init = jest.fn(options => {
+mockPeaks.init = jest.fn((options) => {
   return {
-    options: options
+    options: options,
   };
 });
 
@@ -20,19 +20,19 @@ const peaksOptions = {
   dataUriDefaultFormat: 'json',
   keyboard: true,
   _zoomLevelIndex: 0,
-  _zoomLevels: [512, 1024, 2048, 4096]
+  _zoomLevels: [512, 1024, 2048, 4096],
 };
 // Set up Redux store for tests
 const initialState = {
   forms: {
     structureInfo: {
       structureRetrieved: true,
-      structureStatus: null
-    }
+      structureStatus: null,
+    },
   },
   structuralMetadata: {
-    smData: testSmData
-  }
+    smData: testSmData,
+  },
 };
 const mockStructureIsSaved = jest.fn();
 
@@ -49,7 +49,7 @@ test('StructureOutputContainer renders', () => {
   const { getByTestId } = renderWithRedux(
     <StructureOutputContext structureIsSaved={mockStructureIsSaved} />,
     {
-      initialState
+      initialState,
     }
   );
   expect(getByTestId('structure-output-section')).toBeInTheDocument();
@@ -68,7 +68,10 @@ test('shows structure list when there fetching structure.json is successful', ()
 });
 
 test('shows an error message when there is an error in fetching structure.json', () => {
-  const { rerenderWithRedux, getByTestId } = renderWithRedux(
+  const {
+    rerenderWithRedux,
+    getByTestId,
+  } = renderWithRedux(
     <StructureOutputContext structureIsSaved={mockStructureIsSaved} />,
     { initialState }
   );
@@ -76,15 +79,15 @@ test('shows an error message when there is an error in fetching structure.json',
     forms: {
       structureInfo: {
         structureRetrieved: false,
-        structureStatus: 401
-      }
+        structureStatus: 401,
+      },
     },
     structuralMetadata: {
-      smData: testSmData
+      smData: testSmData,
     },
     peaksInstance: {
-      peaks: mockPeaks.init(peaksOptions)
-    }
+      peaks: mockPeaks.init(peaksOptions),
+    },
   };
   rerenderWithRedux(<StructureOutputContext />, nextState);
   expect(getByTestId('alert-container')).toBeInTheDocument();
@@ -94,7 +97,7 @@ test('shows an error message when there is an error in fetching structure.json',
 });
 
 describe('saving structure back to server', () => {
-  let structureContainer;
+  let structureContainer, saveButton;
   beforeEach(() => {
     structureContainer = renderWithRedux(
       <StructureOutputContext
@@ -104,44 +107,79 @@ describe('saving structure back to server', () => {
       />,
       { initialState }
     );
+    saveButton = structureContainer.getByTestId('structure-save-button');
   });
 
-  test('is successful', async () => {
-    mockAxios.post.mockImplementationOnce(() => {
-      return Promise.resolve({
-        status: 200
+  describe('save request is successful', () => {
+    beforeEach(() => {
+      mockAxios.post.mockImplementationOnce(() => {
+        return Promise.resolve({
+          status: 200,
+        });
+      });
+
+      fireEvent.click(saveButton);
+    });
+
+    test('shows success alert', async () => {
+      expect(mockAxios.post).toHaveBeenCalledTimes(1);
+      expect(mockAxios.post).toHaveBeenCalledWith(
+        'https://example.com/master_files/12zd9s459/structure.json',
+        { json: testSmData[0] },
+        { headers: { 'Content-Type': 'application/json' } }
+      );
+
+      await wait(() => {
+        expect(
+          structureContainer.getByTestId('alert-container')
+        ).toBeInTheDocument();
+        expect(structureContainer.getByTestId('alert-message').innerHTML).toBe(
+          'Saved successfully.'
+        );
       });
     });
 
-    fireEvent.click(structureContainer.getByTestId('structure-save-button'));
+    test('alert closes after 2000ms', async () => {
+      await wait(() => {
+        expect(
+          structureContainer.getByTestId('alert-container')
+        ).toBeInTheDocument();
+      });
 
-    expect(mockAxios.post).toHaveBeenCalledTimes(1);
-    expect(mockAxios.post).toHaveBeenCalledWith(
-      'https://example.com/master_files/12zd9s459/structure.json',
-      { json: testSmData[0] },
-      { headers: { 'Content-Type': 'application/json' } }
-    );
+      setTimeout(() => {
+        expect(
+          structureContainer.getByTestId('alert-container')
+        ).not.toBeInTheDocument();
+      }, 2000);
+    });
 
-    await wait(() => {
+    test('alert closes when structure is edited again', async () => {
+      await wait(() => {
+        expect(
+          structureContainer.getByTestId('alert-container')
+        ).toBeInTheDocument();
+
+        fireEvent.click(
+          structureContainer.queryAllByTestId('list-item-edit-btn')[0]
+        );
+      });
+
       expect(
-        structureContainer.getByTestId('alert-container')
-      ).toBeInTheDocument();
-      expect(structureContainer.getByTestId('alert-message').innerHTML).toBe(
-        'Saved successfully.'
-      );
+        structureContainer.queryByTestId('alert-container')
+      ).not.toBeInTheDocument();
     });
   });
 
-  test('is failing', async () => {
+  test('save request is failing', async () => {
     mockAxios.post.mockImplementationOnce(() => {
       return Promise.reject({
         response: {
-          status: 404
-        }
+          status: 404,
+        },
       });
     });
 
-    fireEvent.click(structureContainer.getByTestId('structure-save-button'));
+    fireEvent.click(saveButton);
 
     expect(mockAxios.post).toHaveBeenCalledTimes(1);
     expect(mockAxios.post).toHaveBeenCalledWith(

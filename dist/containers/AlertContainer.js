@@ -25,6 +25,8 @@ var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/de
 
 var _react = _interopRequireWildcard(require("react"));
 
+var _reactRedux = require("react-redux");
+
 var _propTypes = _interopRequireDefault(require("prop-types"));
 
 var _reactBootstrap = require("react-bootstrap");
@@ -51,31 +53,52 @@ function (_Component) {
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "state", {
       show: false
     });
+    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "hideAlertTimer", null);
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "handleDismiss", function () {
+      _this.props.clearAlert();
+
       _this.setState({
         show: false
       });
 
-      _this.props.clearAlert();
+      if (_this.hideAlertTimer) {
+        clearTimeout(_this.hideAlertTimer);
+        _this.hideAlertTimer = null;
+      }
     });
     return _this;
   }
 
   (0, _createClass2["default"])(AlertContainer, [{
-    key: "componentDidMount",
-    value: function componentDidMount() {
-      if (this.props.message) {
-        this.setState({
-          show: true
-        });
+    key: "componentDidUpdate",
+    value: function componentDidUpdate() {
+      var _this$props = this.props,
+          delay = _this$props.delay,
+          editingDisabled = _this$props.editingDisabled,
+          type = _this$props.type;
+      var self = this; // For successfull save flash messages
+
+      if (type === 'SAVE_FEEDBACK') {
+        // remove flash message after the given delay time in milliseconds
+        if (delay > 0 && !this.hideAlertTimer) {
+          self.hideAlertTimer = setTimeout(function () {
+            self.state.show ? self.handleDismiss() : null;
+          }, delay);
+        } // remove flash message when editing the structure
+        // within 2000ms after saving previous changes
+
+
+        if (editingDisabled) {
+          self.handleDismiss();
+        }
       }
     }
   }, {
     key: "render",
     value: function render() {
-      var _this$props = this.props,
-          alertStyle = _this$props.alertStyle,
-          message = _this$props.message;
+      var _this$props2 = this.props,
+          alertStyle = _this$props2.alertStyle,
+          message = _this$props2.message;
 
       if (!this.state.show) {
         return null;
@@ -115,5 +138,13 @@ function (_Component) {
   alertStyle: _propTypes["default"].oneOf(['success', 'warning', 'danger', 'info']),
   clearAlert: _propTypes["default"].func
 });
-var _default = AlertContainer;
+
+var mapStateToProps = function mapStateToProps(state) {
+  return {
+    editingDisabled: state.forms.editingDisabled
+  };
+};
+
+var _default = (0, _reactRedux.connect)(mapStateToProps)(AlertContainer);
+
 exports["default"] = _default;

@@ -84,8 +84,9 @@ function (_Component) {
           self.hideAlertTimer = setTimeout(function () {
             self.state.show ? self.handleDismiss() : null;
           }, delay);
-        } // remove flash message when editing the structure
-        // within 2000ms after saving previous changes
+        }
+        /** remove flash message when editing the structure
+         *  within 2000ms after saving previous changes */
 
 
         if (editingDisabled) {

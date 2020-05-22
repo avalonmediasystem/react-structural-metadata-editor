@@ -60,7 +60,17 @@ function (_Component) {
 
       _this.props.waveformRef(_this.waveformContainer.current);
 
-      _this.props.mediaPlayerRef(_this.mediaPlayer.current);
+      _this.props.mediaPlayerRef(_this.mediaPlayer.current); // Add a listener to keydown event
+
+
+      document.addEventListener('keydown', _this.handleKeyPress);
+    });
+    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "handleKeyPress", function (event) {
+      // When structure is not being edited play/pause audio when spacebar is pressed
+      if (event.keyCode == 32 && !_this.props.editingDisabled) {
+        event.preventDefault();
+        _this.mediaPlayer.current.paused ? _this.playAudio() : _this.pauseAudio();
+      }
     });
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "zoomIn", function () {
       _this.props.peaksInstance.peaks.zoom.zoomIn();
@@ -94,6 +104,12 @@ function (_Component) {
   }
 
   (0, _createClass2["default"])(Waveform, [{
+    key: "componentWillUnmount",
+    value: function componentWillUnmount() {
+      // Remove event listener when component is unmounting
+      document.removeEventListener('keydown', this.handleKeyPress);
+    }
+  }, {
     key: "render",
     value: function render() {
       var _this$state = this.state,
@@ -114,7 +130,8 @@ function (_Component) {
         isLoading: streamMediaLoading
       })), streamMediaError && _react["default"].createElement(_AlertContainer["default"], alertObj), _react["default"].createElement("audio", {
         ref: this.mediaPlayer,
-        hidden: true
+        hidden: true,
+        "data-testid": "waveform-media"
       }, "Your browser does not support the audio element."), !streamMediaLoading && !streamMediaError && _react["default"].createElement(_reactBootstrap.Row, {
         "data-testid": "waveform-toolbar"
       }, _react["default"].createElement(_reactBootstrap.Col, {
@@ -177,7 +194,8 @@ function (_Component) {
 var mapStateToProps = function mapStateToProps(state) {
   return {
     peaksInstance: state.peaksInstance,
-    streamInfo: state.forms.streamInfo
+    streamInfo: state.forms.streamInfo,
+    editingDisabled: state.forms.editingDisabled
   };
 };
 

@@ -10,17 +10,18 @@ const mockZoomOut = jest.fn();
 const mockPlay = jest.fn();
 const mockPause = jest.fn();
 const mockPeaks = jest.genMockFromModule('peaks.js');
-mockPeaks.init = jest.fn(opts => {
+mockPeaks.init = jest.fn((opts) => {
   return {
     options: opts,
     zoom: {
       zoomIn: mockZoomIn,
-      zoomOut: mockZoomOut
+      zoomOut: mockZoomOut,
     },
     player: {
+      _isPlaying: false,
       play: mockPlay,
-      pause: mockPause
-    }
+      pause: mockPause,
+    },
   };
 });
 
@@ -30,9 +31,9 @@ const initialState = {
     streamInfo: {
       streamMediaError: false,
       streamMediaLoading: true,
-      streamMediaStatus: -5
-    }
-  }
+      streamMediaStatus: -5,
+    },
+  },
 };
 
 // Variables to contain the refs for container and mediaElement
@@ -43,8 +44,8 @@ beforeEach(() => {
   mediaElement = null;
   waveform = renderWithRedux(
     <Waveform
-      waveformRef={ref => (waveformContainer = ref)}
-      mediaPlayerRef={ref => (mediaElement = ref)}
+      waveformRef={(ref) => (waveformContainer = ref)}
+      mediaPlayerRef={(ref) => (mediaElement = ref)}
     />,
     { initialState }
   );
@@ -53,7 +54,9 @@ beforeEach(() => {
 afterEach(cleanup);
 
 test('Waveform renders', () => {
-  expect(waveform.container.querySelector('#waveform-container')).toBeInTheDocument();
+  expect(
+    waveform.container.querySelector('#waveform-container')
+  ).toBeInTheDocument();
   expect(waveform.queryByTestId('loading-spinner')).toBeInTheDocument();
   expect(waveform.queryByTestId('waveform-toolbar')).not.toBeInTheDocument();
 });
@@ -67,7 +70,7 @@ describe('when stream URL works', () => {
       dataUriDefaultFormat: 'json',
       keyboard: true,
       _zoomLevelIndex: 0,
-      _zoomLevels: [512, 1024, 2048, 4096]
+      _zoomLevels: [512, 1024, 2048, 4096],
     };
 
     const nextState = {
@@ -75,15 +78,15 @@ describe('when stream URL works', () => {
         streamInfo: {
           streamMediaError: false,
           streamMediaLoading: false,
-          streamMediaStatus: null
-        }
+          streamMediaStatus: null,
+        },
       },
       peaksInstance: {
-        peaks: mockPeaks.init(peaksOptions)
-      }
+        peaks: mockPeaks.init(peaksOptions),
+      },
     };
-    waveform.rerenderWithRedux(<Waveform />, nextState);  
-  })
+    waveform.rerenderWithRedux(<Waveform />, nextState);
+  });
   test('renders play/pause buttons in the toolbar and enabled', () => {
     expect(waveform.getByTestId('waveform-toolbar')).toBeInTheDocument();
     expect(waveform.getByTestId('waveform-play-button')).toBeEnabled();
@@ -91,7 +94,7 @@ describe('when stream URL works', () => {
     expect(waveform.getByTestId('waveform-play-button')).toBeInTheDocument();
     expect(waveform.getByTestId('waveform-pause-button')).toBeEnabled();
   });
-  
+
   test('renders zoom in/out buttons in the toolbar and enabled', () => {
     expect(waveform.getByTestId('waveform-zoomin-button')).toBeInTheDocument();
     expect(waveform.getByTestId('waveform-zoomin-button')).toBeEnabled();
@@ -115,27 +118,67 @@ describe('when stream URL works', () => {
   test('alert is not displayed', () => {
     expect(waveform.queryByTestId('alert-container')).not.toBeInTheDocument();
   });
+
+  describe('when spacebar is pressed', () => {
+    test('while editing an item', () => {
+      const nextState = {
+        forms: {
+          streamInfo: {
+            streamMediaError: false,
+            streamMediaLoading: false,
+            streamMediaStatus: null,
+          },
+          editingDisabled: true,
+        },
+      };
+      waveform.rerenderWithRedux(<Waveform />, nextState);
+
+      fireEvent.keyDown(waveform.getByTestId('waveform-toolbar'), {
+        key: 'Space',
+        code: 'Space',
+        keyCode: 32,
+      });
+      expect(mockPlay).toHaveBeenCalledTimes(0);
+    });
+
+    test('while not editing an item', () => {
+      fireEvent.keyDown(waveform.getByTestId('waveform-toolbar'), {
+        key: 'Space',
+        code: 'Space',
+        keyCode: 32,
+      });
+      expect(mockPlay).toHaveBeenCalledTimes(1);
+    });
+  });
 });
 
 describe('when stream URL does not work', () => {
   test('play/pause buttons are not dispalyed', () => {
     // Buttons are not displayed intially
-    expect(waveform.queryByTestId('waveform-play-button')).not.toBeInTheDocument();
-    expect(waveform.queryByTestId('waveform-pause-button')).not.toBeInTheDocument();
+    expect(
+      waveform.queryByTestId('waveform-play-button')
+    ).not.toBeInTheDocument();
+    expect(
+      waveform.queryByTestId('waveform-pause-button')
+    ).not.toBeInTheDocument();
 
     const nextState = {
       forms: {
         streamInfo: {
           streamMediaError: true,
-          streamMediaLoading: false
-        }
-      }
+          streamMediaLoading: false,
+        },
+      },
     };
     waveform.rerenderWithRedux(<Waveform />, nextState);
 
     // Buttons are not displayed after stream media loading has stopped
-    expect(waveform.queryByTestId('waveform-play-button')).not.toBeInTheDocument();
-    expect(waveform.queryByTestId('waveform-pause-button')).not.toBeInTheDocument();
+    expect(
+      waveform.queryByTestId('waveform-play-button')
+    ).not.toBeInTheDocument();
+    expect(
+      waveform.queryByTestId('waveform-pause-button')
+    ).not.toBeInTheDocument();
   });
 
   test('alert is displayed', () => {
@@ -144,9 +187,9 @@ describe('when stream URL does not work', () => {
         streamInfo: {
           streamMediaError: true,
           streamMediaLoading: false,
-          streamMediaStatus: -6
-        }
-      }
+          streamMediaStatus: -6,
+        },
+      },
     };
     waveform.rerenderWithRedux(<Waveform />, nextState);
 

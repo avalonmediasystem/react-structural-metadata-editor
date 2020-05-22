@@ -21,7 +21,7 @@ class Waveform extends Component {
       audioFile: this.props.audioStreamURL,
       alertObj: this.props.alertObj,
       volume: 100,
-      streamMediaStatus: this.props.streamInfo.streamMediaStatus
+      streamMediaStatus: this.props.streamInfo.streamMediaStatus,
     };
 
     // Create `refs`
@@ -37,7 +37,7 @@ class Waveform extends Component {
         alertObj: configureAlert(
           nextProps.streamInfo.streamMediaStatus,
           nextProps.clearAlert
-        )
+        ),
       };
     }
     if (nextProps.alertObj === null) {
@@ -53,7 +53,23 @@ class Waveform extends Component {
     // Grab the React `refs` now the component is mounted
     this.props.waveformRef(this.waveformContainer.current);
     this.props.mediaPlayerRef(this.mediaPlayer.current);
+
+    // Add a listener to keydown event
+    document.addEventListener('keydown', this.handleKeyPress);
   };
+
+  handleKeyPress = (event) => {
+    // When structure is not being edited play/pause audio when spacebar is pressed
+    if (event.keyCode == 32 && !this.props.editingDisabled) {
+      event.preventDefault();
+      this.mediaPlayer.current.paused ? this.playAudio() : this.pauseAudio();
+    }
+  };
+
+  componentWillUnmount() {
+    // Remove event listener when component is unmounting
+    document.removeEventListener('keydown', this.handleKeyPress);
+  }
 
   zoomIn = () => {
     this.props.peaksInstance.peaks.zoom.zoomIn();
@@ -71,7 +87,7 @@ class Waveform extends Component {
     this.props.peaksInstance.peaks.player.pause();
   };
 
-  setVolume = volume => {
+  setVolume = (volume) => {
     this.mediaPlayer.current.volume = volume / 100;
     this.setState({ volume });
   };
@@ -88,18 +104,20 @@ class Waveform extends Component {
           tabIndex="0"
           data-testid="waveform"
         />
-        {(streamMediaLoading && !streamMediaError) && (
+        {streamMediaLoading && !streamMediaError && (
           <div data-testid="loading-spinner">
             <LoadingSpinner isLoading={streamMediaLoading} />
           </div>
         )}
-        {streamMediaError &&
-          <AlertContainer {...alertObj} />
-        }
-        <audio ref={this.mediaPlayer} hidden={true}>
+        {streamMediaError && <AlertContainer {...alertObj} />}
+        <audio
+          ref={this.mediaPlayer}
+          hidden={true}
+          data-testid="waveform-media"
+        >
           Your browser does not support the audio element.
         </audio>
-        {(!streamMediaLoading && !streamMediaError) && (
+        {!streamMediaLoading && !streamMediaError && (
           <Row data-testid="waveform-toolbar">
             <Col xs={6} md={6}>
               <VolumeSlider volume={volume} setVolume={this.setVolume} />
@@ -141,16 +159,14 @@ class Waveform extends Component {
   }
 }
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   peaksInstance: state.peaksInstance,
-  streamInfo: state.forms.streamInfo
+  streamInfo: state.forms.streamInfo,
+  editingDisabled: state.forms.editingDisabled,
 });
 
 const mapDispatchToProps = {
-  retrieveStreamMedia: retrieveStreamMedia
+  retrieveStreamMedia: retrieveStreamMedia,
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Waveform);
+export default connect(mapStateToProps, mapDispatchToProps)(Waveform);

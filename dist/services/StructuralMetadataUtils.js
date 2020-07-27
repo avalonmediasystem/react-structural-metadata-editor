@@ -727,16 +727,19 @@ function () {
     key: "getItemsAfter",
     value: function getItemsAfter(currentItem, allItems, nextDivs) {
       var parentItem = this.getParentDiv(currentItem, allItems);
-      var currentIndex = parentItem.items.map(function (item) {
-        return item.id;
-      }).indexOf(currentItem.id);
-      var nextItem = parentItem.items.filter(function (item, i) {
-        return i > currentIndex;
-      });
-      nextDivs = nextDivs.concat(nextItem);
 
-      if (this.getParentDiv(parentItem, allItems)) {
-        return this.getItemsAfter(parentItem, allItems, nextDivs);
+      if (parentItem) {
+        var currentIndex = parentItem.items.map(function (item) {
+          return item.id;
+        }).indexOf(currentItem.id);
+        var nextItem = parentItem.items.filter(function (item, i) {
+          return i > currentIndex;
+        });
+        nextDivs = nextDivs.concat(nextItem);
+
+        if (this.getParentDiv(parentItem, allItems)) {
+          return this.getItemsAfter(parentItem, allItems, nextDivs);
+        }
       }
 
       return nextDivs;

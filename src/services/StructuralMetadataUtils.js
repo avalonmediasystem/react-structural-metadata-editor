@@ -584,13 +584,15 @@ export default class StructuralMetadataUtils {
    */
   getItemsAfter(currentItem, allItems, nextDivs) {
     const parentItem = this.getParentDiv(currentItem, allItems);
-    const currentIndex = parentItem.items
-      .map((item) => item.id)
-      .indexOf(currentItem.id);
-    const nextItem = parentItem.items.filter((item, i) => i > currentIndex);
-    nextDivs = nextDivs.concat(nextItem);
-    if (this.getParentDiv(parentItem, allItems)) {
-      return this.getItemsAfter(parentItem, allItems, nextDivs);
+    if (parentItem) {
+      const currentIndex = parentItem.items
+        .map((item) => item.id)
+        .indexOf(currentItem.id);
+      const nextItem = parentItem.items.filter((item, i) => i > currentIndex);
+      nextDivs = nextDivs.concat(nextItem);
+      if (this.getParentDiv(parentItem, allItems)) {
+        return this.getItemsAfter(parentItem, allItems, nextDivs);
+      }
     }
     return nextDivs;
   }

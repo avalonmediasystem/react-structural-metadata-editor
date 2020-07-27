@@ -755,6 +755,25 @@ describe('StructuralMetadataUtils class', () => {
       const value = smu.getItemsAfter(currentItem, testData, []);
       expect(value).toHaveLength(0);
     });
+
+    test('last leaf node of the root heading', () => {
+      const structItems = {
+        type: 'div',
+        label: 'Title',
+        id: '123a-456b-789c-0d',
+        items: [
+          {
+            type: 'span',
+            label: 'Act 1',
+            id: '123a-456b-789c-1d',
+            begin: '00:00:00.000',
+            end: '00:09:00.001',
+          },
+        ],
+      };
+      const value = smu.getItemsAfter(structItems.items, structItems, []);
+      expect(value).toHaveLength(0);
+    });
   });
 
   describe('validates order of begin and end times', () => {

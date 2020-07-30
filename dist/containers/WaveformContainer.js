@@ -105,19 +105,18 @@ function (_Component) {
       var _initializePeaksInstance = (0, _asyncToGenerator2["default"])(
       /*#__PURE__*/
       _regenerator["default"].mark(function _callee() {
-        var _this$state, baseURL, masterFileID, initStructure, streamLength, isError, response;
+        var _this$state, baseURL, masterFileID, initStructure, streamLength, response;
 
         return _regenerator["default"].wrap(function _callee$(_context) {
           while (1) {
             switch (_context.prev = _context.next) {
               case 0:
                 _this$state = this.state, baseURL = _this$state.baseURL, masterFileID = _this$state.masterFileID, initStructure = _this$state.initStructure, streamLength = _this$state.streamLength;
-                isError = false;
-                _context.prev = 2;
-                _context.next = 5;
+                _context.prev = 1;
+                _context.next = 4;
                 return apiUtils.headRequest(baseURL, masterFileID, 'waveform.json');
 
-              case 5:
+              case 4:
                 response = _context.sent;
 
                 // Set the masterfile URL as the URI for the waveform data file
@@ -126,28 +125,25 @@ function (_Component) {
                 } // Initialize Peaks
 
 
-                this.props.fetchDataAndBuildPeaks(baseURL, masterFileID, initStructure, peaksOptions, streamLength, isError); // Update redux-store flag for waveform file retrieval
+                this.props.fetchDataAndBuildPeaks(baseURL, masterFileID, initStructure, peaksOptions, streamLength); // Update redux-store flag for waveform file retrieval
 
                 this.props.retrieveWaveformSuccess();
-                _context.next = 17;
+                _context.next = 14;
                 break;
 
-              case 11:
-                _context.prev = 11;
-                _context.t0 = _context["catch"](2);
-                isError = true;
-                this.handleError(_context.t0); // Disable edting when waveform is missing
+              case 10:
+                _context.prev = 10;
+                _context.t0 = _context["catch"](1);
+                this.handleError(_context.t0); // Fetch structure.json and build Peaks
 
-                this.props.handleEditingTimespans(1); // Fetch structure.json when waveform.json is
+                this.props.fetchDataAndBuildPeaks(baseURL, masterFileID, initStructure, peaksOptions, streamLength);
 
-                this.props.fetchDataAndBuildPeaks(baseURL, masterFileID, initStructure, peaksOptions, streamLength, isError);
-
-              case 17:
+              case 14:
               case "end":
                 return _context.stop();
             }
           }
-        }, _callee, this, [[2, 11]]);
+        }, _callee, this, [[1, 10]]);
       }));
 
       function initializePeaksInstance() {
@@ -181,15 +177,12 @@ function (_Component) {
 
       var _this$state2 = this.state,
           alertObj = _this$state2.alertObj,
-          hasError = _this$state2.hasError,
           streamAlert = _this$state2.streamAlert;
-      var _this$props = this.props,
-          forms = _this$props.forms,
-          audioStreamURL = _this$props.audioStreamURL;
+      var audioStreamURL = this.props.audioStreamURL;
       return _react["default"].createElement("section", {
         className: "waveform-section",
         "data-testid": "waveform-container"
-      }, !forms.waveformRetrieved && hasError ? _react["default"].createElement(_AlertContainer["default"], alertObj) : _react["default"].createElement(_Waveform["default"], {
+      }, _react["default"].createElement(_Waveform["default"], {
         waveformRef: function waveformRef(ref) {
           return _this2.waveformContainer = ref;
         },
@@ -199,7 +192,7 @@ function (_Component) {
         audioStreamURL: audioStreamURL,
         alertObj: streamAlert,
         clearAlert: this.clearStreamAlert
-      }));
+      }), ' ', _react["default"].createElement(_AlertContainer["default"], alertObj));
     }
   }]);
   return WaveformContainer;

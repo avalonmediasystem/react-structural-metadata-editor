@@ -61,7 +61,6 @@ class WaveformContainer extends Component {
 
   async initializePeaksInstance() {
     const { baseURL, masterFileID, initStructure, streamLength } = this.state;
-    let isError = false;
     try {
       // Check whether the waveform.json exists in the server
       const response = await apiUtils.headRequest(
@@ -81,26 +80,20 @@ class WaveformContainer extends Component {
         masterFileID,
         initStructure,
         peaksOptions,
-        streamLength,
-        isError
+        streamLength
       );
       // Update redux-store flag for waveform file retrieval
       this.props.retrieveWaveformSuccess();
     } catch (error) {
-      isError = true;
       this.handleError(error);
 
-      // Disable edting when waveform is missing
-      this.props.handleEditingTimespans(1);
-
-      // Fetch structure.json when waveform.json is
+      // Fetch structure.json and build Peaks
       this.props.fetchDataAndBuildPeaks(
         baseURL,
         masterFileID,
         initStructure,
         peaksOptions,
-        streamLength,
-        isError
+        streamLength
       );
     }
   }
@@ -121,22 +114,19 @@ class WaveformContainer extends Component {
   }
 
   render() {
-    const { alertObj, hasError, streamAlert } = this.state;
-    const { forms, audioStreamURL } = this.props;
+    const { alertObj, streamAlert } = this.state;
+    const { audioStreamURL } = this.props;
 
     return (
       <section className="waveform-section" data-testid="waveform-container">
-        {!forms.waveformRetrieved && hasError ? (
-          <AlertContainer {...alertObj} />
-        ) : (
-          <Waveform
-            waveformRef={(ref) => (this.waveformContainer = ref)}
-            mediaPlayerRef={(ref) => (this.mediaPlayer = ref)}
-            audioStreamURL={audioStreamURL}
-            alertObj={streamAlert}
-            clearAlert={this.clearStreamAlert}
-          />
-        )}
+        <Waveform
+          waveformRef={(ref) => (this.waveformContainer = ref)}
+          mediaPlayerRef={(ref) => (this.mediaPlayer = ref)}
+          audioStreamURL={audioStreamURL}
+          alertObj={streamAlert}
+          clearAlert={this.clearStreamAlert}
+        />{' '}
+        <AlertContainer {...alertObj} />
       </section>
     );
   }

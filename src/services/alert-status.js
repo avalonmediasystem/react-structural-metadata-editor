@@ -1,6 +1,6 @@
 export const UNAUTHORIZED_ACCESS =
   "You're not authorized to access this resource.";
-export const MASTERFILE_NOT_FOUND = 'Requested data not available.';
+export const MASTERFILE_NOT_FOUND = 'Requested data is not available.';
 export const SAVED_MASTERFILE_SUCCESS = 'Saved successfully.';
 export const NETWORK_ERROR = 'Network error. Please try again.';
 export const FETCH_STRUCTURED_DATA_ERROR =

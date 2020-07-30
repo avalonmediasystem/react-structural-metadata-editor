@@ -175,10 +175,9 @@ function (_Component) {
       var _this$props$forms = this.props.forms,
           editingDisabled = _this$props$forms.editingDisabled,
           structureInfo = _this$props$forms.structureInfo,
-          waveformRetrieved = _this$props$forms.waveformRetrieved,
           streamInfo = _this$props$forms.streamInfo; // Only return UI when both structure and waveform data exist
 
-      return structureInfo.structureRetrieved && waveformRetrieved ? _react["default"].createElement("section", null, _react["default"].createElement(_AlertContainer["default"], this.state.alertObj), _react["default"].createElement(_reactBootstrap.Row, {
+      return structureInfo.structureRetrieved ? _react["default"].createElement("section", null, _react["default"].createElement(_AlertContainer["default"], this.state.alertObj), _react["default"].createElement(_reactBootstrap.Row, {
         "data-testid": "button-row"
       }, _react["default"].createElement(_reactBootstrap.Col, {
         xs: 6

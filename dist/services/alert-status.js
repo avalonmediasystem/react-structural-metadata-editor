@@ -7,7 +7,7 @@ exports.configureAlert = configureAlert;
 exports.STREAM_MEDIA_ERROR = exports.PEAKSJS_REACHED_END_OF_FILE = exports.WAVEFORM_INITIALIZE_ERROR = exports.FETCH_STRUCTURED_DATA_ERROR = exports.NETWORK_ERROR = exports.SAVED_MASTERFILE_SUCCESS = exports.MASTERFILE_NOT_FOUND = exports.UNAUTHORIZED_ACCESS = void 0;
 var UNAUTHORIZED_ACCESS = "You're not authorized to access this resource.";
 exports.UNAUTHORIZED_ACCESS = UNAUTHORIZED_ACCESS;
-var MASTERFILE_NOT_FOUND = 'Requested data not available.';
+var MASTERFILE_NOT_FOUND = 'Requested data is not available.';
 exports.MASTERFILE_NOT_FOUND = MASTERFILE_NOT_FOUND;
 var SAVED_MASTERFILE_SUCCESS = 'Saved successfully.';
 exports.SAVED_MASTERFILE_SUCCESS = SAVED_MASTERFILE_SUCCESS;

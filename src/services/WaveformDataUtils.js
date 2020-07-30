@@ -15,14 +15,14 @@ export default class WaveformDataUtils {
     let count = 0;
 
     // Recursively build segments for timespans in the structure
-    let createSegment = items => {
+    let createSegment = (items) => {
       for (let item of items) {
         if (item.type === 'span') {
           count = count > 1 ? 0 : count;
           const segment = this.convertTimespanToSegment(item);
           initSegments.push({
             ...segment,
-            color: COLOR_PALETTE[count]
+            color: COLOR_PALETTE[count],
           });
           count++;
         }
@@ -54,7 +54,7 @@ export default class WaveformDataUtils {
     const currentSegments = this.sortSegments(peaksInstance, 'startTime');
 
     // Validate start time of the temporary segment
-    currentSegments.map(segment => {
+    currentSegments.map((segment) => {
       if (
         rangeBeginTime >= segment.startTime &&
         rangeBeginTime <= segment.endTime
@@ -76,7 +76,7 @@ export default class WaveformDataUtils {
     }
 
     // Validate end time of the temporary segment
-    currentSegments.map(segment => {
+    currentSegments.map((segment) => {
       if (rangeBeginTime < segment.startTime) {
         const segmentLength = segment.endTime - segment.startTime;
         if (fileEndTime < 60) {
@@ -110,7 +110,7 @@ export default class WaveformDataUtils {
           endTime: rangeEndTime,
           editable: true,
           color: COLOR_PALETTE[2],
-          id: 'temp-segment'
+          id: 'temp-segment',
         });
       }
     }
@@ -124,7 +124,7 @@ export default class WaveformDataUtils {
    * @param {Object} peaksInstance - peaks instance for the current waveform
    */
   deleteSegments(item, peaksInstance) {
-    let deleteChildren = item => {
+    let deleteChildren = (item) => {
       let children = item.items;
       for (let child of children) {
         if (child.type === 'span') {
@@ -152,7 +152,7 @@ export default class WaveformDataUtils {
     let sortedSegments = this.sortSegments(peaksInstance, 'startTime');
     sortedSegments.forEach((segment, index) => {
       segment.update({
-        color: this.isOdd(index) ? COLOR_PALETTE[1] : COLOR_PALETTE[0]
+        color: this.isOdd(index) ? COLOR_PALETTE[1] : COLOR_PALETTE[0],
       });
     });
 
@@ -170,7 +170,7 @@ export default class WaveformDataUtils {
     // Setting editable: true -> enables handles
     segment.update({
       editable: true,
-      color: COLOR_PALETTE[2]
+      color: COLOR_PALETTE[2],
     });
     let startTime = segment.startTime;
     // Move play head to the start time of the selected segment
@@ -192,7 +192,7 @@ export default class WaveformDataUtils {
     const { before, after } = this.findWrapperSegments(segment, peaksInstance);
 
     // Check for margin of +/- 0.02 milliseconds to be considered
-    let isDuration = time => {
+    let isDuration = (time) => {
       return time <= duration + 0.02 && time >= duration - 0.02;
     };
     if (
@@ -212,7 +212,7 @@ export default class WaveformDataUtils {
     if (isDuration(segment.endTime)) {
       const allSegments = this.sortSegments(peaksInstance, 'startTime');
       let afterSegments = allSegments.filter(
-        seg => seg.startTime > segment.startTime
+        (seg) => seg.startTime > segment.startTime
       );
       if (afterSegments.length > 0) {
         segment.update({ endTime: afterSegments[0].startTime });
@@ -230,13 +230,13 @@ export default class WaveformDataUtils {
     // Sorted segments by start time
     let segments = this.sortSegments(peaksInstance, 'startTime');
 
-    let index = segments.map(seg => seg.id).indexOf(id);
+    let index = segments.map((seg) => seg.id).indexOf(id);
 
     // Setting editable: false -> disables the handles
     const segment = peaksInstance.segments.getSegment(id);
     segment.update({
       editable: false,
-      color: this.isOdd(index) ? COLOR_PALETTE[1] : COLOR_PALETTE[0]
+      color: this.isOdd(index) ? COLOR_PALETTE[1] : COLOR_PALETTE[0],
     });
 
     return peaksInstance;
@@ -251,7 +251,7 @@ export default class WaveformDataUtils {
     const { beginTime, endTime, clonedSegment } = currentState;
     clonedSegment.update({
       startTime: smu.toMs(beginTime) / 1000,
-      endTime: smu.toMs(endTime) / 1000
+      endTime: smu.toMs(endTime) / 1000,
     });
     return peaksInstance;
   }
@@ -269,7 +269,7 @@ export default class WaveformDataUtils {
       labelText,
       id,
       color,
-      editable
+      editable,
     } = clonedSegment;
     segment.update({
       startTime: startTime,
@@ -277,7 +277,7 @@ export default class WaveformDataUtils {
       labelText: labelText,
       id: id,
       color: color,
-      editable: editable
+      editable: editable,
     });
     return peaksInstance;
   }
@@ -323,7 +323,7 @@ export default class WaveformDataUtils {
     const { before, after } = this.findWrapperSegments(segment, peaksInstance);
 
     // Check for margin of +/- 0.02 milliseconds to be considered
-    let isDuration = time => {
+    let isDuration = (time) => {
       return time <= duration + 0.02 && time >= duration - 0.02;
     };
 
@@ -360,7 +360,7 @@ export default class WaveformDataUtils {
       startTime: smu.toMs(begin) / 1000,
       endTime: smu.toMs(end) / 1000,
       labelText: label,
-      id: id
+      id: id,
     };
   }
 
@@ -372,28 +372,28 @@ export default class WaveformDataUtils {
   findWrapperSegments(currentSegment, peaksInstance) {
     let wrapperSegments = {
       before: null,
-      after: null
+      after: null,
     };
 
     // All segments sorted by start time
     const allSegments = this.sortSegments(peaksInstance, 'startTime');
     const otherSegments = allSegments.filter(
-      seg => seg.id !== currentSegment.id
+      (seg) => seg.id !== currentSegment.id
     );
     const { startTime } = currentSegment;
-    const timeFixedSegments = otherSegments.map(seg => {
+    const timeFixedSegments = otherSegments.map((seg) => {
       return {
         ...seg,
         startTime: this.roundOff(seg.startTime),
-        endTime: this.roundOff(seg.endTime)
+        endTime: this.roundOff(seg.endTime),
       };
     });
 
     wrapperSegments.after = timeFixedSegments.filter(
-      seg => seg.startTime > startTime
+      (seg) => seg.startTime > startTime
     )[0];
     wrapperSegments.before = timeFixedSegments
-      .filter(seg => seg.startTime < startTime)
+      .filter((seg) => seg.startTime < startTime)
       .reverse()[0];
     return wrapperSegments;
   }

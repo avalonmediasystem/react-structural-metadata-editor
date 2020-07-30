@@ -45,84 +45,78 @@ var structuralMetadataUtils = new _StructuralMetadataUtils["default"]();
  * @param {String} masterFileID - ID of the masterfile relevant to media element
  * @param {JSON String} initStructure - structure with root element when empty
  * @param {Object} options - peaks options
- * @param {Boolean} isError - flag inidicating an error happened when fetching waveform.json
  */
 
-function initializeSMDataPeaks(baseURL, masterFileID, initStructure, options, duration, isError) {
+function initializeSMDataPeaks(baseURL, masterFileID, initStructure, options, duration) {
   return (
     /*#__PURE__*/
     function () {
       var _ref = (0, _asyncToGenerator2["default"])(
       /*#__PURE__*/
       _regenerator["default"].mark(function _callee(dispatch, getState) {
-        var response, smData, _getState, structuralMetadata, _getState2, peaksInstance, status;
+        var smData, response, status, _getState, structuralMetadata, _getState2, peaksInstance;
 
         return _regenerator["default"].wrap(function _callee$(_context) {
           while (1) {
             switch (_context.prev = _context.next) {
               case 0:
-                _context.prev = 0;
-                _context.next = 3;
-                return apiUtils.getRequest(baseURL, masterFileID, 'structure.json');
-
-              case 3:
-                response = _context.sent;
                 smData = [];
 
-                if ((0, _lodash.isEmpty)(response.data)) {
+                if (initStructure !== '') {
                   smData = structuralMetadataUtils.addUUIds([JSON.parse(initStructure)]);
-                } else {
+                }
+
+                _context.prev = 2;
+                _context.next = 5;
+                return apiUtils.getRequest(baseURL, masterFileID, 'structure.json');
+
+              case 5:
+                response = _context.sent;
+
+                if (!(0, _lodash.isEmpty)(response.data)) {
                   smData = structuralMetadataUtils.addUUIds([response.data]);
-                } // Mark the top element as 'root'
+                } // Update redux-store flag for structure file retrieval
 
 
+                dispatch((0, _forms.retrieveStructureSuccess)());
+                _context.next = 15;
+                break;
+
+              case 10:
+                _context.prev = 10;
+                _context.t0 = _context["catch"](2);
+                console.log('TCL: Structure -> }catch -> error', _context.t0);
+                status = _context.t0.response !== undefined ? _context.t0.response.status : -2;
+                dispatch((0, _forms.handleStructureError)(1, status));
+
+              case 15:
+                // Mark the top element as 'root'
                 structuralMetadataUtils.markRootElement(smData); // Initialize Redux state variable with structure
 
                 dispatch((0, _smData.buildSMUI)(smData, duration));
                 _getState = getState(), structuralMetadata = _getState.structuralMetadata;
-                dispatch((0, _smData.saveInitialStructure)(structuralMetadata.smData)); // Update redux-store flag for structure file retrieval
+                dispatch((0, _smData.saveInitialStructure)(structuralMetadata.smData));
+                dispatch(initPeaks(smData, options));
+                _getState2 = getState(), peaksInstance = _getState2.peaksInstance; // Subscribe to Peaks event for dragging handles in a segment
 
-                dispatch((0, _forms.retrieveStructureSuccess)());
+                if (peaksInstance.events !== undefined) {
+                  peaksInstance.events.subscribe(function (eProps) {
+                    // startTimeChanged = true -> handle at the start of the segment is being dragged
+                    // startTimeChanged = flase -> handle at the end of the segment is being dragged
+                    var _eProps = (0, _slicedToArray2["default"])(eProps, 2),
+                        segment = _eProps[0],
+                        startTimeChanged = _eProps[1];
 
-                if (!isError) {
-                  dispatch(initPeaks(smData, options));
-                  _getState2 = getState(), peaksInstance = _getState2.peaksInstance; // Subscribe to Peaks event for dragging handles in a segment
-
-                  if (peaksInstance.events !== undefined) {
-                    peaksInstance.events.subscribe(function (eProps) {
-                      // startTimeChanged = true -> handle at the start of the segment is being dragged
-                      // startTimeChanged = flase -> handle at the end of the segment is being dragged
-                      var _eProps = (0, _slicedToArray2["default"])(eProps, 2),
-                          segment = _eProps[0],
-                          startTimeChanged = _eProps[1];
-
-                      dispatch(dragSegment(segment.id, startTimeChanged, 1));
-                    });
-                  }
+                    dispatch(dragSegment(segment.id, startTimeChanged, 1));
+                  });
                 }
 
-                _context.next = 20;
-                break;
-
-              case 14:
-                _context.prev = 14;
-                _context.t0 = _context["catch"](0);
-                console.log('TCL: Structure -> }catch -> error', _context.t0); // Check whether fetching waveform.json was successful
-
-                if (!isError) {
-                  // Initialize Peaks when structure.json is not found to show an empty waveform
-                  dispatch(initPeaks([], options));
-                }
-
-                status = _context.t0.response !== undefined ? _context.t0.response.status : -2;
-                dispatch((0, _forms.handleStructureError)(1, status));
-
-              case 20:
+              case 22:
               case "end":
                 return _context.stop();
             }
           }
-        }, _callee, null, [[0, 14]]);
+        }, _callee, null, [[2, 10]]);
       }));
 
       return function (_x, _x2) {

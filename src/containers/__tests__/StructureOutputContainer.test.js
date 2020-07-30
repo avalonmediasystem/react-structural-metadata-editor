@@ -193,7 +193,7 @@ describe('saving structure back to server', () => {
         structureContainer.getByTestId('alert-container')
       ).toBeInTheDocument();
       expect(structureContainer.getByTestId('alert-message').innerHTML).toBe(
-        'Requested data not available.'
+        'Requested data is not available.'
       );
     });
   });

@@ -10,6 +10,7 @@ const initialState = {
   segment: null,
   isDragging: false,
   startTimeChanged: null,
+  duration: null,
 };
 let newPeaks = null;
 let updatedSegment = null;
@@ -26,6 +27,7 @@ const peaksInstance = (state = initialState, action) => {
         peaks: peaksInstance,
         events: fromEvent(peaksInstance, 'segments.dragged'),
         segment: { ...state.segment },
+        duration: action.duration,
       };
 
     case types.INSERT_SEGMENT:
@@ -104,7 +106,10 @@ const peaksInstance = (state = initialState, action) => {
       };
 
     case types.TEMP_INSERT_SEGMENT:
-      newPeaks = waveformUtils.insertTempSegment({ ...state.peaks });
+      newPeaks = waveformUtils.insertTempSegment(
+        { ...state.peaks },
+        state.duration
+      );
       return {
         ...state,
         peaks: { ...newPeaks },

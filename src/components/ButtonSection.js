@@ -113,7 +113,7 @@ class ButtonSection extends Component {
       setIsInitializing: this.setIsInitializing,
     };
 
-    const { editingDisabled, structureInfo, streamInfo } = this.props.forms;
+    const { editingDisabled, structureInfo } = this.props.forms;
 
     // Only return UI when both structure and waveform data exist
     return structureInfo.structureRetrieved ? (
@@ -135,10 +135,7 @@ class ButtonSection extends Component {
               data-testid="add-timespan-button"
               block
               onClick={this.handleTimeSpanClick}
-              disabled={
-                (this.state.disabled && editingDisabled) ||
-                streamInfo.streamMediaError
-              }
+              disabled={this.state.disabled && editingDisabled}
             >
               Add a Timespan
             </Button>

@@ -92,17 +92,18 @@ function () {
     /**
      * Add a temporary segment to be edited when adding a new timespan to structure
      * @param {Object} peaksInstance - peaks instance for the current waveform
+     * @param {Integer} fileDuration - duration of the file
      */
 
   }, {
     key: "insertTempSegment",
-    value: function insertTempSegment(peaksInstance) {
+    value: function insertTempSegment(peaksInstance, fileDuration) {
       var _this2 = this;
 
       // Current time of the playhead
       var currentTime = this.roundOff(peaksInstance.player.getCurrentTime()); // End time of the media file
 
-      var fileEndTime = this.roundOff(peaksInstance.player.getDuration());
+      var fileEndTime = fileDuration;
       var rangeEndTime,
           rangeBeginTime = currentTime;
       var currentSegments = this.sortSegments(peaksInstance, 'startTime'); // Validate start time of the temporary segment

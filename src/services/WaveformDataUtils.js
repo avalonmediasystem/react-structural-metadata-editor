@@ -41,12 +41,13 @@ export default class WaveformDataUtils {
   /**
    * Add a temporary segment to be edited when adding a new timespan to structure
    * @param {Object} peaksInstance - peaks instance for the current waveform
+   * @param {Integer} fileDuration - duration of the file
    */
-  insertTempSegment(peaksInstance) {
+  insertTempSegment(peaksInstance, fileDuration) {
     // Current time of the playhead
     const currentTime = this.roundOff(peaksInstance.player.getCurrentTime());
     // End time of the media file
-    const fileEndTime = this.roundOff(peaksInstance.player.getDuration());
+    const fileEndTime = fileDuration;
 
     let rangeEndTime,
       rangeBeginTime = currentTime;

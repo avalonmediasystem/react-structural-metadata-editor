@@ -22,6 +22,26 @@ const initialState = {
   },
 };
 
+const initStructure = {
+  type: 'root',
+  label: 'Ima Title',
+  id: '123a-456b-789c-0d',
+  items: [
+    {
+      type: 'div',
+      label: 'First segment',
+      id: '123a-456b-789c-1d',
+      items: [
+        {
+          type: 'div',
+          label: 'Sub-Segment 1.1',
+          id: '123a-456b-789c-2d',
+          items: [],
+        },
+      ],
+    },
+  ],
+};
 afterEach(cleanup);
 
 test('WaveformContainer renders', async () => {
@@ -44,9 +64,7 @@ test('WaveformContainer renders', async () => {
     <WaveformContainer
       baseURL={'https://mockurl.edu'}
       masterFileID={'3421d4fg'}
-      initStructure={
-        '{ "label": "Sample clock", "type": "div", "items": [{"type": "span", "begin": "00:00:00.00", "end": "00:00:11.136", "label": "Introduction"}] }'
-      }
+      initStructure={initStructure}
     />,
     { initialState }
   );
@@ -74,9 +92,7 @@ test('shows alert when there is an error fetching waveform.json', async () => {
     <WaveformContainer
       baseURL={'https://mockurl.edu'}
       masterFileID={'3421d4fg'}
-      initStructure={
-        '{ "label": "Sample clock", "type": "div", "items": [{"type": "span", "begin": "00:00:00.00", "end": "00:00:11.136", "label": "Introduction"}] }'
-      }
+      initStructure={initStructure}
     />,
     { initialState }
   );
@@ -111,9 +127,7 @@ test('waveform renders when there is an error in fetching structure.json', async
     <WaveformContainer
       baseURL={'https://mockurl.edu'}
       masterFileID={'3421d4fg'}
-      initStructure={
-        '{ "label": "Sample clock", "type": "div", "items": [{"type": "span", "begin": "00:00:00.00", "end": "00:00:11.136", "label": "Introduction"}] }'
-      }
+      initStructure={initStructure}
     />,
     { initialState }
   );

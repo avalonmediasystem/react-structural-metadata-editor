@@ -12,7 +12,7 @@ const structuralMetadataUtils = new StructuralMetadataUtils();
  * Fetch structure.json and initialize Peaks
  * @param {String} baseURL - base URL of masterfile location
  * @param {String} masterFileID - ID of the masterfile relevant to media element
- * @param {JSON String} initStructure - structure with root element when empty
+ * @param {JSON Object} initStructure - structure with root element when empty
  * @param {Object} options - peaks options
  */
 export function initializeSMDataPeaks(
@@ -25,7 +25,7 @@ export function initializeSMDataPeaks(
   return async (dispatch, getState) => {
     let smData = [];
     if (initStructure !== '') {
-      smData = structuralMetadataUtils.addUUIds([JSON.parse(initStructure)]);
+      smData = structuralMetadataUtils.addUUIds([initStructure]);
     }
     try {
       const response = await apiUtils.getRequest(
@@ -56,7 +56,7 @@ export function initializeSMDataPeaks(
 
     dispatch(saveInitialStructure(structuralMetadata.smData));
 
-    dispatch(initPeaks(smData, options));
+    dispatch(initPeaks(smData, options, duration));
 
     const { peaksInstance } = getState();
 
@@ -72,11 +72,12 @@ export function initializeSMDataPeaks(
   };
 }
 
-export function initPeaks(smData, options) {
+export function initPeaks(smData, options, duration) {
   return {
     type: types.INIT_PEAKS,
     smData,
     options,
+    duration,
   };
 }
 

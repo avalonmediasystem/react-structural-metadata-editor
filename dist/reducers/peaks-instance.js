@@ -29,7 +29,8 @@ var initialState = {
   events: null,
   segment: null,
   isDragging: false,
-  startTimeChanged: null
+  startTimeChanged: null,
+  duration: null
 };
 var newPeaks = null;
 var updatedSegment = null;
@@ -49,7 +50,8 @@ var peaksInstance = function peaksInstance() {
       return {
         peaks: _peaksInstance,
         events: (0, _rxjs.fromEvent)(_peaksInstance, 'segments.dragged'),
-        segment: _objectSpread({}, state.segment)
+        segment: _objectSpread({}, state.segment),
+        duration: action.duration
       };
 
     case types.INSERT_SEGMENT:
@@ -102,7 +104,7 @@ var peaksInstance = function peaksInstance() {
       });
 
     case types.TEMP_INSERT_SEGMENT:
-      newPeaks = waveformUtils.insertTempSegment(_objectSpread({}, state.peaks));
+      newPeaks = waveformUtils.insertTempSegment(_objectSpread({}, state.peaks), state.duration);
       return _objectSpread({}, state, {
         peaks: _objectSpread({}, newPeaks)
       });

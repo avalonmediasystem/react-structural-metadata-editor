@@ -43,7 +43,7 @@ var structuralMetadataUtils = new _StructuralMetadataUtils["default"]();
  * Fetch structure.json and initialize Peaks
  * @param {String} baseURL - base URL of masterfile location
  * @param {String} masterFileID - ID of the masterfile relevant to media element
- * @param {JSON String} initStructure - structure with root element when empty
+ * @param {JSON Object} initStructure - structure with root element when empty
  * @param {Object} options - peaks options
  */
 
@@ -63,7 +63,7 @@ function initializeSMDataPeaks(baseURL, masterFileID, initStructure, options, du
                 smData = [];
 
                 if (initStructure !== '') {
-                  smData = structuralMetadataUtils.addUUIds([JSON.parse(initStructure)]);
+                  smData = structuralMetadataUtils.addUUIds([initStructure]);
                 }
 
                 _context.prev = 2;
@@ -96,7 +96,7 @@ function initializeSMDataPeaks(baseURL, masterFileID, initStructure, options, du
                 dispatch((0, _smData.buildSMUI)(smData, duration));
                 _getState = getState(), structuralMetadata = _getState.structuralMetadata;
                 dispatch((0, _smData.saveInitialStructure)(structuralMetadata.smData));
-                dispatch(initPeaks(smData, options));
+                dispatch(initPeaks(smData, options, duration));
                 _getState2 = getState(), peaksInstance = _getState2.peaksInstance; // Subscribe to Peaks event for dragging handles in a segment
 
                 if (peaksInstance.events !== undefined) {
@@ -126,11 +126,12 @@ function initializeSMDataPeaks(baseURL, masterFileID, initStructure, options, du
   );
 }
 
-function initPeaks(smData, options) {
+function initPeaks(smData, options, duration) {
   return {
     type: types.INIT_PEAKS,
     smData: smData,
-    options: options
+    options: options,
+    duration: duration
   };
 }
 

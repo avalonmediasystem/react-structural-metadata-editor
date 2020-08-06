@@ -45,7 +45,9 @@ var peaksInstance = function peaksInstance() {
 
       var _peaksInstance = _peaks["default"].init(_objectSpread({}, action.options, {
         segments: segments
-      }));
+      }), function () {
+        return null;
+      });
 
       return {
         peaks: _peaksInstance,

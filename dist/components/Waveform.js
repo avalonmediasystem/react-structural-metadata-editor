@@ -40,7 +40,9 @@ var _Slider = _interopRequireDefault(require("./Slider"));
 var _LoadingSpinner = _interopRequireDefault(require("../services/LoadingSpinner"));
 
 // Content of aria-label for UI components
-var waveformLabel = "Two interactive waveforms, plotted one after the other using data from a masterfile in the back-end server.\nThere are time-based visual sections plotted in these 2 waveforms representing each timespan in the structure below. \nFirst one contains a selected zoomed-in section from the entire waveform, while the second waveform shows an overview of the entire audio file.\nThere are multiple zoom levels, which can be changed using the zoom-in and zoom-out buttons in the waveform toolbar. \nThese time-based visual sections will be updated by editing the matching timespans in the structure.";
+var waveformLabel = "Two interactive waveforms, plotted one after the other using data from a masterfile in a back-end server.\nThere are time-based visual sections plotted in these 2 waveforms representing each timespan in the structure below.";
+var zoomViewLabel = "A detailed portion of the waveform data, the level of details shown can be changed with zoom in/out buttons in the waveform toolbar";
+var overViewLabel = "An overview of the waveform data of the media file used. This shows all the time-based segments from the structure";
 
 var Waveform =
 /*#__PURE__*/
@@ -58,7 +60,9 @@ function (_Component) {
       _this.props.retrieveStreamMedia(audioFile, _this.mediaPlayer); // Grab the React `refs` now the component is mounted
 
 
-      _this.props.waveformRef(_this.waveformContainer.current);
+      _this.props.zoomViewRef(_this.zoomView.current);
+
+      _this.props.overViewRef(_this.overView.current);
 
       _this.props.mediaPlayerRef(_this.mediaPlayer.current); // Add a listener to keydown event
 
@@ -98,7 +102,8 @@ function (_Component) {
       streamMediaStatus: _this.props.streamInfo.streamMediaStatus
     }; // Create `refs`
 
-    _this.waveformContainer = _react["default"].createRef();
+    _this.zoomView = _react["default"].createRef();
+    _this.overView = _react["default"].createRef();
     _this.mediaPlayer = _react["default"].createRef();
     return _this;
   }
@@ -120,11 +125,22 @@ function (_Component) {
           streamMediaLoading = _this$props$streamInf.streamMediaLoading;
       return _react["default"].createElement(_react["default"].Fragment, null, _react["default"].createElement("div", {
         id: "waveform-container",
-        ref: this.waveformContainer,
-        "aria-label": waveformLabel,
         tabIndex: "0",
-        "data-testid": "waveform"
-      }), streamMediaLoading && !streamMediaError && _react["default"].createElement("div", {
+        "data-testid": "waveform",
+        "aria-label": waveformLabel
+      }, _react["default"].createElement("div", {
+        id: "zoomview-container",
+        ref: this.zoomView,
+        tabIndex: "0",
+        "data-testid": "zoom-view",
+        "aria-label": zoomViewLabel
+      }), _react["default"].createElement("div", {
+        id: "overview-container",
+        ref: this.overView,
+        tabIndex: "0",
+        "data-testid": "over-view",
+        "aria-label": overViewLabel
+      })), streamMediaLoading && !streamMediaError && _react["default"].createElement("div", {
         "data-testid": "loading-spinner"
       }, _react["default"].createElement(_LoadingSpinner["default"], {
         isLoading: streamMediaLoading
@@ -195,7 +211,8 @@ var mapStateToProps = function mapStateToProps(state) {
   return {
     peaksInstance: state.peaksInstance,
     streamInfo: state.forms.streamInfo,
-    editingDisabled: state.forms.editingDisabled
+    editingDisabled: state.forms.editingDisabled,
+    waveformRetrieved: state.forms.waveformRetrieved
   };
 };
 

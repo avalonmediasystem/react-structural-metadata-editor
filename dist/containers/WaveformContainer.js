@@ -29,6 +29,8 @@ var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/de
 
 var _react = _interopRequireWildcard(require("react"));
 
+var _reactDom = _interopRequireDefault(require("react-dom"));
+
 var _Utils = _interopRequireDefault(require("../api/Utils"));
 
 var _reactRedux = require("react-redux");
@@ -43,6 +45,13 @@ var _AlertContainer = _interopRequireDefault(require("../containers/AlertContain
 
 var _alertStatus = require("../services/alert-status");
 
+var _WaveformDataUtils = _interopRequireDefault(require("../services/WaveformDataUtils"));
+
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { (0, _defineProperty2["default"])(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+var waveformUtils = new _WaveformDataUtils["default"]();
 var apiUtils = new _Utils["default"](); // Peaks options
 
 var peaksOptions = {
@@ -67,7 +76,8 @@ function (_Component) {
     var _this;
 
     (0, _classCallCheck2["default"])(this, WaveformContainer);
-    _this = (0, _possibleConstructorReturn2["default"])(this, (0, _getPrototypeOf2["default"])(WaveformContainer).call(this, props));
+    _this = (0, _possibleConstructorReturn2["default"])(this, (0, _getPrototypeOf2["default"])(WaveformContainer).call(this, props)); // this.waveformContainer = null;
+
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "state", {
       alertObj: null,
       streamAlert: {},
@@ -87,7 +97,8 @@ function (_Component) {
         streamAlert: null
       });
     });
-    _this.waveformContainer = null;
+    _this.zoomView = null;
+    _this.overView = null;
     _this.mediaPlayer = null;
     return _this;
   }
@@ -95,7 +106,11 @@ function (_Component) {
   (0, _createClass2["default"])(WaveformContainer, [{
     key: "componentDidMount",
     value: function componentDidMount() {
-      peaksOptions.container = this.waveformContainer;
+      // peaksOptions.container = this.waveformContainer;
+      peaksOptions.containers = {
+        zoomview: this.zoomView,
+        overview: this.overView
+      };
       peaksOptions.mediaElement = this.mediaPlayer;
       this.initializePeaksInstance();
     }
@@ -128,17 +143,24 @@ function (_Component) {
                 this.props.fetchDataAndBuildPeaks(baseURL, masterFileID, initStructure, peaksOptions, streamLength); // Update redux-store flag for waveform file retrieval
 
                 this.props.retrieveWaveformSuccess();
-                _context.next = 14;
+                _context.next = 15;
                 break;
 
               case 10:
                 _context.prev = 10;
                 _context.t0 = _context["catch"](1);
-                this.handleError(_context.t0); // Fetch structure.json and build Peaks
+                // Enable the flash message alert
+                this.handleError(_context.t0); // Provide an empty waveform dataset for Peaks to build on
+
+                peaksOptions = _objectSpread({}, peaksOptions, {
+                  waveformData: {
+                    json: waveformUtils.generateEmptyWaveform(streamLength)
+                  }
+                }); // Fetch structure.json and build Peaks
 
                 this.props.fetchDataAndBuildPeaks(baseURL, masterFileID, initStructure, peaksOptions, streamLength);
 
-              case 14:
+              case 15:
               case "end":
                 return _context.stop();
             }
@@ -158,8 +180,15 @@ function (_Component) {
       console.log('TCL: WaveformContainer -> handleError -> error', error);
       var status = null; // Pull status code out of error response/request
 
-      if (error.response !== undefined) {
-        status = error.response.status;
+      if (error.response) {
+        var statusCode = error.response.status;
+
+        if (statusCode > 400 && statusCode < 500) {
+          // Use non-dismissible alert and use dummy waveform data
+          status = -7;
+        } else {
+          status = statusCode;
+        }
       } else if (error.request !== undefined) {
         status = -3;
       }
@@ -183,8 +212,11 @@ function (_Component) {
         className: "waveform-section",
         "data-testid": "waveform-container"
       }, _react["default"].createElement(_Waveform["default"], {
-        waveformRef: function waveformRef(ref) {
-          return _this2.waveformContainer = ref;
+        zoomViewRef: function zoomViewRef(ref) {
+          return _this2.zoomView = ref;
+        },
+        overViewRef: function overViewRef(ref) {
+          return _this2.overView = ref;
         },
         mediaPlayerRef: function mediaPlayerRef(ref) {
           return _this2.mediaPlayer = ref;
@@ -200,8 +232,7 @@ function (_Component) {
 
 var mapStateToProps = function mapStateToProps(state) {
   return {
-    smData: state.structuralMetadata.smData,
-    forms: state.forms
+    smData: state.structuralMetadata.smData
   };
 };
 

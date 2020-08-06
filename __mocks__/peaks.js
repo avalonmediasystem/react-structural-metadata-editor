@@ -1,8 +1,8 @@
-export const Peaks = jest.fn(opts => {
+export const Peaks = jest.fn((opts) => {
   let peaks = {};
   peaks.options = opts;
   peaks.player = {
-    seek: jest.fn(time => {
+    seek: jest.fn((time) => {
       peaks.player._mediaElement.currentTime = time;
     }),
     getCurrentTime: jest.fn(() => {
@@ -13,12 +13,12 @@ export const Peaks = jest.fn(opts => {
     }),
     _mediaElement: {
       currentTime: 0,
-      duration: 1738.945306
-    }
+      duration: 1738.945306,
+    },
   };
   peaks.segments = {
-    getSegment: jest.fn(id => {
-      let segment = peaks.segments._segments.find(seg => {
+    getSegment: jest.fn((id) => {
+      let segment = peaks.segments._segments.find((seg) => {
         return seg.id === id;
       });
       if (segment === undefined) {
@@ -32,9 +32,9 @@ export const Peaks = jest.fn(opts => {
     removeAll: jest.fn(() => {
       peaks.segments._segments = [];
     }),
-    add: jest.fn(segments => {
+    add: jest.fn((segments) => {
       if (Array.isArray(segments)) {
-        segments.forEach(segment => {
+        segments.forEach((segment) => {
           let seg = new Segment({ parent: peaks, ...segment });
           peaks.segments._segments.push(seg);
         });
@@ -43,8 +43,8 @@ export const Peaks = jest.fn(opts => {
         peaks.segments._segments.push(seg);
       }
     }),
-    removeById: jest.fn(id => {
-      let index = peaks.segments._segments.map(seg => seg.id).indexOf(id);
+    removeById: jest.fn((id) => {
+      let index = peaks.segments._segments.map((seg) => seg.id).indexOf(id);
       if (index >= 0) {
         return peaks.segments._segments.splice(index, 1);
       }
@@ -57,7 +57,7 @@ export const Peaks = jest.fn(opts => {
         endTime: 10.321,
         id: '123a-456b-789c-3d',
         labelText: 'Segment 1.1',
-        color: '#80A590'
+        color: '#80A590',
       }),
       new Segment({
         parent: peaks,
@@ -65,7 +65,7 @@ export const Peaks = jest.fn(opts => {
         endTime: 480.001,
         id: '123a-456b-789c-4d',
         labelText: 'Segment 1.2',
-        color: '#2A5459'
+        color: '#2A5459',
       }),
       new Segment({
         parent: peaks,
@@ -73,14 +73,19 @@ export const Peaks = jest.fn(opts => {
         endTime: 900.001,
         id: '123a-456b-789c-8d',
         labelText: 'Segment 2.1',
-        color: '#80A590'
-      })
-    ]
+        color: '#80A590',
+      }),
+    ],
+  };
+  peaks.views = {
+    destroyZoomview: jest.fn(),
+    destroyOverview: jest.fn(),
+    _peaks: peaks,
   };
   return peaks;
 });
 
-export const Segment = jest.fn(opts => {
+export const Segment = jest.fn((opts) => {
   let segment = { ...opts };
   let checkProp = (newOpts, prop) => {
     if (newOpts.hasOwnProperty(prop)) {
@@ -88,7 +93,7 @@ export const Segment = jest.fn(opts => {
     }
     return false;
   };
-  segment.update = jest.fn(newOpts => {
+  segment.update = jest.fn((newOpts) => {
     checkProp(newOpts, 'startTime')
       ? (segment.startTime = newOpts.startTime)
       : (segment.startTime = segment.startTime);
@@ -109,7 +114,7 @@ export const Segment = jest.fn(opts => {
 });
 
 export default {
-  init: jest.fn(opts => {
+  init: jest.fn((opts) => {
     return Peaks(opts);
-  })
+  }),
 };

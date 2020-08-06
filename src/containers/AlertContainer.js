@@ -8,6 +8,7 @@ class AlertContainer extends Component {
   static propTypes = {
     message: PropTypes.string,
     alertStyle: PropTypes.oneOf(['success', 'warning', 'danger', 'info']),
+    dismiss: PropTypes.bool,
     clearAlert: PropTypes.func,
   };
 
@@ -56,13 +57,17 @@ class AlertContainer extends Component {
   };
 
   render() {
-    const { alertStyle, message } = this.props;
+    const { alertStyle, message, persistent } = this.props;
 
     if (!this.state.show) {
       return null;
     }
 
-    return (
+    return persistent ? (
+      <Alert bsStyle={alertStyle} data-testid="persistent-alert-container">
+        <p data-testid="alert-message">{message}</p>
+      </Alert>
+    ) : (
       <Alert
         bsStyle={alertStyle}
         onDismiss={this.handleDismiss}

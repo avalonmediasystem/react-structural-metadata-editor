@@ -8,6 +8,14 @@ const waveformUtils = new WaveformDataUtils();
 afterEach(cleanup);
 
 describe('WaveformDataUtils class', () => {
+  test('generate dummy waveform data', () => {
+    const value = waveformUtils.generateEmptyWaveform(1738945);
+    expect(value).toHaveProperty('sample_rate', 44100);
+    expect(value).toHaveProperty('bits', 8);
+    expect(value).toHaveProperty('samples_per_pixel', 183);
+    expect(value).toHaveProperty('length', 419057);
+  });
+
   test('initializes peaks segments with empty metadata structure', () => {
     const value = waveformUtils.initSegments([], {});
     expect(value).toBeDefined();
@@ -62,7 +70,7 @@ describe('WaveformDataUtils class', () => {
 
     describe('inserting a temporary segment', () => {
       test('when current time is at zero', () => {
-        const value = waveformUtils.insertTempSegment(peaks, 1738.945);
+        const value = waveformUtils.insertTempSegment(peaks, 1738945);
         expect(value.segments._segments).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
@@ -78,7 +86,7 @@ describe('WaveformDataUtils class', () => {
       });
       test('when current time is in between an existing segment', () => {
         peaks.player.seek(450.001);
-        const value = waveformUtils.insertTempSegment(peaks, 1738.945);
+        const value = waveformUtils.insertTempSegment(peaks, 1738945);
         expect(value.segments._segments).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
@@ -95,7 +103,7 @@ describe('WaveformDataUtils class', () => {
 
       test('when current time is at the end time of an existing timespan', () => {
         peaks.player.seek(480.001);
-        const value = waveformUtils.insertTempSegment(peaks, 1738.945);
+        const value = waveformUtils.insertTempSegment(peaks, 1738945);
         expect(value.segments._segments).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
@@ -112,7 +120,7 @@ describe('WaveformDataUtils class', () => {
 
       test('when current time is at the begin time of an existing timespan', () => {
         peaks.player.seek(543.241);
-        const value = waveformUtils.insertTempSegment(peaks, 1738.945);
+        const value = waveformUtils.insertTempSegment(peaks, 1738945);
         expect(value.segments._segments).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
@@ -129,7 +137,7 @@ describe('WaveformDataUtils class', () => {
 
       test('when end time of temporary segment overlaps existing segment', () => {
         peaks.player.seek(520.001);
-        const value = waveformUtils.insertTempSegment(peaks, 1738.945);
+        const value = waveformUtils.insertTempSegment(peaks, 1738945);
         expect(value.segments._segments).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
@@ -146,7 +154,7 @@ describe('WaveformDataUtils class', () => {
 
       test('when current playhead time + 60 > duration of the media file', () => {
         peaks.player.seek(1680.001);
-        const value = waveformUtils.insertTempSegment(peaks, 1738.945);
+        const value = waveformUtils.insertTempSegment(peaks, 1738945);
         expect(value.segments._segments).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
@@ -169,7 +177,7 @@ describe('WaveformDataUtils class', () => {
           labelText: 'Test segment',
         });
         peaks.player.seek(450.001);
-        const value = waveformUtils.insertTempSegment(peaks, 1738.945);
+        const value = waveformUtils.insertTempSegment(peaks, 1738945);
         expect(value.segments._segments).toEqual(
           expect.arrayContaining([
             expect.objectContaining({

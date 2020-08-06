@@ -99,13 +99,19 @@ function (_Component) {
     value: function render() {
       var _this$props2 = this.props,
           alertStyle = _this$props2.alertStyle,
-          message = _this$props2.message;
+          message = _this$props2.message,
+          persistent = _this$props2.persistent;
 
       if (!this.state.show) {
         return null;
       }
 
-      return _react["default"].createElement(_reactBootstrap.Alert, {
+      return persistent ? _react["default"].createElement(_reactBootstrap.Alert, {
+        bsStyle: alertStyle,
+        "data-testid": "persistent-alert-container"
+      }, _react["default"].createElement("p", {
+        "data-testid": "alert-message"
+      }, message)) : _react["default"].createElement(_reactBootstrap.Alert, {
         bsStyle: alertStyle,
         onDismiss: this.handleDismiss,
         "data-testid": "alert-container"
@@ -137,6 +143,7 @@ function (_Component) {
 (0, _defineProperty2["default"])(AlertContainer, "propTypes", {
   message: _propTypes["default"].string,
   alertStyle: _propTypes["default"].oneOf(['success', 'warning', 'danger', 'info']),
+  dismiss: _propTypes["default"].bool,
   clearAlert: _propTypes["default"].func
 });
 

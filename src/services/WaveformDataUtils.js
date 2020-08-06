@@ -3,9 +3,38 @@ import StructuralMetadataUtils from './StructuralMetadataUtils';
 // Colors for segments from Avalon branding pallette
 const COLOR_PALETTE = ['#80A590', '#2A5459', '#FBB040'];
 
+// Constants used to generate dummy waveform data when actual waveform.json is missing
+const SAMPLE_RATE = 44100,
+  BITS = 8,
+  SAMPLES_PER_PIXEL = 183,
+  MAX_VALUE = 1,
+  MIN_VALUE = -1;
+
 const smu = new StructuralMetadataUtils();
 
 export default class WaveformDataUtils {
+  /**
+   * Generate an empty waveform when waveform.json fetch request fails
+   * @param {Integer} fileDuration - duration of the media file in milliseconds
+   */
+  generateEmptyWaveform(fileDuration) {
+    const spectrumLength = Math.floor(
+      (SAMPLE_RATE * (fileDuration / 1000)) / SAMPLES_PER_PIXEL
+    );
+    let data = new Array(spectrumLength * 2);
+    for (let i = 0; i < spectrumLength * 2; ++i) {
+      data[i] = Math.random() * (MAX_VALUE - MIN_VALUE) + MIN_VALUE;
+    }
+    const waveformData = {
+      sample_rate: SAMPLE_RATE,
+      bits: BITS,
+      samples_per_pixel: SAMPLES_PER_PIXEL,
+      length: spectrumLength,
+      data: data,
+    };
+    return waveformData;
+  }
+
   /**
    * Initialize Peaks instance for the app
    * @param {Array} smData - current structured metadata from the server masterfile
@@ -46,8 +75,8 @@ export default class WaveformDataUtils {
   insertTempSegment(peaksInstance, fileDuration) {
     // Current time of the playhead
     const currentTime = this.roundOff(peaksInstance.player.getCurrentTime());
-    // End time of the media file
-    const fileEndTime = fileDuration;
+    // Convert from milliseconds to seconds
+    const fileEndTime = fileDuration / 1000;
 
     let rangeEndTime,
       rangeBeginTime = currentTime;

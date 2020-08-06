@@ -32,8 +32,8 @@ var useStyles = (0, _styles.makeStyles)(function () {
     root: {
       width: 200,
       paddingLeft: 12,
-      paddingTop: 8,
-      paddingBottom: 6,
+      paddingTop: 5,
+      paddingBottom: 5,
       paddingRight: 25
     }
   };
@@ -41,7 +41,7 @@ var useStyles = (0, _styles.makeStyles)(function () {
 var StyledSlider = (0, _styles.withStyles)({
   root: {
     color: '#000',
-    height: 2,
+    height: 1,
     marginLeft: 20
   },
   thumb: {

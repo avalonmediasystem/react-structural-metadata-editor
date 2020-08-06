@@ -22,7 +22,13 @@ function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (O
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { (0, _defineProperty2["default"])(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
 
 // Colors for segments from Avalon branding pallette
-var COLOR_PALETTE = ['#80A590', '#2A5459', '#FBB040'];
+var COLOR_PALETTE = ['#80A590', '#2A5459', '#FBB040']; // Constants used to generate dummy waveform data when actual waveform.json is missing
+
+var SAMPLE_RATE = 44100,
+    BITS = 8,
+    SAMPLES_PER_PIXEL = 183,
+    MAX_VALUE = 1,
+    MIN_VALUE = -1;
 var smu = new _StructuralMetadataUtils["default"]();
 
 var WaveformDataUtils =
@@ -33,12 +39,36 @@ function () {
   }
 
   (0, _createClass2["default"])(WaveformDataUtils, [{
-    key: "initSegments",
+    key: "generateEmptyWaveform",
 
+    /**
+     * Generate an empty waveform when waveform.json fetch request fails
+     * @param {Integer} fileDuration - duration of the media file in milliseconds
+     */
+    value: function generateEmptyWaveform(fileDuration) {
+      var spectrumLength = Math.floor(SAMPLE_RATE * (fileDuration / 1000) / SAMPLES_PER_PIXEL);
+      var data = new Array(spectrumLength * 2);
+
+      for (var i = 0; i < spectrumLength * 2; ++i) {
+        data[i] = Math.random() * (MAX_VALUE - MIN_VALUE) + MIN_VALUE;
+      }
+
+      var waveformData = {
+        sample_rate: SAMPLE_RATE,
+        bits: BITS,
+        samples_per_pixel: SAMPLES_PER_PIXEL,
+        length: spectrumLength,
+        data: data
+      };
+      return waveformData;
+    }
     /**
      * Initialize Peaks instance for the app
      * @param {Array} smData - current structured metadata from the server masterfile
      */
+
+  }, {
+    key: "initSegments",
     value: function initSegments(smData) {
       var _this = this;
 
@@ -101,9 +131,9 @@ function () {
       var _this2 = this;
 
       // Current time of the playhead
-      var currentTime = this.roundOff(peaksInstance.player.getCurrentTime()); // End time of the media file
+      var currentTime = this.roundOff(peaksInstance.player.getCurrentTime()); // Convert from milliseconds to seconds
 
-      var fileEndTime = fileDuration;
+      var fileEndTime = fileDuration / 1000;
       var rangeEndTime,
           rangeBeginTime = currentTime;
       var currentSegments = this.sortSegments(peaksInstance, 'startTime'); // Validate start time of the temporary segment

@@ -19,10 +19,16 @@ const peaksInstance = (state = initialState, action) => {
   switch (action.type) {
     case types.INIT_PEAKS:
       let segments = waveformUtils.initSegments(action.smData);
-      let peaksInstance = Peaks.init({
-        ...action.options,
-        segments: segments,
-      });
+      let peaksInstance = Peaks.init(
+        {
+          ...action.options,
+          segments: segments,
+        },
+        function () {
+          return null;
+        }
+      );
+
       return {
         peaks: peaksInstance,
         events: fromEvent(peaksInstance, 'segments.dragged'),

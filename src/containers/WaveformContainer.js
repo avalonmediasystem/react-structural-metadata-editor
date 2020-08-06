@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import ReactDOM from 'react-dom';
 import APIUtils from '../api/Utils';
 import { connect } from 'react-redux';
 import { initializeSMDataPeaks } from '../actions/peaks-instance';
@@ -7,11 +8,14 @@ import Waveform from '../components/Waveform';
 import AlertContainer from '../containers/AlertContainer';
 import { configureAlert } from '../services/alert-status';
 import { retrieveWaveformSuccess } from '../actions/forms';
+import WaveformDataUtils from '../services/WaveformDataUtils';
+
+const waveformUtils = new WaveformDataUtils();
 
 const apiUtils = new APIUtils();
 
 // Peaks options
-const peaksOptions = {
+let peaksOptions = {
   container: null,
   mediaElement: null,
   dataUri: null,
@@ -27,7 +31,9 @@ const peaksOptions = {
 class WaveformContainer extends Component {
   constructor(props) {
     super(props);
-    this.waveformContainer = null;
+    // this.waveformContainer = null;
+    this.zoomView = null;
+    this.overView = null;
     this.mediaPlayer = null;
   }
 
@@ -42,7 +48,11 @@ class WaveformContainer extends Component {
   };
 
   componentDidMount() {
-    peaksOptions.container = this.waveformContainer;
+    // peaksOptions.container = this.waveformContainer;
+    peaksOptions.containers = {
+      zoomview: this.zoomView,
+      overview: this.overView,
+    };
     peaksOptions.mediaElement = this.mediaPlayer;
     this.initializePeaksInstance();
   }
@@ -85,7 +95,16 @@ class WaveformContainer extends Component {
       // Update redux-store flag for waveform file retrieval
       this.props.retrieveWaveformSuccess();
     } catch (error) {
+      // Enable the flash message alert
       this.handleError(error);
+
+      // Provide an empty waveform dataset for Peaks to build on
+      peaksOptions = {
+        ...peaksOptions,
+        waveformData: {
+          json: waveformUtils.generateEmptyWaveform(streamLength),
+        },
+      };
 
       // Fetch structure.json and build Peaks
       this.props.fetchDataAndBuildPeaks(
@@ -103,8 +122,14 @@ class WaveformContainer extends Component {
     let status = null;
 
     // Pull status code out of error response/request
-    if (error.response !== undefined) {
-      status = error.response.status;
+    if (error.response) {
+      const statusCode = error.response.status;
+      if (statusCode > 400 && statusCode < 500) {
+        // Use non-dismissible alert and use dummy waveform data
+        status = -7;
+      } else {
+        status = statusCode;
+      }
     } else if (error.request !== undefined) {
       status = -3;
     }
@@ -120,7 +145,8 @@ class WaveformContainer extends Component {
     return (
       <section className="waveform-section" data-testid="waveform-container">
         <Waveform
-          waveformRef={(ref) => (this.waveformContainer = ref)}
+          zoomViewRef={(ref) => (this.zoomView = ref)}
+          overViewRef={(ref) => (this.overView = ref)}
           mediaPlayerRef={(ref) => (this.mediaPlayer = ref)}
           audioStreamURL={audioStreamURL}
           alertObj={streamAlert}
@@ -134,7 +160,6 @@ class WaveformContainer extends Component {
 
 const mapStateToProps = (state) => ({
   smData: state.structuralMetadata.smData,
-  forms: state.forms,
 });
 
 const mapDispatchToProps = {

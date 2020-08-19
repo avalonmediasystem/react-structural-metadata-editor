@@ -4,7 +4,7 @@ import { fireEvent, cleanup, wait } from 'react-testing-library';
 import 'jest-dom/extend-expect';
 import { renderWithRedux, testSmData } from '../../services/testing-helpers';
 import ButtonSection from '../ButtonSection';
-import { Button } from '@material-ui/core';
+import mockAxios from 'axios';
 
 // Set up a redux store for the tests
 const peaksOptions = {
@@ -20,6 +20,9 @@ const initialState = {
   forms: {
     structureInfo: {
       structureRetrieved: true,
+    },
+    streamInfo: {
+      streamMediaError: false,
     },
   },
   peaksInstance: {
@@ -40,12 +43,6 @@ describe('ButtonSection class', () => {
     expect(getByTestId('button-row')).toBeInTheDocument();
     expect(getByText(/add a heading/i)).toBeInTheDocument();
     expect(getByText(/Add a Timespan/i)).toBeInTheDocument();
-  });
-
-  test('heading and timespan buttons do not display when structural or waveform data is not present', () => {
-    const { queryByTestId } = renderWithRedux(<ButtonSection />);
-
-    expect(queryByTestId('button-row')).toBeNull();
   });
 
   describe('add heading button', () => {
@@ -98,6 +95,27 @@ describe('ButtonSection class', () => {
         expect(
           buttonSection.getByTestId('timespan-form-wrapper')
         ).not.toHaveClass('in');
+      });
+    });
+
+    test('is disabled when fetching stream fails', async () => {
+      mockAxios.get.mockImplementationOnce(() => {
+        return Promise.reject({ error: 'Network Error' });
+      });
+      const nextState = {
+        ...initialState,
+        forms: {
+          structureInfo: {
+            structureRetrieved: true,
+          },
+          streamInfo: {
+            streamMediaError: true,
+          },
+        },
+      };
+      buttonSection.rerenderWithRedux(<ButtonSection />, nextState);
+      await wait(() => {
+        expect(buttonSection.getByTestId('add-timespan-button')).toBeDisabled();
       });
     });
   });

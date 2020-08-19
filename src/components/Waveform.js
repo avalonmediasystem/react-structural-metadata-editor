@@ -178,7 +178,6 @@ const mapStateToProps = (state) => ({
   peaksInstance: state.peaksInstance,
   streamInfo: state.forms.streamInfo,
   editingDisabled: state.forms.editingDisabled,
-  waveformRetrieved: state.forms.waveformRetrieved,
 });
 
 const mapDispatchToProps = {

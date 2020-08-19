@@ -63,19 +63,27 @@ class AlertContainer extends Component {
       return null;
     }
 
-    return persistent ? (
-      <Alert bsStyle={alertStyle} data-testid="persistent-alert-container">
-        <p data-testid="alert-message">{message}</p>
-      </Alert>
-    ) : (
-      <Alert
-        bsStyle={alertStyle}
-        onDismiss={this.handleDismiss}
-        data-testid="alert-container"
-      >
+    const alertProps = {
+      bsStyle: alertStyle,
+      'data-testid': `${persistent ? 'persistent-' : ''}alert-container`,
+      onDismiss: persistent ? null : this.handleDismiss,
+    };
+
+    // return persistent ? (
+    return (
+      <Alert {...alertProps}>
         <p data-testid="alert-message">{message}</p>
       </Alert>
     );
+    // ) : (
+    //   <Alert
+    //     bsStyle={alertStyle}
+    //     onDismiss={this.handleDismiss}
+    //     data-testid="alert-container"
+    //   >
+    //     <p data-testid="alert-message">{message}</p>
+    //   </Alert>
+    // );
   }
 }
 const mapStateToProps = (state) => ({

@@ -8,20 +8,6 @@ const waveformUtils = new WaveformDataUtils();
 afterEach(cleanup);
 
 describe('WaveformDataUtils class', () => {
-  test('generate dummy waveform data', () => {
-    const value = waveformUtils.generateEmptyWaveform(1738945);
-    expect(value).toHaveProperty('sample_rate', 44100);
-    expect(value).toHaveProperty('bits', 8);
-    expect(value).toHaveProperty('samples_per_pixel', 183);
-    expect(value).toHaveProperty('length', 419057);
-  });
-
-  test('initializes peaks segments with empty metadata structure', () => {
-    const value = waveformUtils.initSegments([], {});
-    expect(value).toBeDefined();
-    expect(value).toEqual([]);
-  });
-
   test('initializes peaks segments with metadata structure', () => {
     const expected = [
       {

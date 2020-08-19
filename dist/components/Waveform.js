@@ -211,8 +211,7 @@ var mapStateToProps = function mapStateToProps(state) {
   return {
     peaksInstance: state.peaksInstance,
     streamInfo: state.forms.streamInfo,
-    editingDisabled: state.forms.editingDisabled,
-    waveformRetrieved: state.forms.waveformRetrieved
+    editingDisabled: state.forms.editingDisabled
   };
 };
 

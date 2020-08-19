@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
 import APIUtils from '../api/Utils';
 import { connect } from 'react-redux';
 import { initializeSMDataPeaks } from '../actions/peaks-instance';
@@ -8,9 +7,6 @@ import Waveform from '../components/Waveform';
 import AlertContainer from '../containers/AlertContainer';
 import { configureAlert } from '../services/alert-status';
 import { retrieveWaveformSuccess } from '../actions/forms';
-import WaveformDataUtils from '../services/WaveformDataUtils';
-
-const waveformUtils = new WaveformDataUtils();
 
 const apiUtils = new APIUtils();
 
@@ -31,7 +27,6 @@ let peaksOptions = {
 class WaveformContainer extends Component {
   constructor(props) {
     super(props);
-    // this.waveformContainer = null;
     this.zoomView = null;
     this.overView = null;
     this.mediaPlayer = null;
@@ -40,15 +35,14 @@ class WaveformContainer extends Component {
   state = {
     alertObj: null,
     streamAlert: {},
-    hasError: false,
     masterFileID: this.props.masterFileID,
     baseURL: this.props.baseURL,
     initStructure: this.props.initStructure,
     streamLength: this.props.streamDuration,
+    dataUri: null,
   };
 
   componentDidMount() {
-    // peaksOptions.container = this.waveformContainer;
     peaksOptions.containers = {
       zoomview: this.zoomView,
       overview: this.overView,
@@ -73,69 +67,46 @@ class WaveformContainer extends Component {
     const { baseURL, masterFileID, initStructure, streamLength } = this.state;
     try {
       // Check whether the waveform.json exists in the server
-      const response = await apiUtils.headRequest(
-        baseURL,
-        masterFileID,
-        'waveform.json'
-      );
+      await apiUtils.headRequest(baseURL, masterFileID, 'waveform.json');
 
-      // Set the masterfile URL as the URI for the waveform data file
-      if (response.status >= 200 && response.status < 400) {
-        peaksOptions.dataUri = response.request.responseURL;
-      }
+      // Set waveform URI
+      peaksOptions.dataUri = `${baseURL}/master_files/${masterFileID}/waveform.json`;
 
-      // Initialize Peaks
-      this.props.fetchDataAndBuildPeaks(
-        baseURL,
-        masterFileID,
-        initStructure,
-        peaksOptions,
-        streamLength
-      );
       // Update redux-store flag for waveform file retrieval
       this.props.retrieveWaveformSuccess();
     } catch (error) {
       // Enable the flash message alert
       this.handleError(error);
-
-      // Provide an empty waveform dataset for Peaks to build on
-      peaksOptions = {
-        ...peaksOptions,
-        waveformData: {
-          json: waveformUtils.generateEmptyWaveform(streamLength),
-        },
-      };
-
-      // Fetch structure.json and build Peaks
-      this.props.fetchDataAndBuildPeaks(
-        baseURL,
-        masterFileID,
-        initStructure,
-        peaksOptions,
-        streamLength
-      );
     }
+
+    // Fetch structure.json and build Peaks
+    this.props.fetchDataAndBuildPeaks(
+      baseURL,
+      masterFileID,
+      initStructure,
+      peaksOptions,
+      streamLength
+    );
   }
 
   handleError(error) {
     console.log('TCL: WaveformContainer -> handleError -> error', error);
     let status = null;
+    const { baseURL, masterFileID } = this.state;
 
     // Pull status code out of error response/request
-    if (error.response) {
-      const statusCode = error.response.status;
-      if (statusCode > 400 && statusCode < 500) {
-        // Use non-dismissible alert and use dummy waveform data
-        status = -7;
-      } else {
-        status = statusCode;
+    if (error.response !== undefined) {
+      status = error.response.status;
+      if (status == 404) {
+        peaksOptions.dataUri = `${baseURL}/master_files/${masterFileID}/waveform.json?empty=true`;
+        status = -7; // for persistent missing waveform data alert
       }
     } else if (error.request !== undefined) {
       status = -3;
     }
 
     const alertObj = configureAlert(status, this.clearAlert);
-    this.setState({ alertObj, hasError: true });
+    this.setState({ alertObj });
   }
 
   render() {

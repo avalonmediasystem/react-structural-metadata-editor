@@ -106,18 +106,23 @@ function (_Component) {
         return null;
       }
 
-      return persistent ? _react["default"].createElement(_reactBootstrap.Alert, {
+      var alertProps = {
         bsStyle: alertStyle,
-        "data-testid": "persistent-alert-container"
-      }, _react["default"].createElement("p", {
+        'data-testid': "".concat(persistent ? 'persistent-' : '', "alert-container"),
+        onDismiss: persistent ? null : this.handleDismiss
+      }; // return persistent ? (
+
+      return _react["default"].createElement(_reactBootstrap.Alert, alertProps, _react["default"].createElement("p", {
         "data-testid": "alert-message"
-      }, message)) : _react["default"].createElement(_reactBootstrap.Alert, {
-        bsStyle: alertStyle,
-        onDismiss: this.handleDismiss,
-        "data-testid": "alert-container"
-      }, _react["default"].createElement("p", {
-        "data-testid": "alert-message"
-      }, message));
+      }, message)); // ) : (
+      //   <Alert
+      //     bsStyle={alertStyle}
+      //     onDismiss={this.handleDismiss}
+      //     data-testid="alert-container"
+      //   >
+      //     <p data-testid="alert-message">{message}</p>
+      //   </Alert>
+      // );
     }
   }], [{
     key: "getDerivedStateFromProps",

@@ -84,43 +84,6 @@ describe('WaveformContainer component', () => {
     });
   });
 
-  test('shows a non-dismissible alert when fetching waveform.json fails', async () => {
-    mockAxios.head.mockImplementationOnce(() => {
-      return Promise.reject({
-        response: { status: 404 },
-      });
-    });
-
-    mockAxios.get.mockImplementationOnce(() => {
-      return Promise.resolve({
-        data: testSmData[0],
-      });
-    });
-
-    const { queryByTestId, getByTestId } = renderWithRedux(
-      <WaveformContainer
-        baseURL={'https://mockurl.edu'}
-        masterFileID={'3421d4fg'}
-        initStructure={initStructure}
-        streamDuration={1738945}
-      />,
-      { initialState }
-    );
-
-    await wait(() => {
-      expect(mockAxios.head).toHaveBeenCalledTimes(1);
-      expect(
-        mockAxios.head
-      ).toHaveBeenCalledWith(
-        'https://mockurl.edu/master_files/3421d4fg/waveform.json',
-        { headers: { 'Content-Type': 'application/json' } }
-      );
-      // Waveform is present despite failed waveform.json request
-      expect(queryByTestId('waveform-container')).toBeInTheDocument();
-      expect(getByTestId('persistent-alert-container')).toBeInTheDocument();
-    });
-  });
-
   test('waveform renders when fetching structure.json fails', async () => {
     mockAxios.head.mockImplementationOnce(() => {
       return Promise.resolve({
@@ -129,10 +92,15 @@ describe('WaveformContainer component', () => {
           responseURL:
             'https://mockurl.edu/master_files/3421d4fg/waveform.json',
         },
+        headers: {
+          'content-disposition': 'attachment; filename="waveform.json"',
+        },
       });
     });
     mockAxios.get.mockImplementationOnce(() => {
-      return Promise.reject({ error: 'Network Error' });
+      return Promise.reject({
+        error: 'Network Error',
+      });
     });
 
     const { getByTestId } = renderWithRedux(
@@ -154,6 +122,44 @@ describe('WaveformContainer component', () => {
         { headers: { 'Content-Type': 'application/json' } }
       );
       expect(getByTestId('waveform-container')).toBeInTheDocument();
+    });
+  });
+
+  test('shows a persistent alert when waveform is empty', async () => {
+    mockAxios.head.mockImplementationOnce(() => {
+      return Promise.reject({
+        response: {
+          status: 404,
+        },
+      });
+    });
+
+    mockAxios.get.mockImplementationOnce(() => {
+      return Promise.resolve({
+        status: 200,
+        request: {
+          responseURL:
+            'https://mockurl.edu/master_files/3421d4fg/waveform.json?empty=true',
+        },
+      });
+    });
+
+    const { getByTestId } = renderWithRedux(
+      <WaveformContainer
+        baseURL={'https://mockurl.edu'}
+        masterFileID={'3421d4fg'}
+        initStructure={initStructure}
+        streamDuration={1738945}
+      />,
+      { initialState }
+    );
+
+    await wait(() => {
+      expect(getByTestId('waveform-container')).toBeInTheDocument();
+      expect(getByTestId('persistent-alert-container')).toBeInTheDocument();
+      expect(getByTestId('alert-message').innerHTML).toBe(
+        'Requested waveform data is not available.'
+      );
     });
   });
 });

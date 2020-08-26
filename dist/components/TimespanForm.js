@@ -116,6 +116,8 @@ function (_Component) {
     });
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "handleCancelClick", function () {
       _this.props.cancelClick();
+
+      _this.props.setIsTyping(0);
     });
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "handleChildOfChange", function (e) {
       _this.setState({
@@ -190,7 +192,9 @@ function (_Component) {
         timespanChildOf: '',
         timespanTitle: '',
         validHeadings: []
-      });
+      }); // Reset isTyping flag
+
+      this.props.setIsTyping(0);
     }
   }, {
     key: "formIsValid",
@@ -304,7 +308,7 @@ function (_Component) {
             peaksInstance = nextProps.peaksInstance,
             segment = nextProps.segment,
             smData = nextProps.smData,
-            startTimeChanged = nextProps.startTimeChanged;
+            startTimeChanged = nextProps.startTimeChanged; // Render initial values when form opens
 
         if (initSegment && isInitializing) {
           var startTime = initSegment.startTime,
@@ -315,7 +319,8 @@ function (_Component) {
             endTime: structuralMetadataUtils.toHHmmss(endTime),
             isInitializing: false
           };
-        }
+        } // Render time value changes
+
 
         if (prevState.peaksInstance !== peaksInstance && !isInitializing) {
           var _waveformDataUtils$va = waveformDataUtils.validateSegment(segment, startTimeChanged, peaksInstance.peaks),

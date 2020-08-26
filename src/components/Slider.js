@@ -15,17 +15,17 @@ const useStyles = makeStyles(() => ({
   root: {
     width: 200,
     paddingLeft: 12,
-    paddingTop: 8,
-    paddingBottom: 6,
-    paddingRight: 25
-  }
+    paddingTop: 5,
+    paddingBottom: 5,
+    paddingRight: 25,
+  },
 }));
 
 const StyledSlider = withStyles({
   root: {
     color: '#000',
-    height: 2,
-    marginLeft: 20
+    height: 1,
+    marginLeft: 20,
   },
   thumb: {
     height: 12,
@@ -33,26 +33,26 @@ const StyledSlider = withStyles({
     backgroundColor: '#000',
     border: '2px solid #000',
     '&:focus,&:hover,&$active': {
-      boxShadow: '#000'
-    }
+      boxShadow: '#000',
+    },
   },
   active: {},
   track: {
     height: 2,
     borderRadius: 4,
-    backgroundColor: '#000'
+    backgroundColor: '#000',
   },
   rail: {
     height: 2,
     borderRadius: 4,
-    backgroundColor: '#000'
-  }
+    backgroundColor: '#000',
+  },
 })(Slider);
 
 export default function VolumeSlider(props) {
   const SPEAKER_ICON_SIZE = {
     width: 20,
-    height: 20
+    height: 20,
   };
   const classes = useStyles();
   const [prevValue, setPrevValue] = React.useState(100);

@@ -120,6 +120,8 @@ function retrieveStreamMedia(audioFile, mediaPlayer) {
         // OTHER_ERROR. Issue in HLS.js: https://github.com/video-dev/hls.js/issues/2435
 
         if (data.fatal && data.type !== _hls["default"].ErrorTypes.OTHER_ERROR) {
+          console.log('TCL: forms action -> retrieveStreamMedia -> error', data);
+
           if (data.response !== undefined) {
             var status = data.response.code;
             status === 0 ? errorCode = -6 : errorCode = status;

@@ -5,7 +5,7 @@ import { cloneDeep } from 'lodash';
 const structuralMetadataUtils = new StructuralMetadataUtils();
 const initialState = {
   smData: [],
-  initSmData: []
+  initSmData: [],
 };
 let stateClone = null;
 let newState = null;
@@ -22,7 +22,7 @@ const structuralMetadata = (state = initialState, action) => {
     case types.SAVE_INIT_SMDATA:
       return {
         ...state,
-        initSmData: action.payload
+        initSmData: action.payload,
       };
 
     case types.DELETE_ITEM:

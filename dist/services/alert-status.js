@@ -4,10 +4,10 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.configureAlert = configureAlert;
-exports.STREAM_MEDIA_ERROR = exports.PEAKSJS_REACHED_END_OF_FILE = exports.WAVEFORM_INITIALIZE_ERROR = exports.FETCH_STRUCTURED_DATA_ERROR = exports.NETWORK_ERROR = exports.SAVED_MASTERFILE_SUCCESS = exports.MASTERFILE_NOT_FOUND = exports.UNAUTHORIZED_ACCESS = void 0;
+exports.MISSING_WAVEFORM_ERROR = exports.STREAM_MEDIA_ERROR = exports.PEAKSJS_REACHED_END_OF_FILE = exports.WAVEFORM_INITIALIZE_ERROR = exports.FETCH_STRUCTURED_DATA_ERROR = exports.NETWORK_ERROR = exports.SAVED_MASTERFILE_SUCCESS = exports.MASTERFILE_NOT_FOUND = exports.UNAUTHORIZED_ACCESS = void 0;
 var UNAUTHORIZED_ACCESS = "You're not authorized to access this resource.";
 exports.UNAUTHORIZED_ACCESS = UNAUTHORIZED_ACCESS;
-var MASTERFILE_NOT_FOUND = 'Requested data not available.';
+var MASTERFILE_NOT_FOUND = 'Requested data is not available.';
 exports.MASTERFILE_NOT_FOUND = MASTERFILE_NOT_FOUND;
 var SAVED_MASTERFILE_SUCCESS = 'Saved successfully.';
 exports.SAVED_MASTERFILE_SUCCESS = SAVED_MASTERFILE_SUCCESS;
@@ -20,13 +20,15 @@ exports.WAVEFORM_INITIALIZE_ERROR = WAVEFORM_INITIALIZE_ERROR;
 var PEAKSJS_REACHED_END_OF_FILE = 'There is no space available to insert a new timespan.';
 exports.PEAKSJS_REACHED_END_OF_FILE = PEAKSJS_REACHED_END_OF_FILE;
 var STREAM_MEDIA_ERROR = 'There was an error retrieving the media stream.';
+exports.STREAM_MEDIA_ERROR = STREAM_MEDIA_ERROR;
+var MISSING_WAVEFORM_ERROR = 'Requested waveform data is not available.';
 /**
  * Helper function which prepares a configuration object to feed the AlertContainer component
  * @param {number} status Code for response
  * @param {function} clearAlert A function defined in the hosting component to clear the alert object in component's state
  */
 
-exports.STREAM_MEDIA_ERROR = STREAM_MEDIA_ERROR;
+exports.MISSING_WAVEFORM_ERROR = MISSING_WAVEFORM_ERROR;
 
 function configureAlert() {
   var status = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
@@ -54,6 +56,9 @@ function configureAlert() {
     alertObj.message = PEAKSJS_REACHED_END_OF_FILE;
   } else if (status === -6) {
     alertObj.message = STREAM_MEDIA_ERROR;
+  } else if (status === -7) {
+    alertObj.message = MISSING_WAVEFORM_ERROR;
+    alertObj.persistent = true;
   } else {
     alertObj.message = NETWORK_ERROR;
   }

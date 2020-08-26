@@ -49,13 +49,14 @@
 
 /* Override Bootstrap CSS */
 .alert {
-  margin-bottom: 10px;
+  margin-top: 5px;
+  margin-bottom: 5px;
 }
 
 /* Waveform */
-.waveform-container,
-.zoom-container,
-.overview-container {
+#waveform-container,
+#zoomview-container,
+#overview-container {
   box-shadow: 3px 3px 20px #919191;
   margin: 0 0 24px 0;
   -moz-box-shadow: 3px 3px 20px #919191;
@@ -64,7 +65,7 @@
   margin-bottom: 15px;
 }
 
-.overview-container {
+#overview-container {
   height: 85px;
 }
 

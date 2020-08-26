@@ -240,7 +240,6 @@ const mapDispatchToProps = {
 
 const mapStateToProps = (state) => ({
   smData: state.structuralMetadata.smData,
-  peaksInstance: state.peaksInstance.peaks,
 });
 
 const ConnectedDropTarget = DropTarget(ItemTypes.SPAN, spanTarget, collectDrop);

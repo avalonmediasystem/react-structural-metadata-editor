@@ -8,6 +8,7 @@ class AlertContainer extends Component {
   static propTypes = {
     message: PropTypes.string,
     alertStyle: PropTypes.oneOf(['success', 'warning', 'danger', 'info']),
+    dismiss: PropTypes.bool,
     clearAlert: PropTypes.func,
   };
 
@@ -56,21 +57,33 @@ class AlertContainer extends Component {
   };
 
   render() {
-    const { alertStyle, message } = this.props;
+    const { alertStyle, message, persistent } = this.props;
 
     if (!this.state.show) {
       return null;
     }
 
+    const alertProps = {
+      bsStyle: alertStyle,
+      'data-testid': `${persistent ? 'persistent-' : ''}alert-container`,
+      onDismiss: persistent ? null : this.handleDismiss,
+    };
+
+    // return persistent ? (
     return (
-      <Alert
-        bsStyle={alertStyle}
-        onDismiss={this.handleDismiss}
-        data-testid="alert-container"
-      >
+      <Alert {...alertProps}>
         <p data-testid="alert-message">{message}</p>
       </Alert>
     );
+    // ) : (
+    //   <Alert
+    //     bsStyle={alertStyle}
+    //     onDismiss={this.handleDismiss}
+    //     data-testid="alert-container"
+    //   >
+    //     <p data-testid="alert-message">{message}</p>
+    //   </Alert>
+    // );
   }
 }
 const mapStateToProps = (state) => ({

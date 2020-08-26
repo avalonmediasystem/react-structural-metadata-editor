@@ -8,11 +8,10 @@ import VolumeSlider from './Slider';
 import LoadingSpinner from '../services/LoadingSpinner';
 
 // Content of aria-label for UI components
-const waveformLabel = `Two interactive waveforms, plotted one after the other using data from a masterfile in the back-end server.
-There are time-based visual sections plotted in these 2 waveforms representing each timespan in the structure below. 
-First one contains a selected zoomed-in section from the entire waveform, while the second waveform shows an overview of the entire audio file.
-There are multiple zoom levels, which can be changed using the zoom-in and zoom-out buttons in the waveform toolbar. 
-These time-based visual sections will be updated by editing the matching timespans in the structure.`;
+const waveformLabel = `Two interactive waveforms, plotted one after the other using data from a masterfile in a back-end server.
+There are time-based visual sections plotted in these 2 waveforms representing each timespan in the structure below.`;
+const zoomViewLabel = `A detailed portion of the waveform data, the level of details shown can be changed with zoom in/out buttons in the waveform toolbar`;
+const overViewLabel = `An overview of the waveform data of the media file used. This shows all the time-based segments from the structure`;
 
 class Waveform extends Component {
   constructor(props) {
@@ -25,7 +24,8 @@ class Waveform extends Component {
     };
 
     // Create `refs`
-    this.waveformContainer = React.createRef();
+    this.zoomView = React.createRef();
+    this.overView = React.createRef();
     this.mediaPlayer = React.createRef();
   }
 
@@ -51,7 +51,8 @@ class Waveform extends Component {
     this.props.retrieveStreamMedia(audioFile, this.mediaPlayer);
 
     // Grab the React `refs` now the component is mounted
-    this.props.waveformRef(this.waveformContainer.current);
+    this.props.zoomViewRef(this.zoomView.current);
+    this.props.overViewRef(this.overView.current);
     this.props.mediaPlayerRef(this.mediaPlayer.current);
 
     // Add a listener to keydown event
@@ -99,11 +100,25 @@ class Waveform extends Component {
       <React.Fragment>
         <div
           id="waveform-container"
-          ref={this.waveformContainer}
-          aria-label={waveformLabel}
           tabIndex="0"
           data-testid="waveform"
-        />
+          aria-label={waveformLabel}
+        >
+          <div
+            id="zoomview-container"
+            ref={this.zoomView}
+            tabIndex="0"
+            data-testid="zoom-view"
+            aria-label={zoomViewLabel}
+          />
+          <div
+            id="overview-container"
+            ref={this.overView}
+            tabIndex="0"
+            data-testid="over-view"
+            aria-label={overViewLabel}
+          />
+        </div>
         {streamMediaLoading && !streamMediaError && (
           <div data-testid="loading-spinner">
             <LoadingSpinner isLoading={streamMediaLoading} />

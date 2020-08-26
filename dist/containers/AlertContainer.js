@@ -99,19 +99,30 @@ function (_Component) {
     value: function render() {
       var _this$props2 = this.props,
           alertStyle = _this$props2.alertStyle,
-          message = _this$props2.message;
+          message = _this$props2.message,
+          persistent = _this$props2.persistent;
 
       if (!this.state.show) {
         return null;
       }
 
-      return _react["default"].createElement(_reactBootstrap.Alert, {
+      var alertProps = {
         bsStyle: alertStyle,
-        onDismiss: this.handleDismiss,
-        "data-testid": "alert-container"
-      }, _react["default"].createElement("p", {
+        'data-testid': "".concat(persistent ? 'persistent-' : '', "alert-container"),
+        onDismiss: persistent ? null : this.handleDismiss
+      }; // return persistent ? (
+
+      return _react["default"].createElement(_reactBootstrap.Alert, alertProps, _react["default"].createElement("p", {
         "data-testid": "alert-message"
-      }, message));
+      }, message)); // ) : (
+      //   <Alert
+      //     bsStyle={alertStyle}
+      //     onDismiss={this.handleDismiss}
+      //     data-testid="alert-container"
+      //   >
+      //     <p data-testid="alert-message">{message}</p>
+      //   </Alert>
+      // );
     }
   }], [{
     key: "getDerivedStateFromProps",
@@ -137,6 +148,7 @@ function (_Component) {
 (0, _defineProperty2["default"])(AlertContainer, "propTypes", {
   message: _propTypes["default"].string,
   alertStyle: _propTypes["default"].oneOf(['success', 'warning', 'danger', 'info']),
+  dismiss: _propTypes["default"].bool,
   clearAlert: _propTypes["default"].func
 });
 

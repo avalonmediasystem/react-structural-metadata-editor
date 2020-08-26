@@ -8,12 +8,6 @@ const waveformUtils = new WaveformDataUtils();
 afterEach(cleanup);
 
 describe('WaveformDataUtils class', () => {
-  test('initializes peaks segments with empty metadata structure', () => {
-    const value = waveformUtils.initSegments([], {});
-    expect(value).toBeDefined();
-    expect(value).toEqual([]);
-  });
-
   test('initializes peaks segments with metadata structure', () => {
     const expected = [
       {
@@ -21,22 +15,22 @@ describe('WaveformDataUtils class', () => {
         endTime: 10.321,
         labelText: 'Segment 1.1',
         id: '123a-456b-789c-3d',
-        color: '#80A590'
+        color: '#80A590',
       },
       {
         startTime: 11.231,
         endTime: 480.001,
         labelText: 'Segment 1.2',
         id: '123a-456b-789c-4d',
-        color: '#2A5459'
+        color: '#2A5459',
       },
       {
         startTime: 543.241,
         endTime: 900.001,
         labelText: 'Segment 2.1',
         id: '123a-456b-789c-8d',
-        color: '#80A590'
-      }
+        color: '#80A590',
+      },
     ];
 
     const value = waveformUtils.initSegments(testSmData);
@@ -45,7 +39,7 @@ describe('WaveformDataUtils class', () => {
     expect(value).toEqual(expected);
   });
 
-  describe('tests util functions for Waveform manipulations', () => {
+  describe('Segments in Peaks instance changes when', () => {
     let peaks;
     const options = {
       container: null,
@@ -54,15 +48,15 @@ describe('WaveformDataUtils class', () => {
       dataUriDefaultFormat: 'json',
       keyboard: true,
       _zoomLevelIndex: 0,
-      _zoomLevels: [512, 1024, 2048, 4096]
+      _zoomLevels: [512, 1024, 2048, 4096],
     };
     beforeEach(() => {
       peaks = Peaks.init(options);
     });
 
-    describe('tests inserting temporary segment', () => {
+    describe('inserting a temporary segment', () => {
       test('when current time is at zero', () => {
-        const value = waveformUtils.insertTempSegment(peaks);
+        const value = waveformUtils.insertTempSegment(peaks, 1738945);
         expect(value.segments._segments).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
@@ -70,15 +64,15 @@ describe('WaveformDataUtils class', () => {
               endTime: 3.321,
               id: 'temp-segment',
               color: '#FBB040',
-              editable: true
-            })
+              editable: true,
+            }),
           ])
         );
         expect(value.player.getCurrentTime()).toEqual(0);
       });
       test('when current time is in between an existing segment', () => {
         peaks.player.seek(450.001);
-        const value = waveformUtils.insertTempSegment(peaks);
+        const value = waveformUtils.insertTempSegment(peaks, 1738945);
         expect(value.segments._segments).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
@@ -86,8 +80,8 @@ describe('WaveformDataUtils class', () => {
               endTime: 540.001,
               id: 'temp-segment',
               color: '#FBB040',
-              editable: true
-            })
+              editable: true,
+            }),
           ])
         );
         expect(value.player.getCurrentTime()).toEqual(480.001);
@@ -95,7 +89,7 @@ describe('WaveformDataUtils class', () => {
 
       test('when current time is at the end time of an existing timespan', () => {
         peaks.player.seek(480.001);
-        const value = waveformUtils.insertTempSegment(peaks);
+        const value = waveformUtils.insertTempSegment(peaks, 1738945);
         expect(value.segments._segments).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
@@ -103,8 +97,8 @@ describe('WaveformDataUtils class', () => {
               endTime: 540.001,
               id: 'temp-segment',
               color: '#FBB040',
-              editable: true
-            })
+              editable: true,
+            }),
           ])
         );
         expect(value.player.getCurrentTime()).toEqual(480.001);
@@ -112,7 +106,7 @@ describe('WaveformDataUtils class', () => {
 
       test('when current time is at the begin time of an existing timespan', () => {
         peaks.player.seek(543.241);
-        const value = waveformUtils.insertTempSegment(peaks);
+        const value = waveformUtils.insertTempSegment(peaks, 1738945);
         expect(value.segments._segments).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
@@ -120,8 +114,8 @@ describe('WaveformDataUtils class', () => {
               endTime: 960.001,
               id: 'temp-segment',
               color: '#FBB040',
-              editable: true
-            })
+              editable: true,
+            }),
           ])
         );
         expect(value.player.getCurrentTime()).toEqual(900.001);
@@ -129,7 +123,7 @@ describe('WaveformDataUtils class', () => {
 
       test('when end time of temporary segment overlaps existing segment', () => {
         peaks.player.seek(520.001);
-        const value = waveformUtils.insertTempSegment(peaks);
+        const value = waveformUtils.insertTempSegment(peaks, 1738945);
         expect(value.segments._segments).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
@@ -137,8 +131,8 @@ describe('WaveformDataUtils class', () => {
               endTime: 543.241,
               id: 'temp-segment',
               color: '#FBB040',
-              editable: true
-            })
+              editable: true,
+            }),
           ])
         );
         expect(value.player.getCurrentTime()).toEqual(520.001);
@@ -146,7 +140,7 @@ describe('WaveformDataUtils class', () => {
 
       test('when current playhead time + 60 > duration of the media file', () => {
         peaks.player.seek(1680.001);
-        const value = waveformUtils.insertTempSegment(peaks);
+        const value = waveformUtils.insertTempSegment(peaks, 1738945);
         expect(value.segments._segments).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
@@ -154,8 +148,8 @@ describe('WaveformDataUtils class', () => {
               endTime: 1738.945,
               id: 'temp-segment',
               color: '#FBB040',
-              editable: true
-            })
+              editable: true,
+            }),
           ])
         );
       });
@@ -166,10 +160,10 @@ describe('WaveformDataUtils class', () => {
           endTime: 1738.951,
           id: '123a-456b-789c-9d',
           color: '#2A5459',
-          labelText: 'Test segment'
+          labelText: 'Test segment',
         });
         peaks.player.seek(450.001);
-        const value = waveformUtils.insertTempSegment(peaks);
+        const value = waveformUtils.insertTempSegment(peaks, 1738945);
         expect(value.segments._segments).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
@@ -177,38 +171,38 @@ describe('WaveformDataUtils class', () => {
               endTime: 540.001,
               id: 'temp-segment',
               color: '#FBB040',
-              editable: true
-            })
+              editable: true,
+            }),
           ])
         );
       });
     });
 
-    describe('deletes segments when structure metadata items are deleted', () => {
-      test('deleting a timespan', () => {
+    describe('deleting structure', () => {
+      test('timespan', () => {
         const item = {
           type: 'span',
           label: 'Segment 1.2',
           id: '123a-456b-789c-4d',
           begin: '00:00:11.231',
-          end: '00:08:00.001'
+          end: '00:08:00.001',
         };
         const value = waveformUtils.deleteSegments(item, peaks);
         expect(value.segments._segments).toHaveLength(2);
       });
 
-      test('deleting a childless header', () => {
+      test('header', () => {
         const item = {
           type: 'div',
           label: 'Sub-Segment 1.1',
           id: '123a-456b-789c-2d',
-          items: []
+          items: [],
         };
         const value = waveformUtils.deleteSegments(item, peaks);
         expect(value.segments._segments).toHaveLength(3);
       });
 
-      test('deleting a header with children', () => {
+      test('header with children', () => {
         const item = {
           type: 'div',
           label: 'Sub-Segment 2.1',
@@ -218,16 +212,16 @@ describe('WaveformDataUtils class', () => {
               type: 'div',
               label: 'Sub-Segment 2.1.1',
               id: '123a-456b-789c-7d',
-              items: []
+              items: [],
             },
             {
               type: 'span',
               label: 'Segment 2.1',
               id: '123a-456b-789c-8d',
               begin: '00:09:03.241',
-              end: '00:15:00.001'
-            }
-          ]
+              end: '00:15:00.001',
+            },
+          ],
         };
         const value = waveformUtils.deleteSegments(item, peaks);
         expect(value.segments._segments).toHaveLength(2);
@@ -235,20 +229,20 @@ describe('WaveformDataUtils class', () => {
           expect.arrayContaining([
             expect.objectContaining({
               id: '123a-456b-789c-4d',
-              labelText: 'Segment 1.2'
-            })
+              labelText: 'Segment 1.2',
+            }),
           ])
         );
       });
     });
 
-    describe('rebuilds waveform', () => {
+    describe('rebuilding Peaks', () => {
       test('when a segment is added in between existing segments', () => {
         peaks.segments.add({
           startTime: 500.001,
           endTime: 540.001,
           id: '123a-456b-789c-9d',
-          labelText: 'Added segment'
+          labelText: 'Added segment',
         });
 
         const value = waveformUtils.rebuildPeaks(peaks);
@@ -259,8 +253,8 @@ describe('WaveformDataUtils class', () => {
           expect.arrayContaining([
             expect.objectContaining({
               id: '123a-456b-789c-9d',
-              color: '#80A590'
-            })
+              color: '#80A590',
+            }),
           ])
         );
         // Tests changing the color of an exisiting segment to adhere to alternating colors in waveform
@@ -268,8 +262,8 @@ describe('WaveformDataUtils class', () => {
           expect.arrayContaining([
             expect.objectContaining({
               id: '123a-456b-789c-8d',
-              color: '#2A5459'
-            })
+              color: '#2A5459',
+            }),
           ])
         );
       });
@@ -283,65 +277,70 @@ describe('WaveformDataUtils class', () => {
           expect.arrayContaining([
             expect.objectContaining({
               id: '123a-456b-789c-8d',
-              color: '#2A5459'
-            })
+              color: '#2A5459',
+            }),
           ])
         );
       });
     });
 
-    test('activates a segment', () => {
-      const value = waveformUtils.activateSegment('123a-456b-789c-4d', peaks);
-      const segments = value.segments.getSegments();
-      expect(segments).toHaveLength(3);
-      expect(segments).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({
-            id: '123a-456b-789c-4d',
-            editable: true,
-            color: '#FBB040'
-          })
-        ])
-      );
+    describe('editing timespans', () => {
+      test('when a segment is activated', () => {
+        const value = waveformUtils.activateSegment('123a-456b-789c-4d', peaks);
+        const segments = value.segments.getSegments();
+        expect(segments).toHaveLength(3);
+        expect(segments).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              id: '123a-456b-789c-4d',
+              editable: true,
+              color: '#FBB040',
+            }),
+          ])
+        );
+      });
+
+      test('when a segment is deactivated', () => {
+        const value = waveformUtils.deactivateSegment(
+          '123a-456b-789c-4d',
+          peaks
+        );
+        const segments = value.segments.getSegments();
+        expect(segments).toHaveLength(3);
+        expect(segments).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              id: '123a-456b-789c-4d',
+              editable: false,
+              color: '#2A5459',
+            }),
+          ])
+        );
+      });
+
+      test('when making changes to an existing segment', () => {
+        const clonedSegment = peaks.segments.getSegment('123a-456b-789c-4d');
+        const currentState = {
+          beginTime: '00:00:10.331',
+          endTime: '00:08:00.001',
+          clonedSegment,
+        };
+        const value = waveformUtils.saveSegment(currentState, peaks);
+        const segments = value.segments.getSegments();
+        expect(segments).toHaveLength(3);
+        expect(segments).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              startTime: 10.331,
+              endTime: 480.001,
+              id: '123a-456b-789c-4d',
+            }),
+          ])
+        );
+      });
     });
 
-    test('deactivates a segment', () => {
-      const value = waveformUtils.deactivateSegment('123a-456b-789c-4d', peaks);
-      const segments = value.segments.getSegments();
-      expect(segments).toHaveLength(3);
-      expect(segments).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({
-            id: '123a-456b-789c-4d',
-            editable: false,
-            color: '#2A5459'
-          })
-        ])
-      );
-    });
-
-    test('saves changes to an existing segment', () => {
-      const clonedSegment = peaks.segments.getSegment('123a-456b-789c-4d');
-      const currentState = {
-        beginTime: '00:00:10.331',
-        endTime: '00:08:00.001',
-        clonedSegment
-      };
-      const value = waveformUtils.saveSegment(currentState, peaks);
-      const segments = value.segments.getSegments();
-      expect(segments).toHaveLength(3);
-      expect(segments).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({
-            startTime: 10.331,
-            endTime: 480.001,
-            id: '123a-456b-789c-4d'
-          })
-        ])
-      );
-    });
-
-    describe('updates a segment when editing a timespan', () => {
+    describe("changing a timespan's startTime", () => {
       let segment;
       beforeEach(() => {
         segment = {
@@ -349,10 +348,10 @@ describe('WaveformDataUtils class', () => {
           endTime: 480.001,
           id: '123a-456b-789c-4d',
           labelText: 'Segment 1.2',
-          color: '#2A5459'
+          color: '#2A5459',
         };
       });
-      test('start time = 00:03:', () => {
+      test('after typing 00:03: (hours and minutes)', () => {
         const currentState = { beginTime: '00:03:', endTime: '00:08:00.001' };
         const value = waveformUtils.updateSegment(segment, currentState, peaks);
         const segments = value.segments.getSegments();
@@ -361,13 +360,13 @@ describe('WaveformDataUtils class', () => {
           expect.arrayContaining([
             expect.objectContaining({
               startTime: 180.0,
-              id: '123a-456b-789c-4d'
-            })
+              id: '123a-456b-789c-4d',
+            }),
           ])
         );
       });
 
-      test('start time = 00:03:59', () => {
+      test('after typing 00:03:59 (hours, minutes, and seconds)', () => {
         const currentState = { beginTime: '00:03:59', endTime: '00:08:00.001' };
         const value = waveformUtils.updateSegment(segment, currentState, peaks);
         const segments = value.segments.getSegments();
@@ -376,16 +375,16 @@ describe('WaveformDataUtils class', () => {
           expect.arrayContaining([
             expect.objectContaining({
               startTime: 239.0,
-              id: '123a-456b-789c-4d'
-            })
+              id: '123a-456b-789c-4d',
+            }),
           ])
         );
       });
 
-      test('start time = 00:03:59.991', () => {
+      test('after typing 00:03:59.991 (hours, minutes, seconds, and milliseconds)', () => {
         const currentState = {
           beginTime: '00:03:59.991',
-          endTime: '00:08:00.001'
+          endTime: '00:08:00.001',
         };
         const value = waveformUtils.updateSegment(segment, currentState, peaks);
         const segments = value.segments.getSegments();
@@ -394,14 +393,29 @@ describe('WaveformDataUtils class', () => {
           expect.arrayContaining([
             expect.objectContaining({
               startTime: 239.991,
-              id: '123a-456b-789c-4d'
-            })
+              id: '123a-456b-789c-4d',
+            }),
           ])
         );
       });
     });
+  });
 
-    describe('find wrapping segments', () => {
+  describe('Helpers when editing segments', () => {
+    let peaks;
+    const options = {
+      container: null,
+      mediaElement: null,
+      dataUri: null,
+      dataUriDefaultFormat: 'json',
+      keyboard: true,
+      _zoomLevelIndex: 0,
+      _zoomLevels: [512, 1024, 2048, 4096],
+    };
+    beforeEach(() => {
+      peaks = Peaks.init(options);
+    });
+    describe('finds wrapping segments', () => {
       let allSegments = [];
       beforeEach(() => {
         allSegments = peaks.segments.getSegments();
@@ -411,7 +425,7 @@ describe('WaveformDataUtils class', () => {
           labelText: 'Segment 1.1',
           id: '123a-456b-789c-3d',
           startTime: 3.321,
-          endTime: 10.321
+          endTime: 10.321,
         };
         const { before, after } = waveformUtils.findWrapperSegments(
           currentSegment,
@@ -426,7 +440,7 @@ describe('WaveformDataUtils class', () => {
           labelText: 'Segment 1.2',
           id: '123a-456b-789c-4d',
           startTime: 11.231,
-          endTime: 480.001
+          endTime: 480.001,
         };
         const { before, after } = waveformUtils.findWrapperSegments(
           currentSegment,
@@ -441,7 +455,7 @@ describe('WaveformDataUtils class', () => {
           labelText: 'Segment 2.1',
           id: '123a-456b-789c-8d',
           startTime: 543.241,
-          endTime: 900.001
+          endTime: 900.001,
         };
         const { before, after } = waveformUtils.findWrapperSegments(
           currentSegment,
@@ -460,7 +474,7 @@ describe('WaveformDataUtils class', () => {
           endTime: 500.001,
           editable: true,
           id: 'test-segment',
-          color: '#FBB040'
+          color: '#FBB040',
         };
         peaks.segments.add(testSegment);
         let activatedPeaks = waveformUtils.activateSegment(
@@ -487,7 +501,7 @@ describe('WaveformDataUtils class', () => {
           endTime: 540.001,
           editable: true,
           id: 'test-segment',
-          color: '#FBB040'
+          color: '#FBB040',
         };
         peaks.segments.add(testSegment);
         let activatedPeaks = waveformUtils.activateSegment(
@@ -514,7 +528,7 @@ describe('WaveformDataUtils class', () => {
           endTime: 529.991,
           editable: true,
           id: 'test-segment',
-          color: '#FBB040'
+          color: '#FBB040',
         };
         peaks.segments.add(testSegment);
         let activatedPeaks = waveformUtils.activateSegment(
@@ -541,7 +555,7 @@ describe('WaveformDataUtils class', () => {
           endTime: 1699.991,
           editable: true,
           id: 'test-segment',
-          color: '#FBB040'
+          color: '#FBB040',
         };
         peaks.segments.add(testSegment);
         let activatedPeaks = waveformUtils.activateSegment(
@@ -568,7 +582,7 @@ describe('WaveformDataUtils class', () => {
           endTime: 1738.945,
           editable: true,
           id: 'test-segment',
-          color: '#FBB040'
+          color: '#FBB040',
         };
         peaks.segments.add(testSegment);
         let activatedPeaks = waveformUtils.activateSegment(

@@ -10,8 +10,8 @@ import { handleEditingTimespans } from '../actions/forms';
 
 const styles = {
   well: {
-    marginTop: '1rem'
-  }
+    marginTop: '1rem',
+  },
 };
 
 class ButtonSection extends Component {
@@ -21,10 +21,10 @@ class ButtonSection extends Component {
     initSegment: null,
     isInitializing: true,
     alertObj: null,
-    disabled: true
+    disabled: true,
   };
 
-  setIsInitializing = value => {
+  setIsInitializing = (value) => {
     if (value === 1) {
       this.setState({ isInitializing: true });
     } else {
@@ -35,7 +35,7 @@ class ButtonSection extends Component {
   clearAlert = () => {
     this.setState({
       alertObj: null,
-      disabled: true
+      disabled: true,
     });
     // Clear the redux-store flag when closing the alert from AlertContainer
     this.props.handleEditingTimespans(0);
@@ -54,7 +54,7 @@ class ButtonSection extends Component {
       alertObj: null,
       headingOpen: true,
       timespanOpen: false,
-      disabled: false
+      disabled: false,
     });
   };
 
@@ -82,7 +82,7 @@ class ButtonSection extends Component {
       this.setState({
         alertObj: configureAlert(-4, this.clearAlert),
         headingOpen: false,
-        disabled: false
+        disabled: false,
       });
     } else {
       // Initialize Redux store with temporary segment
@@ -92,7 +92,7 @@ class ButtonSection extends Component {
         headingOpen: false,
         timespanOpen: true,
         isInitializing: true,
-        disabled: false
+        disabled: false,
       });
     }
   };
@@ -110,18 +110,13 @@ class ButtonSection extends Component {
       initSegment: this.state.initSegment,
       isInitializing: this.state.isInitializing,
       timespanOpen: this.state.timespanOpen,
-      setIsInitializing: this.setIsInitializing
+      setIsInitializing: this.setIsInitializing,
     };
 
-    const {
-      editingDisabled,
-      structureInfo,
-      waveformRetrieved,
-      streamInfo
-    } = this.props.forms;
+    const { editingDisabled, structureInfo, streamInfo } = this.props.forms;
 
     // Only return UI when both structure and waveform data exist
-    return structureInfo.structureRetrieved && waveformRetrieved ? (
+    return structureInfo.structureRetrieved ? (
       <section>
         <AlertContainer {...this.state.alertObj} />
         <Row data-testid="button-row">
@@ -173,16 +168,16 @@ class ButtonSection extends Component {
   }
 }
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   peaksInstance: state.peaksInstance,
-  forms: state.forms
+  forms: state.forms,
 });
 
 const mapDispatchToProps = {
   createTempSegment: peaksActions.insertTempSegment,
   deleteTempSegment: peaksActions.deleteTempSegment,
   dragSegment: peaksActions.dragSegment,
-  handleEditingTimespans: handleEditingTimespans
+  handleEditingTimespans: handleEditingTimespans,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(ButtonSection);

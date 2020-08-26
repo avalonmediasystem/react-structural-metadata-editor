@@ -71,11 +71,11 @@ function (_Component) {
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "state", {
       alertObj: null,
       streamAlert: {},
-      hasError: false,
       masterFileID: _this.props.masterFileID,
       baseURL: _this.props.baseURL,
       initStructure: _this.props.initStructure,
-      streamLength: _this.props.streamDuration
+      streamLength: _this.props.streamDuration,
+      dataUri: null
     });
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "clearAlert", function () {
       _this.setState({
@@ -87,7 +87,8 @@ function (_Component) {
         streamAlert: null
       });
     });
-    _this.waveformContainer = null;
+    _this.zoomView = null;
+    _this.overView = null;
     _this.mediaPlayer = null;
     return _this;
   }
@@ -95,7 +96,10 @@ function (_Component) {
   (0, _createClass2["default"])(WaveformContainer, [{
     key: "componentDidMount",
     value: function componentDidMount() {
-      peaksOptions.container = this.waveformContainer;
+      peaksOptions.containers = {
+        zoomview: this.zoomView,
+        overview: this.overView
+      };
       peaksOptions.mediaElement = this.mediaPlayer;
       this.initializePeaksInstance();
     }
@@ -105,49 +109,41 @@ function (_Component) {
       var _initializePeaksInstance = (0, _asyncToGenerator2["default"])(
       /*#__PURE__*/
       _regenerator["default"].mark(function _callee() {
-        var _this$state, baseURL, masterFileID, initStructure, streamLength, isError, response;
+        var _this$state, baseURL, masterFileID, initStructure, streamLength;
 
         return _regenerator["default"].wrap(function _callee$(_context) {
           while (1) {
             switch (_context.prev = _context.next) {
               case 0:
                 _this$state = this.state, baseURL = _this$state.baseURL, masterFileID = _this$state.masterFileID, initStructure = _this$state.initStructure, streamLength = _this$state.streamLength;
-                isError = false;
-                _context.prev = 2;
-                _context.next = 5;
+                _context.prev = 1;
+                _context.next = 4;
                 return apiUtils.headRequest(baseURL, masterFileID, 'waveform.json');
 
-              case 5:
-                response = _context.sent;
-
-                // Set the masterfile URL as the URI for the waveform data file
-                if (response.status >= 200 && response.status < 400) {
-                  peaksOptions.dataUri = response.request.responseURL;
-                } // Initialize Peaks
-
-
-                this.props.fetchDataAndBuildPeaks(baseURL, masterFileID, initStructure, peaksOptions, streamLength, isError); // Update redux-store flag for waveform file retrieval
+              case 4:
+                // Set waveform URI
+                peaksOptions.dataUri = "".concat(baseURL, "/master_files/").concat(masterFileID, "/waveform.json"); // Update redux-store flag for waveform file retrieval
 
                 this.props.retrieveWaveformSuccess();
-                _context.next = 17;
+                _context.next = 11;
                 break;
 
+              case 8:
+                _context.prev = 8;
+                _context.t0 = _context["catch"](1);
+                // Enable the flash message alert
+                this.handleError(_context.t0);
+
               case 11:
-                _context.prev = 11;
-                _context.t0 = _context["catch"](2);
-                isError = true;
-                this.handleError(_context.t0); // Disable edting when waveform is missing
+                // Fetch structure.json and build Peaks
+                this.props.fetchDataAndBuildPeaks(baseURL, masterFileID, initStructure, peaksOptions, streamLength);
 
-                this.props.handleEditingTimespans(1); // Fetch structure.json when waveform.json is
-
-                this.props.fetchDataAndBuildPeaks(baseURL, masterFileID, initStructure, peaksOptions, streamLength, isError);
-
-              case 17:
+              case 12:
               case "end":
                 return _context.stop();
             }
           }
-        }, _callee, this, [[2, 11]]);
+        }, _callee, this, [[1, 8]]);
       }));
 
       function initializePeaksInstance() {
@@ -160,18 +156,25 @@ function (_Component) {
     key: "handleError",
     value: function handleError(error) {
       console.log('TCL: WaveformContainer -> handleError -> error', error);
-      var status = null; // Pull status code out of error response/request
+      var status = null;
+      var _this$state2 = this.state,
+          baseURL = _this$state2.baseURL,
+          masterFileID = _this$state2.masterFileID; // Pull status code out of error response/request
 
       if (error.response !== undefined) {
         status = error.response.status;
+
+        if (status == 404) {
+          peaksOptions.dataUri = "".concat(baseURL, "/master_files/").concat(masterFileID, "/waveform.json?empty=true");
+          status = -7; // for persistent missing waveform data alert
+        }
       } else if (error.request !== undefined) {
         status = -3;
       }
 
       var alertObj = (0, _alertStatus.configureAlert)(status, this.clearAlert);
       this.setState({
-        alertObj: alertObj,
-        hasError: true
+        alertObj: alertObj
       });
     }
   }, {
@@ -179,19 +182,19 @@ function (_Component) {
     value: function render() {
       var _this2 = this;
 
-      var _this$state2 = this.state,
-          alertObj = _this$state2.alertObj,
-          hasError = _this$state2.hasError,
-          streamAlert = _this$state2.streamAlert;
-      var _this$props = this.props,
-          forms = _this$props.forms,
-          audioStreamURL = _this$props.audioStreamURL;
+      var _this$state3 = this.state,
+          alertObj = _this$state3.alertObj,
+          streamAlert = _this$state3.streamAlert;
+      var audioStreamURL = this.props.audioStreamURL;
       return _react["default"].createElement("section", {
         className: "waveform-section",
         "data-testid": "waveform-container"
-      }, !forms.waveformRetrieved && hasError ? _react["default"].createElement(_AlertContainer["default"], alertObj) : _react["default"].createElement(_Waveform["default"], {
-        waveformRef: function waveformRef(ref) {
-          return _this2.waveformContainer = ref;
+      }, _react["default"].createElement(_Waveform["default"], {
+        zoomViewRef: function zoomViewRef(ref) {
+          return _this2.zoomView = ref;
+        },
+        overViewRef: function overViewRef(ref) {
+          return _this2.overView = ref;
         },
         mediaPlayerRef: function mediaPlayerRef(ref) {
           return _this2.mediaPlayer = ref;
@@ -199,7 +202,7 @@ function (_Component) {
         audioStreamURL: audioStreamURL,
         alertObj: streamAlert,
         clearAlert: this.clearStreamAlert
-      }));
+      }), ' ', _react["default"].createElement(_AlertContainer["default"], alertObj));
     }
   }]);
   return WaveformContainer;
@@ -207,8 +210,7 @@ function (_Component) {
 
 var mapStateToProps = function mapStateToProps(state) {
   return {
-    smData: state.structuralMetadata.smData,
-    forms: state.forms
+    smData: state.structuralMetadata.smData
   };
 };
 

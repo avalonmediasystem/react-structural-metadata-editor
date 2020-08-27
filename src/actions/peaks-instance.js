@@ -53,23 +53,30 @@ export function initializeSMDataPeaks(
 
     // Initialize Redux state variable with structure
     dispatch(buildSMUI(smData, duration));
+    dispatch(initPeaks(smData, options, duration));
 
-    const { structuralMetadata } = getState();
+    const { peaksInstance, structuralMetadata } = getState();
 
     dispatch(saveInitialStructure(structuralMetadata.smData));
 
-    dispatch(initPeaks(smData, options, duration));
-
-    const { peaksInstance } = getState();
-
-    // Subscribe to Peaks event for dragging handles in a segment
-    if (peaksInstance.events !== undefined) {
-      peaksInstance.events.subscribe((eProps) => {
-        // startTimeChanged = true -> handle at the start of the segment is being dragged
-        // startTimeChanged = flase -> handle at the end of the segment is being dragged
-        const [segment, startTimeChanged] = eProps;
-        dispatch(dragSegment(segment.id, startTimeChanged, 1));
-      });
+    // Subscribe to Peaks events
+    if (!isEmpty(peaksInstance.events)) {
+      const { dragged, ready } = peaksInstance.events;
+      // for segment editing using handles
+      if (dragged) {
+        dragged.subscribe((eProps) => {
+          // startTimeChanged = true -> handle at the start of the segment is being dragged
+          // startTimeChanged = flase -> handle at the end of the segment is being dragged
+          const [segment, startTimeChanged] = eProps;
+          dispatch(dragSegment(segment.id, startTimeChanged, 1));
+        });
+      }
+      if (ready) {
+        // peaks ready event
+        peaksInstance.events.ready.subscribe(() => {
+          dispatch(peaksReady(true));
+        });
+      }
     }
   };
 }
@@ -83,6 +90,12 @@ export function initPeaks(smData, options, duration) {
   };
 }
 
+export function peaksReady(ready) {
+  return {
+    type: types.PEAKS_READY,
+    payload: ready,
+  };
+}
 export function insertNewSegment(span) {
   return {
     type: types.INSERT_SEGMENT,

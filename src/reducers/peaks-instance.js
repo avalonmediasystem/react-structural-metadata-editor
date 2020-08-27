@@ -6,11 +6,12 @@ import { fromEvent } from 'rxjs';
 const waveformUtils = new WaveformDataUtils();
 const initialState = {
   peaks: {},
-  events: null,
+  events: {},
   segment: null,
   isDragging: false,
   startTimeChanged: null,
   duration: null,
+  readyPeaks: false,
 };
 let newPeaks = null;
 let updatedSegment = null;
@@ -31,9 +32,20 @@ const peaksInstance = (state = initialState, action) => {
 
       return {
         peaks: peaksInstance,
-        events: fromEvent(peaksInstance, 'segments.dragged'),
+        events: {
+          dragged: peaksInstance
+            ? fromEvent(peaksInstance, 'segments.dragged')
+            : null,
+          ready: peaksInstance ? fromEvent(peaksInstance, 'peaks.ready') : null,
+        },
         segment: { ...state.segment },
         duration: action.duration,
+      };
+
+    case types.PEAKS_READY:
+      return {
+        ...state,
+        readyPeaks: action.payload,
       };
 
     case types.INSERT_SEGMENT:

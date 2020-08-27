@@ -41,6 +41,9 @@ describe('Waveform component', () => {
       },
       waveformRetrieved: false,
     },
+    peaksInstance: {
+      readyPeaks: true,
+    },
   };
 
   beforeEach(() => {
@@ -57,11 +60,10 @@ describe('Waveform component', () => {
     );
   });
 
-  test('Waveform renders', () => {
+  test('renders', () => {
     expect(
       waveform.container.querySelector('#waveform-container')
     ).toBeInTheDocument();
-    expect(waveform.queryByTestId('loading-spinner')).toBeInTheDocument();
     expect(waveform.queryByTestId('waveform-toolbar')).not.toBeInTheDocument();
   });
 

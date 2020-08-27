@@ -21,6 +21,7 @@ class Waveform extends Component {
       alertObj: this.props.alertObj,
       volume: 100,
       streamMediaStatus: this.props.streamInfo.streamMediaStatus,
+      readyPeaks: this.props.peaksInstance.readyPeaks,
     };
 
     // Create `refs`
@@ -42,6 +43,11 @@ class Waveform extends Component {
     }
     if (nextProps.alertObj === null) {
       return { alertObj: null };
+    }
+    if (nextProps.peaksInstance && nextProps.peaksInstance.readyPeaks) {
+      return {
+        readyPeaks: nextProps.peaksInstance.readyPeaks,
+      };
     }
     return null;
   }
@@ -94,7 +100,7 @@ class Waveform extends Component {
   };
 
   render() {
-    const { alertObj, volume } = this.state;
+    const { alertObj, volume, readyPeaks } = this.state;
     const { streamMediaError, streamMediaLoading } = this.props.streamInfo;
     return (
       <React.Fragment>
@@ -119,11 +125,12 @@ class Waveform extends Component {
             aria-label={overViewLabel}
           />
         </div>
-        {streamMediaLoading && !streamMediaError && (
-          <div data-testid="loading-spinner">
-            <LoadingSpinner isLoading={streamMediaLoading} />
-          </div>
-        )}
+        {(streamMediaLoading && !streamMediaError) ||
+          (!readyPeaks && (
+            <div data-testid="loading-spinner">
+              <LoadingSpinner isLoading={streamMediaLoading || !readyPeaks} />
+            </div>
+          ))}
         {streamMediaError && <AlertContainer {...alertObj} />}
         <audio
           ref={this.mediaPlayer}

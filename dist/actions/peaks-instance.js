@@ -9,6 +9,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.initializeSMDataPeaks = initializeSMDataPeaks;
 exports.initPeaks = initPeaks;
+exports.peaksReady = peaksReady;
 exports.insertNewSegment = insertNewSegment;
 exports.deleteSegment = deleteSegment;
 exports.activateSegment = activateSegment;
@@ -54,7 +55,7 @@ function initializeSMDataPeaks(baseURL, masterFileID, initStructure, options, du
       var _ref = (0, _asyncToGenerator2["default"])(
       /*#__PURE__*/
       _regenerator["default"].mark(function _callee(dispatch, getState) {
-        var smData, response, status, _getState, structuralMetadata, _getState2, peaksInstance;
+        var smData, response, status, _getState, peaksInstance, structuralMetadata, _peaksInstance$events, dragged, ready;
 
         return _regenerator["default"].wrap(function _callee$(_context) {
           while (1) {
@@ -96,24 +97,34 @@ function initializeSMDataPeaks(baseURL, masterFileID, initStructure, options, du
                 structuralMetadataUtils.markRootElement(smData); // Initialize Redux state variable with structure
 
                 dispatch((0, _smData.buildSMUI)(smData, duration));
-                _getState = getState(), structuralMetadata = _getState.structuralMetadata;
-                dispatch((0, _smData.saveInitialStructure)(structuralMetadata.smData));
                 dispatch(initPeaks(smData, options, duration));
-                _getState2 = getState(), peaksInstance = _getState2.peaksInstance; // Subscribe to Peaks event for dragging handles in a segment
+                _getState = getState(), peaksInstance = _getState.peaksInstance, structuralMetadata = _getState.structuralMetadata;
+                dispatch((0, _smData.saveInitialStructure)(structuralMetadata.smData)); // Subscribe to Peaks events
 
-                if (peaksInstance.events !== undefined) {
-                  peaksInstance.events.subscribe(function (eProps) {
-                    // startTimeChanged = true -> handle at the start of the segment is being dragged
-                    // startTimeChanged = flase -> handle at the end of the segment is being dragged
-                    var _eProps = (0, _slicedToArray2["default"])(eProps, 2),
-                        segment = _eProps[0],
-                        startTimeChanged = _eProps[1];
+                if (!(0, _lodash.isEmpty)(peaksInstance.events)) {
+                  _peaksInstance$events = peaksInstance.events, dragged = _peaksInstance$events.dragged, ready = _peaksInstance$events.ready; // for segment editing using handles
 
-                    dispatch(dragSegment(segment.id, startTimeChanged, 1));
-                  });
+                  if (dragged) {
+                    dragged.subscribe(function (eProps) {
+                      // startTimeChanged = true -> handle at the start of the segment is being dragged
+                      // startTimeChanged = flase -> handle at the end of the segment is being dragged
+                      var _eProps = (0, _slicedToArray2["default"])(eProps, 2),
+                          segment = _eProps[0],
+                          startTimeChanged = _eProps[1];
+
+                      dispatch(dragSegment(segment.id, startTimeChanged, 1));
+                    });
+                  }
+
+                  if (ready) {
+                    // peaks ready event
+                    peaksInstance.events.ready.subscribe(function () {
+                      dispatch(peaksReady(true));
+                    });
+                  }
                 }
 
-              case 22:
+              case 21:
               case "end":
                 return _context.stop();
             }
@@ -134,6 +145,13 @@ function initPeaks(smData, options, duration) {
     smData: smData,
     options: options,
     duration: duration
+  };
+}
+
+function peaksReady(ready) {
+  return {
+    type: types.PEAKS_READY,
+    payload: ready
   };
 }
 

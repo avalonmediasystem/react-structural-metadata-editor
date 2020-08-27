@@ -99,7 +99,8 @@ function (_Component) {
       audioFile: _this.props.audioStreamURL,
       alertObj: _this.props.alertObj,
       volume: 100,
-      streamMediaStatus: _this.props.streamInfo.streamMediaStatus
+      streamMediaStatus: _this.props.streamInfo.streamMediaStatus,
+      readyPeaks: _this.props.peaksInstance.readyPeaks
     }; // Create `refs`
 
     _this.zoomView = _react["default"].createRef();
@@ -119,7 +120,8 @@ function (_Component) {
     value: function render() {
       var _this$state = this.state,
           alertObj = _this$state.alertObj,
-          volume = _this$state.volume;
+          volume = _this$state.volume,
+          readyPeaks = _this$state.readyPeaks;
       var _this$props$streamInf = this.props.streamInfo,
           streamMediaError = _this$props$streamInf.streamMediaError,
           streamMediaLoading = _this$props$streamInf.streamMediaLoading;
@@ -140,10 +142,10 @@ function (_Component) {
         tabIndex: "0",
         "data-testid": "over-view",
         "aria-label": overViewLabel
-      })), streamMediaLoading && !streamMediaError && _react["default"].createElement("div", {
+      })), streamMediaLoading && !streamMediaError || !readyPeaks && _react["default"].createElement("div", {
         "data-testid": "loading-spinner"
       }, _react["default"].createElement(_LoadingSpinner["default"], {
-        isLoading: streamMediaLoading
+        isLoading: streamMediaLoading || !readyPeaks
       })), streamMediaError && _react["default"].createElement(_AlertContainer["default"], alertObj), _react["default"].createElement("audio", {
         ref: this.mediaPlayer,
         hidden: true,
@@ -198,6 +200,12 @@ function (_Component) {
       if (nextProps.alertObj === null) {
         return {
           alertObj: null
+        };
+      }
+
+      if (nextProps.peaksInstance && nextProps.peaksInstance.readyPeaks) {
+        return {
+          readyPeaks: nextProps.peaksInstance.readyPeaks
         };
       }
 

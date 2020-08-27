@@ -8,17 +8,6 @@ import mockAxios from 'axios';
 // Mocking the external libraries used in the component execution
 jest.mock('rxjs');
 
-// Set up a redux store for the tests
-const peaksOptions = {
-  container: null,
-  mediaElement: null,
-  dataUri: null,
-  dataUriDefaultFormat: 'json',
-  keyboard: true,
-  _zoomLevelIndex: 0,
-  _zoomLevels: [512, 1024, 2048, 4096],
-};
-
 // Setup Redux store for tests
 const initialState = {
   structuralMetadata: {
@@ -50,7 +39,7 @@ const initStructure = {
 afterEach(cleanup);
 
 describe('WaveformContainer component', () => {
-  test('WaveformContainer renders', async () => {
+  test('renders', async () => {
     mockAxios.head.mockImplementationOnce(() => {
       return Promise.resolve({
         status: 200,

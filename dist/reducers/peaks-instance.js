@@ -26,11 +26,12 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 var waveformUtils = new _WaveformDataUtils["default"]();
 var initialState = {
   peaks: {},
-  events: null,
+  events: {},
   segment: null,
   isDragging: false,
   startTimeChanged: null,
-  duration: null
+  duration: null,
+  readyPeaks: false
 };
 var newPeaks = null;
 var updatedSegment = null;
@@ -51,10 +52,18 @@ var peaksInstance = function peaksInstance() {
 
       return {
         peaks: _peaksInstance,
-        events: (0, _rxjs.fromEvent)(_peaksInstance, 'segments.dragged'),
+        events: {
+          dragged: _peaksInstance ? (0, _rxjs.fromEvent)(_peaksInstance, 'segments.dragged') : null,
+          ready: _peaksInstance ? (0, _rxjs.fromEvent)(_peaksInstance, 'peaks.ready') : null
+        },
         segment: _objectSpread({}, state.segment),
         duration: action.duration
       };
+
+    case types.PEAKS_READY:
+      return _objectSpread({}, state, {
+        readyPeaks: action.payload
+      });
 
     case types.INSERT_SEGMENT:
       state.peaks.segments.add(waveformUtils.convertTimespanToSegment(action.payload));

@@ -6,7 +6,7 @@ import {
   ControlLabel,
   FormControl,
   FormGroup,
-  Row
+  Row,
 } from 'react-bootstrap';
 import { connect } from 'react-redux';
 import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
@@ -15,7 +15,7 @@ import {
   getValidationEndState,
   getValidationTitleState,
   isTitleValid,
-  validTimespans
+  validTimespans,
 } from '../services/form-helper';
 import * as peaksActions from '../actions/peaks-instance';
 import WaveformDataUtils from '../services/WaveformDataUtils';
@@ -35,7 +35,7 @@ class TimespanForm extends Component {
       validHeadings: [],
       peaksInstance: this.props.peaksInstance,
       isInitializing: this.props.isInitializing,
-      allSpans: null
+      allSpans: null,
     };
   }
 
@@ -43,7 +43,7 @@ class TimespanForm extends Component {
     const { smData, peaksInstance } = this.props;
     const { beginTime, endTime } = this.state;
     this.setState({
-      allSpans: structuralMetadataUtils.getItemsOfType('span', smData)
+      allSpans: structuralMetadataUtils.getItemsOfType('span', smData),
     });
     if (peaksInstance && beginTime !== '' && endTime !== '') {
       this.updateChildOfOptions();
@@ -54,7 +54,7 @@ class TimespanForm extends Component {
     const { smData } = this.props;
     if (!isEqual(smData, prevProps.smData) && smData.length > 0) {
       this.setState({
-        allSpans: structuralMetadataUtils.getItemsOfType('span', smData)
+        allSpans: structuralMetadataUtils.getItemsOfType('span', smData),
       });
       // Update valid headings when structure changes
       this.updateChildOfOptions();
@@ -78,19 +78,20 @@ class TimespanForm extends Component {
         peaksInstance,
         segment,
         smData,
-        startTimeChanged
+        startTimeChanged,
       } = nextProps;
 
+      // Render initial values when form opens
       if (initSegment && isInitializing) {
         const { startTime, endTime } = initSegment;
         return {
           allSpans: structuralMetadataUtils.getItemsOfType('span', smData),
           beginTime: structuralMetadataUtils.toHHmmss(startTime),
           endTime: structuralMetadataUtils.toHHmmss(endTime),
-          isInitializing: false
+          isInitializing: false,
         };
       }
-
+      // Render time value changes
       if (prevState.peaksInstance !== peaksInstance && !isInitializing) {
         const { startTime, endTime } = waveformDataUtils.validateSegment(
           segment,
@@ -99,7 +100,7 @@ class TimespanForm extends Component {
         );
         return {
           beginTime: structuralMetadataUtils.toHHmmss(startTime),
-          endTime: structuralMetadataUtils.toHHmmss(endTime)
+          endTime: structuralMetadataUtils.toHHmmss(endTime),
         };
       }
     }
@@ -114,7 +115,7 @@ class TimespanForm extends Component {
     const { smData } = this.props;
     let newSpan = {
       begin: this.state.beginTime,
-      end: this.state.endTime
+      end: this.state.endTime,
     };
 
     // Get spans in overall span list which fall before and after the new span
@@ -136,7 +137,7 @@ class TimespanForm extends Component {
 
   clearHeadingOptions = () => {
     this.setState({
-      validHeadings: []
+      validHeadings: [],
     });
   };
 
@@ -146,8 +147,10 @@ class TimespanForm extends Component {
       endTime: '',
       timespanChildOf: '',
       timespanTitle: '',
-      validHeadings: []
+      validHeadings: [],
     });
+    // Reset isTyping flag
+    this.props.setIsTyping(0);
   }
 
   formIsValid() {
@@ -158,14 +161,14 @@ class TimespanForm extends Component {
     return titleValid && childOfValid && timesValidResponse.valid;
   }
 
-  handleInputChange = e => {
+  handleInputChange = (e) => {
     this.setState(
       { [e.target.id]: e.target.value },
       this.updateChildOfOptions()
     );
   };
 
-  handleSubmit = e => {
+  handleSubmit = (e) => {
     e.preventDefault();
     const { beginTime, endTime, timespanChildOf, timespanTitle } = this.state;
 
@@ -174,14 +177,14 @@ class TimespanForm extends Component {
       beginTime,
       endTime,
       timespanChildOf,
-      timespanTitle
+      timespanTitle,
     });
 
     // Clear form values
     this.clearFormValues();
   };
 
-  handleTimeChange = e => {
+  handleTimeChange = (e) => {
     const { segment, startTimeChanged } = this.props;
     // Lock setting isTyping to false before updating the DOM
     this.props.dragSegment(segment.id, startTimeChanged, 0);
@@ -200,9 +203,10 @@ class TimespanForm extends Component {
 
   handleCancelClick = () => {
     this.props.cancelClick();
+    this.props.setIsTyping(0);
   };
 
-  handleChildOfChange = e => {
+  handleChildOfChange = (e) => {
     this.setState({ timespanChildOf: e.target.value });
   };
 
@@ -236,7 +240,7 @@ class TimespanForm extends Component {
       endTime,
       timespanChildOf,
       timespanTitle,
-      allSpans
+      allSpans,
     } = this.state;
 
     return (
@@ -307,7 +311,7 @@ class TimespanForm extends Component {
             value={timespanChildOf}
           >
             <option value="">Select...</option>
-            {this.state.validHeadings.map(item => (
+            {this.state.validHeadings.map((item) => (
               <option value={item.id} key={item.id}>
                 {item.label}
               </option>
@@ -340,17 +344,17 @@ class TimespanForm extends Component {
   }
 }
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   smData: state.structuralMetadata.smData,
   peaksInstance: state.peaksInstance,
   segment: state.peaksInstance.segment,
   startTimeChanged: state.peaksInstance.startTimeChanged,
-  isDragging: state.peaksInstance.isDragging
+  isDragging: state.peaksInstance.isDragging,
 });
 
 const mapDispatchToProps = {
   updateSegment: peaksActions.updateSegment,
-  dragSegment: peaksActions.dragSegment
+  dragSegment: peaksActions.dragSegment,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(TimespanForm);

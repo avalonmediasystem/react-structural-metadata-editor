@@ -41,6 +41,7 @@ export const Peaks = jest.fn((opts) => {
       } else {
         let seg = new Segment({ parent: peaks, ...segments });
         peaks.segments._segments.push(seg);
+        peaks.player.seek(seg.startTime);
       }
     }),
     removeById: jest.fn((id) => {
@@ -76,11 +77,6 @@ export const Peaks = jest.fn((opts) => {
         color: '#80A590',
       }),
     ],
-  };
-  peaks.views = {
-    destroyZoomview: jest.fn(),
-    destroyOverview: jest.fn(),
-    _peaks: peaks,
   };
   return peaks;
 });

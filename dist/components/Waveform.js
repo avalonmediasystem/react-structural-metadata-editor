@@ -125,6 +125,7 @@ function (_Component) {
       var _this$props$streamInf = this.props.streamInfo,
           streamMediaError = _this$props$streamInf.streamMediaError,
           streamMediaLoading = _this$props$streamInf.streamMediaLoading;
+      var stillLoading = streamMediaLoading && !streamMediaError || !readyPeaks;
       return _react["default"].createElement(_react["default"].Fragment, null, _react["default"].createElement("div", {
         id: "waveform-container",
         tabIndex: "0",
@@ -142,10 +143,10 @@ function (_Component) {
         tabIndex: "0",
         "data-testid": "over-view",
         "aria-label": overViewLabel
-      })), streamMediaLoading && !streamMediaError || !readyPeaks && _react["default"].createElement("div", {
+      })), stillLoading && _react["default"].createElement("div", {
         "data-testid": "loading-spinner"
       }, _react["default"].createElement(_LoadingSpinner["default"], {
-        isLoading: streamMediaLoading || !readyPeaks
+        isLoading: stillLoading
       })), streamMediaError && _react["default"].createElement(_AlertContainer["default"], alertObj), _react["default"].createElement("audio", {
         ref: this.mediaPlayer,
         hidden: true,

@@ -102,6 +102,8 @@ class Waveform extends Component {
   render() {
     const { alertObj, volume, readyPeaks } = this.state;
     const { streamMediaError, streamMediaLoading } = this.props.streamInfo;
+    const stillLoading =
+      (streamMediaLoading && !streamMediaError) || !readyPeaks;
     return (
       <React.Fragment>
         <div
@@ -125,12 +127,11 @@ class Waveform extends Component {
             aria-label={overViewLabel}
           />
         </div>
-        {(streamMediaLoading && !streamMediaError) ||
-          (!readyPeaks && (
-            <div data-testid="loading-spinner">
-              <LoadingSpinner isLoading={streamMediaLoading || !readyPeaks} />
-            </div>
-          ))}
+        {stillLoading && (
+          <div data-testid="loading-spinner">
+            <LoadingSpinner isLoading={stillLoading} />
+          </div>
+        )}
         {streamMediaError && <AlertContainer {...alertObj} />}
         <audio
           ref={this.mediaPlayer}

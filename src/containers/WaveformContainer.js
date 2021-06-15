@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import APIUtils from '../api/Utils';
 import { connect } from 'react-redux';
 import { initializeSMDataPeaks } from '../actions/peaks-instance';
-import { handleEditingTimespans } from '../actions/forms';
+import { handleEditingTimespans, setAlert } from '../actions/forms';
 import Waveform from '../components/Waveform';
 import AlertContainer from '../containers/AlertContainer';
 import { configureAlert } from '../services/alert-status';
@@ -33,7 +33,7 @@ class WaveformContainer extends Component {
   }
 
   state = {
-    alertObj: null,
+    // alertObj: { alert: this.props.alert, showAlert: false },
     streamAlert: {},
     masterFileID: this.props.masterFileID,
     baseURL: this.props.baseURL,
@@ -50,18 +50,6 @@ class WaveformContainer extends Component {
     peaksOptions.mediaElement = this.mediaPlayer;
     this.initializePeaksInstance();
   }
-
-  clearAlert = () => {
-    this.setState({
-      alertObj: null,
-    });
-  };
-
-  clearStreamAlert = () => {
-    this.setState({
-      streamAlert: null,
-    });
-  };
 
   async initializePeaksInstance() {
     const { baseURL, masterFileID, initStructure, streamLength } = this.state;
@@ -105,12 +93,13 @@ class WaveformContainer extends Component {
       status = -3;
     }
 
-    const alertObj = configureAlert(status, this.clearAlert);
-    this.setState({ alertObj });
+    const alert = configureAlert(status);
+    this.props.setAlert(alert);
+    // this.setState({ alertObj: { alert: alert, showAlert: true } });
   }
 
   render() {
-    const { alertObj, streamAlert } = this.state;
+    // const { alert, showAlert } = this.state.alertObj;
     const { audioStreamURL } = this.props;
 
     return (
@@ -120,10 +109,8 @@ class WaveformContainer extends Component {
           overViewRef={(ref) => (this.overView = ref)}
           mediaPlayerRef={(ref) => (this.mediaPlayer = ref)}
           audioStreamURL={audioStreamURL}
-          alertObj={streamAlert}
-          clearAlert={this.clearStreamAlert}
         />{' '}
-        <AlertContainer {...alertObj} />
+        {/* {showAlert ? <AlertContainer {...alert} /> : null} */}
       </section>
     );
   }
@@ -131,12 +118,14 @@ class WaveformContainer extends Component {
 
 const mapStateToProps = (state) => ({
   smData: state.structuralMetadata.smData,
+  alert: state.forms.alert,
 });
 
 const mapDispatchToProps = {
   fetchDataAndBuildPeaks: initializeSMDataPeaks,
   retrieveWaveformSuccess: retrieveWaveformSuccess,
   handleEditingTimespans: handleEditingTimespans,
+  setAlert: setAlert,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(WaveformContainer);

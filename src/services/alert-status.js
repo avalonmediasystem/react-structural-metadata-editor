@@ -17,10 +17,9 @@ export const MISSING_WAVEFORM_ERROR =
 /**
  * Helper function which prepares a configuration object to feed the AlertContainer component
  * @param {number} status Code for response
- * @param {function} clearAlert A function defined in the hosting component to clear the alert object in component's state
  */
-export function configureAlert(status = 0, clearAlert) {
-  let alertObj = { alertStyle: 'danger', clearAlert };
+export function configureAlert(status = 0) {
+  let alertObj = { alertStyle: 'danger' };
 
   if (status === 401) {
     alertObj.message = UNAUTHORIZED_ACCESS;

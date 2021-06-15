@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import { Button, ButtonToolbar, Row, Col } from 'react-bootstrap';
 import { connect } from 'react-redux';
-import AlertContainer from '../containers/AlertContainer';
+// import AlertContainer from '../containers/AlertContainer';
 import { configureAlert } from '../services/alert-status';
-import { retrieveStreamMedia } from '../actions/forms';
+import { retrieveStreamMedia, setAlert } from '../actions/forms';
 import VolumeSlider from './Slider';
 import LoadingSpinner from '../services/LoadingSpinner';
 
@@ -18,7 +18,7 @@ class Waveform extends Component {
     super(props);
     this.state = {
       audioFile: this.props.audioStreamURL,
-      alertObj: this.props.alertObj,
+      // alertObj: { alert: this.props.alert },
       volume: 100,
       streamMediaStatus: this.props.streamInfo.streamMediaStatus,
       readyPeaks: this.props.peaksInstance.readyPeaks,
@@ -31,25 +31,34 @@ class Waveform extends Component {
   }
 
   static getDerivedStateFromProps(nextProps, prevState) {
-    const { streamMediaStatus } = nextProps.streamInfo;
-    if (prevState.streamMediaStatus !== streamMediaStatus) {
-      return {
-        streamMediaStatus: nextProps.streamInfo.streamMediaStatus,
-        alertObj: configureAlert(
-          nextProps.streamInfo.streamMediaStatus,
-          nextProps.clearAlert
-        ),
-      };
-    }
-    if (nextProps.alertObj === null) {
-      return { alertObj: null };
-    }
-    if (nextProps.peaksInstance && nextProps.peaksInstance.readyPeaks) {
+    // const { streamMediaStatus } = nextProps.streamInfo;
+    // if (prevState.streamMediaStatus !== streamMediaStatus) {
+    //   const alert = configureAlert(nextProps.streamInfo.streamMediaStatus);
+    //   return {
+    //     streamMediaStatus: nextProps.streamInfo.streamMediaStatus,
+    //     // alertObj: { alert: alert, showAlert: true },
+    //   };
+    // }
+    if (nextProps.peaksInstance) {
       return {
         readyPeaks: nextProps.peaksInstance.readyPeaks,
       };
     }
+    // console.log(nextProps);
+    // if (nextProps.alert === null) {
+    //   return { alertObj: { alert: null, showAlert: false } };
+    // }
     return null;
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (
+      prevProps.streamInfo.streamMediaStatus !=
+      this.props.streamInfo.streamMediaStatus
+    ) {
+      const alert = configureAlert(this.props.streamInfo.streamMediaStatus);
+      this.props.setAlert(alert);
+    }
   }
 
   componentDidMount = () => {
@@ -104,6 +113,14 @@ class Waveform extends Component {
     const { streamMediaError, streamMediaLoading } = this.props.streamInfo;
     const stillLoading =
       (streamMediaLoading && !streamMediaError) || !readyPeaks;
+    // console.log(
+    //   'Stream error: ',
+    //   streamMediaError,
+    //   ' | Stream loading: ',
+    //   streamMediaLoading,
+    //   ' | Peaks ready: ',
+    //   readyPeaks
+    // );
     return (
       <React.Fragment>
         <div
@@ -132,7 +149,7 @@ class Waveform extends Component {
             <LoadingSpinner isLoading={stillLoading} />
           </div>
         )}
-        {streamMediaError && <AlertContainer {...alertObj} />}
+        {/* {streamMediaError && <AlertContainer {...alertObj.alert} />} */}
         <audio
           ref={this.mediaPlayer}
           hidden={true}
@@ -186,10 +203,12 @@ const mapStateToProps = (state) => ({
   peaksInstance: state.peaksInstance,
   streamInfo: state.forms.streamInfo,
   editingDisabled: state.forms.editingDisabled,
+  // alert: state.forms.alert,
 });
 
 const mapDispatchToProps = {
   retrieveStreamMedia: retrieveStreamMedia,
+  setAlert: setAlert,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Waveform);

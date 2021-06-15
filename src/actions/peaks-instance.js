@@ -33,7 +33,7 @@ export function initializeSMDataPeaks(
       const response = await apiUtils.getRequest(
         baseURL,
         masterFileID,
-        'structure.json'
+        'structsure.json'
       );
 
       if (!isEmpty(response.data)) {
@@ -91,6 +91,7 @@ export function initPeaks(smData, options, duration) {
 }
 
 export function peaksReady(ready) {
+  console.log('Peaks ready: ', ready);
   return {
     type: types.PEAKS_READY,
     payload: ready,

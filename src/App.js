@@ -17,45 +17,44 @@ import {
   faMinusCircle,
   faPen,
   faSave,
-  faTrash
+  faTrash,
 } from '@fortawesome/free-solid-svg-icons';
+import AlertContainer from './containers/AlertContainer';
 library.add(faDotCircle, faMinusCircle, faPen, faSave, faTrash);
 
 class App extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      structureAlert: {}
-    };
-  }
+  // constructor(props) {
+  //   super(props);
+  //   this.state = {
+  //     structureAlert: { alert: null, showAlert: false },
+  //   };
+  // }
   // Lifecycle method fired before unmounting the React component
   componentWillUnmount() {
     // Reset the redux-store
     this.props.resetStore();
   }
 
-  clearStructureAlert = () => {
-    this.setState({ structureAlert: null });
-    this.props.handleStructureError(0);
-  };
-
-  structureIsSaved = value => {
+  structureIsSaved = (value) => {
     this.props.structureIsSaved(value);
   };
 
   render() {
+    console.log(this.props.alerts);
+
     return (
       <DragDropContextProvider backend={HTML5Backend}>
         <div className="sme-container">
           <WaveformContainer
             {...this.props}
-            structureAlert={this.state.structureAlert}
+            // structureAlert={this.state.structureAlert}
           />
           <ErrorBoundary>
+            {/* <AlertContainer {...this.props.alert} /> */}
+            {this.props.alerts && <AlertContainer alerts={this.props.alerts} />}
             <ButtonSection />
             <StructureOutputContainer
-              alertObj={this.state.structureAlert}
-              clearAlert={this.clearStructureAlert}
+              // alertObj={this.state.structureAlert}
               {...this.props}
             />
           </ErrorBoundary>
@@ -65,9 +64,13 @@ class App extends Component {
   }
 }
 
+const mapStateToProps = (state) => ({
+  alerts: state.forms.alerts,
+});
+
 const mapDispatchToProps = {
   resetStore: resetReduxStore,
-  handleStructureError: handleStructureError
+  handleStructureError: handleStructureError,
 };
 
-export default connect(null, mapDispatchToProps)(App);
+export default connect(mapStateToProps, mapDispatchToProps)(App);

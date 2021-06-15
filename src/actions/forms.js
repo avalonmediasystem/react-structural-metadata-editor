@@ -1,5 +1,6 @@
 import * as types from './types';
 import Hls from 'hls.js';
+import uuidv1 from 'uuid/v1';
 
 /**
  * Enable/disable other editing actions when editing a list item
@@ -8,6 +9,25 @@ import Hls from 'hls.js';
 export const handleEditingTimespans = (code) => ({
   type: types.IS_EDITING_TIMESPAN,
   code,
+});
+
+export const setAlert = (alert) => (dispatch) => {
+  const id = uuidv1();
+  if (alert) {
+    alert.id = id;
+    dispatch({
+      type: types.SET_ALERT,
+      alert,
+    });
+    if (alert.delay && !alert.persistent) {
+      setTimeout(() => dispatch(removeAlert(id)), alert.delay);
+    }
+  }
+};
+
+export const removeAlert = (id) => ({
+  type: types.REMOVE_ALERT,
+  id,
 });
 
 export const retrieveStructureSuccess = () => ({

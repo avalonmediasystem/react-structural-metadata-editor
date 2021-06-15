@@ -29,4 +29,7 @@ export const TEMP_INSERT_SEGMENT = 'TEMP_INSERT_SEGMENT';
 export const TEMP_DELETE_SEGMENT = 'TEMP_DELETE_SEGMENT';
 export const IS_DRAGGING = 'IS_DRAGGING';
 
+export const SET_ALERT = 'SET_ALERT';
+export const REMOVE_ALERT = 'REMOVE_ALERT';
+
 export const RESET_STORE = 'RESET_STORE';

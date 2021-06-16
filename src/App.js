@@ -7,7 +7,7 @@ import { DragDropContextProvider } from 'react-dnd';
 import HTML5Backend from 'react-dnd-html5-backend';
 import { connect } from 'react-redux';
 import { resetReduxStore } from './actions';
-import { handleStructureError } from './actions/forms';
+import { handleStructureError, removeAlert } from './actions/forms';
 import ErrorBoundary from './components/ErrorBoundary';
 
 // Font Awesome Imports
@@ -23,12 +23,6 @@ import AlertContainer from './containers/AlertContainer';
 library.add(faDotCircle, faMinusCircle, faPen, faSave, faTrash);
 
 class App extends Component {
-  // constructor(props) {
-  //   super(props);
-  //   this.state = {
-  //     structureAlert: { alert: null, showAlert: false },
-  //   };
-  // }
   // Lifecycle method fired before unmounting the React component
   componentWillUnmount() {
     // Reset the redux-store
@@ -45,18 +39,16 @@ class App extends Component {
     return (
       <DragDropContextProvider backend={HTML5Backend}>
         <div className="sme-container">
-          <WaveformContainer
-            {...this.props}
-            // structureAlert={this.state.structureAlert}
-          />
+          <WaveformContainer {...this.props} />
           <ErrorBoundary>
-            {/* <AlertContainer {...this.props.alert} /> */}
-            {this.props.alerts && <AlertContainer alerts={this.props.alerts} />}
+            {this.props.alerts && (
+              <AlertContainer
+                alerts={this.props.alerts}
+                removeAlert={this.props.removeAlert}
+              />
+            )}
             <ButtonSection />
-            <StructureOutputContainer
-              // alertObj={this.state.structureAlert}
-              {...this.props}
-            />
+            <StructureOutputContainer {...this.props} />
           </ErrorBoundary>
         </div>
       </DragDropContextProvider>
@@ -71,6 +63,7 @@ const mapStateToProps = (state) => ({
 const mapDispatchToProps = {
   resetStore: resetReduxStore,
   handleStructureError: handleStructureError,
+  removeAlert: removeAlert,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(App);

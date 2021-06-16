@@ -3,7 +3,6 @@ import { connect } from 'react-redux';
 import List from '../components/List';
 import { Button, Col, Row } from 'react-bootstrap';
 import APIUtils from '../api/Utils';
-// import AlertContainer from './AlertContainer';
 import { configureAlert } from '../services/alert-status';
 import { setAlert, updateStructureStatus } from '../actions/forms';
 import { isEqual } from 'lodash';
@@ -25,18 +24,7 @@ class StructureOutputContainer extends Component {
   };
 
   static getDerivedStateFromProps(nextProps, prevState) {
-    const { structureStatus, structureSaved } = nextProps.structureInfo;
-    if (prevState.structureStatus !== structureStatus) {
-      return {
-        alertObj: {
-          alert: configureAlert(structureStatus),
-          showAlert: true,
-        },
-      };
-    }
-    // if (nextProps.alertObj.alert === null) {
-    //   return { alertObj: { alert: null, showAlert: false } };
-    // }
+    const { structureSaved } = nextProps.structureInfo;
     const { initSmData, smData } = nextProps.structuralMetadata;
     if (!isEqual(initSmData, prevState.initialStructure)) {
       return { initialStructure: initSmData };
@@ -55,14 +43,6 @@ class StructureOutputContainer extends Component {
     }
   }
 
-  componentDidUpdate(nextProps, prevState) {
-    const { alert } = this.state.alertObj;
-    if (nextProps.alert != alert && alert) {
-      console.log(alert);
-      this.props.setAlert(alert);
-    }
-  }
-
   handleSaveError(error) {
     console.log('TCL: handleSaveError -> error', error);
     let status =
@@ -71,7 +51,6 @@ class StructureOutputContainer extends Component {
         : error.request.status;
     const alert = configureAlert(status);
     this.props.setAlert(alert);
-    // this.setState({ alertObj: { alert: alert, showAlert: true } });
   }
 
   handleSaveItClick = async () => {
@@ -87,7 +66,6 @@ class StructureOutputContainer extends Component {
       const { status } = response;
       const alert = configureAlert(status);
       this.props.setAlert(alert);
-      // this.setState({ alertObj: { alert: alert, showAlert: true } });
 
       this.props.postStructureSuccess(1);
     } catch (error) {
@@ -96,19 +74,14 @@ class StructureOutputContainer extends Component {
   };
 
   render() {
-    const { structureInfo, structuralMetadata, editingDisabled } = this.props;
-    const { alert, showAlert } = this.state.alertObj;
+    const { structuralMetadata, editingDisabled } = this.props;
 
     return (
       <section
         className="structure-section"
         data-testid="structure-output-section"
       >
-        {/* {!structureInfo.structureRetrieved && showAlert ? (
-          <AlertContainer {...alert} />
-        ) : ( */}
         <div data-testid="structure-output-list">
-          {/* {showAlert ? <AlertContainer {...alert} /> : null} */}
           <List items={structuralMetadata.smData} />
           <Row>
             <Col xs={12} className="text-right">
@@ -123,7 +96,6 @@ class StructureOutputContainer extends Component {
             </Col>
           </Row>
         </div>
-        {/* )} */}
       </section>
     );
   }

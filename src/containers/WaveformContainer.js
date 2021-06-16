@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
 import APIUtils from '../api/Utils';
 import { connect } from 'react-redux';
-import { initializeSMDataPeaks } from '../actions/peaks-instance';
-import { handleEditingTimespans, setAlert } from '../actions/forms';
+import { initializeSMDataPeaks, peaksReady } from '../actions/peaks-instance';
+import { setAlert } from '../actions/forms';
 import Waveform from '../components/Waveform';
-import AlertContainer from '../containers/AlertContainer';
 import { configureAlert } from '../services/alert-status';
 import { retrieveWaveformSuccess } from '../actions/forms';
 
@@ -95,11 +94,9 @@ class WaveformContainer extends Component {
 
     const alert = configureAlert(status);
     this.props.setAlert(alert);
-    // this.setState({ alertObj: { alert: alert, showAlert: true } });
   }
 
   render() {
-    // const { alert, showAlert } = this.state.alertObj;
     const { audioStreamURL } = this.props;
 
     return (
@@ -110,7 +107,6 @@ class WaveformContainer extends Component {
           mediaPlayerRef={(ref) => (this.mediaPlayer = ref)}
           audioStreamURL={audioStreamURL}
         />{' '}
-        {/* {showAlert ? <AlertContainer {...alert} /> : null} */}
       </section>
     );
   }
@@ -123,8 +119,8 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = {
   fetchDataAndBuildPeaks: initializeSMDataPeaks,
+  peaksReady: peaksReady,
   retrieveWaveformSuccess: retrieveWaveformSuccess,
-  handleEditingTimespans: handleEditingTimespans,
   setAlert: setAlert,
 };
 

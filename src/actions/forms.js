@@ -19,7 +19,7 @@ export const setAlert = (alert) => (dispatch) => {
       type: types.SET_ALERT,
       alert,
     });
-    if (alert.delay && !alert.persistent) {
+    if (alert.delay > 0 && !alert.persistent) {
       setTimeout(() => dispatch(removeAlert(id)), alert.delay);
     }
   }

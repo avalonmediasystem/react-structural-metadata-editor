@@ -71,7 +71,6 @@ const forms = (state = initialState, action) => {
       console.log(action.alert);
       return Object.assign({}, state, {
         alerts: [...state.alerts, action.alert],
-        // editingDisabled: true,
       });
 
     case types.REMOVE_ALERT:

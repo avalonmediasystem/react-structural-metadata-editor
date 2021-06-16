@@ -191,23 +191,5 @@ describe('Waveform component', () => {
         waveform.queryByTestId('waveform-pause-button')
       ).not.toBeInTheDocument();
     });
-
-    test('alert is displayed', () => {
-      const nextState = {
-        forms: {
-          streamInfo: {
-            streamMediaError: true,
-            streamMediaLoading: false,
-            streamMediaStatus: -6,
-          },
-        },
-      };
-      waveform.rerenderWithRedux(<Waveform />, nextState);
-
-      expect(waveform.getByTestId('alert-container')).toBeInTheDocument();
-      expect(waveform.getByTestId('alert-message').innerHTML).toBe(
-        'There was an error retrieving the media stream.'
-      );
-    });
   });
 });

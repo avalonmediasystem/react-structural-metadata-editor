@@ -1,4 +1,5 @@
 export const BUILD_SM_UI = 'BUILD_SM_UI';
+export const REBUILD_SM_UI = 'REBUILD_SM_UI';
 export const DELETE_ITEM = 'DELETE_ITEM';
 
 export const ADD_DROP_TARGETS = 'ADD_DROP_TARGETS';

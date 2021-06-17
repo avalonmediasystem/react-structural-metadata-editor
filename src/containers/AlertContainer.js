@@ -1,9 +1,6 @@
-import React, { Component, useEffect } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
-import PropTypes from 'prop-types';
 import { Alert } from 'react-bootstrap';
-import { isEmpty } from 'lodash';
-import { removeAlert } from '../actions/forms';
 
 function AlertContainer(props) {
   let alertList = [];
@@ -32,10 +29,13 @@ function AlertContainer(props) {
   }
 
   if (props.alerts) {
-    return <React.Fragment>{alertList}</React.Fragment>;
+    return <div>{alertList}</div>;
   } else {
     return null;
   }
 }
 
-export default AlertContainer;
+const mapStateToProps = (state) => ({
+  alerts: state.forms.alerts,
+});
+export default connect(mapStateToProps)(AlertContainer);

@@ -16,7 +16,6 @@ class StructureOutputContainer extends Component {
     this.apiUtils = new APIUtils();
   }
   state = {
-    alertObj: { alert: null, showAlert: false },
     baseURL: this.props.baseURL,
     masterFileID: this.props.masterFileID,
     structureStatus: this.props.structureInfo.structureStatus,

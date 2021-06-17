@@ -41,12 +41,7 @@ class App extends Component {
         <div className="sme-container">
           <WaveformContainer {...this.props} />
           <ErrorBoundary>
-            {this.props.alerts && (
-              <AlertContainer
-                alerts={this.props.alerts}
-                removeAlert={this.props.removeAlert}
-              />
-            )}
+            <AlertContainer removeAlert={this.props.removeAlert} />
             <ButtonSection />
             <StructureOutputContainer {...this.props} />
           </ErrorBoundary>
@@ -56,14 +51,10 @@ class App extends Component {
   }
 }
 
-const mapStateToProps = (state) => ({
-  alerts: state.forms.alerts,
-});
-
 const mapDispatchToProps = {
   resetStore: resetReduxStore,
   handleStructureError: handleStructureError,
   removeAlert: removeAlert,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(App);
+export default connect(null, mapDispatchToProps)(App);

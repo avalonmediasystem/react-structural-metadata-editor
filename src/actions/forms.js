@@ -13,15 +13,13 @@ export const handleEditingTimespans = (code) => ({
 
 export const setAlert = (alert) => (dispatch) => {
   const id = uuidv1();
-  if (alert) {
-    alert.id = id;
-    dispatch({
-      type: types.SET_ALERT,
-      alert,
-    });
-    if (alert.delay > 0 && !alert.persistent) {
-      setTimeout(() => dispatch(removeAlert(id)), alert.delay);
-    }
+  alert.id = id;
+  dispatch({
+    type: types.SET_ALERT,
+    alert,
+  });
+  if (alert.delay > 0 && !alert.persistent) {
+    setTimeout(() => dispatch(removeAlert(id)), alert.delay);
   }
 };
 

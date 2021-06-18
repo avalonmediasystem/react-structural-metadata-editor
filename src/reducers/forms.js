@@ -68,7 +68,6 @@ const forms = (state = initialState, action) => {
       });
 
     case types.SET_ALERT:
-      console.log(action.alert);
       return Object.assign({}, state, {
         alerts: [...state.alerts, action.alert],
       });
@@ -77,6 +76,11 @@ const forms = (state = initialState, action) => {
       return Object.assign({}, state, {
         alerts: state.alerts.filter((a) => a.id != action.id),
         editingDisabled: false,
+      });
+
+    case types.INIT_CRUD_ACTION:
+      return Object.assign({}, state, {
+        alerts: state.alerts.filter((a) => a.persistent),
       });
 
     default:

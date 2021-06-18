@@ -19,7 +19,6 @@ function AlertContainer(props) {
           props.removeAlert(id);
         };
       }
-      console.log('Show and alert: ', alertProps);
       alertList.push(
         <Alert {...alertProps}>
           <p data-testid="alert-message">{message}</p>

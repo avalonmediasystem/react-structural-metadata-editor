@@ -54,28 +54,6 @@ mockPeaks.init = jest.fn((options) => {
   };
 });
 
-const peaksOptions = {
-  container: null,
-  mediaElement: null,
-  dataUri: null,
-  dataUriDefaultFormat: 'json',
-  keyboard: true,
-  _zoomLevelIndex: 0,
-  _zoomLevels: [512, 1024, 2048, 4096],
-};
-// Set up Redux store for tests
-const initialState = {
-  forms: {
-    structureInfo: {
-      structureRetrieved: true,
-      structureStatus: null,
-    },
-  },
-  structuralMetadata: {
-    smData: testSmData,
-  },
-};
-
 const props = {
   baseURL: 'https://mockurl.edu',
   masterFileID: '3421d4fg',
@@ -87,144 +65,147 @@ const props = {
 afterEach(cleanup);
 
 describe('App component', () => {
-  // test('Alert integration', () => {
-  //   const app = renderWithRedux(<App {...props} />, baseState);
-  //   expect(app.queryByTestId('alert-container')).not.toBeInTheDocument();
+  describe('Alert integration', () => {
+    test('alert renders successfully with props', () => {
+      const app = renderWithRedux(<App {...props} />, baseState);
+      expect(app.queryByTestId('alert-container')).not.toBeInTheDocument();
 
-  //   const updatedProps = {
-  //     ...baseState,
-  //     forms: {
-  //       ...baseState.forms,
-  //       alerts: [
-  //         {
-  //           alertStyle: 'danger',
-  //           message: 'Error message',
-  //           id: '1234-5678-90ab',
-  //         },
-  //       ],
-  //     },
-  //   };
+      const updatedProps = {
+        ...baseState,
+        forms: {
+          ...baseState.forms,
+          alerts: [
+            {
+              alertStyle: 'danger',
+              message: 'Error message',
+              id: '1234-5678-90ab',
+            },
+          ],
+        },
+      };
 
-  //   app.rerenderWithRedux(<App {...props} />, updatedProps);
-  //   expect(app.getByTestId('alert-container')).toBeInTheDocument();
-  //   expect(app.getByTestId('alert-message').innerHTML).toBe('Error message');
-  // });
+      app.rerenderWithRedux(<App {...props} />, updatedProps);
+      expect(app.getByTestId('alert-container')).toBeInTheDocument();
+      expect(app.getByTestId('alert-message').innerHTML).toBe('Error message');
+    });
 
-  // test('shows a persistent alert when waveform is empty', async () => {
-  //   mockAxios.head.mockImplementationOnce(() => {
-  //     return Promise.reject({
-  //       response: {
-  //         status: 404,
-  //       },
-  //     });
-  //   });
+    test('shows a persistent alert when waveform is empty', async () => {
+      mockAxios.head.mockImplementationOnce(() => {
+        return Promise.reject({
+          response: {
+            status: 404,
+          },
+        });
+      });
 
-  //   mockAxios.get.mockImplementationOnce(() => {
-  //     return Promise.resolve({
-  //       status: 200,
-  //       request: {
-  //         responseURL:
-  //           'https://mockurl.edu/master_files/3421d4fg/waveform.json?empty=true',
-  //       },
-  //     });
-  //   });
+      mockAxios.get.mockImplementationOnce(() => {
+        return Promise.resolve({
+          status: 200,
+          request: {
+            responseURL:
+              'https://mockurl.edu/master_files/3421d4fg/waveform.json?empty=true',
+          },
+        });
+      });
 
-  //   const app = renderWithRedux(<App {...props} />, baseState);
-  //   await wait(() => {
-  //     expect(app.getByTestId('waveform-container')).toBeInTheDocument();
-  //     expect(app.getByTestId('persistent-alert-container')).toBeInTheDocument();
-  //     expect(app.getByTestId('alert-message').innerHTML).toBe(
-  //       'Requested waveform data is not available.'
-  //     );
-  //   });
-  // });
+      const app = renderWithRedux(<App {...props} />, baseState);
+      await wait(() => {
+        expect(app.getByTestId('waveform-container')).toBeInTheDocument();
+        expect(
+          app.getByTestId('persistent-alert-container')
+        ).toBeInTheDocument();
+        expect(app.getByTestId('alert-message').innerHTML).toBe(
+          'Requested waveform data is not available.'
+        );
+      });
+    });
 
-  // test('shows an error message when there is an error in fetching structure.json', async () => {
-  //   mockAxios.get.mockImplementationOnce(() => {
-  //     return Promise.reject({
-  //       response: {
-  //         status: 404,
-  //       },
-  //     });
-  //   });
+    test('shows an error message when there is an error in fetching structure.json', async () => {
+      mockAxios.get.mockImplementationOnce(() => {
+        return Promise.reject({
+          response: {
+            status: 404,
+          },
+        });
+      });
 
-  //   const app = renderWithRedux(<App {...props} />, baseState);
-  //   await wait(() => {
-  //     expect(app.getByTestId('alert-container')).toBeInTheDocument();
-  //     expect(app.getByTestId('alert-message').innerHTML).toBe(
-  //       'Requested data is not available.'
-  //     );
-  //   });
-  // });
+      const app = renderWithRedux(<App {...props} />, baseState);
+      await wait(() => {
+        expect(app.getByTestId('alert-container')).toBeInTheDocument();
+        expect(app.getByTestId('alert-message').innerHTML).toBe(
+          'Requested data is not available.'
+        );
+      });
+    });
 
-  describe('saving structure back to server', () => {
-    describe('save request is successful', () => {
-      let app, saveButton;
-      beforeEach(() => {
-        mockAxios.post.mockImplementationOnce(() => {
-          return Promise.resolve({
-            status: 200,
+    describe('saving structure back to server', () => {
+      describe('when save is successful', () => {
+        let app, saveButton;
+        beforeEach(() => {
+          mockAxios.post.mockImplementationOnce(() => {
+            return Promise.resolve({
+              status: 200,
+            });
+          });
+
+          app = renderWithRedux(<App {...props} />, { baseState });
+          saveButton = app.getByTestId('structure-save-button');
+
+          fireEvent.click(saveButton);
+        });
+
+        test('shows a success alert', async () => {
+          expect(mockAxios.post).toHaveBeenCalledTimes(1);
+
+          await wait(() => {
+            expect(app.getByTestId('alert-container')).toBeInTheDocument();
+            expect(app.getByTestId('alert-message').innerHTML).toBe(
+              'Saved successfully.'
+            );
           });
         });
 
-        app = renderWithRedux(<App {...props} />, { baseState });
-        saveButton = app.getByTestId('structure-save-button');
+        test('closes the alert after 2000ms', async () => {
+          await wait(() => {
+            expect(app.getByTestId('alert-container')).toBeInTheDocument();
+          });
 
-        fireEvent.click(saveButton);
+          setTimeout(() => {
+            expect(app.getByTestId('alert-container')).not.toBeInTheDocument();
+          }, 2000);
+        });
+
+        test('alert closes when structure is edited again', async () => {
+          await wait(() => {
+            expect(app.getByTestId('alert-container')).toBeInTheDocument();
+
+            fireEvent.click(app.queryAllByTestId('list-item-edit-btn')[0]);
+          });
+
+          expect(app.queryByTestId('alert-container')).not.toBeInTheDocument();
+        });
       });
-
-      test('shows success alert', async () => {
-        expect(mockAxios.post).toHaveBeenCalledTimes(1);
-
-        await wait(() => {
-          expect(app.getByTestId('alert-container')).toBeInTheDocument();
-          expect(app.getByTestId('alert-message').innerHTML).toBe(
-            'Saved successfully.'
-          );
+    });
+    test('when save fails', async () => {
+      mockAxios.post.mockImplementationOnce(() => {
+        return Promise.reject({
+          response: {
+            status: 404,
+          },
         });
       });
 
-      test('alert closes after 2000ms', async () => {
-        await wait(() => {
-          expect(app.getByTestId('alert-container')).toBeInTheDocument();
-        });
+      const app = renderWithRedux(<App {...props} />, { baseState });
+      fireEvent.click(app.getByTestId('structure-save-button'));
 
-        setTimeout(() => {
-          expect(app.getByTestId('alert-container')).not.toBeInTheDocument();
-        }, 2000);
+      expect(mockAxios.post).toHaveBeenCalledTimes(1);
+
+      await wait(() => {
+        expect(app.getByTestId('alert-container')).toBeInTheDocument();
+        expect(app.getByTestId('alert-message').innerHTML).toBe(
+          'Requested data is not available.'
+        );
       });
-
-      // TO FIX: Final test
-      // test('alert closes when structure is edited again', async () => {
-      //   await wait(() => {
-      //     expect(app.getByTestId('alert-container')).toBeInTheDocument();
-
-      //     fireEvent.click(app.queryAllByTestId('list-item-edit-btn')[0]);
-      //   });
-
-      //   expect(app.queryByTestId('alert-container')).not.toBeInTheDocument();
-      // });
-    });
-  });
-  test('save request is failing', async () => {
-    mockAxios.post.mockImplementationOnce(() => {
-      return Promise.reject({
-        response: {
-          status: 404,
-        },
-      });
-    });
-
-    const app = renderWithRedux(<App {...props} />, { baseState });
-    fireEvent.click(app.getByTestId('structure-save-button'));
-
-    expect(mockAxios.post).toHaveBeenCalledTimes(1);
-
-    await wait(() => {
-      expect(app.getByTestId('alert-container')).toBeInTheDocument();
-      expect(app.getByTestId('alert-message').innerHTML).toBe(
-        'Requested data is not available.'
-      );
     });
   });
 });

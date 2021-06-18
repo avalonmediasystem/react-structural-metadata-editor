@@ -34,3 +34,4 @@ export const SET_ALERT = 'SET_ALERT';
 export const REMOVE_ALERT = 'REMOVE_ALERT';
 
 export const RESET_STORE = 'RESET_STORE';
+export const INIT_CRUD_ACTION = 'INIT_CRUD_ACTION';

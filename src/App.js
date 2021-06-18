@@ -34,8 +34,6 @@ class App extends Component {
   };
 
   render() {
-    console.log(this.props.alerts);
-
     return (
       <DragDropContextProvider backend={HTML5Backend}>
         <div className="sme-container">

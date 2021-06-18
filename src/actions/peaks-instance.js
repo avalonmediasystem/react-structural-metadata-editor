@@ -6,7 +6,6 @@ import {
   retrieveStructureSuccess,
   handleStructureError,
   setAlert,
-  handleEditingTimespans,
 } from './forms';
 import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
 import { configureAlert } from '../services/alert-status';
@@ -99,7 +98,6 @@ export function initPeaks(smData, options, duration) {
 }
 
 export function peaksReady(ready) {
-  console.log('Peaks ready: ', ready);
   return {
     type: types.PEAKS_READY,
     payload: ready,

@@ -9,15 +9,13 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports["default"] = void 0;
 
-var _extends2 = _interopRequireDefault(require("@babel/runtime/helpers/extends"));
-
 var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
 
 var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
 
 var _possibleConstructorReturn2 = _interopRequireDefault(require("@babel/runtime/helpers/possibleConstructorReturn"));
 
-var _getPrototypeOf2 = _interopRequireDefault(require("@babel/runtime/helpers/getPrototypeOf"));
+var _getPrototypeOf3 = _interopRequireDefault(require("@babel/runtime/helpers/getPrototypeOf"));
 
 var _assertThisInitialized2 = _interopRequireDefault(require("@babel/runtime/helpers/assertThisInitialized"));
 
@@ -51,6 +49,8 @@ var _fontawesomeSvgCore = require("@fortawesome/fontawesome-svg-core");
 
 var _freeSolidSvgIcons = require("@fortawesome/free-solid-svg-icons");
 
+var _AlertContainer = _interopRequireDefault(require("./containers/AlertContainer"));
+
 // Font Awesome Imports
 _fontawesomeSvgCore.library.add(_freeSolidSvgIcons.faDotCircle, _freeSolidSvgIcons.faMinusCircle, _freeSolidSvgIcons.faPen, _freeSolidSvgIcons.faSave, _freeSolidSvgIcons.faTrash);
 
@@ -59,30 +59,27 @@ var App =
 function (_Component) {
   (0, _inherits2["default"])(App, _Component);
 
-  function App(props) {
+  function App() {
+    var _getPrototypeOf2;
+
     var _this;
 
     (0, _classCallCheck2["default"])(this, App);
-    _this = (0, _possibleConstructorReturn2["default"])(this, (0, _getPrototypeOf2["default"])(App).call(this, props));
-    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "clearStructureAlert", function () {
-      _this.setState({
-        structureAlert: null
-      });
 
-      _this.props.handleStructureError(0);
-    });
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    _this = (0, _possibleConstructorReturn2["default"])(this, (_getPrototypeOf2 = (0, _getPrototypeOf3["default"])(App)).call.apply(_getPrototypeOf2, [this].concat(args)));
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "structureIsSaved", function (value) {
       _this.props.structureIsSaved(value);
     });
-    _this.state = {
-      structureAlert: {}
-    };
     return _this;
-  } // Lifecycle method fired before unmounting the React component
-
+  }
 
   (0, _createClass2["default"])(App, [{
     key: "componentWillUnmount",
+    // Lifecycle method fired before unmounting the React component
     value: function componentWillUnmount() {
       // Reset the redux-store
       this.props.resetStore();
@@ -94,12 +91,9 @@ function (_Component) {
         backend: _reactDndHtml5Backend["default"]
       }, _react["default"].createElement("div", {
         className: "sme-container"
-      }, _react["default"].createElement(_WaveformContainer["default"], (0, _extends2["default"])({}, this.props, {
-        structureAlert: this.state.structureAlert
-      })), _react["default"].createElement(_ErrorBoundary["default"], null, _react["default"].createElement(_ButtonSection["default"], null), _react["default"].createElement(_StructureOutputContainer["default"], (0, _extends2["default"])({
-        alertObj: this.state.structureAlert,
-        clearAlert: this.clearStructureAlert
-      }, this.props)))));
+      }, _react["default"].createElement(_WaveformContainer["default"], this.props), _react["default"].createElement(_ErrorBoundary["default"], null, _react["default"].createElement(_AlertContainer["default"], {
+        removeAlert: this.props.removeAlert
+      }), _react["default"].createElement(_ButtonSection["default"], null), _react["default"].createElement(_StructureOutputContainer["default"], this.props))));
     }
   }]);
   return App;
@@ -107,7 +101,8 @@ function (_Component) {
 
 var mapDispatchToProps = {
   resetStore: _actions.resetReduxStore,
-  handleStructureError: _forms.handleStructureError
+  handleStructureError: _forms.handleStructureError,
+  removeAlert: _forms.removeAlert
 };
 
 var _default = (0, _reactRedux.connect)(null, mapDispatchToProps)(App);

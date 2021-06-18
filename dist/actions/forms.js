@@ -8,24 +8,68 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.retrieveStreamMedia = retrieveStreamMedia;
-exports.streamMediaSuccess = exports.streamMediaError = exports.handleStructureError = exports.retrieveWaveformSuccess = exports.updateStructureStatus = exports.retrieveStructureSuccess = exports.handleEditingTimespans = void 0;
+exports.streamMediaSuccess = exports.streamMediaError = exports.handleStructureError = exports.retrieveWaveformSuccess = exports.updateStructureStatus = exports.retrieveStructureSuccess = exports.initCRUDAction = exports.removeAlert = exports.setAlert = exports.handleEditingTimespans = void 0;
 
 var types = _interopRequireWildcard(require("./types"));
 
 var _hls = _interopRequireDefault(require("hls.js"));
+
+var _v = _interopRequireDefault(require("uuid/v1"));
 
 /**
  * Enable/disable other editing actions when editing a list item
  * @param {Integer} code - choose from; 1(true) | 0(false)
  */
 var handleEditingTimespans = function handleEditingTimespans(code) {
-  return {
-    type: types.IS_EDITING_TIMESPAN,
-    code: code
+  return function (dispatch) {
+    dispatch({
+      type: types.IS_EDITING_TIMESPAN,
+      code: code
+    }); // Remove dismissible alerts when a CRUD action has been initiated
+
+    if (code == 1) {
+      dispatch(initCRUDAction());
+    }
   };
 };
 
 exports.handleEditingTimespans = handleEditingTimespans;
+
+var setAlert = function setAlert(alert) {
+  return function (dispatch) {
+    var id = (0, _v["default"])();
+    alert.id = id;
+    dispatch({
+      type: types.SET_ALERT,
+      alert: alert
+    });
+
+    if (alert.delay > 0 && !alert.persistent) {
+      setTimeout(function () {
+        return dispatch(removeAlert(id));
+      }, alert.delay);
+    }
+  };
+};
+
+exports.setAlert = setAlert;
+
+var removeAlert = function removeAlert(id) {
+  return {
+    type: types.REMOVE_ALERT,
+    id: id
+  };
+};
+
+exports.removeAlert = removeAlert;
+
+var initCRUDAction = function initCRUDAction() {
+  return {
+    type: types.INIT_CRUD_ACTION
+  };
+};
+
+exports.initCRUDAction = initCRUDAction;
 
 var retrieveStructureSuccess = function retrieveStructureSuccess() {
   return {

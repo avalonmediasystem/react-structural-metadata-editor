@@ -29,8 +29,6 @@ var _reactBootstrap = require("react-bootstrap");
 
 var _reactRedux = require("react-redux");
 
-var _AlertContainer = _interopRequireDefault(require("../containers/AlertContainer"));
-
 var _alertStatus = require("../services/alert-status");
 
 var _forms = require("../actions/forms");
@@ -97,7 +95,6 @@ function (_Component) {
     });
     _this.state = {
       audioFile: _this.props.audioStreamURL,
-      alertObj: _this.props.alertObj,
       volume: 100,
       streamMediaStatus: _this.props.streamInfo.streamMediaStatus,
       readyPeaks: _this.props.peaksInstance.readyPeaks
@@ -110,6 +107,14 @@ function (_Component) {
   }
 
   (0, _createClass2["default"])(Waveform, [{
+    key: "componentDidUpdate",
+    value: function componentDidUpdate(prevProps, prevState) {
+      if (prevProps.streamInfo.streamMediaStatus != this.props.streamInfo.streamMediaStatus) {
+        var alert = (0, _alertStatus.configureAlert)(this.props.streamInfo.streamMediaStatus);
+        this.props.setAlert(alert);
+      }
+    }
+  }, {
     key: "componentWillUnmount",
     value: function componentWillUnmount() {
       // Remove event listener when component is unmounting
@@ -119,7 +124,6 @@ function (_Component) {
     key: "render",
     value: function render() {
       var _this$state = this.state,
-          alertObj = _this$state.alertObj,
           volume = _this$state.volume,
           readyPeaks = _this$state.readyPeaks;
       var _this$props$streamInf = this.props.streamInfo,
@@ -147,7 +151,7 @@ function (_Component) {
         "data-testid": "loading-spinner"
       }, _react["default"].createElement(_LoadingSpinner["default"], {
         isLoading: stillLoading
-      })), streamMediaError && _react["default"].createElement(_AlertContainer["default"], alertObj), _react["default"].createElement("audio", {
+      })), _react["default"].createElement("audio", {
         ref: this.mediaPlayer,
         hidden: true,
         "data-testid": "waveform-media"
@@ -189,22 +193,7 @@ function (_Component) {
   }], [{
     key: "getDerivedStateFromProps",
     value: function getDerivedStateFromProps(nextProps, prevState) {
-      var streamMediaStatus = nextProps.streamInfo.streamMediaStatus;
-
-      if (prevState.streamMediaStatus !== streamMediaStatus) {
-        return {
-          streamMediaStatus: nextProps.streamInfo.streamMediaStatus,
-          alertObj: (0, _alertStatus.configureAlert)(nextProps.streamInfo.streamMediaStatus, nextProps.clearAlert)
-        };
-      }
-
-      if (nextProps.alertObj === null) {
-        return {
-          alertObj: null
-        };
-      }
-
-      if (nextProps.peaksInstance && nextProps.peaksInstance.readyPeaks) {
+      if (nextProps.peaksInstance) {
         return {
           readyPeaks: nextProps.peaksInstance.readyPeaks
         };
@@ -225,7 +214,8 @@ var mapStateToProps = function mapStateToProps(state) {
 };
 
 var mapDispatchToProps = {
-  retrieveStreamMedia: _forms.retrieveStreamMedia
+  retrieveStreamMedia: _forms.retrieveStreamMedia,
+  setAlert: _forms.setAlert
 };
 
 var _default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(Waveform);

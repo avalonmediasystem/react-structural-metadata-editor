@@ -21,9 +21,9 @@ var types = _interopRequireWildcard(require("./types"));
 var _forms = require("./forms");
 
 function reBuildSMUI(items) {
-  return function (dispatch) {
-    dispatch(buildSMUI(items));
-    dispatch((0, _forms.updateStructureStatus)(0));
+  return {
+    type: types.REBUILD_SM_UI,
+    items: items
   };
 }
 

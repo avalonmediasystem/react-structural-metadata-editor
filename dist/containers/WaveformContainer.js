@@ -39,8 +39,6 @@ var _forms = require("../actions/forms");
 
 var _Waveform = _interopRequireDefault(require("../components/Waveform"));
 
-var _AlertContainer = _interopRequireDefault(require("../containers/AlertContainer"));
-
 var _alertStatus = require("../services/alert-status");
 
 var apiUtils = new _Utils["default"](); // Peaks options
@@ -69,23 +67,13 @@ function (_Component) {
     (0, _classCallCheck2["default"])(this, WaveformContainer);
     _this = (0, _possibleConstructorReturn2["default"])(this, (0, _getPrototypeOf2["default"])(WaveformContainer).call(this, props));
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "state", {
-      alertObj: null,
+      // alertObj: { alert: this.props.alert, showAlert: false },
       streamAlert: {},
       masterFileID: _this.props.masterFileID,
       baseURL: _this.props.baseURL,
       initStructure: _this.props.initStructure,
       streamLength: _this.props.streamDuration,
       dataUri: null
-    });
-    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "clearAlert", function () {
-      _this.setState({
-        alertObj: null
-      });
-    });
-    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "clearStreamAlert", function () {
-      _this.setState({
-        streamAlert: null
-      });
     });
     _this.zoomView = null;
     _this.overView = null;
@@ -172,19 +160,14 @@ function (_Component) {
         status = -3;
       }
 
-      var alertObj = (0, _alertStatus.configureAlert)(status, this.clearAlert);
-      this.setState({
-        alertObj: alertObj
-      });
+      var alert = (0, _alertStatus.configureAlert)(status);
+      this.props.setAlert(alert);
     }
   }, {
     key: "render",
     value: function render() {
       var _this2 = this;
 
-      var _this$state3 = this.state,
-          alertObj = _this$state3.alertObj,
-          streamAlert = _this$state3.streamAlert;
       var audioStreamURL = this.props.audioStreamURL;
       return _react["default"].createElement("section", {
         className: "waveform-section",
@@ -199,10 +182,8 @@ function (_Component) {
         mediaPlayerRef: function mediaPlayerRef(ref) {
           return _this2.mediaPlayer = ref;
         },
-        audioStreamURL: audioStreamURL,
-        alertObj: streamAlert,
-        clearAlert: this.clearStreamAlert
-      }), ' ', _react["default"].createElement(_AlertContainer["default"], alertObj));
+        audioStreamURL: audioStreamURL
+      }), ' ');
     }
   }]);
   return WaveformContainer;
@@ -210,14 +191,16 @@ function (_Component) {
 
 var mapStateToProps = function mapStateToProps(state) {
   return {
-    smData: state.structuralMetadata.smData
+    smData: state.structuralMetadata.smData,
+    alert: state.forms.alert
   };
 };
 
 var mapDispatchToProps = {
   fetchDataAndBuildPeaks: _peaksInstance.initializeSMDataPeaks,
+  peaksReady: _peaksInstance.peaksReady,
   retrieveWaveformSuccess: _forms.retrieveWaveformSuccess,
-  handleEditingTimespans: _forms.handleEditingTimespans
+  setAlert: _forms.setAlert
 };
 
 var _default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(WaveformContainer);

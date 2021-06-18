@@ -2,9 +2,9 @@ import * as types from './types';
 import { updateStructureStatus } from './forms';
 
 export function reBuildSMUI(items) {
-  return {
-    type: types.REBUILD_SM_UI,
-    items,
+  return (dispatch) => {
+    dispatch({ type: types.REBUILD_SM_UI, items });
+    dispatch(updateStructureStatus(0));
   };
 }
 

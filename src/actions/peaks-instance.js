@@ -2,8 +2,13 @@ import * as types from './types';
 import { isEmpty } from 'lodash';
 import APIUtils from '../api/Utils';
 import { buildSMUI, saveInitialStructure } from './sm-data';
-import { retrieveStructureSuccess, handleStructureError } from './forms';
+import {
+  retrieveStructureSuccess,
+  handleStructureError,
+  setAlert,
+} from './forms';
 import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
+import { configureAlert } from '../services/alert-status';
 
 const apiUtils = new APIUtils();
 const structuralMetadataUtils = new StructuralMetadataUtils();
@@ -46,6 +51,8 @@ export function initializeSMDataPeaks(
 
       let status = error.response !== undefined ? error.response.status : -2;
       dispatch(handleStructureError(1, status));
+      let alert = configureAlert(status);
+      dispatch(setAlert(alert));
     }
 
     // Mark the top element as 'root'

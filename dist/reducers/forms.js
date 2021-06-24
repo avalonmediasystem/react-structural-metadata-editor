@@ -2,10 +2,14 @@
 
 var _interopRequireWildcard = require("@babel/runtime/helpers/interopRequireWildcard");
 
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports["default"] = void 0;
+
+var _toConsumableArray2 = _interopRequireDefault(require("@babel/runtime/helpers/toConsumableArray"));
 
 var types = _interopRequireWildcard(require("../actions/types"));
 
@@ -17,6 +21,7 @@ var initialState = {
     streamMediaLoading: true,
     streamMediaStatus: null
   },
+  alerts: [],
   structureInfo: {
     structureRetrieved: false,
     structureStatus: null,
@@ -75,6 +80,26 @@ var forms = function forms() {
       return Object.assign({}, state, {
         structureInfo: Object.assign({}, state.structureInfo, {
           structureSaved: action.payload === 1 ? true : false
+        })
+      });
+
+    case types.SET_ALERT:
+      return Object.assign({}, state, {
+        alerts: [].concat((0, _toConsumableArray2["default"])(state.alerts), [action.alert])
+      });
+
+    case types.REMOVE_ALERT:
+      return Object.assign({}, state, {
+        alerts: state.alerts.filter(function (a) {
+          return a.id != action.id;
+        }),
+        editingDisabled: false
+      });
+
+    case types.INIT_CRUD_ACTION:
+      return Object.assign({}, state, {
+        alerts: state.alerts.filter(function (a) {
+          return a.persistent;
         })
       });
 

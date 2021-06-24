@@ -25,17 +25,14 @@ var MISSING_WAVEFORM_ERROR = 'Requested waveform data is not available.';
 /**
  * Helper function which prepares a configuration object to feed the AlertContainer component
  * @param {number} status Code for response
- * @param {function} clearAlert A function defined in the hosting component to clear the alert object in component's state
  */
 
 exports.MISSING_WAVEFORM_ERROR = MISSING_WAVEFORM_ERROR;
 
 function configureAlert() {
   var status = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
-  var clearAlert = arguments.length > 1 ? arguments[1] : undefined;
   var alertObj = {
-    alertStyle: 'danger',
-    clearAlert: clearAlert
+    alertStyle: 'danger'
   };
 
   if (status === 401) {

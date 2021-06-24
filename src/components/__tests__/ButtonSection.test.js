@@ -41,6 +41,7 @@ describe('ButtonSection component', () => {
           structureInfo: {
             structureRetrieved: true,
           },
+          alerts: [],
         },
         peaksInstance: {
           peaks: Peaks.init(peaksOptions),

@@ -38,6 +38,8 @@ var _forms = require("./forms");
 
 var _StructuralMetadataUtils = _interopRequireDefault(require("../services/StructuralMetadataUtils"));
 
+var _alertStatus = require("../services/alert-status");
+
 var apiUtils = new _Utils["default"]();
 var structuralMetadataUtils = new _StructuralMetadataUtils["default"]();
 /**
@@ -55,7 +57,7 @@ function initializeSMDataPeaks(baseURL, masterFileID, initStructure, options, du
       var _ref = (0, _asyncToGenerator2["default"])(
       /*#__PURE__*/
       _regenerator["default"].mark(function _callee(dispatch, getState) {
-        var smData, response, status, _getState, peaksInstance, structuralMetadata, _peaksInstance$events, dragged, ready;
+        var smData, response, status, alert, _getState, peaksInstance, structuralMetadata, _peaksInstance$events, dragged, ready;
 
         return _regenerator["default"].wrap(function _callee$(_context) {
           while (1) {
@@ -82,7 +84,7 @@ function initializeSMDataPeaks(baseURL, masterFileID, initStructure, options, du
 
 
                 dispatch((0, _forms.retrieveStructureSuccess)());
-                _context.next = 15;
+                _context.next = 17;
                 break;
 
               case 10:
@@ -91,8 +93,10 @@ function initializeSMDataPeaks(baseURL, masterFileID, initStructure, options, du
                 console.log('TCL: Structure -> }catch -> error', _context.t0);
                 status = _context.t0.response !== undefined ? _context.t0.response.status : -2;
                 dispatch((0, _forms.handleStructureError)(1, status));
+                alert = (0, _alertStatus.configureAlert)(status);
+                dispatch((0, _forms.setAlert)(alert));
 
-              case 15:
+              case 17:
                 // Mark the top element as 'root'
                 structuralMetadataUtils.markRootElement(smData); // Initialize Redux state variable with structure
 
@@ -124,7 +128,7 @@ function initializeSMDataPeaks(baseURL, masterFileID, initStructure, options, du
                   }
                 }
 
-              case 21:
+              case 23:
               case "end":
                 return _context.stop();
             }

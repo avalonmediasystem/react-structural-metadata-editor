@@ -1,4 +1,5 @@
 export const BUILD_SM_UI = 'BUILD_SM_UI';
+export const REBUILD_SM_UI = 'REBUILD_SM_UI';
 export const DELETE_ITEM = 'DELETE_ITEM';
 
 export const ADD_DROP_TARGETS = 'ADD_DROP_TARGETS';
@@ -29,4 +30,8 @@ export const TEMP_INSERT_SEGMENT = 'TEMP_INSERT_SEGMENT';
 export const TEMP_DELETE_SEGMENT = 'TEMP_DELETE_SEGMENT';
 export const IS_DRAGGING = 'IS_DRAGGING';
 
+export const SET_ALERT = 'SET_ALERT';
+export const REMOVE_ALERT = 'REMOVE_ALERT';
+
 export const RESET_STORE = 'RESET_STORE';
+export const INIT_CRUD_ACTION = 'INIT_CRUD_ACTION';

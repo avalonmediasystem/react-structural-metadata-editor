@@ -6,49 +6,59 @@ import AlertContainer from '../AlertContainer';
 
 afterEach(cleanup);
 
-const mockClearAlert = jest.fn();
+const mockRemoveAlert = jest.fn();
 
-test('AlertContainer does not render without props', () => {
-  const { queryByTestId } = renderWithRedux(<AlertContainer />, {});
-  expect(queryByTestId('alert-container')).not.toBeInTheDocument();
-});
+const delay = 2000;
+const initialState = {
+  forms: {
+    alerts: [
+      {
+        alertStyle: 'danger',
+        message: 'Error message',
+        id: '1234-5667-8901-be1g3',
+        persistent: false,
+        delay: delay,
+      },
+    ],
+  },
+};
 
-test('AlertContainer renders with props', () => {
-  const props = {
-    message: 'Error message',
-    alertStyle: 'danger',
-    clearAlert: mockClearAlert,
-  };
-  const { getByTestId } = renderWithRedux(<AlertContainer {...props} />, {});
-  expect(getByTestId('alert-container')).toBeInTheDocument();
-  expect(getByTestId('alert-message').innerHTML).toBe('Error message');
-});
+const props = {
+  removeAlert: mockRemoveAlert,
+};
 
-test('alert closes', () => {
-  const props = {
-    message: 'Success message',
-    alertStyle: 'success',
-    clearAlert: mockClearAlert,
-  };
-  const { container } = renderWithRedux(<AlertContainer {...props} />, {});
-  const closeButton = container.querySelector('button');
-  fireEvent.click(closeButton);
-  expect(mockClearAlert).toHaveBeenCalledTimes(1);
-});
+describe('AlertContainer component', () => {
+  test('does not render without props', () => {
+    const { queryByTestId } = renderWithRedux(<AlertContainer />, {});
+    expect(queryByTestId('alert-container')).not.toBeInTheDocument();
+  });
 
-test('alert closes when timed out', () => {
-  const delay = 2000;
-  const props = {
-    message: 'Success message',
-    alertStyle: 'success',
-    delay: delay,
-    type: 'SAVE_FEEDBACK',
-    clearAlert: mockClearAlert,
-  };
+  test('renders successfully with props', () => {
+    const { getByTestId } = renderWithRedux(<AlertContainer {...props} />, {
+      initialState,
+    });
+    expect(getByTestId('alert-container')).toBeInTheDocument();
+    expect(getByTestId('alert-message').innerHTML).toBe('Error message');
+  });
 
-  const { getByTestId } = renderWithRedux(<AlertContainer {...props} />, {});
+  test('closes alert when close button is pressed', () => {
+    const { container } = renderWithRedux(<AlertContainer {...props} />, {
+      initialState,
+    });
+    const closeButton = container.querySelector('button');
+    fireEvent.click(closeButton);
+    expect(mockRemoveAlert).toHaveBeenCalledTimes(1);
+  });
 
-  setTimeout(() => {
-    expect(getByTestId('alert-container')).not.toBeInTheDocument();
-  }, 0);
+  test('alert closes when timed out', () => {
+    const { getByTestId } = renderWithRedux(<AlertContainer {...props} />, {
+      initialState,
+    });
+
+    expect(getByTestId('alert-container')).toBeInTheDocument();
+    expect(getByTestId('alert-message').innerHTML).toBe('Error message');
+    setTimeout(() => {
+      expect(getByTestId('alert-container')).not.toBeInTheDocument();
+    }, delay);
+  });
 });

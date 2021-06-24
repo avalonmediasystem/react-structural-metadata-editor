@@ -1,13 +1,38 @@
 import * as types from './types';
 import Hls from 'hls.js';
+import uuidv1 from 'uuid/v1';
 
 /**
  * Enable/disable other editing actions when editing a list item
  * @param {Integer} code - choose from; 1(true) | 0(false)
  */
-export const handleEditingTimespans = (code) => ({
-  type: types.IS_EDITING_TIMESPAN,
-  code,
+export const handleEditingTimespans = (code) => (dispatch) => {
+  dispatch({ type: types.IS_EDITING_TIMESPAN, code });
+  // Remove dismissible alerts when a CRUD action has been initiated
+  if (code == 1) {
+    dispatch(initCRUDAction());
+  }
+};
+
+export const setAlert = (alert) => (dispatch) => {
+  const id = uuidv1();
+  alert.id = id;
+  dispatch({
+    type: types.SET_ALERT,
+    alert,
+  });
+  if (alert.delay > 0 && !alert.persistent) {
+    setTimeout(() => dispatch(removeAlert(id)), alert.delay);
+  }
+};
+
+export const removeAlert = (id) => ({
+  type: types.REMOVE_ALERT,
+  id,
+});
+
+export const initCRUDAction = () => ({
+  type: types.INIT_CRUD_ACTION,
 });
 
 export const retrieveStructureSuccess = () => ({

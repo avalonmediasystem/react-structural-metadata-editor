@@ -161,12 +161,8 @@ var mapStateToProps = function mapStateToProps(state) {
   };
 };
 
-var mapDispathToProps = function mapDispathToProps(dispatch) {
-  return {
-    reBuildSMUI: function reBuildSMUI(json) {
-      return dispatch((0, _smData.reBuildSMUI)(json));
-    }
-  };
+var mapDispathToProps = {
+  reBuildSMUI: _smData.reBuildSMUI
 };
 
 var _default = (0, _reactRedux.connect)(mapStateToProps, mapDispathToProps)(ListItemEditForm);

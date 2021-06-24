@@ -40,6 +40,11 @@ var structuralMetadata = function structuralMetadata() {
         smData: newState
       });
 
+    case types.REBUILD_SM_UI:
+      return _objectSpread({}, state, {
+        smData: action.items
+      });
+
     case types.SAVE_INIT_SMDATA:
       return _objectSpread({}, state, {
         initSmData: action.payload

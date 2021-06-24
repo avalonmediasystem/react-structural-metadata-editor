@@ -104,51 +104,11 @@ describe('WaveformContainer component', () => {
 
     await wait(() => {
       expect(mockAxios.get).toHaveBeenCalledTimes(1);
-      expect(
-        mockAxios.get
-      ).toHaveBeenCalledWith(
+      expect(mockAxios.get).toHaveBeenCalledWith(
         'https://mockurl.edu/master_files/3421d4fg/structure.json',
         { headers: { 'Content-Type': 'application/json' } }
       );
       expect(getByTestId('waveform-container')).toBeInTheDocument();
-    });
-  });
-
-  test('shows a persistent alert when waveform is empty', async () => {
-    mockAxios.head.mockImplementationOnce(() => {
-      return Promise.reject({
-        response: {
-          status: 404,
-        },
-      });
-    });
-
-    mockAxios.get.mockImplementationOnce(() => {
-      return Promise.resolve({
-        status: 200,
-        request: {
-          responseURL:
-            'https://mockurl.edu/master_files/3421d4fg/waveform.json?empty=true',
-        },
-      });
-    });
-
-    const { getByTestId } = renderWithRedux(
-      <WaveformContainer
-        baseURL={'https://mockurl.edu'}
-        masterFileID={'3421d4fg'}
-        initStructure={initStructure}
-        streamDuration={1738945}
-      />,
-      { initialState }
-    );
-
-    await wait(() => {
-      expect(getByTestId('waveform-container')).toBeInTheDocument();
-      expect(getByTestId('persistent-alert-container')).toBeInTheDocument();
-      expect(getByTestId('alert-message').innerHTML).toBe(
-        'Requested waveform data is not available.'
-      );
     });
   });
 });

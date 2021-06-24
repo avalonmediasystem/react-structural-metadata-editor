@@ -115,8 +115,8 @@ const mapStateToProps = (state) => ({
   smData: state.structuralMetadata.smData,
 });
 
-const mapDispathToProps = (dispatch) => ({
-  reBuildSMUI: (json) => dispatch(reBuildSMUI(json)),
-});
+const mapDispathToProps = {
+  reBuildSMUI: reBuildSMUI,
+};
 
 export default connect(mapStateToProps, mapDispathToProps)(ListItemEditForm);

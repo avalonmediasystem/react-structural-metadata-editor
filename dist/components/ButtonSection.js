@@ -37,8 +37,6 @@ var peaksActions = _interopRequireWildcard(require("../actions/peaks-instance"))
 
 var _alertStatus = require("../services/alert-status");
 
-var _AlertContainer = _interopRequireDefault(require("../containers/AlertContainer"));
-
 var _forms = require("../actions/forms");
 
 var styles = {
@@ -69,7 +67,10 @@ function (_Component) {
       timespanOpen: false,
       initSegment: null,
       isInitializing: true,
-      alertObj: null,
+      alertObj: {
+        alert: null,
+        showAlert: false
+      },
       disabled: true
     });
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "setIsInitializing", function (value) {
@@ -83,21 +84,12 @@ function (_Component) {
         });
       }
     });
-    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "clearAlert", function () {
-      _this.setState({
-        alertObj: null,
-        disabled: true
-      }); // Clear the redux-store flag when closing the alert from AlertContainer
-
-
-      _this.props.handleEditingTimespans(0);
-    });
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "handleCancelHeadingClick", function () {
       _this.setState({
         headingOpen: false
       });
 
-      _this.clearAlert();
+      _this.props.handleEditingTimespans(0);
     });
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "handleHeadingClick", function () {
       _this.props.handleEditingTimespans(1); // When opening heading form, delete if a temporary segment exists
@@ -106,7 +98,6 @@ function (_Component) {
       _this.deleteTempSegment();
 
       _this.setState({
-        alertObj: null,
         headingOpen: true,
         timespanOpen: false,
         disabled: false
@@ -119,13 +110,10 @@ function (_Component) {
         timespanOpen: false
       });
 
-      _this.clearAlert();
+      _this.props.handleEditingTimespans(0);
     });
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "handleTimeSpanClick", function () {
-      // Clear existing alertObj
-      _this.clearAlert(); // Disable editing other items in structure
-
-
+      // Disable editing other items in structure
       _this.props.handleEditingTimespans(1); // Create a temporary segment if timespan form is closed
 
 
@@ -136,8 +124,11 @@ function (_Component) {
       var tempSegment = _this.props.peaksInstance.peaks.segments.getSegment('temp-segment');
 
       if (tempSegment === null) {
+        var noSpaceAlert = (0, _alertStatus.configureAlert)(-4);
+
+        _this.props.setAlert(noSpaceAlert);
+
         _this.setState({
-          alertObj: (0, _alertStatus.configureAlert)(-4, _this.clearAlert),
           headingOpen: false,
           disabled: false
         });
@@ -165,6 +156,7 @@ function (_Component) {
   (0, _createClass2["default"])(ButtonSection, [{
     key: "render",
     value: function render() {
+      // console.log(this.state.alertObj);
       var timespanFormProps = {
         cancelClick: this.handleCancelTimespanClick,
         initSegment: this.state.initSegment,
@@ -177,7 +169,7 @@ function (_Component) {
           structureInfo = _this$props$forms.structureInfo,
           streamInfo = _this$props$forms.streamInfo; // Only return UI when both structure and waveform data exist
 
-      return structureInfo.structureRetrieved ? _react["default"].createElement("section", null, _react["default"].createElement(_AlertContainer["default"], this.state.alertObj), _react["default"].createElement(_reactBootstrap.Row, {
+      return structureInfo.structureRetrieved ? _react["default"].createElement("section", null, _react["default"].createElement(_reactBootstrap.Row, {
         "data-testid": "button-row"
       }, _react["default"].createElement(_reactBootstrap.Col, {
         xs: 6
@@ -224,7 +216,8 @@ var mapDispatchToProps = {
   createTempSegment: peaksActions.insertTempSegment,
   deleteTempSegment: peaksActions.deleteTempSegment,
   dragSegment: peaksActions.dragSegment,
-  handleEditingTimespans: _forms.handleEditingTimespans
+  handleEditingTimespans: _forms.handleEditingTimespans,
+  setAlert: _forms.setAlert
 };
 
 var _default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(ButtonSection);

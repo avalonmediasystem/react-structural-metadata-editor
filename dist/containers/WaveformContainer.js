@@ -201,7 +201,8 @@ function (_Component) {
         },
         audioStreamURL: audioStreamURL,
         alertObj: streamAlert,
-        clearAlert: this.clearStreamAlert
+        clearAlert: this.clearStreamAlert,
+        withCredentials: this.props.withCredentials
       }), ' ', _react["default"].createElement(_AlertContainer["default"], alertObj));
     }
   }]);

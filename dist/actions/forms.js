@@ -100,9 +100,15 @@ var streamMediaSuccess = function streamMediaSuccess() {
 exports.streamMediaSuccess = streamMediaSuccess;
 
 function retrieveStreamMedia(audioFile, mediaPlayer) {
+  var opts = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
   return function (dispatch, getState) {
     if (_hls["default"].isSupported()) {
-      var hls = new _hls["default"](); // Bind media player
+      var config = {
+        xhrSetup: function xhrSetup(xhr) {
+          xhr.withCredentials = opts.withCredentials;
+        }
+      };
+      var hls = new _hls["default"](config); // Bind media player
 
       hls.attachMedia(mediaPlayer.current); // MEDIA_ATTACHED event is fired by hls object once MediaSource is ready
 

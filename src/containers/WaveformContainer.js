@@ -122,6 +122,7 @@ class WaveformContainer extends Component {
           audioStreamURL={audioStreamURL}
           alertObj={streamAlert}
           clearAlert={this.clearStreamAlert}
+          withCredentials={this.props.withCredentials}
         />{' '}
         <AlertContainer {...alertObj} />
       </section>

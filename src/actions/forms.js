@@ -55,10 +55,15 @@ export const streamMediaSuccess = () => ({
   type: types.STREAM_MEDIA_SUCCESS,
 });
 
-export function retrieveStreamMedia(audioFile, mediaPlayer) {
+export function retrieveStreamMedia(audioFile, mediaPlayer, opts = {}) {
   return (dispatch, getState) => {
     if (Hls.isSupported()) {
-      const hls = new Hls();
+      const config = {
+        xhrSetup: function (xhr) {
+          xhr.withCredentials = opts.withCredentials;
+        }
+      };
+      const hls = new Hls(config);
 
       // Bind media player
       hls.attachMedia(mediaPlayer.current);

@@ -5,18 +5,19 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { connect } from 'react-redux';
 import {
   handleEditingTimespans,
-  updateStructureStatus
+  updateStructureStatus,
 } from '../actions/forms';
+import { faPen, faTrash, faDotCircle } from '@fortawesome/free-solid-svg-icons';
 
 const styles = {
   buttonToolbar: {
     display: 'flex',
-    justifyContent: 'flex-end'
+    justifyContent: 'flex-end',
   },
   popover: {
     width: '250px',
-    height: 'auto'
-  }
+    height: 'auto',
+  },
 };
 
 class ListItemControls extends Component {
@@ -27,14 +28,14 @@ class ListItemControls extends Component {
     item: PropTypes.shape({
       childrenCount: PropTypes.number,
       label: PropTypes.string.isRequired,
-      type: PropTypes.string
-    })
+      type: PropTypes.string,
+    }),
   };
 
   state = {
     deleteMessage: '',
     showDeleteConfirm: false,
-    target: null
+    target: null,
   };
 
   enableEditing() {
@@ -50,7 +51,7 @@ class ListItemControls extends Component {
     this.props.updateStructureStatus(0);
   };
 
-  handleDeleteClick = e => {
+  handleDeleteClick = (e) => {
     const { childrenCount, label } = this.props.item;
     let deleteMessage = `Are you sure you'd like to delete <strong>${label}</strong>`;
 
@@ -65,24 +66,20 @@ class ListItemControls extends Component {
     this.setState({
       deleteMessage,
       showDeleteConfirm: true,
-      target: e.target
+      target: e.target,
     });
   };
 
-  cancelDeleteClick = e => {
+  cancelDeleteClick = (e) => {
     this.enableEditing();
     this.setState({
-      showDeleteConfirm: false
+      showDeleteConfirm: false,
     });
   };
 
   render() {
-    const {
-      handleShowDropTargetsClick,
-      handleEditClick,
-      item,
-      forms
-    } = this.props;
+    const { handleShowDropTargetsClick, handleEditClick, item, forms } =
+      this.props;
     const { deleteMessage, showDeleteConfirm } = this.state;
 
     return (
@@ -94,7 +91,7 @@ class ListItemControls extends Component {
             onClick={handleShowDropTargetsClick}
             data-testid="list-item-dnd-btn"
           >
-            <FontAwesomeIcon icon="dot-circle" />
+            <FontAwesomeIcon icon={faDotCircle} />
           </Button>
         )}
         <Button
@@ -103,7 +100,7 @@ class ListItemControls extends Component {
           disabled={forms.editingDisabled}
           data-testid="list-item-edit-btn"
         >
-          <FontAwesomeIcon icon="pen" />
+          <FontAwesomeIcon icon={faPen} />
         </Button>
 
         {item.type !== 'root' && (
@@ -114,7 +111,7 @@ class ListItemControls extends Component {
               disabled={forms.editingDisabled}
               data-testid="list-item-delete-btn"
             >
-              <FontAwesomeIcon icon="trash" />
+              <FontAwesomeIcon icon={faTrash} />
             </Button>
             <Overlay
               show={showDeleteConfirm}
@@ -158,13 +155,13 @@ class ListItemControls extends Component {
   }
 }
 
-const mapDispatchToProps = dispatch => ({
-  handleEditingTimespans: code => dispatch(handleEditingTimespans(code)),
-  updateStructureStatus: code => dispatch(updateStructureStatus(code))
+const mapDispatchToProps = (dispatch) => ({
+  handleEditingTimespans: (code) => dispatch(handleEditingTimespans(code)),
+  updateStructureStatus: (code) => dispatch(updateStructureStatus(code)),
 });
 
-const mapStateToProps = state => ({
-  forms: state.forms
+const mapStateToProps = (state) => ({
+  forms: state.forms,
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(ListItemControls);

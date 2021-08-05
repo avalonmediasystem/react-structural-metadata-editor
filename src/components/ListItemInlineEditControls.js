@@ -2,10 +2,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Button, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faMinusCircle, faSave } from '@fortawesome/free-solid-svg-icons';
 
-const tooltip = tip => <Tooltip id="tooltip">{tip}</Tooltip>;
+const tooltip = (tip) => <Tooltip id="tooltip">{tip}</Tooltip>;
 
-const ListItemInlineEditControls = props => {
+const ListItemInlineEditControls = (props) => {
   return (
     <div className="edit-controls-wrapper" data-testid="inline-form-controls">
       <OverlayTrigger placement="left" overlay={tooltip('Save')}>
@@ -15,7 +16,7 @@ const ListItemInlineEditControls = props => {
           onClick={props.handleSaveClick}
           data-testid="inline-form-save-button"
         >
-          <FontAwesomeIcon icon="save" />
+          <FontAwesomeIcon icon={faSave} />
         </Button>
       </OverlayTrigger>
       <OverlayTrigger
@@ -24,7 +25,7 @@ const ListItemInlineEditControls = props => {
         onClick={props.handleCancelClick}
       >
         <Button bsStyle="link" data-testid="inline-form-cancel-button">
-          <FontAwesomeIcon icon="minus-circle" />
+          <FontAwesomeIcon icon={faMinusCircle} />
         </Button>
       </OverlayTrigger>
     </div>
@@ -34,7 +35,7 @@ const ListItemInlineEditControls = props => {
 ListItemInlineEditControls.propTypes = {
   formIsValid: PropTypes.bool,
   handleSaveClick: PropTypes.func,
-  handleCancelClick: PropTypes.func
+  handleCancelClick: PropTypes.func,
 };
 
 export default ListItemInlineEditControls;

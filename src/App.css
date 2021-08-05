@@ -28,6 +28,10 @@
   font-weight: bold;
 }
 
+.structure-title > .icon-invalid {
+  color: #dc5353;
+}
+
 .row-wrapper {
   display: flex;
   justify-content: space-between;
@@ -36,6 +40,10 @@
   border: 1px solid #ccc;
   padding: 5px 10px;
   margin-bottom: 10px;
+}
+
+.row-wrapper.invalid {
+  background: #eccdcd;
 }
 
 .edit-controls-wrapper {

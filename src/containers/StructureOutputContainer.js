@@ -26,8 +26,18 @@ class StructureOutputContainer extends Component {
     const { structureSaved } = nextProps.structureInfo;
     const { initSmData, smData } = nextProps.structuralMetadata;
     if (!isEqual(initSmData, prevState.initialStructure)) {
+      const timespans = smu.getItemsOfType('span', smData);
+      const invalidTimespans = timespans.filter((t) => !t.valid);
+      console.log(invalidTimespans);
+      if (invalidTimespans.length > 0) {
+        return {
+          invalid: true,
+          alertObj: configureAlert(-8, nextProps.clearAlert),
+        };
+      }
       return { initialStructure: initSmData };
     }
+
     if (structureSaved) {
       nextProps.structureIsSaved(true);
       return null;
@@ -73,7 +83,8 @@ class StructureOutputContainer extends Component {
   };
 
   render() {
-    const { structuralMetadata, editingDisabled } = this.props;
+    const { structureInfo, structuralMetadata, editingDisabled } = this.props;
+    const { alertObj, invalid } = this.state;
 
     return (
       <section

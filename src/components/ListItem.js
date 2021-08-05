@@ -10,6 +10,8 @@ import { ItemTypes } from '../services/Constants';
 import { DragSource, DropTarget } from 'react-dnd';
 import ListItemEditForm from './ListItemEditForm';
 import ListItemControls from './ListItemControls';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 
 const spanSource = {
   // canDrag prop is turned false/true based on mouse events mouseenter/mouseleave
@@ -159,16 +161,17 @@ class ListItem extends Component {
       item: { label },
       item: { type },
       item: { active },
+      item: { valid },
       connectDragSource,
       connectDropTarget,
     } = this.props;
 
     const subMenu = items && items.length > 0 ? <List items={items} /> : null;
     const itemProp = {
-      childrenCount: item.items ? item.items.length : 0,
-      label: item.label,
-      type: item.type,
-      active: item.active,
+      childrenCount: items ? items.length : 0,
+      label: label,
+      type: type,
+      active: active,
     };
 
     return connectDragSource(
@@ -198,11 +201,22 @@ class ListItem extends Component {
           )}
 
           {!this.state.editing && (
-            <div className="row-wrapper">
+            <div className={'row-wrapper' + (!valid ? ' invalid' : '')}>
               {type === 'span' && (
-                <span className="structure-title" data-testid="timespan-label">
-                  {label} ({begin} - {end})
-                </span>
+                <React.Fragment>
+                  <span
+                    className="structure-title"
+                    data-testid="timespan-label"
+                  >
+                    {!valid && (
+                      <FontAwesomeIcon
+                        icon={faExclamationTriangle}
+                        className="icon-invalid"
+                      />
+                    )}{' '}
+                    {label} ({begin} - {end})
+                  </span>
+                </React.Fragment>
               )}
               {(type === 'div' || type === 'root') && (
                 <div

@@ -34,8 +34,23 @@ export default class WaveformDataUtils {
 
     // Build segments from initial metadata structure
     createSegment(smData);
+    const validSegments = initSegments.filter((s) => s.startTime < s.endTime);
 
-    return initSegments;
+    return validSegments;
+  }
+
+  /**
+   * Convert timespan to segment to be consumed within peaks instance
+   * @param {Object} timespan
+   */
+  convertTimespanToSegment(timespan) {
+    const { begin, end, label, id } = timespan;
+    return {
+      startTime: smu.toMs(begin) / 1000,
+      endTime: smu.toMs(end) / 1000,
+      labelText: label,
+      id: id,
+    };
   }
 
   /**
@@ -264,14 +279,8 @@ export default class WaveformDataUtils {
    */
   revertSegment(clonedSegment, peaksInstance) {
     let segment = peaksInstance.segments.getSegment(clonedSegment.id);
-    const {
-      startTime,
-      endTime,
-      labelText,
-      id,
-      color,
-      editable,
-    } = clonedSegment;
+    const { startTime, endTime, labelText, id, color, editable } =
+      clonedSegment;
     segment.update({
       startTime: startTime,
       endTime: endTime,
@@ -349,20 +358,6 @@ export default class WaveformDataUtils {
       }
     }
     return segment;
-  }
-
-  /**
-   * Convert timespan to segment to be consumed within peaks instance
-   * @param {Object} timespan
-   */
-  convertTimespanToSegment(timespan) {
-    const { begin, end, label, id } = timespan;
-    return {
-      startTime: smu.toMs(begin) / 1000,
-      endTime: smu.toMs(end) / 1000,
-      labelText: label,
-      id: id,
-    };
   }
 
   /**

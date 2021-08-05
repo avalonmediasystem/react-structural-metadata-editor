@@ -14,15 +14,30 @@ import ErrorBoundary from './components/ErrorBoundary';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import {
   faDotCircle,
+  faExclamationTriangle,
   faMinusCircle,
   faPen,
   faSave,
   faTrash,
 } from '@fortawesome/free-solid-svg-icons';
 import AlertContainer from './containers/AlertContainer';
-library.add(faDotCircle, faMinusCircle, faPen, faSave, faTrash);
+
+library.add(
+  faDotCircle,
+  faMinusCircle,
+  faPen,
+  faSave,
+  faTrash,
+  faExclamationTriangle
+);
 
 class App extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      structureAlert: {},
+    };
+  }
   // Lifecycle method fired before unmounting the React component
   componentWillUnmount() {
     // Reset the redux-store

@@ -13,6 +13,8 @@ export const STREAM_MEDIA_ERROR =
   'There was an error retrieving the media stream.';
 export const MISSING_WAVEFORM_ERROR =
   'Requested waveform data is not available.';
+export const INVALID_SEGMENTS_WARNING =
+  'There are incorrect timespan(s) in the structure. Please check the start/end times';
 
 /**
  * Helper function which prepares a configuration object to feed the AlertContainer component
@@ -42,6 +44,9 @@ export function configureAlert(status = 0) {
   } else if (status === -7) {
     alertObj.message = MISSING_WAVEFORM_ERROR;
     alertObj.persistent = true;
+  } else if (status === -8) {
+    alertObj.message = INVALID_SEGMENTS_WARNING;
+    alertObj.alertStyle = 'warning';
   } else {
     alertObj.message = NETWORK_ERROR;
   }

@@ -93,17 +93,26 @@ export default class StructuralMetadataUtils {
     let formatItems = (items) => {
       for (let item of items) {
         item.label = decodeHTML(item.label);
+        item.valid = true;
         if (item.type === 'span') {
           const { begin, end } = item;
           let beginTime = convertToSeconds(begin);
           let endTime = convertToSeconds(end);
           item.begin = this.toHHmmss(beginTime);
+          if (beginTime > durationInSeconds) {
+            item.valid = false;
+          }
           if (beginTime > endTime) {
-            item.end = this.toHHmmss(durationInSeconds);
-          } else if (endTime > durationInSeconds) {
-            item.end = this.toHHmmss(durationInSeconds);
+            if (beginTime < durationInSeconds) {
+              item.end = this.toHHmmss(durationInSeconds);
+            } else {
+              item.valid = false;
+            }
           } else {
             item.end = this.toHHmmss(endTime);
+          }
+          if (item.begin > item.end) {
+            item.valid = false;
           }
         }
         if (item.items) {

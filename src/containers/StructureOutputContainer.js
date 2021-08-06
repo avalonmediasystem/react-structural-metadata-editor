@@ -28,7 +28,6 @@ class StructureOutputContainer extends Component {
     if (!isEqual(initSmData, prevState.initialStructure)) {
       const timespans = smu.getItemsOfType('span', smData);
       const invalidTimespans = timespans.filter((t) => !t.valid);
-      console.log(invalidTimespans);
       if (invalidTimespans.length > 0) {
         return {
           invalid: true,

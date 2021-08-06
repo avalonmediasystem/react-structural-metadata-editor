@@ -53,7 +53,7 @@ class TimespanInlineForm extends Component {
 
   componentDidMount() {
     const { smData, item, peaksInstance, startTimeChanged } = this.props;
-
+    console.log(item);
     // Get a fresh copy of store data
     this.tempSmData = cloneDeep(smData);
     const tempPeaks = cloneDeep(peaksInstance.peaks);
@@ -74,7 +74,16 @@ class TimespanInlineForm extends Component {
     );
 
     // Make segment related to timespan editable
-    this.props.activateSegment(item.id);
+    if (item.valid) {
+      this.props.activateSegment(item.id);
+    } else {
+      this.props.insertPlaceholderSegment(item);
+      this.setState({
+        clonedSegment: peaksInstance.peaks.segments.getSegment(item.id),
+      });
+      console.log('invalid timespan');
+      return;
+    }
 
     // Get segment from current peaks instance
     const segment = peaksInstance.peaks.segments.getSegment(item.id);
@@ -239,6 +248,7 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = {
   activateSegment: peaksActions.activateSegment,
+  insertPlaceholderSegment: peaksActions.insertPlaceholderSegment,
   revertSegment: peaksActions.revertSegment,
   saveSegment: peaksActions.saveSegment,
   updateSegment: peaksActions.updateSegment,

@@ -14,7 +14,7 @@ export const STREAM_MEDIA_ERROR =
 export const MISSING_WAVEFORM_ERROR =
   'Requested waveform data is not available.';
 export const INVALID_SEGMENTS_WARNING =
-  'There are incorrect timespan(s) in the structure. Please check the start/end times';
+  'Please check start/end times of the marked invalid timespan(s).';
 
 /**
  * Helper function which prepares a configuration object to feed the AlertContainer component

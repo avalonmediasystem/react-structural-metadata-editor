@@ -8,14 +8,14 @@ const structuralMetadataUtils = new StructuralMetadataUtils();
 
 class HeadingFormContainer extends Component {
   state = {
-    message: null
+    message: null,
   };
 
-  submit = values => {
+  submit = (values) => {
     const { smData } = this.props;
     let submittedItem = {
       headingChildOf: values.headingChildOf,
-      headingTitle: values.headingTitle
+      headingTitle: values.headingTitle,
     };
     let updatedSmData = null;
 
@@ -26,7 +26,7 @@ class HeadingFormContainer extends Component {
     );
 
     // Update redux store
-    this.props.reBuildSMUI(updatedSmData);
+    this.props.reBuildSMUI(updatedSmData, this.props.duration);
 
     // Close the form
     this.props.cancelClick();
@@ -42,12 +42,14 @@ class HeadingFormContainer extends Component {
   }
 }
 
-const mapDispatchToProps = dispatch => ({
-  reBuildSMUI: data => dispatch(smActions.reBuildSMUI(data))
+const mapDispatchToProps = (dispatch) => ({
+  reBuildSMUI: (data, duration) =>
+    dispatch(smActions.reBuildSMUI(data, duration)),
 });
 
-const mapStateToProps = state => ({
-  smData: state.structuralMetadata.smData
+const mapStateToProps = (state) => ({
+  smData: state.structuralMetadata.smData,
+  duration: state.peaksInstance.duration,
 });
 
 export default connect(

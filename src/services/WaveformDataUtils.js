@@ -9,8 +9,9 @@ export default class WaveformDataUtils {
   /**
    * Initialize Peaks instance for the app
    * @param {Array} smData - current structured metadata from the server masterfile
+   * @param {Number} duration - duration of the media file
    */
-  initSegments(smData) {
+  initSegments(smData, duration) {
     let initSegments = [];
     let count = 0;
 
@@ -19,7 +20,10 @@ export default class WaveformDataUtils {
       for (let item of items) {
         if (item.type === 'span') {
           count = count > 1 ? 0 : count;
-          const segment = this.convertTimespanToSegment(item);
+
+          const segment = item.valid
+            ? this.convertTimespanToSegment(item)
+            : null;
           initSegments.push({
             ...segment,
             color: COLOR_PALETTE[count],
@@ -34,7 +38,9 @@ export default class WaveformDataUtils {
 
     // Build segments from initial metadata structure
     createSegment(smData);
-    const validSegments = initSegments.filter((s) => s.startTime < s.endTime);
+    const validSegments = initSegments.filter(
+      (s) => s.startTime < s.endTime && s.startTime < duration
+    );
 
     return validSegments;
   }
@@ -57,6 +63,7 @@ export default class WaveformDataUtils {
    * Add a temporary segment to be edited when adding a new timespan to structure
    * @param {Object} peaksInstance - peaks instance for the current waveform
    * @param {Integer} fileDuration - duration of the file
+   * @returns {Object} updated peaksInstance
    */
   insertTempSegment(peaksInstance, fileDuration) {
     // Current time of the playhead
@@ -181,8 +188,10 @@ export default class WaveformDataUtils {
    * @param {Object} peaksInstance - current peaks instance for the waveform
    */
   activateSegment(id, peaksInstance) {
+    console.log('activating segment: ', id);
     this.initialSegmentValidation(id, peaksInstance);
     const segment = peaksInstance.segments.getSegment(id);
+    console.log(segment);
     // Setting editable: true -> enables handles
     segment.update({
       editable: true,
@@ -195,6 +204,30 @@ export default class WaveformDataUtils {
     return peaksInstance;
   }
 
+  addTempInvalidSegment(item, peaksInstance) {
+    const { startTime, endTime, id, labelText } =
+      this.convertTimespanToSegment(item);
+    const duration = Math.round(peaksInstance.player.getDuration() * 100) / 100;
+    console.log(duration);
+    if (startTime > duration) {
+      debugger;
+      const lastSegment = peaksInstance.segments
+        .getSegments()
+        .filter((seg) => seg.endTime < duration)
+        .reverse()[0];
+      peaksInstance.segments.add({
+        startTime: lastSegment.endTime,
+        endTime: duration,
+        id: id,
+        labelText,
+        editable: true,
+        color: COLOR_PALETTE[2],
+      });
+    }
+    console.log('adding invalid item');
+    return peaksInstance;
+  }
+
   /**
    * When an invalid segment is being edited, adjust segment's end time to depict the
    * valid time range it can be spread before editing starts
@@ -202,8 +235,17 @@ export default class WaveformDataUtils {
    * @param {Object} peaksInstance - current peaks instance for the waveform
    */
   initialSegmentValidation(id, peaksInstance) {
-    const segment = peaksInstance.segments.getSegment(id);
+    let segment = peaksInstance.segments.getSegment(id);
     const duration = Math.round(peaksInstance.player.getDuration() * 100) / 100;
+    console.log(segment);
+
+    if (!segment) {
+      let newPeaksInstance = this.insertTempSegment(peaksInstance, duration);
+      console.log('segment null');
+      segment = newPeaksInstance.segments.getSegment('temp-segment');
+      // debugger;
+      segment.id = id;
+    }
     // Segments before and after the current segment
     const { before, after } = this.findWrapperSegments(segment, peaksInstance);
 

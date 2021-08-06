@@ -99,21 +99,24 @@ export default class StructuralMetadataUtils {
           let beginTime = convertToSeconds(begin);
           let endTime = convertToSeconds(end);
           item.begin = this.toHHmmss(beginTime);
-          if (beginTime > durationInSeconds) {
+          item.end = this.toHHmmss(endTime);
+          // if (beginTime > durationInSeconds) {
+          //   item.valid = false;
+          // }
+          if (beginTime > endTime || beginTime > durationInSeconds) {
+            // if (beginTime < durationInSeconds) {
             item.valid = false;
-          }
-          if (beginTime > endTime) {
-            if (beginTime < durationInSeconds) {
-              item.end = this.toHHmmss(durationInSeconds);
-            } else {
-              item.valid = false;
-            }
-          } else {
-            item.end = this.toHHmmss(endTime);
-          }
-          if (item.begin > item.end) {
+            // item.end = this.toHHmmss(durationInSeconds);
+            // } else {
+            //   item.valid = false;
+            // }
+          } else if (endTime > durationInSeconds) {
             item.valid = false;
+            item.end = this.toHHmmss(durationInSeconds);
           }
+          // if (item.begin > item.end) {
+          //   item.valid = false;
+          // }
         }
         if (item.items) {
           formatItems(item.items);

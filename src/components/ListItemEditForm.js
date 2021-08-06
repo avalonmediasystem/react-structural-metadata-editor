@@ -69,7 +69,7 @@ class ListItemEditForm extends Component {
     item = this.addUpdatedValues(item, payload);
 
     // Send updated smData back to redux
-    this.props.reBuildSMUI(clonedItems);
+    this.props.reBuildSMUI(clonedItems, this.props.duration);
 
     // Turn off editing state
     this.props.handleEditFormCancel();
@@ -113,6 +113,7 @@ class ListItemEditForm extends Component {
 
 const mapStateToProps = (state) => ({
   smData: state.structuralMetadata.smData,
+  duration: state.peaksInstance.duration,
 });
 
 const mapDispathToProps = {

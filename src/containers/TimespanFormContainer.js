@@ -22,7 +22,7 @@ class TimespanFormContainer extends Component {
     this.props.insertNewSegment(newSpan);
 
     // Update redux store
-    this.props.reBuildSMUI(updatedData);
+    this.props.reBuildSMUI(updatedData, this.props.duration);
 
     // Close the form
     this.props.cancelClick();
@@ -56,6 +56,7 @@ const mapDispatchToProps = (dispatch) => ({
 
 const mapStateToProps = (state) => ({
   smData: state.structuralMetadata.smData,
+  duration: state.peaksInstance.duration,
 });
 
 export default connect(

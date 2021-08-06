@@ -19,7 +19,7 @@ let updatedSegment = null;
 const peaksInstance = (state = initialState, action) => {
   switch (action.type) {
     case types.INIT_PEAKS:
-      let segments = waveformUtils.initSegments(action.smData);
+      let segments = waveformUtils.initSegments(action.smData, action.duration);
       let peaksInstance = Peaks.init(
         {
           ...action.options,
@@ -69,6 +69,15 @@ const peaksInstance = (state = initialState, action) => {
 
     case types.ACTIVATE_SEGMENT:
       newPeaks = waveformUtils.activateSegment(action.payload, {
+        ...state.peaks,
+      });
+      return {
+        ...state,
+        peaks: newPeaks,
+      };
+
+    case types.INSERT_PLACEHOLDER:
+      newPeaks = waveformUtils.addTempInvalidSegment(action.payload, {
         ...state.peaks,
       });
       return {

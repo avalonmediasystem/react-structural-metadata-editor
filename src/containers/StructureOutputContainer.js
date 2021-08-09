@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import List from '../components/List';
 import { Button, Col, Row } from 'react-bootstrap';
@@ -10,46 +10,53 @@ import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
 
 const smu = new StructuralMetadataUtils();
 
-class StructureOutputContainer extends Component {
-  constructor(props) {
-    super(props);
-    this.apiUtils = new APIUtils();
-  }
-  state = {
-    baseURL: this.props.baseURL,
-    masterFileID: this.props.masterFileID,
-    structureStatus: this.props.structureInfo.structureStatus,
-    initialStructure: this.props.structuralMetadata.initSmData,
-  };
+const StructureOutputContainer = (props) => {
+  const { alertObj, baseURL, masterFileID, structureInfo, structuralMetadata } =
+    props;
+  const { structureStatus, structureSaved, structureRetrieved } = structureInfo;
+  const { smData, initSmData, smDataIsValid } = structuralMetadata;
+  const apiUtils = new APIUtils();
 
-  static getDerivedStateFromProps(nextProps, prevState) {
-    const { structureSaved } = nextProps.structureInfo;
-    const { initSmData, smData } = nextProps.structuralMetadata;
-    if (!isEqual(initSmData, prevState.initialStructure)) {
-      const timespans = smu.getItemsOfType('span', smData);
-      const invalidTimespans = timespans.filter((t) => !t.valid);
-      if (invalidTimespans.length > 0) {
-        return {
-          invalid: true,
-          alertObj: configureAlert(-8, nextProps.clearAlert),
-        };
-      }
-      return { initialStructure: initSmData };
+  const [stateAlertObj, setAlertObj] = useState(alertObj);
+  const [stateInitStructure, setInitStructure] = useState(initSmData);
+  const [isValid, setIsValid] = useState(smDataIsValid);
+
+  useEffect(() => {
+    setAlertObj(configureAlert(structureStatus, props.clearAlert));
+  }, [structureStatus]);
+
+  useEffect(() => {
+    if (alertObj === null) {
+      setAlertObj(null);
     }
+  }, [alertObj]);
 
+  useEffect(() => {
+    setInitStructure(initSmData);
+  }, [initSmData]);
+
+  useEffect(() => {
+    if (smDataIsValid) {
+      setIsValid(true);
+      setAlertObj(null);
+    } else {
+      setIsValid(false);
+      setAlertObj(configureAlert(-8, props.clearAlert));
+    }
+  }, [smDataIsValid]);
+
+  useEffect(() => {
     if (structureSaved) {
-      nextProps.structureIsSaved(true);
-      return null;
+      props.structureIsSaved(true);
     } else {
       const cleanSmData = smu.filterObjectKey(smData, 'active');
-      if (!isEqual(prevState.initialStructure, cleanSmData)) {
-        nextProps.structureIsSaved(false);
+      if (!isEqual(stateInitStructure, cleanSmData)) {
+        props.structureIsSaved(false);
       } else {
-        nextProps.structureIsSaved(true);
+        props.structureIsSaved(true);
       }
-      return null;
     }
-  }
+  }, [structureSaved]);
 
   handleSaveError(error) {
     console.log('TCL: handleSaveError -> error', error);
@@ -61,11 +68,10 @@ class StructureOutputContainer extends Component {
     this.props.setAlert(alert);
   }
 
-  handleSaveItClick = async () => {
-    const { baseURL, masterFileID } = this.state;
-    let postData = { json: this.props.structuralMetadata.smData[0] };
+  const handleSaveItClick = async () => {
+    let postData = { json: smData[0] };
     try {
-      const response = await this.apiUtils.postRequest(
+      const response = await apiUtils.postRequest(
         baseURL,
         masterFileID,
         'structure.json',
@@ -77,38 +83,38 @@ class StructureOutputContainer extends Component {
 
       this.props.postStructureSuccess(1);
     } catch (error) {
-      this.handleSaveError(error);
+      handleSaveError(error);
     }
   };
 
-  render() {
-    const { structureInfo, structuralMetadata, editingDisabled } = this.props;
-    const { alertObj, invalid } = this.state;
-
-    return (
-      <section
-        className="structure-section"
-        data-testid="structure-output-section"
-      >
+  return (
+    <section
+      className="structure-section"
+      data-testid="structure-output-section"
+    >
+      {!structureRetrieved ? (
+        <AlertContainer {...stateAlertObj} />
+      ) : (
         <div data-testid="structure-output-list">
-          <List items={structuralMetadata.smData} />
+          <AlertContainer {...stateAlertObj} />
+          <List items={smData} />
           <Row>
             <Col xs={12} className="text-right">
               <Button
                 bsStyle="primary"
-                onClick={this.handleSaveItClick}
+                onClick={handleSaveItClick}
                 data-testid="structure-save-button"
-                disabled={editingDisabled}
+                disabled={props.editingDisabled}
               >
                 Save Structure
               </Button>
             </Col>
           </Row>
         </div>
-      </section>
-    );
-  }
-}
+      )}
+    </section>
+  );
+};
 
 const mapStateToProps = (state) => ({
   structuralMetadata: state.structuralMetadata,

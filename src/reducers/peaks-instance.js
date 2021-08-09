@@ -77,9 +77,13 @@ const peaksInstance = (state = initialState, action) => {
       };
 
     case types.INSERT_PLACEHOLDER:
-      newPeaks = waveformUtils.addTempInvalidSegment(action.payload, {
-        ...state.peaks,
-      });
+      newPeaks = waveformUtils.addTempInvalidSegment(
+        action.item,
+        action.index,
+        {
+          ...state.peaks,
+        }
+      );
       return {
         ...state,
         peaks: newPeaks,
@@ -87,7 +91,8 @@ const peaksInstance = (state = initialState, action) => {
 
     case types.SAVE_SEGMENT:
       newPeaks = waveformUtils.deactivateSegment(
-        action.payload.clonedSegment.id,
+        action.payload.clonedSegment,
+        true,
         {
           ...state.peaks,
         }
@@ -102,7 +107,7 @@ const peaksInstance = (state = initialState, action) => {
       };
 
     case types.REVERT_SEGMENT:
-      newPeaks = waveformUtils.deactivateSegment(action.payload.id, {
+      newPeaks = waveformUtils.deactivateSegment(action.payload, false, {
         ...state.peaks,
       });
       return {

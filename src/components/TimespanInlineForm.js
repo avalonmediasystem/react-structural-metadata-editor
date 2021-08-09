@@ -53,13 +53,9 @@ class TimespanInlineForm extends Component {
 
   componentDidMount() {
     const { smData, item, peaksInstance, startTimeChanged } = this.props;
-    console.log(item);
     // Get a fresh copy of store data
     this.tempSmData = cloneDeep(smData);
     const tempPeaks = cloneDeep(peaksInstance.peaks);
-
-    // Load existing form values
-    this.setState(getExistingFormValues(item.id, this.tempSmData, tempPeaks));
 
     // Remove current list item from the data we're doing validation against in this form
     this.tempSmData = structuralMetadataUtils.deleteListItem(
@@ -75,14 +71,12 @@ class TimespanInlineForm extends Component {
 
     // Make segment related to timespan editable
     if (item.valid) {
+      // Load existing form values
+      this.setState(getExistingFormValues(item.id, this.tempSmData, tempPeaks));
+
       this.props.activateSegment(item.id);
     } else {
-      this.props.insertPlaceholderSegment(item);
-      this.setState({
-        clonedSegment: peaksInstance.peaks.segments.getSegment(item.id),
-      });
-      console.log('invalid timespan');
-      return;
+      this.handleInvalidTimespan();
     }
 
     // Get segment from current peaks instance
@@ -128,6 +122,27 @@ class TimespanInlineForm extends Component {
       }
     }
     return null;
+  }
+
+  /**
+   * When there are invalid timespans in the structure, to edit them
+   * a placeholder segment is created within the Peaks instance, since
+   * they cannot be added at the time Peaks is initialized.
+   */
+  handleInvalidTimespan() {
+    const { item, smData, peaksInstance } = this.props;
+    const itemIndex = structuralMetadataUtils
+      .getItemsOfType('span', smData)
+      .findIndex((i) => i.id === item.id);
+    this.props.insertPlaceholderSegment(item, itemIndex);
+    const placeholderSegment = peaksInstance.peaks.segments.getSegment(item.id);
+    placeholderSegment.valid = false;
+    this.setState({
+      clonedSegment: placeholderSegment,
+      beginTime: structuralMetadataUtils.toHHmmss(placeholderSegment.startTime),
+      endTime: structuralMetadataUtils.toHHmmss(placeholderSegment.endTime),
+      timespanTitle: placeholderSegment.labelText,
+    });
   }
 
   formIsValid() {

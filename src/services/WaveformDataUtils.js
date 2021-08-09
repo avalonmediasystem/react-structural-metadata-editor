@@ -12,7 +12,7 @@ export default class WaveformDataUtils {
    * @param {Number} duration - duration of the media file
    */
   initSegments(smData, duration) {
-    let initSegments = [];
+    let segments = [];
     let count = 0;
 
     // Recursively build segments for timespans in the structure
@@ -24,7 +24,7 @@ export default class WaveformDataUtils {
           const segment = item.valid
             ? this.convertTimespanToSegment(item)
             : null;
-          initSegments.push({
+          segments.push({
             ...segment,
             color: COLOR_PALETTE[count],
           });
@@ -38,7 +38,7 @@ export default class WaveformDataUtils {
 
     // Build segments from initial metadata structure
     createSegment(smData);
-    const validSegments = initSegments.filter(
+    const validSegments = segments.filter(
       (s) => s.startTime < s.endTime && s.startTime < duration
     );
 
@@ -188,10 +188,8 @@ export default class WaveformDataUtils {
    * @param {Object} peaksInstance - current peaks instance for the waveform
    */
   activateSegment(id, peaksInstance) {
-    console.log('activating segment: ', id);
     this.initialSegmentValidation(id, peaksInstance);
     const segment = peaksInstance.segments.getSegment(id);
-    console.log(segment);
     // Setting editable: true -> enables handles
     segment.update({
       editable: true,
@@ -204,13 +202,11 @@ export default class WaveformDataUtils {
     return peaksInstance;
   }
 
-  addTempInvalidSegment(item, peaksInstance) {
+  addTempInvalidSegment(item, index, peaksInstance) {
     const { startTime, endTime, id, labelText } =
       this.convertTimespanToSegment(item);
     const duration = Math.round(peaksInstance.player.getDuration() * 100) / 100;
-    console.log(duration);
     if (startTime > duration) {
-      debugger;
       const lastSegment = peaksInstance.segments
         .getSegments()
         .filter((seg) => seg.endTime < duration)
@@ -223,8 +219,22 @@ export default class WaveformDataUtils {
         editable: true,
         color: COLOR_PALETTE[2],
       });
+      peaksInstance.player.seek(lastSegment.endTime);
+    } else {
+      let nextSegment = peaksInstance.segments.getSegments()[index];
+      let prevSegment = peaksInstance.segments.getSegments()[index - 1];
+      if (nextSegment.startTime - prevSegment.endTime > 2) {
+        peaksInstance.segments.add({
+          startTime: prevSegment.endTime,
+          endTime: nextSegment.startTime,
+          id,
+          labelText,
+          editable: true,
+          color: COLOR_PALETTE[2],
+        });
+        peaksInstance.player.seek(prevSegment.endTime);
+      }
     }
-    console.log('adding invalid item');
     return peaksInstance;
   }
 
@@ -237,13 +247,10 @@ export default class WaveformDataUtils {
   initialSegmentValidation(id, peaksInstance) {
     let segment = peaksInstance.segments.getSegment(id);
     const duration = Math.round(peaksInstance.player.getDuration() * 100) / 100;
-    console.log(segment);
 
     if (!segment) {
       let newPeaksInstance = this.insertTempSegment(peaksInstance, duration);
-      console.log('segment null');
       segment = newPeaksInstance.segments.getSegment('temp-segment');
-      // debugger;
       segment.id = id;
     }
     // Segments before and after the current segment
@@ -281,10 +288,12 @@ export default class WaveformDataUtils {
 
   /**
    * Revert color and disable handles for editing of the segment
-   * @param {String} id - ID of the segment being saved
+   * @param {Object} clonedSegment - the segment being saved
+   * @param {Boolean} isSaved - flag indicating segment is saved or not
    * @param {Object} peaksInstance - current peaks instance for the waveform
    */
-  deactivateSegment(id, peaksInstance) {
+  deactivateSegment(clonedSegment, isSaved, peaksInstance) {
+    const { id, valid } = clonedSegment;
     // Sorted segments by start time
     let segments = this.sortSegments(peaksInstance, 'startTime');
 
@@ -292,10 +301,14 @@ export default class WaveformDataUtils {
 
     // Setting editable: false -> disables the handles
     const segment = peaksInstance.segments.getSegment(id);
-    segment.update({
-      editable: false,
-      color: this.isOdd(index) ? COLOR_PALETTE[1] : COLOR_PALETTE[0],
-    });
+    if (valid || isSaved) {
+      segment.update({
+        editable: false,
+        color: this.isOdd(index) ? COLOR_PALETTE[1] : COLOR_PALETTE[0],
+      });
+    } else {
+      peaksInstance.segments.removeById(id);
+    }
 
     return peaksInstance;
   }
@@ -320,17 +333,21 @@ export default class WaveformDataUtils {
    * @param {Object} peaksInstance - current peaks instance for wavefrom
    */
   revertSegment(clonedSegment, peaksInstance) {
-    let segment = peaksInstance.segments.getSegment(clonedSegment.id);
-    const { startTime, endTime, labelText, id, color, editable } =
+    const { startTime, endTime, labelText, id, color, editable, valid } =
       clonedSegment;
-    segment.update({
-      startTime: startTime,
-      endTime: endTime,
-      labelText: labelText,
-      id: id,
-      color: color,
-      editable: editable,
-    });
+    let segment = peaksInstance.segments.getSegment(id);
+    if (valid) {
+      segment.update({
+        startTime: startTime,
+        endTime: endTime,
+        labelText: labelText,
+        id: id,
+        color: color,
+        editable: editable,
+      });
+    } else {
+      peaksInstance.segments.removeById(id);
+    }
     return peaksInstance;
   }
 

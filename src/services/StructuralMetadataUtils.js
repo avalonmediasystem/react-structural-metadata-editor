@@ -69,6 +69,8 @@ export default class StructuralMetadataUtils {
     // Convert file duration to seconds
     const durationInSeconds = Math.round(duration / 10) / 100;
 
+    let smDataIsValid = true;
+
     // Convert time to HH:mm:ss.ms format to use in validation logic
     let convertToSeconds = (time) => {
       let timeSeconds = this.toMs(time) / 1000;
@@ -106,12 +108,17 @@ export default class StructuralMetadataUtils {
           if (beginTime > endTime || beginTime > durationInSeconds) {
             // if (beginTime < durationInSeconds) {
             item.valid = false;
+            smDataIsValid = false;
             // item.end = this.toHHmmss(durationInSeconds);
             // } else {
             //   item.valid = false;
             // }
           } else if (endTime > durationInSeconds) {
             item.valid = false;
+            smDataIsValid = false;
+            item.end = this.toHHmmss(durationInSeconds);
+          }
+          if (endTime === 0) {
             item.end = this.toHHmmss(durationInSeconds);
           }
           // if (item.begin > item.end) {
@@ -125,7 +132,7 @@ export default class StructuralMetadataUtils {
     };
 
     formatItems(allItems);
-    return allItems;
+    return [allItems, smDataIsValid];
   }
 
   /**

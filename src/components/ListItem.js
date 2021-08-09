@@ -78,7 +78,6 @@ class ListItem extends Component {
 
   handleEditClick = () => {
     // Disable the edit buttons of other list items
-    // debugger;
     this.props.handleEditingTimespans(1);
 
     this.setState({ editing: true });

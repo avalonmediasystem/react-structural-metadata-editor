@@ -62,6 +62,7 @@ export const testSmData = [
             id: '123a-456b-789c-3d',
             begin: '00:00:03.321',
             end: '00:00:10.321',
+            valid: true,
           },
           {
             type: 'span',
@@ -69,6 +70,7 @@ export const testSmData = [
             id: '123a-456b-789c-4d',
             begin: '00:00:11.231',
             end: '00:08:00.001',
+            valid: true,
           },
         ],
       },
@@ -94,6 +96,7 @@ export const testSmData = [
                 id: '123a-456b-789c-8d',
                 begin: '00:09:03.241',
                 end: '00:15:00.001',
+                valid: true,
               },
             ],
           },

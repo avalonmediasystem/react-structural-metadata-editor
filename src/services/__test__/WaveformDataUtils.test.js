@@ -33,7 +33,7 @@ describe('WaveformDataUtils class', () => {
       },
     ];
 
-    const value = waveformUtils.initSegments(testSmData);
+    const value = waveformUtils.initSegments(testSmData, 1738.945306);
     expect(value).toBeDefined();
     expect(value).toHaveLength(3);
     expect(value).toEqual(expected);
@@ -301,8 +301,16 @@ describe('WaveformDataUtils class', () => {
       });
 
       test('when a segment is deactivated', () => {
+        const clonedSegment = {
+          startTime: 16.2,
+          endTime: 38.58,
+          id: '123a-456b-789c-4d',
+          labelText: 'Segment 2',
+          valid: true,
+        };
         const value = waveformUtils.deactivateSegment(
-          '123a-456b-789c-4d',
+          clonedSegment,
+          true,
           peaks
         );
         const segments = value.segments.getSegments();
@@ -482,9 +490,8 @@ describe('WaveformDataUtils class', () => {
           peaks
         );
         // Change start time to overlap with previous segment
-        let activatedSegment = activatedPeaks.segments.getSegment(
-          'test-segment'
-        );
+        let activatedSegment =
+          activatedPeaks.segments.getSegment('test-segment');
         activatedSegment.startTime = 479.001;
         const value = waveformUtils.validateSegment(
           activatedSegment,
@@ -509,9 +516,8 @@ describe('WaveformDataUtils class', () => {
           peaks
         );
         // Change end time to overlap with following segment
-        let activatedSegment = activatedPeaks.segments.getSegment(
-          'test-segment'
-        );
+        let activatedSegment =
+          activatedPeaks.segments.getSegment('test-segment');
         activatedSegment.endTime = 543.251;
         const value = waveformUtils.validateSegment(
           activatedSegment,
@@ -536,9 +542,8 @@ describe('WaveformDataUtils class', () => {
           peaks
         );
         // Change end time of the segment
-        let activatedSegment = activatedPeaks.segments.getSegment(
-          'test-segment'
-        );
+        let activatedSegment =
+          activatedPeaks.segments.getSegment('test-segment');
         activatedSegment.endTime = 540.991;
         const value = waveformUtils.validateSegment(
           activatedSegment,
@@ -563,9 +568,8 @@ describe('WaveformDataUtils class', () => {
           peaks
         );
         // Change the end time to exceed the end time of the media file
-        let activatedSegment = activatedPeaks.segments.getSegment(
-          'test-segment'
-        );
+        let activatedSegment =
+          activatedPeaks.segments.getSegment('test-segment');
         activatedSegment.endTime = 1740.001;
         const value = waveformUtils.validateSegment(
           activatedSegment,
@@ -590,9 +594,8 @@ describe('WaveformDataUtils class', () => {
           peaks
         );
         // Change the start time of the segment
-        let activatedSegment = activatedPeaks.segments.getSegment(
-          'test-segment'
-        );
+        let activatedSegment =
+          activatedPeaks.segments.getSegment('test-segment');
         activatedSegment.startTime = 541.431;
         const value = waveformUtils.validateSegment(
           activatedSegment,

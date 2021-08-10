@@ -2,7 +2,11 @@ import React from 'react';
 import { cleanup, fireEvent } from 'react-testing-library';
 import 'jest-dom/extend-expect';
 import TimespanInlineForm from '../TimespanInlineForm';
-import { renderWithRedux, testSmData } from '../../services/testing-helpers';
+import {
+  renderWithRedux,
+  testSmData,
+  testInvalidData,
+} from '../../services/testing-helpers';
 import Peaks from 'peaks';
 
 // Set up a redux store for the tests
@@ -128,7 +132,51 @@ describe('TimespanInlineForm component', () => {
     });
   });
 
-  describe('form changes when segment in the waveform change', () => {
+  test('renders for invalid timespans', () => {
+    let initialState = {
+      structuralMetadata: {
+        smData: testInvalidData,
+      },
+      peaksInstance: {
+        peaks: Peaks.init(peaksOptions),
+        segment: null,
+        startTimeChanged: null,
+      },
+    };
+
+    props = {
+      ...props,
+      item: {
+        type: 'span',
+        label: 'Invalid timespan',
+        id: '123a-456b-789c-5d',
+        begin: '00:20:21.000',
+        end: '00:15:00.001',
+      },
+    };
+    const timespanInlineForm = renderWithRedux(
+      <TimespanInlineForm {...props} />,
+      {
+        initialState,
+      }
+    );
+    expect(
+      timespanInlineForm.getByTestId('timespan-inline-form')
+    ).toBeInTheDocument();
+    expect(timespanInlineForm.getByLabelText(/begin time/i).value).toBe(
+      '00:00:10.321'
+    );
+    expect(timespanInlineForm.getByLabelText(/end time/i).value).toBe(
+      '00:00:11.231'
+    );
+    expect(
+      timespanInlineForm
+        .getByTestId('timespan-inline-form-begintime')
+        .classList.contains('has-success')
+    ).toBeTruthy();
+  });
+
+  describe('form input values change', () => {
     let timespanInlineForm, saveButton, segment;
     beforeEach(() => {
       props = {
@@ -151,7 +199,7 @@ describe('TimespanInlineForm component', () => {
         );
     });
 
-    test('move handles to overlap another segment', () => {
+    test('when moving handles to overlap another segment', () => {
       // Changed from 00:09:03.241 -> 00:07:30.001
       segment.update({ startTime: 450.001 });
 
@@ -183,7 +231,7 @@ describe('TimespanInlineForm component', () => {
       expect(saveButton).toBeEnabled();
     });
 
-    test('move handles another valid time', () => {
+    test('when moving handles to a different valid time', () => {
       // Changed from 00:09:03.241 -> 00:09:00.001
       segment.update({ startTime: 540.001 });
       // Update the redux store with new segment value
@@ -214,7 +262,7 @@ describe('TimespanInlineForm component', () => {
     });
   });
 
-  describe('submit the inline timespan form', () => {
+  describe('submitting the form', () => {
     let timespanInlineForm;
     beforeEach(() => {
       props = {
@@ -235,7 +283,8 @@ describe('TimespanInlineForm component', () => {
         target: { value: '00:09:00.001' },
       });
     });
-    test('save the edited timespan', () => {
+
+    test('saves the edited timespan', () => {
       fireEvent.click(
         timespanInlineForm.getByTestId('inline-form-save-button')
       );
@@ -246,7 +295,8 @@ describe('TimespanInlineForm component', () => {
       });
       expect(saveFnMock).toHaveBeenCalledTimes(1);
     });
-    test('cancel form without saving', () => {
+
+    test('cancels form without saving', () => {
       fireEvent.click(
         timespanInlineForm.getByTestId('inline-form-cancel-button')
       );

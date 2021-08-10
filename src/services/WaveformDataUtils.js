@@ -9,7 +9,7 @@ export default class WaveformDataUtils {
   /**
    * Initialize Peaks instance for the app
    * @param {Array} smData - current structured metadata from the server masterfile
-   * @param {Number} duration - duration of the media file
+   * @param {Number} duration - duration of the media file in seconds
    */
   initSegments(smData, duration) {
     let segments = [];
@@ -202,9 +202,17 @@ export default class WaveformDataUtils {
     return peaksInstance;
   }
 
+  /**
+   * Add a temporary segment to the Peaks instance when editing invalid timespans.
+   * Segmetns equivalent to these timespans are not added to the Peaks instance at
+   * the time of Peaks initialization.
+   * @param {Object} item - invalid item in structure
+   * @param {Number} index - index of the invalid item within structure
+   * @param {Object} peaksInstance - current peaks instance
+   * @returns peaks instance with an added segment for the invalid timespan
+   */
   addTempInvalidSegment(item, index, peaksInstance) {
-    const { startTime, endTime, id, labelText } =
-      this.convertTimespanToSegment(item);
+    const { startTime, id, labelText } = this.convertTimespanToSegment(item);
     const duration = Math.round(peaksInstance.player.getDuration() * 100) / 100;
     if (startTime > duration) {
       const lastSegment = peaksInstance.segments
@@ -223,17 +231,34 @@ export default class WaveformDataUtils {
     } else {
       let nextSegment = peaksInstance.segments.getSegments()[index];
       let prevSegment = peaksInstance.segments.getSegments()[index - 1];
-      if (nextSegment.startTime - prevSegment.endTime > 2) {
-        peaksInstance.segments.add({
+      let tempSegment = {
+        id,
+        labelText,
+        editable: true,
+        color: COLOR_PALETTE[2],
+      };
+      if (prevSegment && nextSegment) {
+        tempSegment = {
+          ...tempSegment,
           startTime: prevSegment.endTime,
           endTime: nextSegment.startTime,
-          id,
-          labelText,
-          editable: true,
-          color: COLOR_PALETTE[2],
-        });
-        peaksInstance.player.seek(prevSegment.endTime);
+        };
+      } else if (!prevSegment) {
+        tempSegment = {
+          ...tempSegment,
+          startTime: 0,
+          endTime: nextSegment.startTime,
+        };
+      } else if (!nextSegment) {
+        tempSegment = {
+          ...tempSegment,
+          startTime: prevSegment.endTime,
+          endTime: duration,
+        };
       }
+
+      peaksInstance.segments.add(tempSegment);
+      peaksInstance.player.seek(tempSegment.startTime);
     }
     return peaksInstance;
   }

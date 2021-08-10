@@ -102,17 +102,9 @@ export default class StructuralMetadataUtils {
           let endTime = convertToSeconds(end);
           item.begin = this.toHHmmss(beginTime);
           item.end = this.toHHmmss(endTime);
-          // if (beginTime > durationInSeconds) {
-          //   item.valid = false;
-          // }
           if (beginTime > endTime || beginTime > durationInSeconds) {
-            // if (beginTime < durationInSeconds) {
             item.valid = false;
             smDataIsValid = false;
-            // item.end = this.toHHmmss(durationInSeconds);
-            // } else {
-            //   item.valid = false;
-            // }
           } else if (endTime > durationInSeconds) {
             item.valid = false;
             smDataIsValid = false;
@@ -121,9 +113,6 @@ export default class StructuralMetadataUtils {
           if (endTime === 0) {
             item.end = this.toHHmmss(durationInSeconds);
           }
-          // if (item.begin > item.end) {
-          //   item.valid = false;
-          // }
         }
         if (item.items) {
           formatItems(item.items);
@@ -760,6 +749,7 @@ export default class StructuralMetadataUtils {
    * @param {Array} allItems
    */
   removeDropTargets(allItems) {
+    console.log(allItems);
     const clonedItems = cloneDeep(allItems);
     let removeFromTree = (parent, childTypeToRemove) => {
       if (!parent.items) {

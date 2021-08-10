@@ -201,7 +201,10 @@ class ListItem extends Component {
           )}
 
           {!this.state.editing && (
-            <div className={'row-wrapper' + (!valid ? ' invalid' : '')}>
+            <div
+              className={'row-wrapper' + (!valid ? ' invalid' : '')}
+              data-testid="list-item"
+            >
               {type === 'span' && (
                 <React.Fragment>
                   <span

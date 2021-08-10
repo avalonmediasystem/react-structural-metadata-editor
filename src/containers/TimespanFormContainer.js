@@ -8,10 +8,10 @@ import * as peaksActions from '../actions/peaks-instance';
 const structuralMetadataUtils = new StructuralMetadataUtils();
 class TimespanFormContainer extends Component {
   state = {
-    isTyping: false
+    isTyping: false,
   };
 
-  submit = values => {
+  submit = (values) => {
     // Update the data structure with new heading
     const { newSpan, updatedData } = structuralMetadataUtils.insertNewTimespan(
       values,
@@ -28,7 +28,7 @@ class TimespanFormContainer extends Component {
     this.props.cancelClick();
   };
 
-  setIsTyping = value => {
+  setIsTyping = (value) => {
     if (value === 1) {
       this.setState({ isTyping: true });
     } else {
@@ -48,13 +48,14 @@ class TimespanFormContainer extends Component {
   }
 }
 
-const mapDispatchToProps = dispatch => ({
-  reBuildSMUI: data => dispatch(smActions.reBuildSMUI(data)),
-  insertNewSegment: newspan => dispatch(peaksActions.insertNewSegment(newspan))
+const mapDispatchToProps = (dispatch) => ({
+  reBuildSMUI: (data) => dispatch(smActions.reBuildSMUI(data)),
+  insertNewSegment: (newspan) =>
+    dispatch(peaksActions.insertNewSegment(newspan)),
 });
 
-const mapStateToProps = state => ({
-  smData: state.structuralMetadata.smData
+const mapStateToProps = (state) => ({
+  smData: state.structuralMetadata.smData,
 });
 
 export default connect(

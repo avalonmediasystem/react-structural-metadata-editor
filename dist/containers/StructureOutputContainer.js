@@ -37,8 +37,6 @@ var _reactBootstrap = require("react-bootstrap");
 
 var _Utils = _interopRequireDefault(require("../api/Utils"));
 
-var _AlertContainer = _interopRequireDefault(require("./AlertContainer"));
-
 var _alertStatus = require("../services/alert-status");
 
 var _forms = require("../actions/forms");
@@ -60,23 +58,17 @@ function (_Component) {
     (0, _classCallCheck2["default"])(this, StructureOutputContainer);
     _this = (0, _possibleConstructorReturn2["default"])(this, (0, _getPrototypeOf2["default"])(StructureOutputContainer).call(this, props));
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "state", {
-      alertObj: _this.props.alertObj,
       baseURL: _this.props.baseURL,
       masterFileID: _this.props.masterFileID,
       structureStatus: _this.props.structureInfo.structureStatus,
       initialStructure: _this.props.structuralMetadata.initSmData
-    });
-    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "clearAlert", function () {
-      _this.setState({
-        alertObj: null
-      });
     });
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "handleSaveItClick",
     /*#__PURE__*/
     (0, _asyncToGenerator2["default"])(
     /*#__PURE__*/
     _regenerator["default"].mark(function _callee() {
-      var _this$state, baseURL, masterFileID, postData, response, status, alertObj;
+      var _this$state, baseURL, masterFileID, postData, response, status, alert;
 
       return _regenerator["default"].wrap(function _callee$(_context) {
         while (1) {
@@ -93,13 +85,11 @@ function (_Component) {
             case 5:
               response = _context.sent;
               status = response.status;
-              alertObj = (0, _alertStatus.configureAlert)(status, _this.clearAlert);
+              alert = (0, _alertStatus.configureAlert)(status);
+
+              _this.props.setAlert(alert);
 
               _this.props.postStructureSuccess(1);
-
-              _this.setState({
-                alertObj: alertObj
-              });
 
               _context.next = 15;
               break;
@@ -126,25 +116,21 @@ function (_Component) {
     value: function handleSaveError(error) {
       console.log('TCL: handleSaveError -> error', error);
       var status = error.response !== undefined ? error.response.status : error.request.status;
-      var alertObj = (0, _alertStatus.configureAlert)(status, this.clearAlert);
-      this.setState({
-        alertObj: alertObj
-      });
+      var alert = (0, _alertStatus.configureAlert)(status);
+      this.props.setAlert(alert);
     }
   }, {
     key: "render",
     value: function render() {
       var _this$props = this.props,
-          structureInfo = _this$props.structureInfo,
           structuralMetadata = _this$props.structuralMetadata,
           editingDisabled = _this$props.editingDisabled;
-      var alertObj = this.state.alertObj;
       return _react["default"].createElement("section", {
         className: "structure-section",
         "data-testid": "structure-output-section"
-      }, !structureInfo.structureRetrieved ? _react["default"].createElement(_AlertContainer["default"], alertObj) : _react["default"].createElement("div", {
+      }, _react["default"].createElement("div", {
         "data-testid": "structure-output-list"
-      }, _react["default"].createElement(_AlertContainer["default"], alertObj), _react["default"].createElement(_List["default"], {
+      }, _react["default"].createElement(_List["default"], {
         items: structuralMetadata.smData
       }), _react["default"].createElement(_reactBootstrap.Row, null, _react["default"].createElement(_reactBootstrap.Col, {
         xs: 12,
@@ -159,22 +145,7 @@ function (_Component) {
   }], [{
     key: "getDerivedStateFromProps",
     value: function getDerivedStateFromProps(nextProps, prevState) {
-      var _nextProps$structureI = nextProps.structureInfo,
-          structureStatus = _nextProps$structureI.structureStatus,
-          structureSaved = _nextProps$structureI.structureSaved;
-
-      if (prevState.structureStatus !== structureStatus) {
-        return {
-          alertObj: (0, _alertStatus.configureAlert)(structureStatus, nextProps.clearAlert)
-        };
-      }
-
-      if (nextProps.alertObj === null) {
-        return {
-          alertObj: null
-        };
-      }
-
+      var structureSaved = nextProps.structureInfo.structureSaved;
       var _nextProps$structural = nextProps.structuralMetadata,
           initSmData = _nextProps$structural.initSmData,
           smData = _nextProps$structural.smData;
@@ -208,12 +179,14 @@ var mapStateToProps = function mapStateToProps(state) {
   return {
     structuralMetadata: state.structuralMetadata,
     structureInfo: state.forms.structureInfo,
-    editingDisabled: state.forms.editingDisabled
+    editingDisabled: state.forms.editingDisabled,
+    alert: state.forms.alert
   };
 };
 
 var mapDispatchToProps = {
-  postStructureSuccess: _forms.updateStructureStatus
+  postStructureSuccess: _forms.updateStructureStatus,
+  setAlert: _forms.setAlert
 };
 
 var _default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(StructureOutputContainer);

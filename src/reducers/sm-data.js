@@ -19,6 +19,9 @@ const structuralMetadata = (state = initialState, action) => {
       );
       return { ...state, smData: newState };
 
+    case types.REBUILD_SM_UI:
+      return { ...state, smData: action.items };
+
     case types.SAVE_INIT_SMDATA:
       return {
         ...state,
@@ -56,9 +59,8 @@ const structuralMetadata = (state = initialState, action) => {
       return { ...stateClone, smData: stateClone.smData };
 
     case types.REMOVE_ACTIVE_DRAG_SOURCES:
-      let noActiveDragSourcesState = structuralMetadataUtils.removeActiveDragSources(
-        state.smData
-      );
+      let noActiveDragSourcesState =
+        structuralMetadataUtils.removeActiveDragSources(state.smData);
       return { ...state, smData: noActiveDragSourcesState };
 
     case types.HANDLE_LIST_ITEM_DROP:

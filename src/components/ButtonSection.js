@@ -5,8 +5,7 @@ import HeadingFormContainer from '../containers/HeadingFormContainer';
 import TimespanFormContainer from '../containers/TimespanFormContainer';
 import * as peaksActions from '../actions/peaks-instance';
 import { configureAlert } from '../services/alert-status';
-import AlertContainer from '../containers/AlertContainer';
-import { handleEditingTimespans } from '../actions/forms';
+import { handleEditingTimespans, setAlert } from '../actions/forms';
 
 const styles = {
   well: {
@@ -20,7 +19,10 @@ class ButtonSection extends Component {
     timespanOpen: false,
     initSegment: null,
     isInitializing: true,
-    alertObj: null,
+    alertObj: {
+      alert: null,
+      showAlert: false,
+    },
     disabled: true,
   };
 
@@ -32,18 +34,9 @@ class ButtonSection extends Component {
     }
   };
 
-  clearAlert = () => {
-    this.setState({
-      alertObj: null,
-      disabled: true,
-    });
-    // Clear the redux-store flag when closing the alert from AlertContainer
-    this.props.handleEditingTimespans(0);
-  };
-
   handleCancelHeadingClick = () => {
     this.setState({ headingOpen: false });
-    this.clearAlert();
+    this.props.handleEditingTimespans(0);
   };
 
   handleHeadingClick = () => {
@@ -51,7 +44,6 @@ class ButtonSection extends Component {
     // When opening heading form, delete if a temporary segment exists
     this.deleteTempSegment();
     this.setState({
-      alertObj: null,
       headingOpen: true,
       timespanOpen: false,
       disabled: false,
@@ -61,13 +53,10 @@ class ButtonSection extends Component {
   handleCancelTimespanClick = () => {
     this.deleteTempSegment();
     this.setState({ timespanOpen: false });
-    this.clearAlert();
+    this.props.handleEditingTimespans(0);
   };
 
   handleTimeSpanClick = () => {
-    // Clear existing alertObj
-    this.clearAlert();
-
     // Disable editing other items in structure
     this.props.handleEditingTimespans(1);
 
@@ -75,12 +64,12 @@ class ButtonSection extends Component {
     if (!this.state.timespanOpen) {
       this.props.createTempSegment();
     }
-    const tempSegment = this.props.peaksInstance.peaks.segments.getSegment(
-      'temp-segment'
-    );
+    const tempSegment =
+      this.props.peaksInstance.peaks.segments.getSegment('temp-segment');
     if (tempSegment === null) {
+      const noSpaceAlert = configureAlert(-4);
+      this.props.setAlert(noSpaceAlert);
       this.setState({
-        alertObj: configureAlert(-4, this.clearAlert),
         headingOpen: false,
         disabled: false,
       });
@@ -105,6 +94,7 @@ class ButtonSection extends Component {
   };
 
   render() {
+    // console.log(this.state.alertObj);
     const timespanFormProps = {
       cancelClick: this.handleCancelTimespanClick,
       initSegment: this.state.initSegment,
@@ -118,7 +108,6 @@ class ButtonSection extends Component {
     // Only return UI when both structure and waveform data exist
     return structureInfo.structureRetrieved ? (
       <section>
-        <AlertContainer {...this.state.alertObj} />
         <Row data-testid="button-row">
           <Col xs={6}>
             <Button
@@ -178,6 +167,7 @@ const mapDispatchToProps = {
   deleteTempSegment: peaksActions.deleteTempSegment,
   dragSegment: peaksActions.dragSegment,
   handleEditingTimespans: handleEditingTimespans,
+  setAlert: setAlert,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(ButtonSection);

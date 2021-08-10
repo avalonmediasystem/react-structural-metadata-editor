@@ -7,7 +7,7 @@ import * as types from '../actions/types';
 const appReducer = combineReducers({
   forms,
   structuralMetadata,
-  peaksInstance
+  peaksInstance,
 });
 
 const rootReducer = (state, action) => {

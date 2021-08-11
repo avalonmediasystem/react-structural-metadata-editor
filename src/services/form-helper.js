@@ -37,7 +37,7 @@ export function getValidationBeginState(beginTime, allSpans) {
     return null;
   }
 
-  const validFormat = structuralMetadataUtils.validTimeFormat(beginTime);
+  const validFormat = validTimeFormat(beginTime);
   const validBeginTime = structuralMetadataUtils.doesTimeOverlap(
     beginTime,
     allSpans
@@ -52,24 +52,12 @@ export function getValidationBeginState(beginTime, allSpans) {
   return null;
 }
 
-export function getValidationEndState(
-  beginTime,
-  endTime,
-  allSpans,
-  peaksInstance
-) {
-  let duration;
-  if (peaksInstance !== undefined) {
-    if (peaksInstance.player !== undefined) {
-      duration = waveformDataUtils.roundOff(peaksInstance.player.getDuration());
-    }
-  }
-
+export function getValidationEndState(beginTime, endTime, allSpans, duration) {
   if (!endTime || endTime.indexOf(':') === -1) {
     return null;
   }
 
-  const validFormat = structuralMetadataUtils.validTimeFormat(endTime);
+  const validFormat = validTimeFormat(endTime);
   const validEndTime = structuralMetadataUtils.doesTimeOverlap(
     endTime,
     allSpans,
@@ -126,13 +114,13 @@ export function validTimespans(beginTime, endTime, allSpans, peaksInstance) {
     }
   }
   // Valid formats?
-  if (!structuralMetadataUtils.validTimeFormat(beginTime)) {
+  if (!validTimeFormat(beginTime)) {
     return {
       valid: false,
       message: 'Invalid begin time format',
     };
   }
-  if (!structuralMetadataUtils.validTimeFormat(endTime)) {
+  if (!validTimeFormat(endTime)) {
     return {
       valid: false,
       message: 'Invalid end time format',
@@ -177,4 +165,8 @@ export function validTimespans(beginTime, endTime, allSpans, peaksInstance) {
 
   // Success!
   return { valid: true };
+}
+
+export function validTimeFormat(value) {
+  return value && value.split(':').length === 3;
 }

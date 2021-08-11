@@ -8,40 +8,23 @@ import { setAlert, updateStructureStatus } from '../actions/forms';
 import { isEqual } from 'lodash';
 import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
 
-const smu = new StructuralMetadataUtils();
-
 const StructureOutputContainer = (props) => {
-  const { alertObj, baseURL, masterFileID, structureInfo, structuralMetadata } =
-    props;
-  const { structureStatus, structureSaved, structureRetrieved } = structureInfo;
-  const { smData, initSmData, smDataIsValid } = structuralMetadata;
+  const smu = new StructuralMetadataUtils();
   const apiUtils = new APIUtils();
 
-  const [stateAlertObj, setAlertObj] = useState(alertObj);
+  const { baseURL, masterFileID, structureInfo, structuralMetadata } = props;
+  const { structureSaved } = structureInfo;
+  const { smData, initSmData, smDataIsValid } = structuralMetadata;
+
   const [stateInitStructure, setInitStructure] = useState(initSmData);
-  const [isValid, setIsValid] = useState(smDataIsValid);
-
-  useEffect(() => {
-    setAlertObj(configureAlert(structureStatus, props.clearAlert));
-  }, [structureStatus]);
-
-  useEffect(() => {
-    if (alertObj === null) {
-      setAlertObj(null);
-    }
-  }, [alertObj]);
 
   useEffect(() => {
     setInitStructure(initSmData);
   }, [initSmData]);
 
   useEffect(() => {
-    if (smDataIsValid) {
-      setIsValid(true);
-      setAlertObj(null);
-    } else {
-      setIsValid(false);
-      setAlertObj(configureAlert(-8, props.clearAlert));
+    if (!smDataIsValid) {
+      props.setAlert(configureAlert(-8));
     }
   }, [smDataIsValid]);
 
@@ -58,15 +41,15 @@ const StructureOutputContainer = (props) => {
     }
   }, [structureSaved]);
 
-  handleSaveError(error) {
+  const handleSaveError = (error) => {
     console.log('TCL: handleSaveError -> error', error);
     let status =
       error.response !== undefined
         ? error.response.status
         : error.request.status;
     const alert = configureAlert(status);
-    this.props.setAlert(alert);
-  }
+    props.setAlert(alert);
+  };
 
   const handleSaveItClick = async () => {
     let postData = { json: smData[0] };
@@ -79,9 +62,9 @@ const StructureOutputContainer = (props) => {
       );
       const { status } = response;
       const alert = configureAlert(status);
-      this.props.setAlert(alert);
+      props.setAlert(alert);
 
-      this.props.postStructureSuccess(1);
+      props.postStructureSuccess(1);
     } catch (error) {
       handleSaveError(error);
     }
@@ -92,26 +75,21 @@ const StructureOutputContainer = (props) => {
       className="structure-section"
       data-testid="structure-output-section"
     >
-      {!structureRetrieved ? (
-        <AlertContainer {...stateAlertObj} />
-      ) : (
-        <div data-testid="structure-output-list">
-          <AlertContainer {...stateAlertObj} />
-          <List items={smData} />
-          <Row>
-            <Col xs={12} className="text-right">
-              <Button
-                bsStyle="primary"
-                onClick={handleSaveItClick}
-                data-testid="structure-save-button"
-                disabled={props.editingDisabled}
-              >
-                Save Structure
-              </Button>
-            </Col>
-          </Row>
-        </div>
-      )}
+      <div data-testid="structure-output-list">
+        <List items={smData} />
+        <Row>
+          <Col xs={12} className="text-right">
+            <Button
+              bsStyle="primary"
+              onClick={handleSaveItClick}
+              data-testid="structure-save-button"
+              disabled={props.editingDisabled}
+            >
+              Save Structure
+            </Button>
+          </Col>
+        </Row>
+      </div>
     </section>
   );
 };

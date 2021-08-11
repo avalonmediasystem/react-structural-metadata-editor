@@ -33,6 +33,6 @@ export const IS_DRAGGING = 'IS_DRAGGING';
 
 export const SET_ALERT = 'SET_ALERT';
 export const REMOVE_ALERT = 'REMOVE_ALERT';
+export const CLEAR_EXISTING_ALERTS = 'CLEAR_EXISTING_ALERTS';
 
 export const RESET_STORE = 'RESET_STORE';
-export const INIT_CRUD_ACTION = 'INIT_CRUD_ACTION';

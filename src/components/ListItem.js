@@ -78,7 +78,7 @@ class ListItem extends Component {
 
   handleEditClick = () => {
     // Disable the edit buttons of other list items
-    this.props.handleEditingTimespans(1);
+    this.props.handleEditingTimespans(1, this.props.smDataIsValid);
 
     this.setState({ editing: true });
   };
@@ -87,7 +87,7 @@ class ListItem extends Component {
     this.setState({ editing: false });
 
     // Enable the edit buttons of other list items
-    this.props.handleEditingTimespans(0);
+    this.props.handleEditingTimespans(0, this.props.smDataIsValid);
   };
 
   handleShowDropTargetsClick = () => {
@@ -257,6 +257,7 @@ const mapDispatchToProps = {
 
 const mapStateToProps = (state) => ({
   smData: state.structuralMetadata.smData,
+  smDataIsValid: state.structuralMetadata.smDataIsValid,
 });
 
 const ConnectedDropTarget = DropTarget(ItemTypes.SPAN, spanTarget, collectDrop);

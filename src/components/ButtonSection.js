@@ -94,7 +94,6 @@ class ButtonSection extends Component {
   };
 
   render() {
-    // console.log(this.state.alertObj);
     const timespanFormProps = {
       cancelClick: this.handleCancelTimespanClick,
       initSegment: this.state.initSegment,

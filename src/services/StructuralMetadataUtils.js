@@ -316,6 +316,13 @@ export default class StructuralMetadataUtils {
     return valid;
   }
 
+  /**
+   * Check a given timespan overlaps other timespans in the structure
+   * @param {String} beginTime - timespan start time in hh:mm:ss.ms format
+   * @param {String} endTime - timespan end time in hh:mm:ss.ms format
+   * @param {Array} allSpans - list of all timespans in the structure
+   * @returns {Boolean}
+   */
   doesTimespanOverlap(beginTime, endTime, allSpans) {
     const { toMs } = this;
     // Filter out only spans where new begin time is before an existing begin time
@@ -436,6 +443,12 @@ export default class StructuralMetadataUtils {
     return options;
   }
 
+  /**
+   * Find the parent heading item (div) of a given item
+   * @param {Object} child - item for which parent div needs to be found
+   * @param {Array} allItems - list of items in the structure
+   * @returns {Object} parent div of the given child item
+   */
   getParentDiv(child, allItems) {
     let foundDiv = null;
 
@@ -749,7 +762,6 @@ export default class StructuralMetadataUtils {
    * @param {Array} allItems
    */
   removeDropTargets(allItems) {
-    console.log(allItems);
     const clonedItems = cloneDeep(allItems);
     let removeFromTree = (parent, childTypeToRemove) => {
       if (!parent.items) {
@@ -781,10 +793,6 @@ export default class StructuralMetadataUtils {
       return false;
     }
     return true;
-  }
-
-  validTimeFormat(value) {
-    return value && value.split(':').length === 3;
   }
 
   /**

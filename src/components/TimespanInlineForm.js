@@ -57,6 +57,16 @@ class TimespanInlineForm extends Component {
     this.tempSmData = cloneDeep(smData);
     const tempPeaks = cloneDeep(peaksInstance.peaks);
 
+    // Make segment related to timespan editable
+    if (item.valid) {
+      // Load existing form values
+      this.setState(getExistingFormValues(item.id, this.tempSmData, tempPeaks));
+
+      this.props.activateSegment(item.id);
+    } else {
+      this.handleInvalidTimespan();
+    }
+
     // Remove current list item from the data we're doing validation against in this form
     this.tempSmData = structuralMetadataUtils.deleteListItem(
       item.id,
@@ -68,16 +78,6 @@ class TimespanInlineForm extends Component {
       'span',
       this.tempSmData
     );
-
-    // Make segment related to timespan editable
-    if (item.valid) {
-      // Load existing form values
-      this.setState(getExistingFormValues(item.id, this.tempSmData, tempPeaks));
-
-      this.props.activateSegment(item.id);
-    } else {
-      this.handleInvalidTimespan();
-    }
 
     // Get segment from current peaks instance
     const segment = peaksInstance.peaks.segments.getSegment(item.id);
@@ -113,7 +113,8 @@ class TimespanInlineForm extends Component {
         const { startTime, endTime } = waveformUtils.validateSegment(
           segment,
           startTimeChanged,
-          peaksInstance.peaks
+          peaksInstance.peaks,
+          peaksInstance.duration
         );
         return {
           beginTime: structuralMetadataUtils.toHHmmss(startTime),
@@ -230,7 +231,7 @@ class TimespanInlineForm extends Component {
                 beginTime,
                 endTime,
                 this.allSpans,
-                this.props.peaksInstance.peaks
+                this.props.peaksInstance.duration
               )}
             >
               <ControlLabel>End Time</ControlLabel>

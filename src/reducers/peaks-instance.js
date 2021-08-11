@@ -68,9 +68,13 @@ const peaksInstance = (state = initialState, action) => {
       };
 
     case types.ACTIVATE_SEGMENT:
-      newPeaks = waveformUtils.activateSegment(action.payload, {
-        ...state.peaks,
-      });
+      newPeaks = waveformUtils.activateSegment(
+        action.payload,
+        {
+          ...state.peaks,
+        },
+        state.duration
+      );
       return {
         ...state,
         peaks: newPeaks,
@@ -82,7 +86,8 @@ const peaksInstance = (state = initialState, action) => {
         action.index,
         {
           ...state.peaks,
-        }
+        },
+        state.duration
       );
       return {
         ...state,

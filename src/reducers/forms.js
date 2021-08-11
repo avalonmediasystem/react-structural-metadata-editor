@@ -78,7 +78,7 @@ const forms = (state = initialState, action) => {
         editingDisabled: false,
       });
 
-    case types.INIT_CRUD_ACTION:
+    case types.CLEAR_EXISTING_ALERTS:
       return Object.assign({}, state, {
         alerts: state.alerts.filter((a) => a.persistent),
       });

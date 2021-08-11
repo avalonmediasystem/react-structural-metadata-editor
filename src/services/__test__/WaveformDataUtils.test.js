@@ -34,14 +34,14 @@ describe('WaveformDataUtils class', () => {
         },
       ];
 
-      const value = waveformUtils.initSegments(testSmData, 1738.945306);
+      const value = waveformUtils.initSegments(testSmData, 1738945);
       expect(value).toBeDefined();
       expect(value).toHaveLength(3);
       expect(value).toEqual(expected);
     });
 
     test('with empty structure', () => {
-      const value = waveformUtils.initSegments([], 1738.95);
+      const value = waveformUtils.initSegments([], 1738945);
       expect(value).toBeDefined();
       expect(value).toHaveLength(0);
     });
@@ -504,7 +504,8 @@ describe('WaveformDataUtils class', () => {
         const value = waveformUtils.validateSegment(
           activatedSegment,
           true,
-          activatedPeaks
+          activatedPeaks,
+          1738945
         );
         expect(value.startTime).toEqual(480.001);
         expect(value.endTime).toEqual(500.001);
@@ -530,7 +531,8 @@ describe('WaveformDataUtils class', () => {
         const value = waveformUtils.validateSegment(
           activatedSegment,
           false,
-          activatedPeaks
+          activatedPeaks,
+          1738945
         );
         expect(value.startTime).toEqual(490.991);
         expect(value.endTime).toEqual(543.241);
@@ -547,7 +549,8 @@ describe('WaveformDataUtils class', () => {
         peaks.segments.add(testSegment);
         let activatedPeaks = waveformUtils.activateSegment(
           'test-segment',
-          peaks
+          peaks,
+          1738945
         );
         // Change end time of the segment
         let activatedSegment =
@@ -556,7 +559,8 @@ describe('WaveformDataUtils class', () => {
         const value = waveformUtils.validateSegment(
           activatedSegment,
           false,
-          activatedPeaks
+          activatedPeaks,
+          1738945
         );
         expect(value.startTime).toEqual(499.991);
         expect(value.endTime).toEqual(540.991);
@@ -573,7 +577,8 @@ describe('WaveformDataUtils class', () => {
         peaks.segments.add(testSegment);
         let activatedPeaks = waveformUtils.activateSegment(
           'test-segment',
-          peaks
+          peaks,
+          1738945
         );
         // Change the end time to exceed the end time of the media file
         let activatedSegment =
@@ -582,7 +587,8 @@ describe('WaveformDataUtils class', () => {
         const value = waveformUtils.validateSegment(
           activatedSegment,
           false,
-          activatedPeaks
+          activatedPeaks,
+          1738945
         );
         expect(value.startTime).toEqual(1200.991);
         expect(value.endTime).toEqual(1738.945);
@@ -608,7 +614,8 @@ describe('WaveformDataUtils class', () => {
         const value = waveformUtils.validateSegment(
           activatedSegment,
           true,
-          activatedPeaks
+          activatedPeaks,
+          1738945
         );
         expect(value.startTime).toEqual(541.431);
         expect(value.endTime).toEqual(543.241);
@@ -629,12 +636,13 @@ describe('WaveformDataUtils class', () => {
           const value = waveformUtils.addTempInvalidSegment(
             testTimespan,
             3,
-            peaks
+            peaks,
+            1738945
           );
           expect(value.segments.getSegment('123a-456b-789c-11d')).toBeDefined();
           const tempSegment = value.segments.getSegment('123a-456b-789c-11d');
           expect(tempSegment.startTime).toEqual(900.001);
-          expect(tempSegment.endTime).toEqual(1738.95);
+          expect(tempSegment.endTime).toEqual(1738.945);
         });
 
         test('for a middle timespan', () => {
@@ -649,12 +657,13 @@ describe('WaveformDataUtils class', () => {
           const value = waveformUtils.addTempInvalidSegment(
             testTimespan,
             2,
-            peaks
+            peaks,
+            1738945
           );
           expect(value.segments.getSegment('123a-456b-789c-11d')).toBeDefined();
           const tempSegment = value.segments.getSegment('123a-456b-789c-11d');
           expect(tempSegment.startTime).toEqual(900.001);
-          expect(tempSegment.endTime).toEqual(1738.95);
+          expect(tempSegment.endTime).toEqual(1738.945);
         });
       });
 
@@ -671,7 +680,8 @@ describe('WaveformDataUtils class', () => {
           const value = waveformUtils.addTempInvalidSegment(
             testTimespan,
             0,
-            peaks
+            peaks,
+            1738945
           );
           expect(value.segments.getSegment('123a-456b-789c-11d')).toBeDefined();
           const tempSegment = value.segments.getSegment('123a-456b-789c-11d');
@@ -692,7 +702,8 @@ describe('WaveformDataUtils class', () => {
           const value = waveformUtils.addTempInvalidSegment(
             testTimespan,
             2,
-            peaks
+            peaks,
+            1738945
           );
           expect(value.segments.getSegment('123a-456b-789c-10d')).toBeDefined();
           const tempSegment = value.segments.getSegment('123a-456b-789c-10d');
@@ -713,12 +724,13 @@ describe('WaveformDataUtils class', () => {
           const value = waveformUtils.addTempInvalidSegment(
             testTimespan,
             3,
-            peaks
+            peaks,
+            1738945
           );
           expect(value.segments.getSegment('123a-456b-789c-10d')).toBeDefined();
           const tempSegment = value.segments.getSegment('123a-456b-789c-10d');
           expect(tempSegment.startTime).toEqual(900.001);
-          expect(tempSegment.endTime).toEqual(1738.95);
+          expect(tempSegment.endTime).toEqual(1738.945);
         });
       });
     });

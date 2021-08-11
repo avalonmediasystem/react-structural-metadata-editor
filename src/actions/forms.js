@@ -6,13 +6,19 @@ import uuidv1 from 'uuid/v1';
  * Enable/disable other editing actions when editing a list item
  * @param {Integer} code - choose from; 1(true) | 0(false)
  */
-export const handleEditingTimespans = (code) => (dispatch) => {
-  dispatch({ type: types.IS_EDITING_TIMESPAN, code });
-  // Remove dismissible alerts when a CRUD action has been initiated
-  if (code == 1) {
-    dispatch(initCRUDAction());
-  }
-};
+export const handleEditingTimespans =
+  (
+    code,
+    valid = true // assumes structure data is valid by default
+  ) =>
+  (dispatch) => {
+    dispatch({ type: types.IS_EDITING_TIMESPAN, code });
+    // Remove dismissible alerts when a CRUD action has been initiated
+    // given editing is starting (code = 1) and structure is validated.
+    if (code == 1 && valid) {
+      dispatch(clearExistingAlerts());
+    }
+  };
 
 export const setAlert = (alert) => (dispatch) => {
   const id = uuidv1();
@@ -31,8 +37,8 @@ export const removeAlert = (id) => ({
   id,
 });
 
-export const initCRUDAction = () => ({
-  type: types.INIT_CRUD_ACTION,
+export const clearExistingAlerts = () => ({
+  type: types.CLEAR_EXISTING_ALERTS,
 });
 
 export const retrieveStructureSuccess = () => ({
@@ -93,6 +99,7 @@ export function retrieveStreamMedia(audioFile, mediaPlayer) {
         // BUFFER_CREATED event is fired when fetching the media stream is successful
         hls.on(Hls.Events.BUFFER_CREATED, function () {
           dispatch(streamMediaSuccess());
+          // dispatch(handleEditingTimespans(0));
         });
       });
 

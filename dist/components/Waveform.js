@@ -55,7 +55,9 @@ function (_Component) {
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "componentDidMount", function () {
       var audioFile = _this.state.audioFile;
 
-      _this.props.retrieveStreamMedia(audioFile, _this.mediaPlayer); // Grab the React `refs` now the component is mounted
+      _this.props.retrieveStreamMedia(audioFile, _this.mediaPlayer, {
+        withCredentials: _this.props.withCredentials
+      }); // Grab the React `refs` now the component is mounted
 
 
       _this.props.zoomViewRef(_this.zoomView.current);

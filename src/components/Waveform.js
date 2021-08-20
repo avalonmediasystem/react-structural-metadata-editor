@@ -49,7 +49,7 @@ class Waveform extends Component {
 
   componentDidMount = () => {
     const { audioFile } = this.state;
-    this.props.retrieveStreamMedia(audioFile, this.mediaPlayer);
+    this.props.retrieveStreamMedia(audioFile, this.mediaPlayer, { withCredentials: this.props.withCredentials });
 
     // Grab the React `refs` now the component is mounted
     this.props.zoomViewRef(this.zoomView.current);

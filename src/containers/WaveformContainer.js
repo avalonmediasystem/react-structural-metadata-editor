@@ -106,6 +106,7 @@ class WaveformContainer extends Component {
           overViewRef={(ref) => (this.overView = ref)}
           mediaPlayerRef={(ref) => (this.mediaPlayer = ref)}
           audioStreamURL={audioStreamURL}
+          withCredentials={this.props.withCredentials}
         />{' '}
       </section>
     );

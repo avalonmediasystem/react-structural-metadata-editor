@@ -19,9 +19,11 @@ const initialState = {
       structureRetrieved: true,
       structureStatus: null,
     },
+    alerts: [],
   },
   structuralMetadata: {
     smData: testSmData,
+    smDataIsValid: true,
   },
 };
 const mockStructureIsSaved = jest.fn();
@@ -46,7 +48,7 @@ describe('StructureOutputContainer component', () => {
     expect(getByTestId('structure-output-section')).toBeInTheDocument();
   });
 
-  test('shows structure list when there fetching structure.json is successful', () => {
+  test('shows structure list when fetching structure.json is successful', () => {
     const { getByTestId, queryByTestId } = renderWithRedux(
       <StructureOutputContext structureIsSaved={mockStructureIsSaved} />,
       { initialState }

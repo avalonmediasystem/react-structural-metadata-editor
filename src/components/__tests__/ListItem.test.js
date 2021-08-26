@@ -42,12 +42,14 @@ const divItem = {
   label: 'Sub-Segment 1.1',
   id: '123a-456b-789c-2d',
   items: [],
+  valid: true,
 };
 const rootItem = {
   type: 'root',
   label: 'Ima Title',
   id: '123a-456b-789c-0d',
   items: [],
+  valid: true,
 };
 const spanItem = {
   type: 'span',
@@ -55,6 +57,15 @@ const spanItem = {
   id: '123a-456b-789c-3d',
   begin: '00:00:03.321',
   end: '00:00:10.321',
+  valid: true,
+};
+const invalidItem = {
+  type: 'span',
+  label: 'Invalid Item',
+  id: '123a-456b-789c-10d',
+  begin: '00:03:02.333',
+  end: '00:02:03.333',
+  valid: false,
 };
 const divItemWithChildren = {
   type: 'div',
@@ -86,26 +97,26 @@ const divItemWithChildren = {
 
 let ListItemContext = null;
 
-beforeEach(() => {
-  ListItemContext = wrapInTestContext(ListItem);
-});
-afterEach(cleanup);
-
 describe('ListItem component', () => {
-  describe('initial ListItem render', () => {
-    let utils = null;
+  beforeEach(() => {
+    ListItemContext = wrapInTestContext(ListItem);
+  });
+  afterEach(cleanup);
 
-    beforeEach(() => {
-      utils = renderWithRedux(<ListItemContext item={divItem} />, {
+  describe('renders', () => {
+    test('successfully', () => {
+      const utils = renderWithRedux(<ListItemContext item={divItem} />, {
         initialState,
       });
-    });
-
-    it('renders a basic ListItem', () => {
+      expect(utils.queryByTestId('heading-label')).toBeInTheDocument();
       expect(utils.getByText(/^Sub-Segment 1.1$/)).toBeInTheDocument();
     });
 
-    it('does not show any edit forms', () => {
+    test('without any edit forms', () => {
+      const utils = renderWithRedux(<ListItemContext item={divItem} />, {
+        initialState,
+      });
+      expect(utils.queryByTestId('heading-label')).toBeInTheDocument();
       expect(
         utils.queryByTestId('inline-heading-title-form-group')
       ).not.toBeInTheDocument();
@@ -113,52 +124,80 @@ describe('ListItem component', () => {
         utils.queryByTestId('timespan-inline-form')
       ).not.toBeInTheDocument();
     });
+
+    test('an invalid timespan', () => {
+      const utils = renderWithRedux(<ListItemContext item={invalidItem} />, {
+        initialState,
+      });
+      expect(utils.queryByTestId('timespan-label')).toBeInTheDocument();
+      expect(utils.getByTestId('list-item')).toHaveClass('invalid');
+    });
   });
 
-  it('ListItem renders the correct html element based on item.type', () => {
-    const utils = renderWithRedux(<ListItemContext item={divItem} />, {
-      initialState,
+  describe('renders correct item based on type', () => {
+    test('type == div', () => {
+      const utils = renderWithRedux(<ListItemContext item={divItem} />, {
+        initialState,
+      });
+
+      expect(utils.getByTestId('heading-label')).toBeInTheDocument();
+      expect(utils.queryByTestId('timespan-label')).not.toBeInTheDocument();
     });
 
-    expect(utils.getByTestId('heading-label')).toBeInTheDocument();
-    expect(utils.queryByTestId('timespan-label')).not.toBeInTheDocument();
-
-    utils.rerenderWithRedux(<ListItemContext item={rootItem} />, initialState);
-    expect(utils.getByTestId('heading-label')).toBeInTheDocument();
-
-    utils.rerenderWithRedux(<ListItemContext item={spanItem} />, initialState);
-    expect(utils.queryByTestId('heading-label')).not.toBeInTheDocument();
-    expect(utils.getByTestId('timespan-label')).toBeInTheDocument();
-  });
-
-  it('timespan item displays a begin and end time with its label', () => {
-    const utils = renderWithRedux(<ListItemContext item={spanItem} />, {
-      initialState,
+    test('type == root', () => {
+      const utils = renderWithRedux(<ListItemContext item={rootItem} />, {
+        initialState,
+      });
+      expect(utils.getByTestId('heading-label')).toBeInTheDocument();
+      expect(utils.getByTestId('list-item-edit-btn')).toBeInTheDocument();
+      expect(
+        utils.queryByTestId('list-item-delete-btn')
+      ).not.toBeInTheDocument();
     });
 
-    expect(
-      utils.getByText(spanItem.begin, { exact: false })
-    ).toBeInTheDocument();
-    expect(utils.getByText(spanItem.end, { exact: false })).toBeInTheDocument();
-    expect(
-      utils.getByText(spanItem.label, { exact: false })
-    ).toBeInTheDocument();
-  });
-
-  it('heading item displays a submenu list if the item object contains items', () => {
-    const utils = renderWithRedux(<ListItemContext item={divItem} />, {
-      initialState,
+    test('type == span', () => {
+      const utils = renderWithRedux(<ListItemContext item={spanItem} />, {
+        initialState,
+      });
+      expect(utils.queryByTestId('heading-label')).not.toBeInTheDocument();
+      expect(utils.getByTestId('timespan-label')).toBeInTheDocument();
     });
-    expect(utils.queryAllByTestId('list')).toHaveLength(0);
-
-    utils.rerenderWithRedux(
-      <ListItemContext item={divItemWithChildren} />,
-      initialState
-    );
-    expect(utils.queryAllByTestId('list')).toHaveLength(2);
   });
 
-  it('adds an active class to an active list item', () => {
+  describe('timespan item', () => {
+    test('displays a begin and end time with its label', () => {
+      const utils = renderWithRedux(<ListItemContext item={spanItem} />, {
+        initialState,
+      });
+
+      expect(
+        utils.getByText(spanItem.begin, { exact: false })
+      ).toBeInTheDocument();
+      expect(
+        utils.getByText(spanItem.end, { exact: false })
+      ).toBeInTheDocument();
+      expect(
+        utils.getByText(spanItem.label, { exact: false })
+      ).toBeInTheDocument();
+    });
+  });
+
+  describe('heading item', () => {
+    test('displays a submenu list if the item object contains items', () => {
+      const utils = renderWithRedux(<ListItemContext item={divItem} />, {
+        initialState,
+      });
+      expect(utils.queryAllByTestId('list')).toHaveLength(0);
+
+      utils.rerenderWithRedux(
+        <ListItemContext item={divItemWithChildren} />,
+        initialState
+      );
+      expect(utils.queryAllByTestId('list')).toHaveLength(2);
+    });
+  });
+
+  test('adds .active to an active list item', () => {
     const utils = renderWithRedux(<ListItemContext item={divItem} />, {
       initialState,
     });
@@ -169,9 +208,7 @@ describe('ListItem component', () => {
     expect(utils.container.querySelector('.active')).toBeInTheDocument();
   });
 
-  // TODO: move to a more suitable location once the tests are created
-  // The following tests might be overreaching the scope of tests
-  describe('editing a list item', () => {
+  describe('editing an item', () => {
     let utils = null;
     let editButton = null;
 
@@ -197,7 +234,7 @@ describe('ListItem component', () => {
       expect(utils.getByDisplayValue(label)).toBeInTheDocument();
     });
 
-    it('shows the save and cancel buttons only after edit button clicked', () => {
+    it('shows the save and cancel buttons', () => {
       expect(
         utils.queryByTestId('inline-form-save-button')
       ).not.toBeInTheDocument();

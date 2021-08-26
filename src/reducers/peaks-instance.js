@@ -19,7 +19,7 @@ let updatedSegment = null;
 const peaksInstance = (state = initialState, action) => {
   switch (action.type) {
     case types.INIT_PEAKS:
-      let segments = waveformUtils.initSegments(action.smData);
+      let segments = waveformUtils.initSegments(action.smData, action.duration);
       let peaksInstance = Peaks.init(
         {
           ...action.options,
@@ -68,9 +68,27 @@ const peaksInstance = (state = initialState, action) => {
       };
 
     case types.ACTIVATE_SEGMENT:
-      newPeaks = waveformUtils.activateSegment(action.payload, {
-        ...state.peaks,
-      });
+      newPeaks = waveformUtils.activateSegment(
+        action.payload,
+        {
+          ...state.peaks,
+        },
+        state.duration
+      );
+      return {
+        ...state,
+        peaks: newPeaks,
+      };
+
+    case types.INSERT_PLACEHOLDER:
+      newPeaks = waveformUtils.addTempInvalidSegment(
+        action.item,
+        action.index,
+        {
+          ...state.peaks,
+        },
+        state.duration
+      );
       return {
         ...state,
         peaks: newPeaks,
@@ -78,7 +96,8 @@ const peaksInstance = (state = initialState, action) => {
 
     case types.SAVE_SEGMENT:
       newPeaks = waveformUtils.deactivateSegment(
-        action.payload.clonedSegment.id,
+        action.payload.clonedSegment,
+        true,
         {
           ...state.peaks,
         }
@@ -93,7 +112,7 @@ const peaksInstance = (state = initialState, action) => {
       };
 
     case types.REVERT_SEGMENT:
-      newPeaks = waveformUtils.deactivateSegment(action.payload.id, {
+      newPeaks = waveformUtils.deactivateSegment(action.payload, false, {
         ...state.peaks,
       });
       return {

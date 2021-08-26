@@ -53,13 +53,19 @@ class TimespanInlineForm extends Component {
 
   componentDidMount() {
     const { smData, item, peaksInstance, startTimeChanged } = this.props;
-
     // Get a fresh copy of store data
     this.tempSmData = cloneDeep(smData);
     const tempPeaks = cloneDeep(peaksInstance.peaks);
 
-    // Load existing form values
-    this.setState(getExistingFormValues(item.id, this.tempSmData, tempPeaks));
+    // Make segment related to timespan editable
+    if (item.valid) {
+      // Load existing form values
+      this.setState(getExistingFormValues(item.id, this.tempSmData, tempPeaks));
+
+      this.props.activateSegment(item.id);
+    } else {
+      this.handleInvalidTimespan();
+    }
 
     // Remove current list item from the data we're doing validation against in this form
     this.tempSmData = structuralMetadataUtils.deleteListItem(
@@ -72,9 +78,6 @@ class TimespanInlineForm extends Component {
       'span',
       this.tempSmData
     );
-
-    // Make segment related to timespan editable
-    this.props.activateSegment(item.id);
 
     // Get segment from current peaks instance
     const segment = peaksInstance.peaks.segments.getSegment(item.id);
@@ -110,7 +113,8 @@ class TimespanInlineForm extends Component {
         const { startTime, endTime } = waveformUtils.validateSegment(
           segment,
           startTimeChanged,
-          peaksInstance.peaks
+          peaksInstance.peaks,
+          peaksInstance.duration
         );
         return {
           beginTime: structuralMetadataUtils.toHHmmss(startTime),
@@ -119,6 +123,27 @@ class TimespanInlineForm extends Component {
       }
     }
     return null;
+  }
+
+  /**
+   * When there are invalid timespans in the structure, to edit them
+   * a placeholder segment is created within the Peaks instance, since
+   * they cannot be added at the time Peaks is initialized.
+   */
+  handleInvalidTimespan() {
+    const { item, smData, peaksInstance } = this.props;
+    const itemIndex = structuralMetadataUtils
+      .getItemsOfType('span', smData)
+      .findIndex((i) => i.id === item.id);
+    this.props.insertPlaceholderSegment(item, itemIndex);
+    const placeholderSegment = peaksInstance.peaks.segments.getSegment(item.id);
+    placeholderSegment.valid = false;
+    this.setState({
+      clonedSegment: placeholderSegment,
+      beginTime: structuralMetadataUtils.toHHmmss(placeholderSegment.startTime),
+      endTime: structuralMetadataUtils.toHHmmss(placeholderSegment.endTime),
+      timespanTitle: placeholderSegment.labelText,
+    });
   }
 
   formIsValid() {
@@ -206,7 +231,7 @@ class TimespanInlineForm extends Component {
                 beginTime,
                 endTime,
                 this.allSpans,
-                this.props.peaksInstance.peaks
+                this.props.peaksInstance.duration
               )}
             >
               <ControlLabel>End Time</ControlLabel>
@@ -239,6 +264,7 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = {
   activateSegment: peaksActions.activateSegment,
+  insertPlaceholderSegment: peaksActions.insertPlaceholderSegment,
   revertSegment: peaksActions.revertSegment,
   saveSegment: peaksActions.saveSegment,
   updateSegment: peaksActions.updateSegment,

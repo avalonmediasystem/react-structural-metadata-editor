@@ -69,6 +69,8 @@ export default class StructuralMetadataUtils {
     // Convert file duration to seconds
     const durationInSeconds = Math.round(duration / 10) / 100;
 
+    let smDataIsValid = true;
+
     // Convert time to HH:mm:ss.ms format to use in validation logic
     let convertToSeconds = (time) => {
       let timeSeconds = this.toMs(time) / 1000;
@@ -93,17 +95,23 @@ export default class StructuralMetadataUtils {
     let formatItems = (items) => {
       for (let item of items) {
         item.label = decodeHTML(item.label);
+        item.valid = true;
         if (item.type === 'span') {
           const { begin, end } = item;
           let beginTime = convertToSeconds(begin);
           let endTime = convertToSeconds(end);
           item.begin = this.toHHmmss(beginTime);
-          if (beginTime > endTime) {
-            item.end = this.toHHmmss(durationInSeconds);
+          item.end = this.toHHmmss(endTime);
+          if (beginTime > endTime || beginTime > durationInSeconds) {
+            item.valid = false;
+            smDataIsValid = false;
           } else if (endTime > durationInSeconds) {
+            item.valid = false;
+            smDataIsValid = false;
             item.end = this.toHHmmss(durationInSeconds);
-          } else {
-            item.end = this.toHHmmss(endTime);
+          }
+          if (endTime === 0) {
+            item.end = this.toHHmmss(durationInSeconds);
           }
         }
         if (item.items) {
@@ -113,7 +121,7 @@ export default class StructuralMetadataUtils {
     };
 
     formatItems(allItems);
-    return allItems;
+    return [allItems, smDataIsValid];
   }
 
   /**
@@ -308,6 +316,13 @@ export default class StructuralMetadataUtils {
     return valid;
   }
 
+  /**
+   * Check a given timespan overlaps other timespans in the structure
+   * @param {String} beginTime - timespan start time in hh:mm:ss.ms format
+   * @param {String} endTime - timespan end time in hh:mm:ss.ms format
+   * @param {Array} allSpans - list of all timespans in the structure
+   * @returns {Boolean}
+   */
   doesTimespanOverlap(beginTime, endTime, allSpans) {
     const { toMs } = this;
     // Filter out only spans where new begin time is before an existing begin time
@@ -428,6 +443,12 @@ export default class StructuralMetadataUtils {
     return options;
   }
 
+  /**
+   * Find the parent heading item (div) of a given item
+   * @param {Object} child - item for which parent div needs to be found
+   * @param {Array} allItems - list of items in the structure
+   * @returns {Object} parent div of the given child item
+   */
   getParentDiv(child, allItems) {
     let foundDiv = null;
 
@@ -772,10 +793,6 @@ export default class StructuralMetadataUtils {
       return false;
     }
     return true;
-  }
-
-  validTimeFormat(value) {
-    return value && value.split(':').length === 3;
   }
 
   /**

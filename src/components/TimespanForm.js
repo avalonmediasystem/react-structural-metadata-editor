@@ -96,7 +96,8 @@ class TimespanForm extends Component {
         const { startTime, endTime } = waveformDataUtils.validateSegment(
           segment,
           startTimeChanged,
-          peaksInstance.peaks
+          peaksInstance.peaks,
+          peaksInstance.duration
         );
         return {
           beginTime: structuralMetadataUtils.toHHmmss(startTime),
@@ -235,13 +236,8 @@ class TimespanForm extends Component {
   }
 
   render() {
-    const {
-      beginTime,
-      endTime,
-      timespanChildOf,
-      timespanTitle,
-      allSpans,
-    } = this.state;
+    const { beginTime, endTime, timespanChildOf, timespanTitle, allSpans } =
+      this.state;
 
     return (
       <form onSubmit={this.handleSubmit} data-testid="timespan-form">

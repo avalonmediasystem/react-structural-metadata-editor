@@ -13,20 +13,21 @@ export function getExistingFormValues(id, smData, peaks = {}) {
   // Heading
   if (item.type === 'div' || item.type === 'root') {
     return {
-      headingTitle: item.label
+      headingTitle: item.label,
     };
   }
 
   // Timespan
   if (item.type === 'span') {
     let parentDiv = structuralMetadataUtils.getParentDiv(item, smData);
-
+    let segment = peaks.segments.getSegment(id);
+    segment.valid = true;
     return {
       beginTime: item.begin,
       endTime: item.end,
       timespanChildOf: parentDiv ? parentDiv.id : '',
       timespanTitle: item.label,
-      clonedSegment: peaks.segments.getSegment(id)
+      clonedSegment: segment,
     };
   }
 }
@@ -36,7 +37,7 @@ export function getValidationBeginState(beginTime, allSpans) {
     return null;
   }
 
-  const validFormat = structuralMetadataUtils.validTimeFormat(beginTime);
+  const validFormat = validTimeFormat(beginTime);
   const validBeginTime = structuralMetadataUtils.doesTimeOverlap(
     beginTime,
     allSpans
@@ -51,24 +52,12 @@ export function getValidationBeginState(beginTime, allSpans) {
   return null;
 }
 
-export function getValidationEndState(
-  beginTime,
-  endTime,
-  allSpans,
-  peaksInstance
-) {
-  let duration;
-  if (peaksInstance !== undefined) {
-    if (peaksInstance.player !== undefined) {
-      duration = waveformDataUtils.roundOff(peaksInstance.player.getDuration());
-    }
-  }
-
+export function getValidationEndState(beginTime, endTime, allSpans, duration) {
   if (!endTime || endTime.indexOf(':') === -1) {
     return null;
   }
 
-  const validFormat = structuralMetadataUtils.validTimeFormat(endTime);
+  const validFormat = validTimeFormat(endTime);
   const validEndTime = structuralMetadataUtils.doesTimeOverlap(
     endTime,
     allSpans,
@@ -125,36 +114,36 @@ export function validTimespans(beginTime, endTime, allSpans, peaksInstance) {
     }
   }
   // Valid formats?
-  if (!structuralMetadataUtils.validTimeFormat(beginTime)) {
+  if (!validTimeFormat(beginTime)) {
     return {
       valid: false,
-      message: 'Invalid begin time format'
+      message: 'Invalid begin time format',
     };
   }
-  if (!structuralMetadataUtils.validTimeFormat(endTime)) {
+  if (!validTimeFormat(endTime)) {
     return {
       valid: false,
-      message: 'Invalid end time format'
+      message: 'Invalid end time format',
     };
   }
   // Any individual overlapping?
   if (!structuralMetadataUtils.doesTimeOverlap(beginTime, allSpans)) {
     return {
       valid: false,
-      message: 'Begin time overlaps an existing timespan region'
+      message: 'Begin time overlaps an existing timespan region',
     };
   }
   if (!structuralMetadataUtils.doesTimeOverlap(endTime, allSpans)) {
     return {
       valid: false,
-      message: 'End time overlaps an existing timespan region'
+      message: 'End time overlaps an existing timespan region',
     };
   }
   // Begin comes before end?
   if (!structuralMetadataUtils.validateBeforeEndTimeOrder(beginTime, endTime)) {
     return {
       valid: false,
-      message: 'Begin time must start before end time'
+      message: 'Begin time must start before end time',
     };
   }
   // Timespan range overlaps an existing timespan?
@@ -163,17 +152,21 @@ export function validTimespans(beginTime, endTime, allSpans, peaksInstance) {
   ) {
     return {
       valid: false,
-      message: 'New timespan region overlaps an existing timespan region'
+      message: 'New timespan region overlaps an existing timespan region',
     };
   }
   // Timespan end time is greater than end time of the media file
   if (duration < structuralMetadataUtils.toMs(endTime) / 1000) {
     return {
       valid: false,
-      message: 'End time overlaps duration of the media file'
+      message: 'End time overlaps duration of the media file',
     };
   }
 
   // Success!
   return { valid: true };
+}
+
+export function validTimeFormat(value) {
+  return value && value.split(':').length === 3;
 }

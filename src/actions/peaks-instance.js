@@ -124,6 +124,14 @@ export function activateSegment(id) {
   };
 }
 
+export function insertPlaceholderSegment(item, index) {
+  return {
+    type: types.INSERT_PLACEHOLDER,
+    item,
+    index,
+  };
+}
+
 export function revertSegment(clone) {
   return {
     type: types.REVERT_SEGMENT,

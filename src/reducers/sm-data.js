@@ -6,6 +6,7 @@ const structuralMetadataUtils = new StructuralMetadataUtils();
 const initialState = {
   smData: [],
   initSmData: [],
+  smDataIsValid: true,
 };
 let stateClone = null;
 let newState = null;
@@ -17,7 +18,7 @@ const structuralMetadata = (state = initialState, action) => {
         action.json,
         action.duration
       );
-      return { ...state, smData: newState };
+      return { ...state, smData: newState[0], smDataIsValid: newState[1] };
 
     case types.REBUILD_SM_UI:
       return { ...state, smData: action.items };

@@ -65,7 +65,7 @@ function (_Component) {
 
       updatedSmData = structuralMetadataUtils.insertNewHeader(submittedItem, smData); // Update redux store
 
-      _this.props.reBuildSMUI(updatedSmData); // Close the form
+      _this.props.reBuildSMUI(updatedSmData, _this.props.duration); // Close the form
 
 
       _this.props.cancelClick();
@@ -87,15 +87,16 @@ function (_Component) {
 
 var mapDispatchToProps = function mapDispatchToProps(dispatch) {
   return {
-    reBuildSMUI: function reBuildSMUI(data) {
-      return dispatch(smActions.reBuildSMUI(data));
+    reBuildSMUI: function reBuildSMUI(data, duration) {
+      return dispatch(smActions.reBuildSMUI(data, duration));
     }
   };
 };
 
 var mapStateToProps = function mapStateToProps(state) {
   return {
-    smData: state.structuralMetadata.smData
+    smData: state.structuralMetadata.smData,
+    duration: state.peaksInstance.duration
   };
 };
 

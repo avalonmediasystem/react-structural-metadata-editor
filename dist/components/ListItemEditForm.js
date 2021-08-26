@@ -88,7 +88,7 @@ function (_Component) {
 
       item = _this.addUpdatedValues(item, payload); // Send updated smData back to redux
 
-      _this.props.reBuildSMUI(clonedItems); // Turn off editing state
+      _this.props.reBuildSMUI(clonedItems, _this.props.duration); // Turn off editing state
 
 
       _this.props.handleEditFormCancel();
@@ -157,7 +157,8 @@ function (_Component) {
 
 var mapStateToProps = function mapStateToProps(state) {
   return {
-    smData: state.structuralMetadata.smData
+    smData: state.structuralMetadata.smData,
+    duration: state.peaksInstance.duration
   };
 };
 

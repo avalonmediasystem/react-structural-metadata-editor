@@ -122,15 +122,20 @@ function (_Component) {
           startTimeChanged = _this$props2.startTimeChanged; // Get a fresh copy of store data
 
       this.tempSmData = (0, _lodash.cloneDeep)(smData);
-      var tempPeaks = (0, _lodash.cloneDeep)(peaksInstance.peaks); // Load existing form values
+      var tempPeaks = (0, _lodash.cloneDeep)(peaksInstance.peaks); // Make segment related to timespan editable
 
-      this.setState((0, _formHelper.getExistingFormValues)(item.id, this.tempSmData, tempPeaks)); // Remove current list item from the data we're doing validation against in this form
+      if (item.valid) {
+        // Load existing form values
+        this.setState((0, _formHelper.getExistingFormValues)(item.id, this.tempSmData, tempPeaks));
+        this.props.activateSegment(item.id);
+      } else {
+        this.handleInvalidTimespan();
+      } // Remove current list item from the data we're doing validation against in this form
+
 
       this.tempSmData = structuralMetadataUtils.deleteListItem(item.id, this.tempSmData); // Save a reference to all the spans for future calculations
 
-      this.allSpans = structuralMetadataUtils.getItemsOfType('span', this.tempSmData); // Make segment related to timespan editable
-
-      this.props.activateSegment(item.id); // Get segment from current peaks instance
+      this.allSpans = structuralMetadataUtils.getItemsOfType('span', this.tempSmData); // Get segment from current peaks instance
 
       var segment = peaksInstance.peaks.segments.getSegment(item.id); // Set the selected segment in the component's state
 
@@ -139,6 +144,32 @@ function (_Component) {
       }); // Initialize the segment in Redux store with the selected item
 
       this.props.dragSegment(segment.id, startTimeChanged, 0);
+    }
+  }, {
+    key: "handleInvalidTimespan",
+
+    /**
+     * When there are invalid timespans in the structure, to edit them
+     * a placeholder segment is created within the Peaks instance, since
+     * they cannot be added at the time Peaks is initialized.
+     */
+    value: function handleInvalidTimespan() {
+      var _this$props3 = this.props,
+          item = _this$props3.item,
+          smData = _this$props3.smData,
+          peaksInstance = _this$props3.peaksInstance;
+      var itemIndex = structuralMetadataUtils.getItemsOfType('span', smData).findIndex(function (i) {
+        return i.id === item.id;
+      });
+      this.props.insertPlaceholderSegment(item, itemIndex);
+      var placeholderSegment = peaksInstance.peaks.segments.getSegment(item.id);
+      placeholderSegment.valid = false;
+      this.setState({
+        clonedSegment: placeholderSegment,
+        beginTime: structuralMetadataUtils.toHHmmss(placeholderSegment.startTime),
+        endTime: structuralMetadataUtils.toHHmmss(placeholderSegment.endTime),
+        timespanTitle: placeholderSegment.labelText
+      });
     }
   }, {
     key: "formIsValid",
@@ -182,7 +213,7 @@ function (_Component) {
         onChange: this.handleInputChange
       })), _react["default"].createElement(_reactBootstrap.FormGroup, {
         controlId: "endTime",
-        validationState: (0, _formHelper.getValidationEndState)(beginTime, endTime, this.allSpans, this.props.peaksInstance.peaks)
+        validationState: (0, _formHelper.getValidationEndState)(beginTime, endTime, this.allSpans, this.props.peaksInstance.duration)
       }, _react["default"].createElement(_reactBootstrap.ControlLabel, null, "End Time"), _react["default"].createElement(_reactBootstrap.FormControl, {
         type: "text",
         style: styles.formControl,
@@ -219,7 +250,7 @@ function (_Component) {
         isTyping ? nextProps.setIsTyping(0) : null;
 
         if (prevState.peaksInstance !== peaksInstance) {
-          var _waveformUtils$valida = waveformUtils.validateSegment(segment, startTimeChanged, peaksInstance.peaks),
+          var _waveformUtils$valida = waveformUtils.validateSegment(segment, startTimeChanged, peaksInstance.peaks, peaksInstance.duration),
               _startTime = _waveformUtils$valida.startTime,
               _endTime = _waveformUtils$valida.endTime;
 
@@ -254,6 +285,7 @@ var mapStateToProps = function mapStateToProps(state) {
 
 var mapDispatchToProps = {
   activateSegment: peaksActions.activateSegment,
+  insertPlaceholderSegment: peaksActions.insertPlaceholderSegment,
   revertSegment: peaksActions.revertSegment,
   saveSegment: peaksActions.saveSegment,
   updateSegment: peaksActions.updateSegment,

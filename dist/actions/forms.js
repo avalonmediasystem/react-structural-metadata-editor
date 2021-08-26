@@ -8,7 +8,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.retrieveStreamMedia = retrieveStreamMedia;
-exports.streamMediaSuccess = exports.streamMediaError = exports.handleStructureError = exports.retrieveWaveformSuccess = exports.updateStructureStatus = exports.retrieveStructureSuccess = exports.initCRUDAction = exports.removeAlert = exports.setAlert = exports.handleEditingTimespans = void 0;
+exports.streamMediaSuccess = exports.streamMediaError = exports.handleStructureError = exports.retrieveWaveformSuccess = exports.updateStructureStatus = exports.retrieveStructureSuccess = exports.clearExistingAlerts = exports.removeAlert = exports.setAlert = exports.handleEditingTimespans = void 0;
 
 var types = _interopRequireWildcard(require("./types"));
 
@@ -21,16 +21,20 @@ var _v = _interopRequireDefault(require("uuid/v1"));
  * @param {Integer} code - choose from; 1(true) | 0(false)
  */
 var handleEditingTimespans = function handleEditingTimespans(code) {
-  return function (dispatch) {
-    dispatch({
-      type: types.IS_EDITING_TIMESPAN,
-      code: code
-    }); // Remove dismissible alerts when a CRUD action has been initiated
+  var valid = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+  return (// assumes structure data is valid by default
+    function (dispatch) {
+      dispatch({
+        type: types.IS_EDITING_TIMESPAN,
+        code: code
+      }); // Remove dismissible alerts when a CRUD action has been initiated
+      // given editing is starting (code = 1) and structure is validated.
 
-    if (code == 1) {
-      dispatch(initCRUDAction());
+      if (code == 1 && valid) {
+        dispatch(clearExistingAlerts());
+      }
     }
-  };
+  );
 };
 
 exports.handleEditingTimespans = handleEditingTimespans;
@@ -63,13 +67,13 @@ var removeAlert = function removeAlert(id) {
 
 exports.removeAlert = removeAlert;
 
-var initCRUDAction = function initCRUDAction() {
+var clearExistingAlerts = function clearExistingAlerts() {
   return {
-    type: types.INIT_CRUD_ACTION
+    type: types.CLEAR_EXISTING_ALERTS
   };
 };
 
-exports.initCRUDAction = initCRUDAction;
+exports.clearExistingAlerts = clearExistingAlerts;
 
 var retrieveStructureSuccess = function retrieveStructureSuccess() {
   return {
@@ -160,7 +164,7 @@ function retrieveStreamMedia(audioFile, mediaPlayer) {
         hls.loadSource(audioFile); // BUFFER_CREATED event is fired when fetching the media stream is successful
 
         hls.on(_hls["default"].Events.BUFFER_CREATED, function () {
-          dispatch(streamMediaSuccess());
+          dispatch(streamMediaSuccess()); // dispatch(handleEditingTimespans(0));
         });
       }); // ERROR event is fired when fetching media stream is not successful
 

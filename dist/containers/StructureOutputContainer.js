@@ -13,19 +13,7 @@ var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"))
 
 var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
 
-var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
-
-var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
-
-var _possibleConstructorReturn2 = _interopRequireDefault(require("@babel/runtime/helpers/possibleConstructorReturn"));
-
-var _getPrototypeOf2 = _interopRequireDefault(require("@babel/runtime/helpers/getPrototypeOf"));
-
-var _assertThisInitialized2 = _interopRequireDefault(require("@babel/runtime/helpers/assertThisInitialized"));
-
-var _inherits2 = _interopRequireDefault(require("@babel/runtime/helpers/inherits"));
-
-var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/defineProperty"));
+var _slicedToArray2 = _interopRequireDefault(require("@babel/runtime/helpers/slicedToArray"));
 
 var _react = _interopRequireWildcard(require("react"));
 
@@ -45,135 +33,114 @@ var _lodash = require("lodash");
 
 var _StructuralMetadataUtils = _interopRequireDefault(require("../services/StructuralMetadataUtils"));
 
-var smu = new _StructuralMetadataUtils["default"]();
+var StructureOutputContainer = function StructureOutputContainer(props) {
+  var smu = new _StructuralMetadataUtils["default"]();
+  var apiUtils = new _Utils["default"]();
+  var baseURL = props.baseURL,
+      masterFileID = props.masterFileID,
+      structureInfo = props.structureInfo,
+      structuralMetadata = props.structuralMetadata;
+  var structureSaved = structureInfo.structureSaved;
+  var smData = structuralMetadata.smData,
+      initSmData = structuralMetadata.initSmData,
+      smDataIsValid = structuralMetadata.smDataIsValid;
 
-var StructureOutputContainer =
-/*#__PURE__*/
-function (_Component) {
-  (0, _inherits2["default"])(StructureOutputContainer, _Component);
+  var _useState = (0, _react.useState)(initSmData),
+      _useState2 = (0, _slicedToArray2["default"])(_useState, 2),
+      stateInitStructure = _useState2[0],
+      setInitStructure = _useState2[1];
 
-  function StructureOutputContainer(props) {
-    var _this;
+  (0, _react.useEffect)(function () {
+    setInitStructure(initSmData);
+  }, [initSmData]);
+  (0, _react.useEffect)(function () {
+    if (!smDataIsValid) {
+      props.setAlert((0, _alertStatus.configureAlert)(-8));
+    }
+  }, [smDataIsValid]);
+  (0, _react.useEffect)(function () {
+    if (structureSaved) {
+      props.structureIsSaved(true);
+    } else {
+      var cleanSmData = smu.filterObjectKey(smData, 'active');
 
-    (0, _classCallCheck2["default"])(this, StructureOutputContainer);
-    _this = (0, _possibleConstructorReturn2["default"])(this, (0, _getPrototypeOf2["default"])(StructureOutputContainer).call(this, props));
-    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "state", {
-      baseURL: _this.props.baseURL,
-      masterFileID: _this.props.masterFileID,
-      structureStatus: _this.props.structureInfo.structureStatus,
-      initialStructure: _this.props.structuralMetadata.initSmData
-    });
-    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "handleSaveItClick",
-    /*#__PURE__*/
-    (0, _asyncToGenerator2["default"])(
+      if (!(0, _lodash.isEqual)(stateInitStructure, cleanSmData)) {
+        props.structureIsSaved(false);
+      } else {
+        props.structureIsSaved(true);
+      }
+    }
+  }, [structureSaved]);
+
+  var handleSaveError = function handleSaveError(error) {
+    console.log('TCL: handleSaveError -> error', error);
+    var status = error.response !== undefined ? error.response.status : error.request.status;
+    var alert = (0, _alertStatus.configureAlert)(status);
+    props.setAlert(alert);
+  };
+
+  var handleSaveItClick =
+  /*#__PURE__*/
+  function () {
+    var _ref = (0, _asyncToGenerator2["default"])(
     /*#__PURE__*/
     _regenerator["default"].mark(function _callee() {
-      var _this$state, baseURL, masterFileID, postData, response, status, alert;
-
+      var postData, response, status, alert;
       return _regenerator["default"].wrap(function _callee$(_context) {
         while (1) {
           switch (_context.prev = _context.next) {
             case 0:
-              _this$state = _this.state, baseURL = _this$state.baseURL, masterFileID = _this$state.masterFileID;
               postData = {
-                json: _this.props.structuralMetadata.smData[0]
+                json: smData[0]
               };
-              _context.prev = 2;
-              _context.next = 5;
-              return _this.apiUtils.postRequest(baseURL, masterFileID, 'structure.json', postData);
+              _context.prev = 1;
+              _context.next = 4;
+              return apiUtils.postRequest(baseURL, masterFileID, 'structure.json', postData);
 
-            case 5:
+            case 4:
               response = _context.sent;
               status = response.status;
               alert = (0, _alertStatus.configureAlert)(status);
-
-              _this.props.setAlert(alert);
-
-              _this.props.postStructureSuccess(1);
-
-              _context.next = 15;
+              props.setAlert(alert);
+              props.postStructureSuccess(1);
+              _context.next = 14;
               break;
 
-            case 12:
-              _context.prev = 12;
-              _context.t0 = _context["catch"](2);
+            case 11:
+              _context.prev = 11;
+              _context.t0 = _context["catch"](1);
+              handleSaveError(_context.t0);
 
-              _this.handleSaveError(_context.t0);
-
-            case 15:
+            case 14:
             case "end":
               return _context.stop();
           }
         }
-      }, _callee, null, [[2, 12]]);
-    })));
-    _this.apiUtils = new _Utils["default"]();
-    return _this;
-  }
+      }, _callee, null, [[1, 11]]);
+    }));
 
-  (0, _createClass2["default"])(StructureOutputContainer, [{
-    key: "handleSaveError",
-    value: function handleSaveError(error) {
-      console.log('TCL: handleSaveError -> error', error);
-      var status = error.response !== undefined ? error.response.status : error.request.status;
-      var alert = (0, _alertStatus.configureAlert)(status);
-      this.props.setAlert(alert);
-    }
-  }, {
-    key: "render",
-    value: function render() {
-      var _this$props = this.props,
-          structuralMetadata = _this$props.structuralMetadata,
-          editingDisabled = _this$props.editingDisabled;
-      return _react["default"].createElement("section", {
-        className: "structure-section",
-        "data-testid": "structure-output-section"
-      }, _react["default"].createElement("div", {
-        "data-testid": "structure-output-list"
-      }, _react["default"].createElement(_List["default"], {
-        items: structuralMetadata.smData
-      }), _react["default"].createElement(_reactBootstrap.Row, null, _react["default"].createElement(_reactBootstrap.Col, {
-        xs: 12,
-        className: "text-right"
-      }, _react["default"].createElement(_reactBootstrap.Button, {
-        bsStyle: "primary",
-        onClick: this.handleSaveItClick,
-        "data-testid": "structure-save-button",
-        disabled: editingDisabled
-      }, "Save Structure")))));
-    }
-  }], [{
-    key: "getDerivedStateFromProps",
-    value: function getDerivedStateFromProps(nextProps, prevState) {
-      var structureSaved = nextProps.structureInfo.structureSaved;
-      var _nextProps$structural = nextProps.structuralMetadata,
-          initSmData = _nextProps$structural.initSmData,
-          smData = _nextProps$structural.smData;
+    return function handleSaveItClick() {
+      return _ref.apply(this, arguments);
+    };
+  }();
 
-      if (!(0, _lodash.isEqual)(initSmData, prevState.initialStructure)) {
-        return {
-          initialStructure: initSmData
-        };
-      }
-
-      if (structureSaved) {
-        nextProps.structureIsSaved(true);
-        return null;
-      } else {
-        var cleanSmData = smu.filterObjectKey(smData, 'active');
-
-        if (!(0, _lodash.isEqual)(prevState.initialStructure, cleanSmData)) {
-          nextProps.structureIsSaved(false);
-        } else {
-          nextProps.structureIsSaved(true);
-        }
-
-        return null;
-      }
-    }
-  }]);
-  return StructureOutputContainer;
-}(_react.Component);
+  return _react["default"].createElement("section", {
+    className: "structure-section",
+    "data-testid": "structure-output-section"
+  }, _react["default"].createElement("div", {
+    "data-testid": "structure-output-list"
+  }, _react["default"].createElement(_List["default"], {
+    items: smData
+  }), _react["default"].createElement(_reactBootstrap.Row, null, _react["default"].createElement(_reactBootstrap.Col, {
+    xs: 12,
+    className: "text-right"
+  }, _react["default"].createElement(_reactBootstrap.Button, {
+    bsStyle: "primary",
+    onClick: handleSaveItClick,
+    "data-testid": "structure-save-button",
+    disabled: props.editingDisabled
+  }, "Save Structure")))));
+};
 
 var mapStateToProps = function mapStateToProps(state) {
   return {

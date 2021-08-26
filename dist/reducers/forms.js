@@ -96,7 +96,7 @@ var forms = function forms() {
         editingDisabled: false
       });
 
-    case types.INIT_CRUD_ACTION:
+    case types.CLEAR_EXISTING_ALERTS:
       return Object.assign({}, state, {
         alerts: state.alerts.filter(function (a) {
           return a.persistent;

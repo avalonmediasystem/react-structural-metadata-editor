@@ -42,7 +42,7 @@ var peaksInstance = function peaksInstance() {
 
   switch (action.type) {
     case types.INIT_PEAKS:
-      var segments = waveformUtils.initSegments(action.smData);
+      var segments = waveformUtils.initSegments(action.smData, action.duration);
 
       var _peaksInstance = _peaks["default"].init(_objectSpread({}, action.options, {
         segments: segments
@@ -79,13 +79,19 @@ var peaksInstance = function peaksInstance() {
       });
 
     case types.ACTIVATE_SEGMENT:
-      newPeaks = waveformUtils.activateSegment(action.payload, _objectSpread({}, state.peaks));
+      newPeaks = waveformUtils.activateSegment(action.payload, _objectSpread({}, state.peaks), state.duration);
+      return _objectSpread({}, state, {
+        peaks: newPeaks
+      });
+
+    case types.INSERT_PLACEHOLDER:
+      newPeaks = waveformUtils.addTempInvalidSegment(action.item, action.index, _objectSpread({}, state.peaks), state.duration);
       return _objectSpread({}, state, {
         peaks: newPeaks
       });
 
     case types.SAVE_SEGMENT:
-      newPeaks = waveformUtils.deactivateSegment(action.payload.clonedSegment.id, _objectSpread({}, state.peaks));
+      newPeaks = waveformUtils.deactivateSegment(action.payload.clonedSegment, true, _objectSpread({}, state.peaks));
       var rebuiltPeaks = waveformUtils.saveSegment(action.payload, _objectSpread({}, newPeaks));
       return _objectSpread({}, state, {
         isDragging: false,
@@ -93,7 +99,7 @@ var peaksInstance = function peaksInstance() {
       });
 
     case types.REVERT_SEGMENT:
-      newPeaks = waveformUtils.deactivateSegment(action.payload.id, _objectSpread({}, state.peaks));
+      newPeaks = waveformUtils.deactivateSegment(action.payload, false, _objectSpread({}, state.peaks));
       return _objectSpread({}, state, {
         isDragging: false,
         peaks: waveformUtils.revertSegment(action.payload, _objectSpread({}, newPeaks))

@@ -13,6 +13,7 @@ exports.peaksReady = peaksReady;
 exports.insertNewSegment = insertNewSegment;
 exports.deleteSegment = deleteSegment;
 exports.activateSegment = activateSegment;
+exports.insertPlaceholderSegment = insertPlaceholderSegment;
 exports.revertSegment = revertSegment;
 exports.saveSegment = saveSegment;
 exports.updateSegment = updateSegment;
@@ -177,6 +178,14 @@ function activateSegment(id) {
   return {
     type: types.ACTIVATE_SEGMENT,
     payload: id
+  };
+}
+
+function insertPlaceholderSegment(item, index) {
+  return {
+    type: types.INSERT_PLACEHOLDER,
+    item: item,
+    index: index
   };
 }
 

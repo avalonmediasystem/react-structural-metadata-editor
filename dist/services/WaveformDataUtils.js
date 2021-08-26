@@ -38,12 +38,14 @@ function () {
     /**
      * Initialize Peaks instance for the app
      * @param {Array} smData - current structured metadata from the server masterfile
+     * @param {Number} duration - duration of the media file in milliseconds
      */
-    value: function initSegments(smData) {
+    value: function initSegments(smData, duration) {
       var _this = this;
 
-      var initSegments = [];
-      var count = 0; // Recursively build segments for timespans in the structure
+      var segments = [];
+      var count = 0;
+      var durationInSeconds = duration / 1000; // Recursively build segments for timespans in the structure
 
       var createSegment = function createSegment(items) {
         var _iteratorNormalCompletion = true;
@@ -56,10 +58,8 @@ function () {
 
             if (item.type === 'span') {
               count = count > 1 ? 0 : count;
-
-              var segment = _this.convertTimespanToSegment(item);
-
-              initSegments.push(_objectSpread({}, segment, {
+              var segment = item.valid ? _this.convertTimespanToSegment(item) : null;
+              segments.push(_objectSpread({}, segment, {
                 color: COLOR_PALETTE[count]
               }));
               count++;
@@ -87,23 +87,46 @@ function () {
 
 
       createSegment(smData);
-      return initSegments;
+      var validSegments = segments.filter(function (s) {
+        return s.startTime < s.endTime && s.startTime < durationInSeconds;
+      });
+      return validSegments;
+    }
+    /**
+     * Convert timespan to segment to be consumed within peaks instance
+     * @param {Object} timespan
+     */
+
+  }, {
+    key: "convertTimespanToSegment",
+    value: function convertTimespanToSegment(timespan) {
+      var begin = timespan.begin,
+          end = timespan.end,
+          label = timespan.label,
+          id = timespan.id;
+      return {
+        startTime: smu.toMs(begin) / 1000,
+        endTime: smu.toMs(end) / 1000,
+        labelText: label,
+        id: id
+      };
     }
     /**
      * Add a temporary segment to be edited when adding a new timespan to structure
      * @param {Object} peaksInstance - peaks instance for the current waveform
-     * @param {Integer} fileDuration - duration of the file
+     * @param {Integer} duration - duration of the file in milliseconds
+     * @returns {Object} updated peaksInstance
      */
 
   }, {
     key: "insertTempSegment",
-    value: function insertTempSegment(peaksInstance, fileDuration) {
+    value: function insertTempSegment(peaksInstance, duration) {
       var _this2 = this;
 
       // Current time of the playhead
       var currentTime = this.roundOff(peaksInstance.player.getCurrentTime()); // Convert from milliseconds to seconds
 
-      var fileEndTime = fileDuration / 1000;
+      var durationInSeconds = duration / 1000;
       var rangeEndTime,
           rangeBeginTime = currentTime;
       var currentSegments = this.sortSegments(peaksInstance, 'startTime'); // Validate start time of the temporary segment
@@ -118,7 +141,7 @@ function () {
       }); // Set the default end time of the temporary segment
 
       if (currentSegments.length === 0) {
-        rangeEndTime = fileEndTime < 60 ? fileEndTime : Math.round((rangeBeginTime + 60.0) * 1000) / 1000;
+        rangeEndTime = durationInSeconds < 60 ? durationInSeconds : Math.round((rangeBeginTime + 60.0) * 1000) / 1000;
       } else {
         rangeEndTime = Math.round((rangeBeginTime + 60.0) * 1000) / 1000;
       } // Validate end time of the temporary segment
@@ -128,8 +151,8 @@ function () {
         if (rangeBeginTime < segment.startTime) {
           var segmentLength = segment.endTime - segment.startTime;
 
-          if (fileEndTime < 60) {
-            rangeEndTime = fileEndTime;
+          if (durationInSeconds < 60) {
+            rangeEndTime = durationInSeconds;
           }
 
           if (segmentLength < 60 && rangeEndTime >= segment.startTime) {
@@ -141,14 +164,14 @@ function () {
           }
         }
 
-        if (rangeEndTime > fileEndTime) {
-          rangeEndTime = fileEndTime;
+        if (rangeEndTime > durationInSeconds) {
+          rangeEndTime = durationInSeconds;
         }
 
         return rangeEndTime;
       });
 
-      if (rangeBeginTime < fileEndTime && rangeEndTime > rangeBeginTime) {
+      if (rangeBeginTime < durationInSeconds && rangeEndTime > rangeBeginTime) {
         var tempSegmentLength = rangeEndTime - rangeBeginTime; // Continue if temporary segment has a length greater than 1ms
 
         if (tempSegmentLength > 0.1) {
@@ -238,12 +261,13 @@ function () {
      * Change color and enable handles for editing the segment in the waveform
      * @param {String} id - ID of the segment to be edited
      * @param {Object} peaksInstance - current peaks instance for the waveform
+     * @param {Number} duration - file length in milliseconds
      */
 
   }, {
     key: "activateSegment",
-    value: function activateSegment(id, peaksInstance) {
-      this.initialSegmentValidation(id, peaksInstance);
+    value: function activateSegment(id, peaksInstance, duration) {
+      this.initialSegmentValidation(id, peaksInstance, duration);
       var segment = peaksInstance.segments.getSegment(id); // Setting editable: true -> enables handles
 
       segment.update({
@@ -256,17 +280,92 @@ function () {
       return peaksInstance;
     }
     /**
+     * Add a temporary segment to the Peaks instance when editing invalid timespans.
+     * Segmetns equivalent to these timespans are not added to the Peaks instance at
+     * the time of Peaks initialization.
+     * @param {Object} item - invalid item in structure
+     * @param {Number} index - index of the invalid item within structure
+     * @param {Object} peaksInstance - current peaks instance
+     * @param {Number} duration - duration of the file in milliseconds
+     * @returns peaks instance with an added segment for the invalid timespan
+     */
+
+  }, {
+    key: "addTempInvalidSegment",
+    value: function addTempInvalidSegment(item, index, peaksInstance, duration) {
+      var _this$convertTimespan = this.convertTimespanToSegment(item),
+          startTime = _this$convertTimespan.startTime,
+          id = _this$convertTimespan.id,
+          labelText = _this$convertTimespan.labelText;
+
+      var durationInSeconds = duration / 1000;
+
+      if (startTime > durationInSeconds) {
+        var lastSegment = peaksInstance.segments.getSegments().filter(function (seg) {
+          return seg.endTime < durationInSeconds;
+        }).reverse()[0];
+        peaksInstance.segments.add({
+          startTime: lastSegment.endTime,
+          endTime: durationInSeconds,
+          id: id,
+          labelText: labelText,
+          editable: true,
+          color: COLOR_PALETTE[2]
+        });
+        peaksInstance.player.seek(lastSegment.endTime);
+      } else {
+        var nextSegment = peaksInstance.segments.getSegments()[index];
+        var prevSegment = peaksInstance.segments.getSegments()[index - 1];
+        var tempSegment = {
+          id: id,
+          labelText: labelText,
+          editable: true,
+          color: COLOR_PALETTE[2]
+        };
+
+        if (prevSegment && nextSegment) {
+          tempSegment = _objectSpread({}, tempSegment, {
+            startTime: prevSegment.endTime,
+            endTime: nextSegment.startTime
+          });
+        } else if (!prevSegment) {
+          tempSegment = _objectSpread({}, tempSegment, {
+            startTime: 0,
+            endTime: nextSegment.startTime
+          });
+        } else if (!nextSegment) {
+          tempSegment = _objectSpread({}, tempSegment, {
+            startTime: prevSegment.endTime,
+            endTime: durationInSeconds
+          });
+        }
+
+        peaksInstance.segments.add(tempSegment);
+        peaksInstance.player.seek(tempSegment.startTime);
+      }
+
+      return peaksInstance;
+    }
+    /**
      * When an invalid segment is being edited, adjust segment's end time to depict the
      * valid time range it can be spread before editing starts
      * @param {String} id - ID of the segment being edited
      * @param {Object} peaksInstance - current peaks instance for the waveform
+     * @param {Number} duration - file length in milliseconds
      */
 
   }, {
     key: "initialSegmentValidation",
-    value: function initialSegmentValidation(id, peaksInstance) {
+    value: function initialSegmentValidation(id, peaksInstance, duration) {
+      var durationInSeconds = duration / 1000;
       var segment = peaksInstance.segments.getSegment(id);
-      var duration = Math.round(peaksInstance.player.getDuration() * 100) / 100; // Segments before and after the current segment
+
+      if (!segment) {
+        var newPeaksInstance = this.insertTempSegment(peaksInstance, duration);
+        segment = newPeaksInstance.segments.getSegment('temp-segment');
+        segment.id = id;
+      } // Segments before and after the current segment
+
 
       var _this$findWrapperSegm = this.findWrapperSegments(segment, peaksInstance),
           before = _this$findWrapperSegm.before,
@@ -274,7 +373,7 @@ function () {
 
 
       var isDuration = function isDuration(time) {
-        return time <= duration + 0.02 && time >= duration - 0.02;
+        return time <= durationInSeconds + 0.02 && time >= durationInSeconds - 0.02;
       };
 
       if (before && segment.startTime < before.endTime && !isDuration(before.endTime)) {
@@ -306,24 +405,33 @@ function () {
     }
     /**
      * Revert color and disable handles for editing of the segment
-     * @param {String} id - ID of the segment being saved
+     * @param {Object} clonedSegment - the segment being saved
+     * @param {Boolean} isSaved - flag indicating segment is saved or not
      * @param {Object} peaksInstance - current peaks instance for the waveform
      */
 
   }, {
     key: "deactivateSegment",
-    value: function deactivateSegment(id, peaksInstance) {
-      // Sorted segments by start time
+    value: function deactivateSegment(clonedSegment, isSaved, peaksInstance) {
+      var id = clonedSegment.id,
+          valid = clonedSegment.valid; // Sorted segments by start time
+
       var segments = this.sortSegments(peaksInstance, 'startTime');
       var index = segments.map(function (seg) {
         return seg.id;
       }).indexOf(id); // Setting editable: false -> disables the handles
 
       var segment = peaksInstance.segments.getSegment(id);
-      segment.update({
-        editable: false,
-        color: this.isOdd(index) ? COLOR_PALETTE[1] : COLOR_PALETTE[0]
-      });
+
+      if (valid || isSaved) {
+        segment.update({
+          editable: false,
+          color: this.isOdd(index) ? COLOR_PALETTE[1] : COLOR_PALETTE[0]
+        });
+      } else {
+        peaksInstance.segments.removeById(id);
+      }
+
       return peaksInstance;
     }
     /**
@@ -353,21 +461,28 @@ function () {
   }, {
     key: "revertSegment",
     value: function revertSegment(clonedSegment, peaksInstance) {
-      var segment = peaksInstance.segments.getSegment(clonedSegment.id);
       var startTime = clonedSegment.startTime,
           endTime = clonedSegment.endTime,
           labelText = clonedSegment.labelText,
           id = clonedSegment.id,
           color = clonedSegment.color,
-          editable = clonedSegment.editable;
-      segment.update({
-        startTime: startTime,
-        endTime: endTime,
-        labelText: labelText,
-        id: id,
-        color: color,
-        editable: editable
-      });
+          editable = clonedSegment.editable,
+          valid = clonedSegment.valid;
+      var segment = peaksInstance.segments.getSegment(id);
+
+      if (valid) {
+        segment.update({
+          startTime: startTime,
+          endTime: endTime,
+          labelText: labelText,
+          id: id,
+          color: color,
+          editable: editable
+        });
+      } else {
+        peaksInstance.segments.removeById(id);
+      }
+
       return peaksInstance;
     }
     /**
@@ -409,12 +524,13 @@ function () {
      * @param {Object} segment - segement being edited in the waveform
      * @param {Boolean} startTimeChanged - true -> start time changed, false -> end time changed
      * @param {Object} peaksInstance - current peaks instance for waveform
+     * @param {Number} duration - file length in milliseconds
      */
 
   }, {
     key: "validateSegment",
-    value: function validateSegment(segment, startTimeChanged, peaksInstance) {
-      var duration = this.roundOff(peaksInstance.player.getDuration());
+    value: function validateSegment(segment, startTimeChanged, peaksInstance, duration) {
+      var durationInSeconds = duration / 1000;
       var startTime = segment.startTime,
           endTime = segment.endTime; // Segments before and after the editing segment
 
@@ -424,7 +540,7 @@ function () {
 
 
       var isDuration = function isDuration(time) {
-        return time <= duration + 0.02 && time >= duration - 0.02;
+        return time <= durationInSeconds + 0.02 && time >= durationInSeconds - 0.02;
       };
 
       if (startTimeChanged) {
@@ -450,34 +566,15 @@ function () {
           segment.update({
             endTime: segment.startTime + 0.001
           });
-        } else if (endTime > duration) {
+        } else if (endTime > durationInSeconds) {
           // when end handle is dragged beyond the duration of file
           segment.update({
-            endTime: duration
+            endTime: durationInSeconds
           });
         }
       }
 
       return segment;
-    }
-    /**
-     * Convert timespan to segment to be consumed within peaks instance
-     * @param {Object} timespan
-     */
-
-  }, {
-    key: "convertTimespanToSegment",
-    value: function convertTimespanToSegment(timespan) {
-      var begin = timespan.begin,
-          end = timespan.end,
-          label = timespan.label,
-          id = timespan.id;
-      return {
-        startTime: smu.toMs(begin) / 1000,
-        endTime: smu.toMs(end) / 1000,
-        labelText: label,
-        id: id
-      };
     }
     /**
      * Find the before and after segments of a given segment

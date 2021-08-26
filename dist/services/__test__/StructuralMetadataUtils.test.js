@@ -4,6 +4,7 @@ import {
   testDataFromServer,
   testEmptyHeaderBefore,
   testEmptyHeaderAfter,
+  testInvalidData,
 } from '../testing-helpers';
 import { cloneDeep } from 'lodash';
 
@@ -15,13 +16,13 @@ beforeEach(() => {
 });
 
 describe('StructuralMetadataUtils class', () => {
-  test('creates a helper drop zone object for drag and drop', () => {
+  test('createDropZoneObject()', () => {
     const value = smu.createDropZoneObject();
     expect(value).toHaveProperty('id');
     expect(value).toHaveProperty('type', 'optional');
   });
 
-  test('creates a helper span object', () => {
+  test('createSpanObject()', () => {
     const obj = {
       beginTime: '00:00:011',
       endTime: '00:00:021',
@@ -37,7 +38,7 @@ describe('StructuralMetadataUtils class', () => {
     expect(value).toHaveProperty('label', 'Tester');
   });
 
-  describe('tests deleting list item', () => {
+  describe('deleteListItem()', () => {
     test('deletes a timespan', () => {
       const obj = {
         type: 'div',
@@ -53,6 +54,7 @@ describe('StructuralMetadataUtils class', () => {
         id: '123a-456b-789c-3d',
         begin: '00:00:03.321',
         end: '00:00:10.321',
+        valid: true,
       });
     });
     test('deletes a header with children', () => {
@@ -107,50 +109,69 @@ describe('StructuralMetadataUtils class', () => {
         id: '123a-456b-789c-8d',
         begin: '00:09:03.241',
         end: '00:15:00.001',
+        valid: true,
       });
     });
   });
 
-  describe('tests building the structure from structure in the server', () => {
-    let structure = [];
-    beforeEach(() => {
-      structure = smu.buildSMUI(testDataFromServer, 1738945);
+  describe('buildSMUI()', () => {
+    describe('for valid items', () => {
+      let structure = [];
+      beforeEach(() => {
+        structure = smu.buildSMUI(testDataFromServer, 1738945);
+      });
+      test('when time is in hh:mm:ss (00:10:42) format', () => {
+        const timespan = smu.findItem('123a-456b-789c-2d', structure[0]);
+        expect(timespan.begin).toEqual('00:10:42.000');
+        expect(timespan.valid).toBeTruthy();
+      });
+      test('when time is in hh:mm:ss.ms (00:15:00.23) format', () => {
+        const timespan = smu.findItem('123a-456b-789c-2d', structure[0]);
+        expect(timespan.end).toEqual('00:15:00.230');
+        expect(timespan.valid).toBeTruthy();
+      });
+      test('when time is in mm:ss (15:30) format', () => {
+        const timespan = smu.findItem('123a-456b-789c-3d', structure[0]);
+        expect(timespan.begin).toEqual('00:15:30.000');
+        expect(timespan.valid).toBeTruthy();
+      });
+      test('when time is in mm:ss.ms (16:00.23) format', () => {
+        const timespan = smu.findItem('123a-456b-789c-3d', structure[0]);
+        expect(timespan.end).toEqual('00:16:00.230');
+        expect(timespan.valid).toBeTruthy();
+      });
+      test('when time is in ss (42) format', () => {
+        const timespan = smu.findItem('123a-456b-789c-1d', structure[0]);
+        expect(timespan.end).toEqual('00:00:42.000');
+        expect(timespan.valid).toBeTruthy();
+      });
+      test('when time is in ss.ms (41.45) format', () => {
+        const timespan = smu.findItem('123a-456b-789c-1d', structure[0]);
+        expect(timespan.begin).toEqual('00:00:41.450');
+        expect(timespan.valid).toBeTruthy();
+      });
+      test('when end time exceeds (00:38:58.000) file duration (00:28:58.950)', () => {
+        const timespan = smu.findItem('123a-456b-789c-4d', structure[0]);
+        expect(timespan.end).toEqual('00:28:58.950');
+        expect(timespan.valid).toBeTruthy();
+      });
+      test('when end time is missing', () => {
+        const timespan = smu.findItem('123a-456b-789c-5d', structure[0]);
+        expect(timespan.end).toEqual('00:28:58.950');
+        expect(timespan.valid).toBeTruthy();
+      });
     });
-    test('when time is in hh:mm:ss (00:10:42) format', () => {
-      const timespan = smu.findItem('123a-456b-789c-2d', structure);
-      expect(timespan.begin).toEqual('00:10:42.000');
-    });
-    test('when time is in hh:mm:ss.ms (00:15:00.23) format', () => {
-      const timespan = smu.findItem('123a-456b-789c-2d', structure);
-      expect(timespan.end).toEqual('00:15:00.230');
-    });
-    test('when time is in mm:ss (15:30) format', () => {
-      const timespan = smu.findItem('123a-456b-789c-3d', structure);
-      expect(timespan.begin).toEqual('00:15:30.000');
-    });
-    test('when time is in mm:ss.ms (16:00.23) format', () => {
-      const timespan = smu.findItem('123a-456b-789c-3d', structure);
-      expect(timespan.end).toEqual('00:16:00.230');
-    });
-    test('when time is in ss (42) format', () => {
-      const timespan = smu.findItem('123a-456b-789c-1d', structure);
-      expect(timespan.end).toEqual('00:00:42.000');
-    });
-    test('when time is in ss.ms (41.45) format', () => {
-      const timespan = smu.findItem('123a-456b-789c-1d', structure);
-      expect(timespan.begin).toEqual('00:00:41.450');
-    });
-    test('when end time exceeds (00:38:58.000) file duration (00:28:58.950)', () => {
-      const timespan = smu.findItem('123a-456b-789c-4d', structure);
-      expect(timespan.end).toEqual('00:28:58.950');
-    });
-    test('when end time is missing', () => {
-      const timespan = smu.findItem('123a-456b-789c-5d', structure);
-      expect(timespan.end).toEqual('00:28:58.950');
+
+    describe('for invalid items', () => {
+      test('when begin > end', () => {
+        const structure = smu.buildSMUI(testInvalidData, 1738945);
+        const timespan = smu.findItem('123a-456b-789c-5d', structure[0]);
+        expect(timespan.valid).toBeFalsy();
+      });
     });
   });
 
-  describe('tests new time overlaps existing time ranges', () => {
+  describe('doesTimeOverlap()', () => {
     let allSpans = [];
     beforeEach(() => {
       allSpans = smu.getItemsOfType('span', testData);
@@ -177,7 +198,7 @@ describe('StructuralMetadataUtils class', () => {
     });
   });
 
-  describe('tests new timespan overlaps existing timespans', () => {
+  describe('doesTimespanOverlap()', () => {
     let allSpans = [];
     beforeEach(() => {
       allSpans = smu.getItemsOfType('span', testData);
@@ -200,7 +221,7 @@ describe('StructuralMetadataUtils class', () => {
     });
   });
 
-  test('finds an item by its id', () => {
+  test('findItem()', () => {
     const obj = {
       type: 'div',
       label: 'Sub-Segment 1.1',
@@ -211,12 +232,12 @@ describe('StructuralMetadataUtils class', () => {
     expect(value).toEqual(obj);
   });
 
-  describe('finds wrapping timespans of a new timespan, ', () => {
+  describe('findWrapperSpans(), ', () => {
     let allSpans = [];
     beforeEach(() => {
       allSpans = smu.getItemsOfType('span', testData);
     });
-    test('before first timespan', () => {
+    test('for first timespan', () => {
       const obj = {
         begin: '00:00:00.000',
         end: '00:00:03.321',
@@ -229,12 +250,13 @@ describe('StructuralMetadataUtils class', () => {
           begin: '00:00:03.321',
           end: '00:00:10.321',
           id: '123a-456b-789c-3d',
+          valid: true,
         },
       };
       const value = smu.findWrapperSpans(obj, allSpans);
       expect(value).toEqual(expected);
     });
-    test('in between existing timespans', () => {
+    test('for a timespan in between existing timespans', () => {
       const obj = {
         begin: '00:00:10.321',
         end: '00:00:11.231',
@@ -246,6 +268,7 @@ describe('StructuralMetadataUtils class', () => {
           begin: '00:00:03.321',
           end: '00:00:10.321',
           id: '123a-456b-789c-3d',
+          valid: true,
         },
         after: {
           type: 'span',
@@ -253,12 +276,13 @@ describe('StructuralMetadataUtils class', () => {
           id: '123a-456b-789c-4d',
           begin: '00:00:11.231',
           end: '00:08:00.001',
+          valid: true,
         },
       };
       const value = smu.findWrapperSpans(obj, allSpans);
       expect(value).toEqual(expected);
     });
-    test('after last timespan', () => {
+    test('for last timespan', () => {
       const obj = {
         begin: '00:15:00.001',
         end: '00:20:00.001',
@@ -270,6 +294,7 @@ describe('StructuralMetadataUtils class', () => {
           begin: '00:09:03.241',
           end: '00:15:00.001',
           id: '123a-456b-789c-8d',
+          valid: true,
         },
         after: null,
       };
@@ -278,8 +303,8 @@ describe('StructuralMetadataUtils class', () => {
     });
   });
 
-  describe('finds wrapping headers when ', () => {
-    test('preceding header is empty', () => {
+  describe('findWrapperHeaders()', () => {
+    test('when preceding header is empty', () => {
       const obj = {
         type: 'div',
         label: 'Scene 2',
@@ -306,7 +331,7 @@ describe('StructuralMetadataUtils class', () => {
       };
       expect(value).toEqual(expected);
     });
-    test('succeeding header is empty', () => {
+    test('when succeeding header is empty', () => {
       const obj = {
         type: 'div',
         label: 'Scene 1',
@@ -335,7 +360,7 @@ describe('StructuralMetadataUtils class', () => {
     });
   });
 
-  describe('finds all items for a given type', () => {
+  describe('getItemsOfType()', () => {
     test('type === div', () => {
       const allDivs = [
         {
@@ -385,6 +410,7 @@ describe('StructuralMetadataUtils class', () => {
           id: '123a-456b-789c-3d',
           begin: '00:00:03.321',
           end: '00:00:10.321',
+          valid: true,
         },
         {
           type: 'span',
@@ -392,6 +418,7 @@ describe('StructuralMetadataUtils class', () => {
           id: '123a-456b-789c-4d',
           begin: '00:00:11.231',
           end: '00:08:00.001',
+          valid: true,
         },
         {
           type: 'span',
@@ -399,6 +426,7 @@ describe('StructuralMetadataUtils class', () => {
           id: '123a-456b-789c-8d',
           begin: '00:09:03.241',
           end: '00:15:00.001',
+          valid: true,
         },
       ];
       const value = smu.getItemsOfType('span', testData);
@@ -409,12 +437,13 @@ describe('StructuralMetadataUtils class', () => {
         id: '123a-456b-789c-8d',
         begin: '00:09:03.241',
         end: '00:15:00.001',
+        valid: true,
       });
     });
   });
 
-  describe('finds parent div of a given item', () => {
-    test('item is a span', () => {
+  describe('getParentDiv()', () => {
+    test('when item is a span', () => {
       const obj = {
         type: 'span',
         label: 'Segment 1.2',
@@ -439,6 +468,7 @@ describe('StructuralMetadataUtils class', () => {
             id: '123a-456b-789c-3d',
             begin: '00:00:03.321',
             end: '00:00:10.321',
+            valid: true,
           },
           {
             type: 'span',
@@ -446,13 +476,14 @@ describe('StructuralMetadataUtils class', () => {
             id: '123a-456b-789c-4d',
             begin: '00:00:11.231',
             end: '00:08:00.001',
+            valid: true,
           },
         ],
       };
       const value = smu.getParentDiv(obj, testData);
       expect(value).toEqual(expected);
     });
-    test('item is a div', () => {
+    test('when item is a div', () => {
       const obj = {
         type: 'div',
         label: 'Sub-Segment 2.1.1',
@@ -476,6 +507,7 @@ describe('StructuralMetadataUtils class', () => {
             id: '123a-456b-789c-8d',
             begin: '00:09:03.241',
             end: '00:15:00.001',
+            valid: true,
           },
         ],
       };
@@ -484,8 +516,8 @@ describe('StructuralMetadataUtils class', () => {
     });
   });
 
-  describe('finds valid headings when adding/editing a timespan', () => {
-    test('no existing timespans', () => {
+  describe('getValidHeadings()', () => {
+    test('when there are no timespans', () => {
       const newSpan = { begin: '00:00:00.011', end: '00:02:00.001' };
       const wrapperSpans = {
         before: null,
@@ -537,7 +569,7 @@ describe('StructuralMetadataUtils class', () => {
         id: '123a-456b-789c-1d',
       });
     });
-    test('wrapped by existing timespans', () => {
+    test('when wrapped by existing timespans', () => {
       const newSpan = { begin: '00:08:00.001', end: '00:09:00.001' };
       const wrapperSpans = {
         before: {
@@ -585,7 +617,7 @@ describe('StructuralMetadataUtils class', () => {
         id: '123a-456b-789c-6d',
       });
     });
-    test('no wrapping timespans after', () => {
+    test('when there are no timespans after', () => {
       const newSpan = { begin: '00:15:00.001', end: '00:16:00.001' };
       const wrapperSpans = {
         before: {
@@ -627,7 +659,7 @@ describe('StructuralMetadataUtils class', () => {
         id: '123a-456b-789c-6d',
       });
     });
-    test('no wrapping span before', () => {
+    test('when there are no timespans before', () => {
       const newSpan = { begin: '00:00:00.000', end: '00:00:03.321' };
       const wrapperSpans = {
         before: null,
@@ -666,7 +698,7 @@ describe('StructuralMetadataUtils class', () => {
     });
   });
 
-  describe('get element after', () => {
+  describe('getItemsAfter()', () => {
     test('a timespan in the middle of the structure', () => {
       const expected = [
         {
@@ -675,6 +707,7 @@ describe('StructuralMetadataUtils class', () => {
           id: '123a-456b-789c-4d',
           begin: '00:00:11.231',
           end: '00:08:00.001',
+          valid: true,
         },
         {
           type: 'div',
@@ -698,6 +731,7 @@ describe('StructuralMetadataUtils class', () => {
                   id: '123a-456b-789c-8d',
                   begin: '00:09:03.241',
                   end: '00:15:00.001',
+                  valid: true,
                 },
               ],
             },
@@ -776,28 +810,35 @@ describe('StructuralMetadataUtils class', () => {
     });
   });
 
-  describe('validates order of begin and end times', () => {
+  describe('validateBeforeEndTimeOrder()', () => {
     test('begin time < end time', () => {
-      const begin = '00:00:10.301';
-      const end = '00:10:00.301';
-      const value = smu.validateBeforeEndTimeOrder(begin, end);
+      const value = smu.validateBeforeEndTimeOrder(
+        '00:00:10.301',
+        '00:10:00.301'
+      );
       expect(value).toBeTruthy();
     });
     test('begin time === end time', () => {
-      const begin = '00:00:10.301';
-      const end = '00:00:10.301';
-      const value = smu.validateBeforeEndTimeOrder(begin, end);
+      const value = smu.validateBeforeEndTimeOrder(
+        '00:00:10.301',
+        '00:00:10.301'
+      );
       expect(value).toBeFalsy();
     });
     test('begin time > end time', () => {
-      const begin = '00:10:00.301';
-      const end = '00:00:10.301';
-      const value = smu.validateBeforeEndTimeOrder(begin, end);
+      const value = smu.validateBeforeEndTimeOrder(
+        '00:10:00.301',
+        '00:00:10.301'
+      );
       expect(value).toBeFalsy();
+    });
+    test('begin time is null', () => {
+      const value = smu.validateBeforeEndTimeOrder(null, '00:00:10.301');
+      expect(value).toBeTruthy();
     });
   });
 
-  describe('converts time in seconds to string hh:mm:ss.ss format', () => {
+  describe('toHHmmss()', () => {
     test('when time is an integer', () => {
       const timeInSeconds = 540.001;
       const value = smu.toHHmmss(timeInSeconds);

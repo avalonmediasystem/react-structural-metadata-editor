@@ -156,7 +156,6 @@ function (_Component) {
   (0, _createClass2["default"])(ButtonSection, [{
     key: "render",
     value: function render() {
-      // console.log(this.state.alertObj);
       var timespanFormProps = {
         cancelClick: this.handleCancelTimespanClick,
         initSegment: this.state.initSegment,

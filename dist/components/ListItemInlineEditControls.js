@@ -15,6 +15,8 @@ var _reactBootstrap = require("react-bootstrap");
 
 var _reactFontawesome = require("@fortawesome/react-fontawesome");
 
+var _freeSolidSvgIcons = require("@fortawesome/free-solid-svg-icons");
+
 var tooltip = function tooltip(tip) {
   return _react["default"].createElement(_reactBootstrap.Tooltip, {
     id: "tooltip"
@@ -34,7 +36,7 @@ var ListItemInlineEditControls = function ListItemInlineEditControls(props) {
     onClick: props.handleSaveClick,
     "data-testid": "inline-form-save-button"
   }, _react["default"].createElement(_reactFontawesome.FontAwesomeIcon, {
-    icon: "save"
+    icon: _freeSolidSvgIcons.faSave
   }))), _react["default"].createElement(_reactBootstrap.OverlayTrigger, {
     placement: "right",
     overlay: tooltip('Cancel'),
@@ -43,7 +45,7 @@ var ListItemInlineEditControls = function ListItemInlineEditControls(props) {
     bsStyle: "link",
     "data-testid": "inline-form-cancel-button"
   }, _react["default"].createElement(_reactFontawesome.FontAwesomeIcon, {
-    icon: "minus-circle"
+    icon: _freeSolidSvgIcons.faMinusCircle
   }))));
 };
 

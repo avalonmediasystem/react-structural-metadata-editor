@@ -35,6 +35,8 @@ var _reactRedux = require("react-redux");
 
 var _forms = require("../actions/forms");
 
+var _freeSolidSvgIcons = require("@fortawesome/free-solid-svg-icons");
+
 var styles = {
   buttonToolbar: {
     display: 'flex',
@@ -137,21 +139,21 @@ function (_Component) {
         onClick: handleShowDropTargetsClick,
         "data-testid": "list-item-dnd-btn"
       }, _react["default"].createElement(_reactFontawesome.FontAwesomeIcon, {
-        icon: "dot-circle"
+        icon: _freeSolidSvgIcons.faDotCircle
       })), _react["default"].createElement(_reactBootstrap.Button, {
         bsStyle: "link",
         onClick: handleEditClick,
         disabled: forms.editingDisabled,
         "data-testid": "list-item-edit-btn"
       }, _react["default"].createElement(_reactFontawesome.FontAwesomeIcon, {
-        icon: "pen"
+        icon: _freeSolidSvgIcons.faPen
       })), item.type !== 'root' && _react["default"].createElement(_react["default"].Fragment, null, _react["default"].createElement(_reactBootstrap.Button, {
         bsStyle: "link",
         onClick: this.handleDeleteClick,
         disabled: forms.editingDisabled,
         "data-testid": "list-item-delete-btn"
       }, _react["default"].createElement(_reactFontawesome.FontAwesomeIcon, {
-        icon: "trash"
+        icon: _freeSolidSvgIcons.faTrash
       })), _react["default"].createElement(_reactBootstrap.Overlay, {
         show: showDeleteConfirm,
         target: this.state.target,

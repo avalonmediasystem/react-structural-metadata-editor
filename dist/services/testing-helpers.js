@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.renderWithRedux = renderWithRedux;
-exports.testEmptyHeaderAfter = exports.testEmptyHeaderBefore = exports.testDataFromServer = exports.testSmData = void 0;
+exports.testInvalidData = exports.testEmptyHeaderAfter = exports.testEmptyHeaderBefore = exports.testDataFromServer = exports.testSmData = void 0;
 
 var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/defineProperty"));
 
@@ -88,13 +88,15 @@ var testSmData = [{
       label: 'Segment 1.1',
       id: '123a-456b-789c-3d',
       begin: '00:00:03.321',
-      end: '00:00:10.321'
+      end: '00:00:10.321',
+      valid: true
     }, {
       type: 'span',
       label: 'Segment 1.2',
       id: '123a-456b-789c-4d',
       begin: '00:00:11.231',
-      end: '00:08:00.001'
+      end: '00:08:00.001',
+      valid: true
     }]
   }, {
     type: 'div',
@@ -114,7 +116,8 @@ var testSmData = [{
         label: 'Segment 2.1',
         id: '123a-456b-789c-8d',
         begin: '00:09:03.241',
-        end: '00:15:00.001'
+        end: '00:15:00.001',
+        valid: true
       }]
     }]
   }, {
@@ -208,3 +211,41 @@ var testEmptyHeaderAfter = [{
   }]
 }];
 exports.testEmptyHeaderAfter = testEmptyHeaderAfter;
+var testInvalidData = [{
+  type: 'root',
+  label: 'Ima Title',
+  id: '123a-456b-789c-0d',
+  items: [{
+    type: 'div',
+    label: 'First segment',
+    id: '123a-456b-789c-1d',
+    items: [{
+      type: 'div',
+      label: 'Sub-Segment 1.1',
+      id: '123a-456b-789c-2d',
+      items: []
+    }, {
+      type: 'span',
+      label: 'Segment 1.1',
+      id: '123a-456b-789c-3d',
+      begin: '00:00:03.321',
+      end: '00:00:10.321',
+      valid: true
+    }, {
+      type: 'span',
+      label: 'Invalid timespan',
+      id: '123a-456b-789c-5d',
+      begin: '00:20:21.000',
+      end: '00:15:00.001',
+      valid: false
+    }, {
+      type: 'span',
+      label: 'Segment 1.2',
+      id: '123a-456b-789c-4d',
+      begin: '00:00:11.231',
+      end: '00:08:00.001',
+      valid: true
+    }]
+  }]
+}];
+exports.testInvalidData = testInvalidData;

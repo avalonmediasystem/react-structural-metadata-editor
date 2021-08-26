@@ -69,7 +69,7 @@ function (_Component) {
       _this.props.insertNewSegment(newSpan); // Update redux store
 
 
-      _this.props.reBuildSMUI(updatedData); // Close the form
+      _this.props.reBuildSMUI(updatedData, _this.props.duration); // Close the form
 
 
       _this.props.cancelClick();
@@ -114,7 +114,8 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
 
 var mapStateToProps = function mapStateToProps(state) {
   return {
-    smData: state.structuralMetadata.smData
+    smData: state.structuralMetadata.smData,
+    duration: state.peaksInstance.duration
   };
 };
 

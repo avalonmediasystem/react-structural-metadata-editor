@@ -20,12 +20,18 @@ var types = _interopRequireWildcard(require("./types"));
 
 var _forms = require("./forms");
 
-function reBuildSMUI(items) {
-  return function (dispatch) {
-    dispatch({
-      type: types.REBUILD_SM_UI,
-      items: items
-    });
+function reBuildSMUI(items, duration) {
+  return function (dispatch, getState) {
+    dispatch(buildSMUI(items, duration));
+
+    var _getState = getState(),
+        structuralMetadata = _getState.structuralMetadata; // Remove invalid structure alert when data is corrected
+
+
+    if (structuralMetadata.smDataIsValid) {
+      dispatch((0, _forms.clearExistingAlerts)());
+    }
+
     dispatch((0, _forms.updateStructureStatus)(0));
   };
 }

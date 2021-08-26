@@ -323,7 +323,7 @@ function (_Component) {
 
 
         if (prevState.peaksInstance !== peaksInstance && !isInitializing) {
-          var _waveformDataUtils$va = waveformDataUtils.validateSegment(segment, startTimeChanged, peaksInstance.peaks),
+          var _waveformDataUtils$va = waveformDataUtils.validateSegment(segment, startTimeChanged, peaksInstance.peaks, peaksInstance.duration),
               _startTime = _waveformDataUtils$va.startTime,
               _endTime = _waveformDataUtils$va.endTime;
 

@@ -24,7 +24,8 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 var structuralMetadataUtils = new _StructuralMetadataUtils["default"]();
 var initialState = {
   smData: [],
-  initSmData: []
+  initSmData: [],
+  smDataIsValid: true
 };
 var stateClone = null;
 var newState = null;
@@ -37,7 +38,8 @@ var structuralMetadata = function structuralMetadata() {
     case types.BUILD_SM_UI:
       newState = structuralMetadataUtils.buildSMUI(action.json, action.duration);
       return _objectSpread({}, state, {
-        smData: newState
+        smData: newState[0],
+        smDataIsValid: newState[1]
       });
 
     case types.REBUILD_SM_UI:

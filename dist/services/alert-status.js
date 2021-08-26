@@ -4,7 +4,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.configureAlert = configureAlert;
-exports.MISSING_WAVEFORM_ERROR = exports.STREAM_MEDIA_ERROR = exports.PEAKSJS_REACHED_END_OF_FILE = exports.WAVEFORM_INITIALIZE_ERROR = exports.FETCH_STRUCTURED_DATA_ERROR = exports.NETWORK_ERROR = exports.SAVED_MASTERFILE_SUCCESS = exports.MASTERFILE_NOT_FOUND = exports.UNAUTHORIZED_ACCESS = void 0;
+exports.INVALID_SEGMENTS_WARNING = exports.MISSING_WAVEFORM_ERROR = exports.STREAM_MEDIA_ERROR = exports.PEAKSJS_REACHED_END_OF_FILE = exports.WAVEFORM_INITIALIZE_ERROR = exports.FETCH_STRUCTURED_DATA_ERROR = exports.NETWORK_ERROR = exports.SAVED_MASTERFILE_SUCCESS = exports.MASTERFILE_NOT_FOUND = exports.UNAUTHORIZED_ACCESS = void 0;
 var UNAUTHORIZED_ACCESS = "You're not authorized to access this resource.";
 exports.UNAUTHORIZED_ACCESS = UNAUTHORIZED_ACCESS;
 var MASTERFILE_NOT_FOUND = 'Requested data is not available.';
@@ -22,12 +22,14 @@ exports.PEAKSJS_REACHED_END_OF_FILE = PEAKSJS_REACHED_END_OF_FILE;
 var STREAM_MEDIA_ERROR = 'There was an error retrieving the media stream.';
 exports.STREAM_MEDIA_ERROR = STREAM_MEDIA_ERROR;
 var MISSING_WAVEFORM_ERROR = 'Requested waveform data is not available.';
+exports.MISSING_WAVEFORM_ERROR = MISSING_WAVEFORM_ERROR;
+var INVALID_SEGMENTS_WARNING = 'Please check start/end times of the marked invalid timespan(s).';
 /**
  * Helper function which prepares a configuration object to feed the AlertContainer component
  * @param {number} status Code for response
  */
 
-exports.MISSING_WAVEFORM_ERROR = MISSING_WAVEFORM_ERROR;
+exports.INVALID_SEGMENTS_WARNING = INVALID_SEGMENTS_WARNING;
 
 function configureAlert() {
   var status = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
@@ -56,6 +58,9 @@ function configureAlert() {
   } else if (status === -7) {
     alertObj.message = MISSING_WAVEFORM_ERROR;
     alertObj.persistent = true;
+  } else if (status === -8) {
+    alertObj.message = INVALID_SEGMENTS_WARNING;
+    alertObj.alertStyle = 'warning';
   } else {
     alertObj.message = NETWORK_ERROR;
   }

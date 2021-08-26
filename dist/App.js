@@ -15,7 +15,7 @@ var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/creat
 
 var _possibleConstructorReturn2 = _interopRequireDefault(require("@babel/runtime/helpers/possibleConstructorReturn"));
 
-var _getPrototypeOf3 = _interopRequireDefault(require("@babel/runtime/helpers/getPrototypeOf"));
+var _getPrototypeOf2 = _interopRequireDefault(require("@babel/runtime/helpers/getPrototypeOf"));
 
 var _assertThisInitialized2 = _interopRequireDefault(require("@babel/runtime/helpers/assertThisInitialized"));
 
@@ -52,34 +52,30 @@ var _freeSolidSvgIcons = require("@fortawesome/free-solid-svg-icons");
 var _AlertContainer = _interopRequireDefault(require("./containers/AlertContainer"));
 
 // Font Awesome Imports
-_fontawesomeSvgCore.library.add(_freeSolidSvgIcons.faDotCircle, _freeSolidSvgIcons.faMinusCircle, _freeSolidSvgIcons.faPen, _freeSolidSvgIcons.faSave, _freeSolidSvgIcons.faTrash);
+_fontawesomeSvgCore.library.add(_freeSolidSvgIcons.faDotCircle, _freeSolidSvgIcons.faMinusCircle, _freeSolidSvgIcons.faPen, _freeSolidSvgIcons.faSave, _freeSolidSvgIcons.faTrash, _freeSolidSvgIcons.faExclamationTriangle);
 
 var App =
 /*#__PURE__*/
 function (_Component) {
   (0, _inherits2["default"])(App, _Component);
 
-  function App() {
-    var _getPrototypeOf2;
-
+  function App(props) {
     var _this;
 
     (0, _classCallCheck2["default"])(this, App);
-
-    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
-      args[_key] = arguments[_key];
-    }
-
-    _this = (0, _possibleConstructorReturn2["default"])(this, (_getPrototypeOf2 = (0, _getPrototypeOf3["default"])(App)).call.apply(_getPrototypeOf2, [this].concat(args)));
+    _this = (0, _possibleConstructorReturn2["default"])(this, (0, _getPrototypeOf2["default"])(App).call(this, props));
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "structureIsSaved", function (value) {
       _this.props.structureIsSaved(value);
     });
+    _this.state = {
+      structureAlert: {}
+    };
     return _this;
-  }
+  } // Lifecycle method fired before unmounting the React component
+
 
   (0, _createClass2["default"])(App, [{
     key: "componentWillUnmount",
-    // Lifecycle method fired before unmounting the React component
     value: function componentWillUnmount() {
       // Reset the redux-store
       this.props.resetStore();

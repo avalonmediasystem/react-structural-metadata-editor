@@ -153,7 +153,8 @@ function () {
       var _this2 = this;
 
       // Convert file duration to seconds
-      var durationInSeconds = Math.round(duration / 10) / 100; // Convert time to HH:mm:ss.ms format to use in validation logic
+      var durationInSeconds = Math.round(duration / 10) / 100;
+      var smDataIsValid = true; // Convert time to HH:mm:ss.ms format to use in validation logic
 
       var convertToSeconds = function convertToSeconds(time) {
         var timeSeconds = _this2.toMs(time) / 1000; // When time property is missing
@@ -179,6 +180,7 @@ function () {
           for (var _iterator = items[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
             var item = _step.value;
             item.label = decodeHTML(item.label);
+            item.valid = true;
 
             if (item.type === 'span') {
               var begin = item.begin,
@@ -186,13 +188,19 @@ function () {
               var beginTime = convertToSeconds(begin);
               var endTime = convertToSeconds(end);
               item.begin = _this2.toHHmmss(beginTime);
+              item.end = _this2.toHHmmss(endTime);
 
-              if (beginTime > endTime) {
-                item.end = _this2.toHHmmss(durationInSeconds);
+              if (beginTime > endTime || beginTime > durationInSeconds) {
+                item.valid = false;
+                smDataIsValid = false;
               } else if (endTime > durationInSeconds) {
+                item.valid = false;
+                smDataIsValid = false;
                 item.end = _this2.toHHmmss(durationInSeconds);
-              } else {
-                item.end = _this2.toHHmmss(endTime);
+              }
+
+              if (endTime === 0) {
+                item.end = _this2.toHHmmss(durationInSeconds);
               }
             }
 
@@ -217,7 +225,7 @@ function () {
       };
 
       formatItems(allItems);
-      return allItems;
+      return [allItems, smDataIsValid];
     }
     /**
      * Update the data structure to represent all possible dropTargets for the provided dragSource
@@ -346,6 +354,14 @@ function () {
 
       return valid;
     }
+    /**
+     * Check a given timespan overlaps other timespans in the structure
+     * @param {String} beginTime - timespan start time in hh:mm:ss.ms format
+     * @param {String} endTime - timespan end time in hh:mm:ss.ms format
+     * @param {Array} allSpans - list of all timespans in the structure
+     * @returns {Boolean}
+     */
+
   }, {
     key: "doesTimespanOverlap",
     value: function doesTimespanOverlap(beginTime, endTime, allSpans) {
@@ -514,6 +530,13 @@ function () {
       getItems(items);
       return options;
     }
+    /**
+     * Find the parent heading item (div) of a given item
+     * @param {Object} child - item for which parent div needs to be found
+     * @param {Array} allItems - list of items in the structure
+     * @returns {Object} parent div of the given child item
+     */
+
   }, {
     key: "getParentDiv",
     value: function getParentDiv(child, allItems) {
@@ -946,11 +969,6 @@ function () {
       }
 
       return true;
-    }
-  }, {
-    key: "validTimeFormat",
-    value: function validTimeFormat(value) {
-      return value && value.split(':').length === 3;
     }
     /**
      * This function adds a unique, front-end only id, to every object in the data structure

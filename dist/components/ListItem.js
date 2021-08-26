@@ -47,6 +47,10 @@ var _ListItemEditForm = _interopRequireDefault(require("./ListItemEditForm"));
 
 var _ListItemControls = _interopRequireDefault(require("./ListItemControls"));
 
+var _reactFontawesome = require("@fortawesome/react-fontawesome");
+
+var _freeSolidSvgIcons = require("@fortawesome/free-solid-svg-icons");
+
 var spanSource = {
   // canDrag prop is turned false/true based on mouse events mouseenter/mouseleave
   // respectively. This takes place when an item is being edited inline.
@@ -118,7 +122,7 @@ function (_Component) {
     });
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "handleEditClick", function () {
       // Disable the edit buttons of other list items
-      _this.props.handleEditingTimespans(1);
+      _this.props.handleEditingTimespans(1, _this.props.smDataIsValid);
 
       _this.setState({
         editing: true
@@ -130,7 +134,7 @@ function (_Component) {
       }); // Enable the edit buttons of other list items
 
 
-      _this.props.handleEditingTimespans(0);
+      _this.props.handleEditingTimespans(0, _this.props.smDataIsValid);
     });
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "handleShowDropTargetsClick", function () {
       var _this$props = _this.props,
@@ -201,16 +205,17 @@ function (_Component) {
           label = _this$props2.item.label,
           type = _this$props2.item.type,
           active = _this$props2.item.active,
+          valid = _this$props2.item.valid,
           connectDragSource = _this$props2.connectDragSource,
           connectDropTarget = _this$props2.connectDropTarget;
       var subMenu = items && items.length > 0 ? _react["default"].createElement(_List["default"], {
         items: items
       }) : null;
       var itemProp = {
-        childrenCount: item.items ? item.items.length : 0,
-        label: item.label,
-        type: item.type,
-        active: item.active
+        childrenCount: items ? items.length : 0,
+        label: label,
+        type: type,
+        active: active
       };
       return connectDragSource(connectDropTarget(_react["default"].createElement("li", {
         className: active ? 'active' : '',
@@ -233,11 +238,15 @@ function (_Component) {
         item: item,
         handleEditFormCancel: this.handleEditFormCancel
       }), !this.state.editing && _react["default"].createElement("div", {
-        className: "row-wrapper"
-      }, type === 'span' && _react["default"].createElement("span", {
+        className: 'row-wrapper' + (!valid ? ' invalid' : ''),
+        "data-testid": "list-item"
+      }, type === 'span' && _react["default"].createElement(_react["default"].Fragment, null, _react["default"].createElement("span", {
         className: "structure-title",
         "data-testid": "timespan-label"
-      }, label, " (", begin, " - ", end, ")"), (type === 'div' || type === 'root') && _react["default"].createElement("div", {
+      }, !valid && _react["default"].createElement(_reactFontawesome.FontAwesomeIcon, {
+        icon: _freeSolidSvgIcons.faExclamationTriangle,
+        className: "icon-invalid"
+      }), ' ', label, " (", begin, " - ", end, ")")), (type === 'div' || type === 'root') && _react["default"].createElement("div", {
         className: "structure-title heading",
         "data-testid": "heading-label"
       }, label), _react["default"].createElement(_ListItemControls["default"], {
@@ -274,7 +283,8 @@ var mapDispatchToProps = {
 
 var mapStateToProps = function mapStateToProps(state) {
   return {
-    smData: state.structuralMetadata.smData
+    smData: state.structuralMetadata.smData,
+    smDataIsValid: state.structuralMetadata.smDataIsValid
   };
 };
 

@@ -11,6 +11,7 @@ exports.getValidationEndState = getValidationEndState;
 exports.getValidationTitleState = getValidationTitleState;
 exports.isTitleValid = isTitleValid;
 exports.validTimespans = validTimespans;
+exports.validTimeFormat = validTimeFormat;
 
 var _StructuralMetadataUtils = _interopRequireDefault(require("./StructuralMetadataUtils"));
 
@@ -35,12 +36,14 @@ function getExistingFormValues(id, smData) {
 
   if (item.type === 'span') {
     var parentDiv = structuralMetadataUtils.getParentDiv(item, smData);
+    var segment = peaks.segments.getSegment(id);
+    segment.valid = true;
     return {
       beginTime: item.begin,
       endTime: item.end,
       timespanChildOf: parentDiv ? parentDiv.id : '',
       timespanTitle: item.label,
-      clonedSegment: peaks.segments.getSegment(id)
+      clonedSegment: segment
     };
   }
 }
@@ -50,7 +53,7 @@ function getValidationBeginState(beginTime, allSpans) {
     return null;
   }
 
-  var validFormat = structuralMetadataUtils.validTimeFormat(beginTime);
+  var validFormat = validTimeFormat(beginTime);
   var validBeginTime = structuralMetadataUtils.doesTimeOverlap(beginTime, allSpans);
 
   if (validFormat && validBeginTime) {
@@ -64,20 +67,12 @@ function getValidationBeginState(beginTime, allSpans) {
   return null;
 }
 
-function getValidationEndState(beginTime, endTime, allSpans, peaksInstance) {
-  var duration;
-
-  if (peaksInstance !== undefined) {
-    if (peaksInstance.player !== undefined) {
-      duration = waveformDataUtils.roundOff(peaksInstance.player.getDuration());
-    }
-  }
-
+function getValidationEndState(beginTime, endTime, allSpans, duration) {
   if (!endTime || endTime.indexOf(':') === -1) {
     return null;
   }
 
-  var validFormat = structuralMetadataUtils.validTimeFormat(endTime);
+  var validFormat = validTimeFormat(endTime);
   var validEndTime = structuralMetadataUtils.doesTimeOverlap(endTime, allSpans, duration);
   var validOrdering = structuralMetadataUtils.validateBeforeEndTimeOrder(beginTime, endTime);
   var doesTimespanOverlap = structuralMetadataUtils.doesTimespanOverlap(beginTime, endTime, allSpans);
@@ -131,14 +126,14 @@ function validTimespans(beginTime, endTime, allSpans, peaksInstance) {
   } // Valid formats?
 
 
-  if (!structuralMetadataUtils.validTimeFormat(beginTime)) {
+  if (!validTimeFormat(beginTime)) {
     return {
       valid: false,
       message: 'Invalid begin time format'
     };
   }
 
-  if (!structuralMetadataUtils.validTimeFormat(endTime)) {
+  if (!validTimeFormat(endTime)) {
     return {
       valid: false,
       message: 'Invalid end time format'
@@ -188,4 +183,8 @@ function validTimespans(beginTime, endTime, allSpans, peaksInstance) {
   return {
     valid: true
   };
+}
+
+function validTimeFormat(value) {
+  return value && value.split(':').length === 3;
 }

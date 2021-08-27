@@ -181,11 +181,11 @@ function activateSegment(id) {
   };
 }
 
-function insertPlaceholderSegment(item, index) {
+function insertPlaceholderSegment(item, wrapperSpans) {
   return {
     type: types.INSERT_PLACEHOLDER,
     item: item,
-    index: index
+    wrapperSpans: wrapperSpans
   };
 }
 

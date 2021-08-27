@@ -161,7 +161,14 @@ function (_Component) {
       var itemIndex = structuralMetadataUtils.getItemsOfType('span', smData).findIndex(function (i) {
         return i.id === item.id;
       });
-      this.props.insertPlaceholderSegment(item, itemIndex);
+      var allSpans = structuralMetadataUtils.getItemsOfType('span', this.tempSmData);
+      var wrapperSpans = {
+        prevSpan: null,
+        nextSpan: null
+      };
+      wrapperSpans.prevSpan = allSpans[itemIndex - 1] || null;
+      wrapperSpans.nextSpan = allSpans[itemIndex + 1] || null;
+      this.props.insertPlaceholderSegment(item, wrapperSpans);
       var placeholderSegment = peaksInstance.peaks.segments.getSegment(item.id);
       placeholderSegment.valid = false;
       this.setState({

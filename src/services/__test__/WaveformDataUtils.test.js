@@ -624,7 +624,7 @@ describe('WaveformDataUtils class', () => {
 
     describe('addTempInvalidSegment()', () => {
       describe('when startTime > duration', () => {
-        test('for last timespan', () => {
+        test('for first timespan', () => {
           const testTimespan = {
             begin: '00:29:02.999',
             end: '00:30:00.000',
@@ -633,16 +633,20 @@ describe('WaveformDataUtils class', () => {
             type: 'span',
             valid: false,
           };
+          const wrapperSpans = {
+            prevSpan: null,
+            nextSpan: { begin: '00:03:04.324', end: '00:09:05.000' },
+          };
           const value = waveformUtils.addTempInvalidSegment(
             testTimespan,
-            3,
+            wrapperSpans,
             peaks,
             1738945
           );
           expect(value.segments.getSegment('123a-456b-789c-11d')).toBeDefined();
           const tempSegment = value.segments.getSegment('123a-456b-789c-11d');
-          expect(tempSegment.startTime).toEqual(900.001);
-          expect(tempSegment.endTime).toEqual(1738.945);
+          expect(tempSegment.startTime).toEqual(0);
+          expect(tempSegment.endTime).toEqual(184.324);
         });
 
         test('for a middle timespan', () => {
@@ -654,15 +658,44 @@ describe('WaveformDataUtils class', () => {
             type: 'span',
             valid: false,
           };
+          const wrapperSpans = {
+            prevSpan: { begin: '00:03:04.324', end: '00:09:05.000' },
+            nextSpan: { begin: '00:10:04.324', end: '00:11:05.000' },
+          };
           const value = waveformUtils.addTempInvalidSegment(
             testTimespan,
-            2,
+            wrapperSpans,
             peaks,
             1738945
           );
           expect(value.segments.getSegment('123a-456b-789c-11d')).toBeDefined();
           const tempSegment = value.segments.getSegment('123a-456b-789c-11d');
-          expect(tempSegment.startTime).toEqual(900.001);
+          expect(tempSegment.startTime).toEqual(545);
+          expect(tempSegment.endTime).toEqual(604.324);
+        });
+
+        test('for last timespan', () => {
+          const testTimespan = {
+            begin: '00:29:02.999',
+            end: '00:30:00.000',
+            id: '123a-456b-789c-11d',
+            label: 'Invalid Timespan',
+            type: 'span',
+            valid: false,
+          };
+          const wrapperSpans = {
+            prevSpan: { begin: '00:03:04.324', end: '00:09:05.000' },
+            nextSpan: null,
+          };
+          const value = waveformUtils.addTempInvalidSegment(
+            testTimespan,
+            wrapperSpans,
+            peaks,
+            1738945
+          );
+          expect(value.segments.getSegment('123a-456b-789c-11d')).toBeDefined();
+          const tempSegment = value.segments.getSegment('123a-456b-789c-11d');
+          expect(tempSegment.startTime).toEqual(545);
           expect(tempSegment.endTime).toEqual(1738.945);
         });
       });
@@ -677,16 +710,20 @@ describe('WaveformDataUtils class', () => {
             type: 'span',
             valid: false,
           };
+          const wrapperSpans = {
+            prevSpan: null,
+            nextSpan: { begin: '00:03:09.000', end: '00:05:00.000' },
+          };
           const value = waveformUtils.addTempInvalidSegment(
             testTimespan,
-            0,
+            wrapperSpans,
             peaks,
             1738945
           );
           expect(value.segments.getSegment('123a-456b-789c-11d')).toBeDefined();
           const tempSegment = value.segments.getSegment('123a-456b-789c-11d');
           expect(tempSegment.startTime).toEqual(0);
-          expect(tempSegment.endTime).toEqual(3.321);
+          expect(tempSegment.endTime).toEqual(189.0);
         });
 
         test('for a middle timespan', () => {
@@ -698,17 +735,20 @@ describe('WaveformDataUtils class', () => {
             type: 'span',
             valid: false,
           };
-
+          const wrapperSpans = {
+            prevSpan: { begin: '00:03:09.000', end: '00:05:00.000' },
+            nextSpan: { begin: '00:06:00.003', end: '00:08:05.000' },
+          };
           const value = waveformUtils.addTempInvalidSegment(
             testTimespan,
-            2,
+            wrapperSpans,
             peaks,
             1738945
           );
           expect(value.segments.getSegment('123a-456b-789c-10d')).toBeDefined();
           const tempSegment = value.segments.getSegment('123a-456b-789c-10d');
-          expect(tempSegment.startTime).toEqual(480.001);
-          expect(tempSegment.endTime).toEqual(543.241);
+          expect(tempSegment.startTime).toEqual(300.0);
+          expect(tempSegment.endTime).toEqual(360.003);
         });
 
         test('for last timespan', () => {
@@ -720,16 +760,19 @@ describe('WaveformDataUtils class', () => {
             type: 'span',
             valid: false,
           };
-
+          const wrapperSpans = {
+            prevSpan: { begin: '00:09:09.000', end: '00:10:00.000' },
+            nextSpan: null,
+          };
           const value = waveformUtils.addTempInvalidSegment(
             testTimespan,
-            3,
+            wrapperSpans,
             peaks,
             1738945
           );
           expect(value.segments.getSegment('123a-456b-789c-10d')).toBeDefined();
           const tempSegment = value.segments.getSegment('123a-456b-789c-10d');
-          expect(tempSegment.startTime).toEqual(900.001);
+          expect(tempSegment.startTime).toEqual(600.0);
           expect(tempSegment.endTime).toEqual(1738.945);
         });
       });

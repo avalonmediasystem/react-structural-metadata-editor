@@ -83,7 +83,7 @@ const peaksInstance = (state = initialState, action) => {
     case types.INSERT_PLACEHOLDER:
       newPeaks = waveformUtils.addTempInvalidSegment(
         action.item,
-        action.index,
+        action.wrapperSpans,
         {
           ...state.peaks,
         },

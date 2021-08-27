@@ -135,7 +135,17 @@ class TimespanInlineForm extends Component {
     const itemIndex = structuralMetadataUtils
       .getItemsOfType('span', smData)
       .findIndex((i) => i.id === item.id);
-    this.props.insertPlaceholderSegment(item, itemIndex);
+
+    const allSpans = structuralMetadataUtils.getItemsOfType(
+      'span',
+      this.tempSmData
+    );
+
+    const wrapperSpans = { prevSpan: null, nextSpan: null };
+    wrapperSpans.prevSpan = allSpans[itemIndex - 1] || null;
+    wrapperSpans.nextSpan = allSpans[itemIndex + 1] || null;
+
+    this.props.insertPlaceholderSegment(item, wrapperSpans);
     const placeholderSegment = peaksInstance.peaks.segments.getSegment(item.id);
     placeholderSegment.valid = false;
     this.setState({

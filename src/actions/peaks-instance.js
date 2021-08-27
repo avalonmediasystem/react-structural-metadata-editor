@@ -124,11 +124,11 @@ export function activateSegment(id) {
   };
 }
 
-export function insertPlaceholderSegment(item, index) {
+export function insertPlaceholderSegment(item, wrapperSpans) {
   return {
     type: types.INSERT_PLACEHOLDER,
     item,
-    index,
+    wrapperSpans,
   };
 }
 

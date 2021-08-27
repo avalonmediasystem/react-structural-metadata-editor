@@ -105,8 +105,8 @@ function () {
           label = timespan.label,
           id = timespan.id;
       return {
-        startTime: smu.toMs(begin) / 1000,
-        endTime: smu.toMs(end) / 1000,
+        startTime: this.timeToS(begin),
+        endTime: this.timeToS(end),
         labelText: label,
         id: id
       };
@@ -284,7 +284,7 @@ function () {
      * Segmetns equivalent to these timespans are not added to the Peaks instance at
      * the time of Peaks initialization.
      * @param {Object} item - invalid item in structure
-     * @param {Number} index - index of the invalid item within structure
+     * @param {Object} wrapperSpans - timespans before and after the item in structure
      * @param {Object} peaksInstance - current peaks instance
      * @param {Number} duration - duration of the file in milliseconds
      * @returns peaks instance with an added segment for the invalid timespan
@@ -292,58 +292,47 @@ function () {
 
   }, {
     key: "addTempInvalidSegment",
-    value: function addTempInvalidSegment(item, index, peaksInstance, duration) {
+    value: function addTempInvalidSegment(item, wrapperSpans, peaksInstance, duration) {
       var _this$convertTimespan = this.convertTimespanToSegment(item),
-          startTime = _this$convertTimespan.startTime,
           id = _this$convertTimespan.id,
           labelText = _this$convertTimespan.labelText;
 
+      var prevSpan = wrapperSpans.prevSpan,
+          nextSpan = wrapperSpans.nextSpan;
       var durationInSeconds = duration / 1000;
+      var tempSegment = {
+        id: id,
+        labelText: labelText,
+        editable: true,
+        color: COLOR_PALETTE[2]
+      };
 
-      if (startTime > durationInSeconds) {
-        var lastSegment = peaksInstance.segments.getSegments().filter(function (seg) {
-          return seg.endTime < durationInSeconds;
-        }).reverse()[0];
-        peaksInstance.segments.add({
-          startTime: lastSegment.endTime,
-          endTime: durationInSeconds,
-          id: id,
-          labelText: labelText,
-          editable: true,
-          color: COLOR_PALETTE[2]
+      if (prevSpan && nextSpan) {
+        tempSegment = _objectSpread({}, tempSegment, {
+          startTime: this.timeToS(prevSpan.end),
+          endTime: this.timeToS(nextSpan.begin)
         });
-        peaksInstance.player.seek(lastSegment.endTime);
-      } else {
-        var nextSegment = peaksInstance.segments.getSegments()[index];
-        var prevSegment = peaksInstance.segments.getSegments()[index - 1];
-        var tempSegment = {
-          id: id,
-          labelText: labelText,
-          editable: true,
-          color: COLOR_PALETTE[2]
-        };
-
-        if (prevSegment && nextSegment) {
-          tempSegment = _objectSpread({}, tempSegment, {
-            startTime: prevSegment.endTime,
-            endTime: nextSegment.startTime
-          });
-        } else if (!prevSegment) {
-          tempSegment = _objectSpread({}, tempSegment, {
-            startTime: 0,
-            endTime: nextSegment.startTime
-          });
-        } else if (!nextSegment) {
-          tempSegment = _objectSpread({}, tempSegment, {
-            startTime: prevSegment.endTime,
-            endTime: durationInSeconds
-          });
-        }
-
-        peaksInstance.segments.add(tempSegment);
-        peaksInstance.player.seek(tempSegment.startTime);
+      } else if (!prevSpan) {
+        tempSegment = _objectSpread({}, tempSegment, {
+          startTime: 0,
+          endTime: this.timeToS(nextSpan.begin)
+        });
+      } else if (!nextSpan) {
+        tempSegment = _objectSpread({}, tempSegment, {
+          startTime: this.timeToS(prevSpan.end),
+          endTime: durationInSeconds
+        });
       }
 
+      var segment = peaksInstance.segments.getSegment(id);
+
+      if (segment) {
+        segment.update(_objectSpread({}, tempSegment));
+      } else {
+        peaksInstance.segments.add(tempSegment);
+      }
+
+      peaksInstance.player.seek(tempSegment.startTime);
       return peaksInstance;
     }
     /**
@@ -447,8 +436,8 @@ function () {
           endTime = currentState.endTime,
           clonedSegment = currentState.clonedSegment;
       clonedSegment.update({
-        startTime: smu.toMs(beginTime) / 1000,
-        endTime: smu.toMs(endTime) / 1000
+        startTime: this.timeToS(beginTime),
+        endTime: this.timeToS(endTime)
       });
       return peaksInstance;
     }
@@ -498,8 +487,8 @@ function () {
       var beginTime = currentState.beginTime,
           endTime = currentState.endTime; // Convert time from hh:mm:ss(.ss) format to Number
 
-      var beginSeconds = smu.toMs(beginTime) / 1000;
-      var endSeconds = smu.toMs(endTime) / 1000;
+      var beginSeconds = this.timeToS(beginTime);
+      var endSeconds = this.timeToS(endTime);
       var changeSegment = peaksInstance.segments.getSegment(segment.id); // Update segment only when the entered times are valid
 
       if (beginSeconds < segment.endTime && segment.startTime !== beginSeconds) {
@@ -658,6 +647,17 @@ function () {
       }
 
       return parseFloat(valueString);
+    }
+    /**
+     * Convert time in hh:mm:ss.ms format to seconds
+     * @param {String} time time in hh:mm:ss.ms format
+     * @returns {Number} time in seconds
+     */
+
+  }, {
+    key: "timeToS",
+    value: function timeToS(time) {
+      return smu.toMs(time) / 1000;
     }
   }]);
   return WaveformDataUtils;

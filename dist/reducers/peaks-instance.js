@@ -85,7 +85,7 @@ var peaksInstance = function peaksInstance() {
       });
 
     case types.INSERT_PLACEHOLDER:
-      newPeaks = waveformUtils.addTempInvalidSegment(action.item, action.index, _objectSpread({}, state.peaks), state.duration);
+      newPeaks = waveformUtils.addTempInvalidSegment(action.item, action.wrapperSpans, _objectSpread({}, state.peaks), state.duration);
       return _objectSpread({}, state, {
         peaks: newPeaks
       });

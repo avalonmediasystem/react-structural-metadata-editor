@@ -53,8 +53,8 @@ export default class WaveformDataUtils {
   convertTimespanToSegment(timespan) {
     const { begin, end, label, id } = timespan;
     return {
-      startTime: smu.toMs(begin) / 1000,
-      endTime: smu.toMs(end) / 1000,
+      startTime: this.timeToS(begin),
+      endTime: this.timeToS(end),
       labelText: label,
       id: id,
     };
@@ -209,60 +209,49 @@ export default class WaveformDataUtils {
    * Segmetns equivalent to these timespans are not added to the Peaks instance at
    * the time of Peaks initialization.
    * @param {Object} item - invalid item in structure
-   * @param {Number} index - index of the invalid item within structure
+   * @param {Object} wrapperSpans - timespans before and after the item in structure
    * @param {Object} peaksInstance - current peaks instance
    * @param {Number} duration - duration of the file in milliseconds
    * @returns peaks instance with an added segment for the invalid timespan
    */
-  addTempInvalidSegment(item, index, peaksInstance, duration) {
-    const { startTime, id, labelText } = this.convertTimespanToSegment(item);
+  addTempInvalidSegment(item, wrapperSpans, peaksInstance, duration) {
+    const { id, labelText } = this.convertTimespanToSegment(item);
+    const { prevSpan, nextSpan } = wrapperSpans;
     const durationInSeconds = duration / 1000;
-    if (startTime > durationInSeconds) {
-      const lastSegment = peaksInstance.segments
-        .getSegments()
-        .filter((seg) => seg.endTime < durationInSeconds)
-        .reverse()[0];
-      peaksInstance.segments.add({
-        startTime: lastSegment.endTime,
-        endTime: durationInSeconds,
-        id: id,
-        labelText,
-        editable: true,
-        color: COLOR_PALETTE[2],
-      });
-      peaksInstance.player.seek(lastSegment.endTime);
-    } else {
-      let nextSegment = peaksInstance.segments.getSegments()[index];
-      let prevSegment = peaksInstance.segments.getSegments()[index - 1];
-      let tempSegment = {
-        id,
-        labelText,
-        editable: true,
-        color: COLOR_PALETTE[2],
-      };
-      if (prevSegment && nextSegment) {
-        tempSegment = {
-          ...tempSegment,
-          startTime: prevSegment.endTime,
-          endTime: nextSegment.startTime,
-        };
-      } else if (!prevSegment) {
-        tempSegment = {
-          ...tempSegment,
-          startTime: 0,
-          endTime: nextSegment.startTime,
-        };
-      } else if (!nextSegment) {
-        tempSegment = {
-          ...tempSegment,
-          startTime: prevSegment.endTime,
-          endTime: durationInSeconds,
-        };
-      }
+    let tempSegment = {
+      id,
+      labelText,
+      editable: true,
+      color: COLOR_PALETTE[2],
+    };
 
-      peaksInstance.segments.add(tempSegment);
-      peaksInstance.player.seek(tempSegment.startTime);
+    if (prevSpan && nextSpan) {
+      tempSegment = {
+        ...tempSegment,
+        startTime: this.timeToS(prevSpan.end),
+        endTime: this.timeToS(nextSpan.begin),
+      };
+    } else if (!prevSpan) {
+      tempSegment = {
+        ...tempSegment,
+        startTime: 0,
+        endTime: this.timeToS(nextSpan.begin),
+      };
+    } else if (!nextSpan) {
+      tempSegment = {
+        ...tempSegment,
+        startTime: this.timeToS(prevSpan.end),
+        endTime: durationInSeconds,
+      };
     }
+
+    let segment = peaksInstance.segments.getSegment(id);
+    if (segment) {
+      segment.update({ ...tempSegment });
+    } else {
+      peaksInstance.segments.add(tempSegment);
+    }
+    peaksInstance.player.seek(tempSegment.startTime);
     return peaksInstance;
   }
 
@@ -353,8 +342,8 @@ export default class WaveformDataUtils {
   saveSegment(currentState, peaksInstance) {
     const { beginTime, endTime, clonedSegment } = currentState;
     clonedSegment.update({
-      startTime: smu.toMs(beginTime) / 1000,
-      endTime: smu.toMs(endTime) / 1000,
+      startTime: this.timeToS(beginTime),
+      endTime: this.timeToS(endTime),
     });
     return peaksInstance;
   }
@@ -392,8 +381,8 @@ export default class WaveformDataUtils {
   updateSegment(segment, currentState, peaksInstance) {
     const { beginTime, endTime } = currentState;
     // Convert time from hh:mm:ss(.ss) format to Number
-    let beginSeconds = smu.toMs(beginTime) / 1000;
-    let endSeconds = smu.toMs(endTime) / 1000;
+    let beginSeconds = this.timeToS(beginTime);
+    let endSeconds = this.timeToS(endTime);
     let changeSegment = peaksInstance.segments.getSegment(segment.id);
 
     // Update segment only when the entered times are valid
@@ -520,5 +509,14 @@ export default class WaveformDataUtils {
       valueString = intVal + '.' + decVal.substring(0, 3);
     }
     return parseFloat(valueString);
+  }
+
+  /**
+   * Convert time in hh:mm:ss.ms format to seconds
+   * @param {String} time time in hh:mm:ss.ms format
+   * @returns {Number} time in seconds
+   */
+  timeToS(time) {
+    return smu.toMs(time) / 1000;
   }
 }

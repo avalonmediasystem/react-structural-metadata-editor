@@ -28,7 +28,7 @@ var ListItemInlineEditControls = function ListItemInlineEditControls(props) {
     className: "edit-controls-wrapper",
     "data-testid": "inline-form-controls"
   }, _react["default"].createElement(_reactBootstrap.OverlayTrigger, {
-    placement: "left",
+    placement: "top",
     overlay: tooltip('Save')
   }, _react["default"].createElement(_reactBootstrap.Button, {
     bsStyle: "link",
@@ -38,7 +38,7 @@ var ListItemInlineEditControls = function ListItemInlineEditControls(props) {
   }, _react["default"].createElement(_reactFontawesome.FontAwesomeIcon, {
     icon: _freeSolidSvgIcons.faSave
   }))), _react["default"].createElement(_reactBootstrap.OverlayTrigger, {
-    placement: "right",
+    placement: "top",
     overlay: tooltip('Cancel'),
     onClick: props.handleCancelClick
   }, _react["default"].createElement(_reactBootstrap.Button, {

@@ -15,8 +15,6 @@ var types = _interopRequireWildcard(require("../actions/types"));
 
 var _WaveformDataUtils = _interopRequireDefault(require("../services/WaveformDataUtils"));
 
-var _peaks = _interopRequireDefault(require("peaks.js"));
-
 var _rxjs = require("rxjs");
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
@@ -42,19 +40,11 @@ var peaksInstance = function peaksInstance() {
 
   switch (action.type) {
     case types.INIT_PEAKS:
-      var segments = waveformUtils.initSegments(action.smData, action.duration);
-
-      var _peaksInstance = _peaks["default"].init(_objectSpread({}, action.options, {
-        segments: segments
-      }), function () {
-        return null;
-      });
-
+      var _peaksInstance = action.peaksInstance;
       return {
         peaks: _peaksInstance,
         events: {
-          dragged: _peaksInstance ? (0, _rxjs.fromEvent)(_peaksInstance, 'segments.dragged') : null,
-          ready: _peaksInstance ? (0, _rxjs.fromEvent)(_peaksInstance, 'peaks.ready') : null
+          dragged: _peaksInstance ? (0, _rxjs.fromEvent)(_peaksInstance, 'segments.dragged') : null
         },
         segment: _objectSpread({}, state.segment),
         duration: action.duration

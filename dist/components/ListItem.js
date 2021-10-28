@@ -110,7 +110,8 @@ function (_Component) {
     _this = (0, _possibleConstructorReturn2["default"])(this, (_getPrototypeOf2 = (0, _getPrototypeOf3["default"])(ListItem)).call.apply(_getPrototypeOf2, [this].concat(args)));
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "state", {
       editing: false,
-      canDrag: _this.props.canDrag
+      canDrag: _this.props.canDrag,
+      focused: false
     });
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "node", undefined);
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "handleDelete", function () {
@@ -171,10 +172,22 @@ function (_Component) {
       }) : [];
     });
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "onHoverOverInput", function () {
+      console.log('onhover');
+
       _this.props.setCanDrag(false);
     });
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "onHoverOutOfInput", function () {
       _this.props.setCanDrag(true);
+    });
+    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "onFocus", function () {
+      return _this.setState({
+        focused: true
+      });
+    });
+    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "onBlur", function () {
+      return _this.setState({
+        focused: false
+      });
     });
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "detachEventListeners", function (node) {
       _this.getInputElements(node).map(function (e) {

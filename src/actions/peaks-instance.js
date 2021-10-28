@@ -9,22 +9,26 @@ import {
 } from './forms';
 import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
 import { configureAlert } from '../services/alert-status';
+// import Peaks from 'peaks.js';
+import WaveformDataUtils from '../services/WaveformDataUtils';
 
+const waveformUtils = new WaveformDataUtils();
 const apiUtils = new APIUtils();
 const structuralMetadataUtils = new StructuralMetadataUtils();
 
 /**
  * Fetch structure.json and initialize Peaks
+ * @param {Object} peaks - initialized peaks instance
  * @param {String} baseURL - base URL of masterfile location
  * @param {String} masterFileID - ID of the masterfile relevant to media element
  * @param {JSON} initStructure - structure with root element when empty
  * @param {Object} options - peaks options
  */
 export function initializeSMDataPeaks(
+  peaks,
   baseURL,
   masterFileID,
   initStructure,
-  options,
   duration
 ) {
   return async (dispatch, getState) => {
@@ -60,39 +64,40 @@ export function initializeSMDataPeaks(
 
     // Initialize Redux state variable with structure
     dispatch(buildSMUI(smData, duration));
-    dispatch(initPeaks(smData, options, duration));
+    dispatch(saveInitialStructure(smData));
 
-    const { peaksInstance, structuralMetadata } = getState();
+    if (peaks) {
+      // Create segments from structural metadata
+      const segments = waveformUtils.initSegments(smData, duration);
 
-    dispatch(saveInitialStructure(structuralMetadata.smData));
+      // Add segments to peaks instance
+      segments.map((seg) => peaks.segments.add(seg));
+      dispatch(initPeaks(peaks, duration));
 
-    // Subscribe to Peaks events
-    if (!isEmpty(peaksInstance.events)) {
-      const { dragged, ready } = peaksInstance.events;
-      // for segment editing using handles
-      if (dragged) {
-        dragged.subscribe((eProps) => {
-          // startTimeChanged = true -> handle at the start of the segment is being dragged
-          // startTimeChanged = flase -> handle at the end of the segment is being dragged
-          const [segment, startTimeChanged] = eProps;
-          dispatch(dragSegment(segment.id, startTimeChanged, 1));
-        });
-      }
-      if (ready) {
-        // peaks ready event
-        peaksInstance.events.ready.subscribe(() => {
+      // Subscribe to Peaks events
+      const { peaksInstance } = getState();
+      if (!isEmpty(peaksInstance.events)) {
+        const { dragged } = peaksInstance.events;
+        // for segment editing using handles
+        if (dragged) {
+          dragged.subscribe((eProps) => {
+            // startTimeChanged = true -> handle at the start of the segment is being dragged
+            // startTimeChanged = flase -> handle at the end of the segment is being dragged
+            const [segment, startTimeChanged] = eProps;
+            dispatch(dragSegment(segment.id, startTimeChanged, 1));
+          });
+          // Mark peaks is ready
           dispatch(peaksReady(true));
-        });
+        }
       }
     }
   };
 }
 
-export function initPeaks(smData, options, duration) {
+export function initPeaks(peaksInstance, duration) {
   return {
     type: types.INIT_PEAKS,
-    smData,
-    options,
+    peaksInstance,
     duration,
   };
 }

@@ -92,7 +92,7 @@ export function retrieveStreamMedia(audioFile, mediaPlayer, opts = {}) {
       const config = {
         xhrSetup: function (xhr) {
           xhr.withCredentials = opts.withCredentials;
-        }
+        },
       };
       const hls = new Hls(config);
 
@@ -104,7 +104,6 @@ export function retrieveStreamMedia(audioFile, mediaPlayer, opts = {}) {
         // BUFFER_CREATED event is fired when fetching the media stream is successful
         hls.on(Hls.Events.BUFFER_CREATED, function () {
           dispatch(streamMediaSuccess());
-          // dispatch(handleEditingTimespans(0));
         });
       });
 

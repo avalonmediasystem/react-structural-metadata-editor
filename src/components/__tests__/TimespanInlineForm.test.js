@@ -20,12 +20,17 @@ const peaksOptions = {
   _zoomLevels: [512, 1024, 2048, 4096],
 };
 
+let peaksInst = null;
+Peaks.init(peaksOptions, (err, peaks) => {
+  peaksInst = peaks;
+});
+
 const initialState = {
   structuralMetadata: {
     smData: testSmData,
   },
   peaksInstance: {
-    peaks: Peaks.init(peaksOptions),
+    peaks: peaksInst,
     segment: null,
     startTimeChanged: null,
   },
@@ -139,7 +144,7 @@ describe('TimespanInlineForm component', () => {
         smData: testInvalidData,
       },
       peaksInstance: {
-        peaks: Peaks.init(peaksOptions),
+        peaks: peaksInst,
         segment: null,
         startTimeChanged: null,
       },
@@ -212,7 +217,7 @@ describe('TimespanInlineForm component', () => {
           smData: testSmData,
         },
         peaksInstance: {
-          peaks: Peaks.init(peaksOptions),
+          peaks: peaksInst,
           segment: segment,
           isDragging: true,
           startTimeChanged: true,
@@ -243,7 +248,7 @@ describe('TimespanInlineForm component', () => {
           smData: testSmData,
         },
         peaksInstance: {
-          peaks: Peaks.init(peaksOptions),
+          peaks: peaksInst,
           segment: segment,
           isDragging: true,
           startTimeChanged: true,

@@ -65,6 +65,19 @@ const props = {
 afterEach(cleanup);
 
 describe('App component', () => {
+  let originalError;
+  beforeEach(() => {
+    /** Mock console.error function with empty jest.fn().
+     *  This avoids multiple console.error outputs from within Peaks.init() function
+     *  while the Waveform component (child of WaveformContainer) gets rendered.
+     */
+    originalError = console.error;
+    console.error = jest.fn();
+  });
+  afterEach(() => {
+    console.error = originalError;
+  });
+
   describe('Alert integration', () => {
     test('alert renders successfully with props', () => {
       const app = renderWithRedux(<App {...props} />, baseState);

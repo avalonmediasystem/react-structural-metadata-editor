@@ -41,24 +41,29 @@ var _StructuralMetadataUtils = _interopRequireDefault(require("../services/Struc
 
 var _alertStatus = require("../services/alert-status");
 
+var _WaveformDataUtils = _interopRequireDefault(require("../services/WaveformDataUtils"));
+
+// import Peaks from 'peaks.js';
+var waveformUtils = new _WaveformDataUtils["default"]();
 var apiUtils = new _Utils["default"]();
 var structuralMetadataUtils = new _StructuralMetadataUtils["default"]();
 /**
  * Fetch structure.json and initialize Peaks
+ * @param {Object} peaks - initialized peaks instance
  * @param {String} baseURL - base URL of masterfile location
  * @param {String} masterFileID - ID of the masterfile relevant to media element
  * @param {JSON} initStructure - structure with root element when empty
  * @param {Object} options - peaks options
  */
 
-function initializeSMDataPeaks(baseURL, masterFileID, initStructure, options, duration) {
+function initializeSMDataPeaks(peaks, baseURL, masterFileID, initStructure, duration) {
   return (
     /*#__PURE__*/
     function () {
       var _ref = (0, _asyncToGenerator2["default"])(
       /*#__PURE__*/
       _regenerator["default"].mark(function _callee(dispatch, getState) {
-        var smData, response, status, alert, _getState, peaksInstance, structuralMetadata, _peaksInstance$events, dragged, ready;
+        var smData, response, status, alert, segments, _getState, peaksInstance, dragged;
 
         return _regenerator["default"].wrap(function _callee$(_context) {
           while (1) {
@@ -102,34 +107,39 @@ function initializeSMDataPeaks(baseURL, masterFileID, initStructure, options, du
                 structuralMetadataUtils.markRootElement(smData); // Initialize Redux state variable with structure
 
                 dispatch((0, _smData.buildSMUI)(smData, duration));
-                dispatch(initPeaks(smData, options, duration));
-                _getState = getState(), peaksInstance = _getState.peaksInstance, structuralMetadata = _getState.structuralMetadata;
-                dispatch((0, _smData.saveInitialStructure)(structuralMetadata.smData)); // Subscribe to Peaks events
+                dispatch((0, _smData.saveInitialStructure)(smData));
 
-                if (!(0, _lodash.isEmpty)(peaksInstance.events)) {
-                  _peaksInstance$events = peaksInstance.events, dragged = _peaksInstance$events.dragged, ready = _peaksInstance$events.ready; // for segment editing using handles
+                if (peaks) {
+                  // Create segments from structural metadata
+                  segments = waveformUtils.initSegments(smData, duration); // Add segments to peaks instance
 
-                  if (dragged) {
-                    dragged.subscribe(function (eProps) {
-                      // startTimeChanged = true -> handle at the start of the segment is being dragged
-                      // startTimeChanged = flase -> handle at the end of the segment is being dragged
-                      var _eProps = (0, _slicedToArray2["default"])(eProps, 2),
-                          segment = _eProps[0],
-                          startTimeChanged = _eProps[1];
+                  segments.map(function (seg) {
+                    return peaks.segments.add(seg);
+                  });
+                  dispatch(initPeaks(peaks, duration)); // Subscribe to Peaks events
 
-                      dispatch(dragSegment(segment.id, startTimeChanged, 1));
-                    });
-                  }
+                  _getState = getState(), peaksInstance = _getState.peaksInstance;
 
-                  if (ready) {
-                    // peaks ready event
-                    peaksInstance.events.ready.subscribe(function () {
+                  if (!(0, _lodash.isEmpty)(peaksInstance.events)) {
+                    dragged = peaksInstance.events.dragged; // for segment editing using handles
+
+                    if (dragged) {
+                      dragged.subscribe(function (eProps) {
+                        // startTimeChanged = true -> handle at the start of the segment is being dragged
+                        // startTimeChanged = flase -> handle at the end of the segment is being dragged
+                        var _eProps = (0, _slicedToArray2["default"])(eProps, 2),
+                            segment = _eProps[0],
+                            startTimeChanged = _eProps[1];
+
+                        dispatch(dragSegment(segment.id, startTimeChanged, 1));
+                      }); // Mark peaks is ready
+
                       dispatch(peaksReady(true));
-                    });
+                    }
                   }
                 }
 
-              case 23:
+              case 21:
               case "end":
                 return _context.stop();
             }
@@ -144,11 +154,10 @@ function initializeSMDataPeaks(baseURL, masterFileID, initStructure, options, du
   );
 }
 
-function initPeaks(smData, options, duration) {
+function initPeaks(peaksInstance, duration) {
   return {
     type: types.INIT_PEAKS,
-    smData: smData,
-    options: options,
+    peaksInstance: peaksInstance,
     duration: duration
   };
 }

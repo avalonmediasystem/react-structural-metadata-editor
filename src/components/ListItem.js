@@ -66,6 +66,7 @@ class ListItem extends Component {
   state = {
     editing: false,
     canDrag: this.props.canDrag,
+    focused: false,
   };
   node = undefined;
 
@@ -132,12 +133,17 @@ class ListItem extends Component {
   };
 
   onHoverOverInput = () => {
+    console.log('onhover');
     this.props.setCanDrag(false);
   };
 
   onHoverOutOfInput = () => {
     this.props.setCanDrag(true);
   };
+
+  onFocus = () => this.setState({ focused: true });
+
+  onBlur = () => this.setState({ focused: false });
 
   detachEventListeners = (node) => {
     this.getInputElements(node).map((e) => {

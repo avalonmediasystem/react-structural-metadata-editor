@@ -49,7 +49,9 @@ class Waveform extends Component {
 
   componentDidMount = () => {
     const { audioFile } = this.state;
-    this.props.retrieveStreamMedia(audioFile, this.mediaPlayer, { withCredentials: this.props.withCredentials });
+    this.props.retrieveStreamMedia(audioFile, this.mediaPlayer, {
+      withCredentials: this.props.withCredentials,
+    });
 
     // Grab the React `refs` now the component is mounted
     this.props.zoomViewRef(this.zoomView.current);
@@ -130,6 +132,7 @@ class Waveform extends Component {
         <audio
           ref={this.mediaPlayer}
           hidden={true}
+          src={this.state.audioFile}
           data-testid="waveform-media"
         >
           Your browser does not support the audio element.

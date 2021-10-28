@@ -16,12 +16,17 @@ const peaksOptions = {
   _zoomLevels: [512, 1024, 2048, 4096],
 };
 
+let peaksInst = null;
+Peaks.init(peaksOptions, (err, peaks) => {
+  peaksInst = peaks;
+});
+
 const initialState = {
   structuralMetadata: {
     smData: testSmData,
   },
   peaksInstance: {
-    peaks: Peaks.init(peaksOptions),
+    peaks: peaksInst,
     isDragging: false,
     segment: {
       startTime: 0,

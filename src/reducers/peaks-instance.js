@@ -1,6 +1,5 @@
 import * as types from '../actions/types';
 import WaveformDataUtils from '../services/WaveformDataUtils';
-import Peaks from 'peaks.js';
 import { fromEvent } from 'rxjs';
 
 const waveformUtils = new WaveformDataUtils();
@@ -19,16 +18,7 @@ let updatedSegment = null;
 const peaksInstance = (state = initialState, action) => {
   switch (action.type) {
     case types.INIT_PEAKS:
-      let segments = waveformUtils.initSegments(action.smData, action.duration);
-      let peaksInstance = Peaks.init(
-        {
-          ...action.options,
-          segments: segments,
-        },
-        function () {
-          return null;
-        }
-      );
+      let peaksInstance = action.peaksInstance;
 
       return {
         peaks: peaksInstance,
@@ -36,7 +26,6 @@ const peaksInstance = (state = initialState, action) => {
           dragged: peaksInstance
             ? fromEvent(peaksInstance, 'segments.dragged')
             : null,
-          ready: peaksInstance ? fromEvent(peaksInstance, 'peaks.ready') : null,
         },
         segment: { ...state.segment },
         duration: action.duration,

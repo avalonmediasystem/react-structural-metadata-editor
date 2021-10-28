@@ -2087,11 +2087,6 @@ colorette@^1.2.2:
   resolved "https://registry.yarnpkg.com/colorette/-/colorette-1.2.2.tgz#cbcc79d5e99caea2dbf10eb3a26fd8b3e6acfa94"
   integrity sha512-MKGMzyfeuutC/ZJ1cba9NqcNpfeqMUcYmyF1ZFY6/Cn7CNSAKx6a+s48sqLqyAiZuaP2TcqMhoo+dlwFnVxT9w==
 
-colors.css@~3.0.0:
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/colors.css/-/colors.css-3.0.0.tgz#511cf42fb8a7199a8cbef49c88a4ea4f1d8f9efc"
-  integrity sha1-URz0L7inGZqMvvSciKTqTx2Pnvw=
-
 combined-stream@^1.0.6, combined-stream@~1.0.6:
   version "1.0.8"
   resolved "https://registry.yarnpkg.com/combined-stream/-/combined-stream-1.0.8.tgz#c3d45a8b34fd730631a110a8a2520682b31d5a7f"
@@ -2893,17 +2888,12 @@ etag@~1.8.1:
   resolved "https://registry.yarnpkg.com/etag/-/etag-1.8.1.tgz#41ae2eeb65efa62268aebfea83ac7d79299b0887"
   integrity sha1-Qa4u62XvpiJorr/qg6x9eSmbCIc=
 
-eventemitter2@~6.3.1:
-  version "6.3.1"
-  resolved "https://registry.yarnpkg.com/eventemitter2/-/eventemitter2-6.3.1.tgz#14ec7db8c659aa9b36ad2ce4bfcaba95ad525536"
-  integrity sha512-cxfu3g0IBn/JEhAPV33NZTi8llQQ5j62D0Yf4ir1U9uQ1DlRZLL3Hh2E/+TWDprSy4BETWvrGBZMUexuC2b6Lw==
-
 eventemitter3@4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/eventemitter3/-/eventemitter3-4.0.0.tgz#d65176163887ee59f386d64c82610b696a4a74eb"
   integrity sha512-qerSRB0p+UDEssxTtm6EDKcE7W4OaoisfIMl4CngyEhjpYglocpNg6UEqCvemdGhosAsg4sO2dXJOdyBifPGCg==
 
-eventemitter3@^4.0.0:
+eventemitter3@^4.0.0, eventemitter3@~4.0.7:
   version "4.0.7"
   resolved "https://registry.yarnpkg.com/eventemitter3/-/eventemitter3-4.0.7.tgz#2de9b68f6528d5644ef5c59526a1b4a07306169f"
   integrity sha512-8guHBZCwKnFhYdHr2ysuRWErTwhoN2X8XELRlrRwpmfeY2jjuUN4taQMsULKUVo1K4DvZl+0pgfyoysHxvmvEw==
@@ -4741,10 +4731,10 @@ kleur@^3.0.3:
   resolved "https://registry.yarnpkg.com/kleur/-/kleur-3.0.3.tgz#a79c9ecc86ee1ce3fa6206d1216c501f147fc07e"
   integrity sha512-eTIzlVOSUR+JxdDFepEYcBMtZ9Qqdef+rnzWdRZuMbOywu5tO2w2N7rqjoANZ5k9vywhL6Br1VRjUIgTQx4E8w==
 
-konva@~5.0.2:
-  version "5.0.2"
-  resolved "https://registry.yarnpkg.com/konva/-/konva-5.0.2.tgz#1b54228b40c92672fbfdfafdc6e4fb9c2da675cd"
-  integrity sha512-AvbPl+7QYX21JLCFw45OApPBqeVkuMQVrloMIpcgG8QFfMm24BtYMF0LO0sS43A3/90GL4iRMHKlkHlPBBDYtw==
+konva@~7.2.5:
+  version "7.2.5"
+  resolved "https://registry.yarnpkg.com/konva/-/konva-7.2.5.tgz#9b4ac3a353e6be66e3e69123bf2a0cbc61efeb26"
+  integrity sha512-yk/li8rUF+09QNlOdkwbEId+QvfATMe/aMGVouWW1oFoUVTYWHsQuIAE6lWy11DK8mLJEJijkNAXC5K+NVlMew==
 
 lcid@^2.0.0:
   version "2.0.0"
@@ -5690,15 +5680,14 @@ pbkdf2@^3.0.3:
     safe-buffer "^5.0.1"
     sha.js "^2.4.8"
 
-peaks.js@^0.20.0:
-  version "0.20.0"
-  resolved "https://registry.yarnpkg.com/peaks.js/-/peaks.js-0.20.0.tgz#d7d022a4fdf0fdb6f7f3f119ab5405cbc290e47d"
-  integrity sha512-ljx9wzR/i2kAn17nxWKEVzQr53ERQegClc+x9rfKYQmdje+DemWODAVRADFQN52WQswJ57QtUIcZ2bno3nRTHQ==
+peaks.js@^0.26.0:
+  version "0.26.0"
+  resolved "https://registry.yarnpkg.com/peaks.js/-/peaks.js-0.26.0.tgz#0ff00369b19a74522b0fe313f6b967b7c05aa1c1"
+  integrity sha512-kUsVDa+ISqK8V5B3dy4aXgQ1AbtPa7AIEHfJsOpSLIqgkrq1d3EOukbzrMiyNnODeh9qRaGEgHq40KlQEQK90Q==
   dependencies:
-    colors.css "~3.0.0"
-    eventemitter2 "~6.3.1"
-    konva "~5.0.2"
-    waveform-data "~3.3.1"
+    eventemitter3 "~4.0.7"
+    konva "~7.2.5"
+    waveform-data "~4.1.0"
 
 performance-now@^2.1.0:
   version "2.1.0"
@@ -7533,10 +7522,10 @@ waveform-data@^2.1.2:
   dependencies:
     inline-worker "~1.1.0"
 
-waveform-data@~3.3.1:
-  version "3.3.1"
-  resolved "https://registry.yarnpkg.com/waveform-data/-/waveform-data-3.3.1.tgz#19657a05e966d3efcc3206668f60a233d26975d2"
-  integrity sha512-GxwvVJDnTro2WCFvb4tp9GscC+/OCfoELM8z9b0yvjQzi0Lyr0DE/yhyWBDg0H9xjHiZl+cnI5ZQKDxnD/wE/Q==
+waveform-data@~4.1.0:
+  version "4.1.1"
+  resolved "https://registry.yarnpkg.com/waveform-data/-/waveform-data-4.1.1.tgz#641e6ae6c190529f9df79176009075618f236946"
+  integrity sha512-OAKQPY0j4e/cn7jv/zHFw8bzL4i93MCGlyfc42LDQxeT6pnvzxynzbNm5TCopPViKAan5zs1/8WrAsC4VxJjlg==
   dependencies:
     inline-worker "~1.1.0"
 

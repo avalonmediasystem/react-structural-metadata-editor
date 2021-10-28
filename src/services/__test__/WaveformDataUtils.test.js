@@ -59,7 +59,9 @@ describe('WaveformDataUtils class', () => {
       _zoomLevels: [512, 1024, 2048, 4096],
     };
     beforeEach(() => {
-      peaks = Peaks.init(options);
+      Peaks.init(options, (err, peaksInst) => {
+        peaks = peaksInst;
+      });
     });
 
     describe('insertTempSegment()', () => {
@@ -429,7 +431,9 @@ describe('WaveformDataUtils class', () => {
       _zoomLevels: [512, 1024, 2048, 4096],
     };
     beforeEach(() => {
-      peaks = Peaks.init(options);
+      Peaks.init(options, (err, peaksInst) => {
+        peaks = peaksInst;
+      });
     });
     describe('findWrapperSegments()', () => {
       let allSegments = [];

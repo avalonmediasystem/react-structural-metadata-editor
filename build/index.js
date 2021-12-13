@@ -1,6 +1,6 @@
 import React from 'react';
 import { render } from 'react-dom';
-import Root from '../../src';
+import Root from '../src';
 
 const props = {
   baseURL: 'https://avalon-dev.dlib.indiana.edu',

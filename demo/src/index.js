@@ -3,10 +3,10 @@ import { render } from 'react-dom';
 import Root from '../../src';
 
 const props = {
-  baseURL: 'https://spruce.dlib.indiana.edu',
-  masterFileID: 'h989r3360',
+  baseURL: 'https://avalon-dev.dlib.indiana.edu',
+  masterFileID: 't148fh13t',
   initStructure: {
-    label: 'BBC Planet Earth',
+    label: 'Planet Earth',
     type: 'div',
     items: [
       {
@@ -48,7 +48,7 @@ const props = {
     ],
   },
   audioStreamURL:
-    'https://spruce.dlib.indiana.edu/master_files/h989r3360/auto.m3u8',
+    'https://avalon-dev.dlib.indiana.edu/master_files/t148fh13t/auto.m3u8',
   streamDuration: 377338,
   structureIsSaved: (val) => {},
 };

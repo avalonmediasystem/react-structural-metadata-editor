@@ -36,14 +36,14 @@ function AlertContainer(props) {
         };
       }
 
-      alertList.push(_react["default"].createElement(_reactBootstrap.Alert, alertProps, _react["default"].createElement("p", {
+      alertList.push( /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Alert, alertProps, /*#__PURE__*/_react["default"].createElement("p", {
         "data-testid": "alert-message"
       }, message)));
     });
   }
 
   if (props.alerts) {
-    return _react["default"].createElement("div", null, alertList);
+    return /*#__PURE__*/_react["default"].createElement("div", null, alertList);
   } else {
     return null;
   }

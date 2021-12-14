@@ -2,7 +2,6 @@
   "name": "react-structural-metadata-editor",
   "version": "1.1.0",
   "description": "React Structural Metadata Editor for Avalon Media System",
-  "homepage": "https://avalonmediasystem.github.io/react-structural-metadata-editor",
   "main": "dist/index.js",
   "scripts": {
     "clean": "rimraf dist",

@@ -23,7 +23,7 @@ var List = function List(props) {
       canDrag = _React$useState2[0],
       _setCanDrag = _React$useState2[1];
 
-  return _react["default"].createElement("ul", {
+  return /*#__PURE__*/_react["default"].createElement("ul", {
     className: "structure-list",
     "data-testid": "list"
   }, props.items.map(function (item, i) {
@@ -32,13 +32,13 @@ var List = function List(props) {
     }
 
     if (item.type === 'optional') {
-      return _react["default"].createElement(_PlaceholderItem["default"], {
+      return /*#__PURE__*/_react["default"].createElement(_PlaceholderItem["default"], {
         key: i,
         item: item
       });
     }
 
-    return _react["default"].createElement(_ListItem["default"], {
+    return /*#__PURE__*/_react["default"].createElement(_ListItem["default"], {
       key: item.id,
       item: item,
       canDrag: canDrag,

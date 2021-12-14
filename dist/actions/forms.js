@@ -2,13 +2,14 @@
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
 
-var _interopRequireWildcard = require("@babel/runtime/helpers/interopRequireWildcard");
+var _typeof = require("@babel/runtime/helpers/typeof");
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.removeAlert = exports.handleStructureError = exports.handleEditingTimespans = exports.clearExistingAlerts = void 0;
 exports.retrieveStreamMedia = retrieveStreamMedia;
-exports.streamMediaSuccess = exports.streamMediaError = exports.handleStructureError = exports.retrieveWaveformSuccess = exports.updateStructureStatus = exports.retrieveStructureSuccess = exports.clearExistingAlerts = exports.removeAlert = exports.setAlert = exports.handleEditingTimespans = void 0;
+exports.updateStructureStatus = exports.streamMediaSuccess = exports.streamMediaError = exports.setAlert = exports.retrieveWaveformSuccess = exports.retrieveStructureSuccess = void 0;
 
 var types = _interopRequireWildcard(require("./types"));
 
@@ -16,25 +17,27 @@ var _hls = _interopRequireDefault(require("hls.js"));
 
 var _v = _interopRequireDefault(require("uuid/v1"));
 
+function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
+
+function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { "default": obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
 /**
  * Enable/disable other editing actions when editing a list item
  * @param {Integer} code - choose from; 1(true) | 0(false)
  */
 var handleEditingTimespans = function handleEditingTimespans(code) {
   var valid = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
-  return (// assumes structure data is valid by default
-    function (dispatch) {
-      dispatch({
-        type: types.IS_EDITING_TIMESPAN,
-        code: code
-      }); // Remove dismissible alerts when a CRUD action has been initiated
-      // given editing is starting (code = 1) and structure is validated.
+  return function (dispatch) {
+    dispatch({
+      type: types.IS_EDITING_TIMESPAN,
+      code: code
+    }); // Remove dismissible alerts when a CRUD action has been initiated
+    // given editing is starting (code = 1) and structure is validated.
 
-      if (code == 1 && valid) {
-        dispatch(clearExistingAlerts());
-      }
+    if (code == 1 && valid) {
+      dispatch(clearExistingAlerts());
     }
-  );
+  };
 };
 
 exports.handleEditingTimespans = handleEditingTimespans;

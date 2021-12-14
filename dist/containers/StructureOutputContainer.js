@@ -1,8 +1,8 @@
 "use strict";
 
-var _interopRequireWildcard = require("@babel/runtime/helpers/interopRequireWildcard");
-
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+var _typeof = require("@babel/runtime/helpers/typeof");
 
 Object.defineProperty(exports, "__esModule", {
   value: true
@@ -32,6 +32,10 @@ var _forms = require("../actions/forms");
 var _lodash = require("lodash");
 
 var _StructuralMetadataUtils = _interopRequireDefault(require("../services/StructuralMetadataUtils"));
+
+function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
+
+function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { "default": obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
 var StructureOutputContainer = function StructureOutputContainer(props) {
   var smu = new _StructuralMetadataUtils["default"]();
@@ -79,12 +83,8 @@ var StructureOutputContainer = function StructureOutputContainer(props) {
     props.setAlert(alert);
   };
 
-  var handleSaveItClick =
-  /*#__PURE__*/
-  function () {
-    var _ref = (0, _asyncToGenerator2["default"])(
-    /*#__PURE__*/
-    _regenerator["default"].mark(function _callee() {
+  var handleSaveItClick = /*#__PURE__*/function () {
+    var _ref = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee() {
       var postData, response, status, alert;
       return _regenerator["default"].wrap(function _callee$(_context) {
         while (1) {
@@ -124,17 +124,17 @@ var StructureOutputContainer = function StructureOutputContainer(props) {
     };
   }();
 
-  return _react["default"].createElement("section", {
+  return /*#__PURE__*/_react["default"].createElement("section", {
     className: "structure-section",
     "data-testid": "structure-output-section"
-  }, _react["default"].createElement("div", {
+  }, /*#__PURE__*/_react["default"].createElement("div", {
     "data-testid": "structure-output-list"
-  }, _react["default"].createElement(_List["default"], {
+  }, /*#__PURE__*/_react["default"].createElement(_List["default"], {
     items: smData
-  }), _react["default"].createElement(_reactBootstrap.Row, null, _react["default"].createElement(_reactBootstrap.Col, {
+  }), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Row, null, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Col, {
     xs: 12,
     className: "text-right"
-  }, _react["default"].createElement(_reactBootstrap.Button, {
+  }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Button, {
     bsStyle: "primary",
     onClick: handleSaveItClick,
     "data-testid": "structure-save-button",

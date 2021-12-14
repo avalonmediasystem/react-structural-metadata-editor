@@ -1,8 +1,8 @@
 "use strict";
 
-var _interopRequireWildcard = require("@babel/runtime/helpers/interopRequireWildcard");
-
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+var _typeof = require("@babel/runtime/helpers/typeof");
 
 Object.defineProperty(exports, "__esModule", {
   value: true
@@ -13,13 +13,13 @@ var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/cl
 
 var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
 
-var _possibleConstructorReturn2 = _interopRequireDefault(require("@babel/runtime/helpers/possibleConstructorReturn"));
-
-var _getPrototypeOf3 = _interopRequireDefault(require("@babel/runtime/helpers/getPrototypeOf"));
-
 var _assertThisInitialized2 = _interopRequireDefault(require("@babel/runtime/helpers/assertThisInitialized"));
 
 var _inherits2 = _interopRequireDefault(require("@babel/runtime/helpers/inherits"));
+
+var _possibleConstructorReturn2 = _interopRequireDefault(require("@babel/runtime/helpers/possibleConstructorReturn"));
+
+var _getPrototypeOf2 = _interopRequireDefault(require("@babel/runtime/helpers/getPrototypeOf"));
 
 var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/defineProperty"));
 
@@ -50,6 +50,14 @@ var _ListItemControls = _interopRequireDefault(require("./ListItemControls"));
 var _reactFontawesome = require("@fortawesome/react-fontawesome");
 
 var _freeSolidSvgIcons = require("@fortawesome/free-solid-svg-icons");
+
+function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
+
+function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { "default": obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = (0, _getPrototypeOf2["default"])(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = (0, _getPrototypeOf2["default"])(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return (0, _possibleConstructorReturn2["default"])(this, result); }; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
 
 var spanSource = {
   // canDrag prop is turned false/true based on mouse events mouseenter/mouseleave
@@ -91,14 +99,12 @@ function collectDrop(connect, monitor) {
   };
 }
 
-var ListItem =
-/*#__PURE__*/
-function (_Component) {
+var ListItem = /*#__PURE__*/function (_Component) {
   (0, _inherits2["default"])(ListItem, _Component);
 
-  function ListItem() {
-    var _getPrototypeOf2;
+  var _super = _createSuper(ListItem);
 
+  function ListItem() {
     var _this;
 
     (0, _classCallCheck2["default"])(this, ListItem);
@@ -107,7 +113,7 @@ function (_Component) {
       args[_key] = arguments[_key];
     }
 
-    _this = (0, _possibleConstructorReturn2["default"])(this, (_getPrototypeOf2 = (0, _getPrototypeOf3["default"])(ListItem)).call.apply(_getPrototypeOf2, [this].concat(args)));
+    _this = _super.call.apply(_super, [this].concat(args));
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "state", {
       editing: false,
       canDrag: _this.props.canDrag
@@ -208,7 +214,7 @@ function (_Component) {
           valid = _this$props2.item.valid,
           connectDragSource = _this$props2.connectDragSource,
           connectDropTarget = _this$props2.connectDropTarget;
-      var subMenu = items && items.length > 0 ? _react["default"].createElement(_List["default"], {
+      var subMenu = items && items.length > 0 ? /*#__PURE__*/_react["default"].createElement(_List["default"], {
         items: items
       }) : null;
       var itemProp = {
@@ -217,7 +223,7 @@ function (_Component) {
         type: type,
         active: active
       };
-      return connectDragSource(connectDropTarget(_react["default"].createElement("li", {
+      return connectDragSource(connectDropTarget( /*#__PURE__*/_react["default"].createElement("li", {
         className: active ? 'active' : '',
         ref: function ref(instance) {
           _this2.detachEventListeners(_this2.node);
@@ -234,22 +240,22 @@ function (_Component) {
             });
           }
         }
-      }, this.state.editing && _react["default"].createElement(_ListItemEditForm["default"], {
+      }, this.state.editing && /*#__PURE__*/_react["default"].createElement(_ListItemEditForm["default"], {
         item: item,
         handleEditFormCancel: this.handleEditFormCancel
-      }), !this.state.editing && _react["default"].createElement("div", {
+      }), !this.state.editing && /*#__PURE__*/_react["default"].createElement("div", {
         className: 'row-wrapper' + (!valid ? ' invalid' : ''),
         "data-testid": "list-item"
-      }, type === 'span' && _react["default"].createElement(_react["default"].Fragment, null, _react["default"].createElement("span", {
+      }, type === 'span' && /*#__PURE__*/_react["default"].createElement(_react["default"].Fragment, null, /*#__PURE__*/_react["default"].createElement("span", {
         className: "structure-title",
         "data-testid": "timespan-label"
-      }, !valid && _react["default"].createElement(_reactFontawesome.FontAwesomeIcon, {
+      }, !valid && /*#__PURE__*/_react["default"].createElement(_reactFontawesome.FontAwesomeIcon, {
         icon: _freeSolidSvgIcons.faExclamationTriangle,
         className: "icon-invalid"
-      }), ' ', label, " (", begin, " - ", end, ")")), (type === 'div' || type === 'root') && _react["default"].createElement("div", {
+      }), ' ', label, " (", begin, " - ", end, ")")), (type === 'div' || type === 'root') && /*#__PURE__*/_react["default"].createElement("div", {
         className: "structure-title heading",
         "data-testid": "heading-label"
-      }, label), _react["default"].createElement(_ListItemControls["default"], {
+      }, label), /*#__PURE__*/_react["default"].createElement(_ListItemControls["default"], {
         handleDelete: this.handleDelete,
         handleEditClick: this.handleEditClick,
         item: itemProp,

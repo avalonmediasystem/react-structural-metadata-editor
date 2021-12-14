@@ -23,9 +23,9 @@ var _core = require("@material-ui/core");
 
 var _reactBootstrap = require("react-bootstrap");
 
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { (0, _defineProperty2["default"])(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { (0, _defineProperty2["default"])(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 
 var useStyles = (0, _styles.makeStyles)(function () {
   return {
@@ -94,37 +94,37 @@ function VolumeSlider(props) {
     }
   };
 
-  return _react["default"].createElement(_core.Paper, {
+  return /*#__PURE__*/_react["default"].createElement(_core.Paper, {
     className: classes.root
-  }, _react["default"].createElement(_reactBootstrap.Row, null, _react["default"].createElement(_reactBootstrap.Col, {
+  }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Row, null, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Col, {
     xs: 2,
     md: 2,
     style: {
       paddingRight: 0,
       paddingLeft: 5
     }
-  }, _react["default"].createElement("div", {
+  }, /*#__PURE__*/_react["default"].createElement("div", {
     onClick: onToggle,
     style: {
       margin: 2,
       paddingRight: 15
     }
-  }, props.volume === 0 ? _react["default"].createElement(_VolumeOff["default"], {
-    style: _objectSpread({}, SPEAKER_ICON_SIZE, {
+  }, props.volume === 0 ? /*#__PURE__*/_react["default"].createElement(_VolumeOff["default"], {
+    style: _objectSpread(_objectSpread({}, SPEAKER_ICON_SIZE), {}, {
       transform: 'translateX(1px)'
     })
-  }) : _react["default"].createElement(_VolumeUp["default"], {
-    style: _objectSpread({}, SPEAKER_ICON_SIZE, {
+  }) : /*#__PURE__*/_react["default"].createElement(_VolumeUp["default"], {
+    style: _objectSpread(_objectSpread({}, SPEAKER_ICON_SIZE), {}, {
       transform: 'translateX(1px)'
     })
-  }))), _react["default"].createElement(_reactBootstrap.Col, {
+  }))), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Col, {
     xs: 10,
     md: 10,
     style: {
       paddingRight: 25,
       paddingLeft: 0
     }
-  }, _react["default"].createElement(StyledSlider, {
+  }, /*#__PURE__*/_react["default"].createElement(StyledSlider, {
     value: props.volume,
     onChange: handleChange
   }))));

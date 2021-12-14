@@ -1,8 +1,8 @@
 "use strict";
 
-var _interopRequireWildcard = require("@babel/runtime/helpers/interopRequireWildcard");
-
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+var _typeof = require("@babel/runtime/helpers/typeof");
 
 Object.defineProperty(exports, "__esModule", {
   value: true
@@ -13,13 +13,13 @@ var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/cl
 
 var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
 
-var _possibleConstructorReturn2 = _interopRequireDefault(require("@babel/runtime/helpers/possibleConstructorReturn"));
-
-var _getPrototypeOf3 = _interopRequireDefault(require("@babel/runtime/helpers/getPrototypeOf"));
-
 var _assertThisInitialized2 = _interopRequireDefault(require("@babel/runtime/helpers/assertThisInitialized"));
 
 var _inherits2 = _interopRequireDefault(require("@babel/runtime/helpers/inherits"));
+
+var _possibleConstructorReturn2 = _interopRequireDefault(require("@babel/runtime/helpers/possibleConstructorReturn"));
+
+var _getPrototypeOf2 = _interopRequireDefault(require("@babel/runtime/helpers/getPrototypeOf"));
 
 var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/defineProperty"));
 
@@ -39,20 +39,26 @@ var _alertStatus = require("../services/alert-status");
 
 var _forms = require("../actions/forms");
 
+function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
+
+function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { "default": obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = (0, _getPrototypeOf2["default"])(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = (0, _getPrototypeOf2["default"])(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return (0, _possibleConstructorReturn2["default"])(this, result); }; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+
 var styles = {
   well: {
     marginTop: '1rem'
   }
 };
 
-var ButtonSection =
-/*#__PURE__*/
-function (_Component) {
+var ButtonSection = /*#__PURE__*/function (_Component) {
   (0, _inherits2["default"])(ButtonSection, _Component);
 
-  function ButtonSection() {
-    var _getPrototypeOf2;
+  var _super = _createSuper(ButtonSection);
 
+  function ButtonSection() {
     var _this;
 
     (0, _classCallCheck2["default"])(this, ButtonSection);
@@ -61,7 +67,7 @@ function (_Component) {
       args[_key] = arguments[_key];
     }
 
-    _this = (0, _possibleConstructorReturn2["default"])(this, (_getPrototypeOf2 = (0, _getPrototypeOf3["default"])(ButtonSection)).call.apply(_getPrototypeOf2, [this].concat(args)));
+    _this = _super.call.apply(_super, [this].concat(args));
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "state", {
       headingOpen: false,
       timespanOpen: false,
@@ -168,37 +174,37 @@ function (_Component) {
           structureInfo = _this$props$forms.structureInfo,
           streamInfo = _this$props$forms.streamInfo; // Only return UI when both structure and waveform data exist
 
-      return structureInfo.structureRetrieved ? _react["default"].createElement("section", null, _react["default"].createElement(_reactBootstrap.Row, {
+      return structureInfo.structureRetrieved ? /*#__PURE__*/_react["default"].createElement("section", null, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Row, {
         "data-testid": "button-row"
-      }, _react["default"].createElement(_reactBootstrap.Col, {
+      }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Col, {
         xs: 6
-      }, _react["default"].createElement(_reactBootstrap.Button, {
+      }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Button, {
         "data-testid": "add-heading-button",
         block: true,
         onClick: this.handleHeadingClick,
         disabled: this.state.disabled && editingDisabled
-      }, "Add a Heading")), _react["default"].createElement(_reactBootstrap.Col, {
+      }, "Add a Heading")), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Col, {
         xs: 6
-      }, _react["default"].createElement(_reactBootstrap.Button, {
+      }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Button, {
         "data-testid": "add-timespan-button",
         block: true,
         onClick: this.handleTimeSpanClick,
         disabled: this.state.disabled && editingDisabled || streamInfo.streamMediaError
-      }, "Add a Timespan"))), _react["default"].createElement(_reactBootstrap.Collapse, {
+      }, "Add a Timespan"))), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Collapse, {
         "in": this.state.headingOpen
-      }, _react["default"].createElement("div", {
+      }, /*#__PURE__*/_react["default"].createElement("div", {
         className: "well",
         style: styles.well,
         "data-testid": "heading-form-wrapper"
-      }, _react["default"].createElement(_HeadingFormContainer["default"], {
+      }, /*#__PURE__*/_react["default"].createElement(_HeadingFormContainer["default"], {
         cancelClick: this.handleCancelHeadingClick
-      }))), _react["default"].createElement(_reactBootstrap.Collapse, {
+      }))), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Collapse, {
         "in": this.state.timespanOpen
-      }, _react["default"].createElement("div", {
+      }, /*#__PURE__*/_react["default"].createElement("div", {
         className: "well",
         style: styles.well,
         "data-testid": "timespan-form-wrapper"
-      }, _react["default"].createElement(_TimespanFormContainer["default"], timespanFormProps)))) : null;
+      }, /*#__PURE__*/_react["default"].createElement(_TimespanFormContainer["default"], timespanFormProps)))) : null;
     }
   }]);
   return ButtonSection;

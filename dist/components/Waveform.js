@@ -1,8 +1,8 @@
 "use strict";
 
-var _interopRequireWildcard = require("@babel/runtime/helpers/interopRequireWildcard");
-
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+var _typeof = require("@babel/runtime/helpers/typeof");
 
 Object.defineProperty(exports, "__esModule", {
   value: true
@@ -13,13 +13,13 @@ var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/cl
 
 var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
 
-var _possibleConstructorReturn2 = _interopRequireDefault(require("@babel/runtime/helpers/possibleConstructorReturn"));
-
-var _getPrototypeOf2 = _interopRequireDefault(require("@babel/runtime/helpers/getPrototypeOf"));
-
 var _assertThisInitialized2 = _interopRequireDefault(require("@babel/runtime/helpers/assertThisInitialized"));
 
 var _inherits2 = _interopRequireDefault(require("@babel/runtime/helpers/inherits"));
+
+var _possibleConstructorReturn2 = _interopRequireDefault(require("@babel/runtime/helpers/possibleConstructorReturn"));
+
+var _getPrototypeOf2 = _interopRequireDefault(require("@babel/runtime/helpers/getPrototypeOf"));
 
 var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/defineProperty"));
 
@@ -37,21 +37,29 @@ var _Slider = _interopRequireDefault(require("./Slider"));
 
 var _LoadingSpinner = _interopRequireDefault(require("../services/LoadingSpinner"));
 
+function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
+
+function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { "default": obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = (0, _getPrototypeOf2["default"])(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = (0, _getPrototypeOf2["default"])(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return (0, _possibleConstructorReturn2["default"])(this, result); }; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+
 // Content of aria-label for UI components
 var waveformLabel = "Two interactive waveforms, plotted one after the other using data from a masterfile in a back-end server.\nThere are time-based visual sections plotted in these 2 waveforms representing each timespan in the structure below.";
 var zoomViewLabel = "A detailed portion of the waveform data, the level of details shown can be changed with zoom in/out buttons in the waveform toolbar";
 var overViewLabel = "An overview of the waveform data of the media file used. This shows all the time-based segments from the structure";
 
-var Waveform =
-/*#__PURE__*/
-function (_Component) {
+var Waveform = /*#__PURE__*/function (_Component) {
   (0, _inherits2["default"])(Waveform, _Component);
+
+  var _super = _createSuper(Waveform);
 
   function Waveform(props) {
     var _this;
 
     (0, _classCallCheck2["default"])(this, Waveform);
-    _this = (0, _possibleConstructorReturn2["default"])(this, (0, _getPrototypeOf2["default"])(Waveform).call(this, props));
+    _this = _super.call(this, props);
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "componentDidMount", function () {
       var audioFile = _this.state.audioFile;
 
@@ -102,9 +110,9 @@ function (_Component) {
       readyPeaks: _this.props.peaksInstance.readyPeaks
     }; // Create `refs`
 
-    _this.zoomView = _react["default"].createRef();
-    _this.overView = _react["default"].createRef();
-    _this.mediaPlayer = _react["default"].createRef();
+    _this.zoomView = /*#__PURE__*/_react["default"].createRef();
+    _this.overView = /*#__PURE__*/_react["default"].createRef();
+    _this.mediaPlayer = /*#__PURE__*/_react["default"].createRef();
     return _this;
   }
 
@@ -132,60 +140,60 @@ function (_Component) {
           streamMediaError = _this$props$streamInf.streamMediaError,
           streamMediaLoading = _this$props$streamInf.streamMediaLoading;
       var stillLoading = streamMediaLoading && !streamMediaError || !readyPeaks;
-      return _react["default"].createElement(_react["default"].Fragment, null, _react["default"].createElement("div", {
+      return /*#__PURE__*/_react["default"].createElement(_react["default"].Fragment, null, /*#__PURE__*/_react["default"].createElement("div", {
         id: "waveform-container",
         tabIndex: "0",
         "data-testid": "waveform",
         "aria-label": waveformLabel
-      }, _react["default"].createElement("div", {
+      }, /*#__PURE__*/_react["default"].createElement("div", {
         id: "zoomview-container",
         ref: this.zoomView,
         tabIndex: "0",
         "data-testid": "zoom-view",
         "aria-label": zoomViewLabel
-      }), _react["default"].createElement("div", {
+      }), /*#__PURE__*/_react["default"].createElement("div", {
         id: "overview-container",
         ref: this.overView,
         tabIndex: "0",
         "data-testid": "over-view",
         "aria-label": overViewLabel
-      })), stillLoading && _react["default"].createElement("div", {
+      })), stillLoading && /*#__PURE__*/_react["default"].createElement("div", {
         "data-testid": "loading-spinner"
-      }, _react["default"].createElement(_LoadingSpinner["default"], {
+      }, /*#__PURE__*/_react["default"].createElement(_LoadingSpinner["default"], {
         isLoading: stillLoading
-      })), _react["default"].createElement("audio", {
+      })), /*#__PURE__*/_react["default"].createElement("audio", {
         ref: this.mediaPlayer,
         hidden: true,
         "data-testid": "waveform-media"
-      }, "Your browser does not support the audio element."), !streamMediaLoading && !streamMediaError && _react["default"].createElement(_reactBootstrap.Row, {
+      }, "Your browser does not support the audio element."), !streamMediaLoading && !streamMediaError && /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Row, {
         "data-testid": "waveform-toolbar"
-      }, _react["default"].createElement(_reactBootstrap.Col, {
+      }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Col, {
         xs: 6,
         md: 6
-      }, _react["default"].createElement(_Slider["default"], {
+      }, /*#__PURE__*/_react["default"].createElement(_Slider["default"], {
         volume: volume,
         setVolume: this.setVolume
-      })), _react["default"].createElement(_reactBootstrap.Col, {
+      })), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Col, {
         xs: 12,
         md: 6
-      }, _react["default"].createElement(_reactBootstrap.ButtonToolbar, null, _react["default"].createElement(_reactBootstrap.Button, {
+      }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.ButtonToolbar, null, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Button, {
         className: "glyphicon glyphicon-play",
         "aria-label": "Play",
         onClick: this.playAudio,
         "data-testid": "waveform-play-button",
         disabled: streamMediaError || streamMediaLoading
-      }), _react["default"].createElement(_reactBootstrap.Button, {
+      }), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Button, {
         className: "glyphicon glyphicon-pause",
         "aria-label": "Pause",
         onClick: this.pauseAudio,
         "data-testid": "waveform-pause-button",
         disabled: streamMediaError || streamMediaLoading
-      }), _react["default"].createElement(_reactBootstrap.Button, {
+      }), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Button, {
         className: "glyphicon glyphicon-zoom-in",
         "aria-label": "Zoom in",
         onClick: this.zoomIn,
         "data-testid": "waveform-zoomin-button"
-      }), _react["default"].createElement(_reactBootstrap.Button, {
+      }), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Button, {
         className: "glyphicon glyphicon-zoom-out",
         "aria-label": "Zoom out",
         onClick: this.zoomOut,

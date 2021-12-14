@@ -1,8 +1,8 @@
 "use strict";
 
-var _interopRequireWildcard = require("@babel/runtime/helpers/interopRequireWildcard");
-
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+var _typeof = require("@babel/runtime/helpers/typeof");
 
 Object.defineProperty(exports, "__esModule", {
   value: true
@@ -13,13 +13,13 @@ var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/cl
 
 var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
 
-var _possibleConstructorReturn2 = _interopRequireDefault(require("@babel/runtime/helpers/possibleConstructorReturn"));
-
-var _getPrototypeOf2 = _interopRequireDefault(require("@babel/runtime/helpers/getPrototypeOf"));
-
 var _assertThisInitialized2 = _interopRequireDefault(require("@babel/runtime/helpers/assertThisInitialized"));
 
 var _inherits2 = _interopRequireDefault(require("@babel/runtime/helpers/inherits"));
+
+var _possibleConstructorReturn2 = _interopRequireDefault(require("@babel/runtime/helpers/possibleConstructorReturn"));
+
+var _getPrototypeOf2 = _interopRequireDefault(require("@babel/runtime/helpers/getPrototypeOf"));
 
 var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/defineProperty"));
 
@@ -39,19 +39,27 @@ var _WaveformDataUtils = _interopRequireDefault(require("../services/WaveformDat
 
 var _lodash = require("lodash");
 
+function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
+
+function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { "default": obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = (0, _getPrototypeOf2["default"])(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = (0, _getPrototypeOf2["default"])(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return (0, _possibleConstructorReturn2["default"])(this, result); }; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+
 var structuralMetadataUtils = new _StructuralMetadataUtils["default"]();
 var waveformDataUtils = new _WaveformDataUtils["default"]();
 
-var TimespanForm =
-/*#__PURE__*/
-function (_Component) {
+var TimespanForm = /*#__PURE__*/function (_Component) {
   (0, _inherits2["default"])(TimespanForm, _Component);
+
+  var _super = _createSuper(TimespanForm);
 
   function TimespanForm(props) {
     var _this;
 
     (0, _classCallCheck2["default"])(this, TimespanForm);
-    _this = (0, _possibleConstructorReturn2["default"])(this, (0, _getPrototypeOf2["default"])(TimespanForm).call(this, props));
+    _this = _super.call(this, props);
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "buildHeadingsOptions", function () {
       var smData = _this.props.smData;
       var newSpan = {
@@ -237,62 +245,62 @@ function (_Component) {
           timespanChildOf = _this$state5.timespanChildOf,
           timespanTitle = _this$state5.timespanTitle,
           allSpans = _this$state5.allSpans;
-      return _react["default"].createElement("form", {
+      return /*#__PURE__*/_react["default"].createElement("form", {
         onSubmit: this.handleSubmit,
         "data-testid": "timespan-form"
-      }, _react["default"].createElement(_reactBootstrap.FormGroup, {
+      }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.FormGroup, {
         controlId: "timespanTitle",
         validationState: (0, _formHelper.getValidationTitleState)(timespanTitle),
         "data-testid": "timespan-form-title"
-      }, _react["default"].createElement(_reactBootstrap.ControlLabel, null, "Title"), _react["default"].createElement(_reactBootstrap.FormControl, {
+      }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.ControlLabel, null, "Title"), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.FormControl, {
         type: "text",
         value: timespanTitle,
         onChange: this.handleInputChange
-      }), _react["default"].createElement(_reactBootstrap.FormControl.Feedback, null)), _react["default"].createElement(_reactBootstrap.Row, null, _react["default"].createElement(_reactBootstrap.Col, {
+      }), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.FormControl.Feedback, null)), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Row, null, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Col, {
         sm: 6
-      }, _react["default"].createElement(_reactBootstrap.FormGroup, {
+      }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.FormGroup, {
         controlId: "beginTime",
         validationState: (0, _formHelper.getValidationBeginState)(beginTime, allSpans),
         "data-testid": "timespan-form-begintime"
-      }, _react["default"].createElement(_reactBootstrap.ControlLabel, null, "Begin Time"), _react["default"].createElement(_reactBootstrap.FormControl, {
+      }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.ControlLabel, null, "Begin Time"), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.FormControl, {
         type: "text",
         value: beginTime,
         placeholder: "00:00:00",
         onChange: this.handleTimeChange
-      }), _react["default"].createElement(_reactBootstrap.FormControl.Feedback, null))), _react["default"].createElement(_reactBootstrap.Col, {
+      }), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.FormControl.Feedback, null))), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Col, {
         sm: 6
-      }, _react["default"].createElement(_reactBootstrap.FormGroup, {
+      }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.FormGroup, {
         controlId: "endTime",
         validationState: (0, _formHelper.getValidationEndState)(beginTime, endTime, allSpans, this.props.peaksInstance.peaks),
         "data-testid": "timespan-form-endtime"
-      }, _react["default"].createElement(_reactBootstrap.ControlLabel, null, "End Time"), _react["default"].createElement(_reactBootstrap.FormControl, {
+      }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.ControlLabel, null, "End Time"), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.FormControl, {
         type: "text",
         value: endTime,
         placeholder: "00:00:00",
         onChange: this.handleTimeChange
-      }), _react["default"].createElement(_reactBootstrap.FormControl.Feedback, null)))), _react["default"].createElement(_reactBootstrap.FormGroup, {
+      }), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.FormControl.Feedback, null)))), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.FormGroup, {
         controlId: "timespanChildOf",
         "data-testid": "timespan-form-childof"
-      }, _react["default"].createElement(_reactBootstrap.ControlLabel, null, "Child Of"), _react["default"].createElement(_reactBootstrap.FormControl, {
+      }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.ControlLabel, null, "Child Of"), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.FormControl, {
         componentClass: "select",
         placeholder: "select",
         onChange: this.handleChildOfChange,
         value: timespanChildOf
-      }, _react["default"].createElement("option", {
+      }, /*#__PURE__*/_react["default"].createElement("option", {
         value: ""
       }, "Select..."), this.state.validHeadings.map(function (item) {
-        return _react["default"].createElement("option", {
+        return /*#__PURE__*/_react["default"].createElement("option", {
           value: item.id,
           key: item.id
         }, item.label);
-      }))), _react["default"].createElement(_reactBootstrap.Row, null, _react["default"].createElement(_reactBootstrap.Col, {
+      }))), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Row, null, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Col, {
         xs: 12
-      }, _react["default"].createElement(_reactBootstrap.ButtonToolbar, {
+      }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.ButtonToolbar, {
         className: "pull-right"
-      }, _react["default"].createElement(_reactBootstrap.Button, {
+      }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Button, {
         onClick: this.handleCancelClick,
         "data-testid": "timespan-form-cancel-button"
-      }, "Cancel"), _react["default"].createElement(_reactBootstrap.Button, {
+      }, "Cancel"), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Button, {
         bsStyle: "primary",
         type: "submit",
         disabled: !this.formIsValid(),

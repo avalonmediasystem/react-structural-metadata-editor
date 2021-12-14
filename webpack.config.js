@@ -1,11 +1,11 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const htmlWebpackPlugin = new HtmlWebpackPlugin({
-  template: path.join(__dirname, 'public/index.html'),
+  template: path.join(__dirname, 'docs/index.html'),
   filename: './index.html',
 });
 module.exports = {
-  entry: path.join(__dirname, 'public/index.js'),
+  entry: path.join(__dirname, 'docs/index.js'),
   module: {
     rules: [
       {

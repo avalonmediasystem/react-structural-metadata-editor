@@ -3,53 +3,16 @@ import { render } from 'react-dom';
 import Root from '../../src';
 
 const props = {
-  baseURL: 'https://spruce.dlib.indiana.edu',
-  masterFileID: 'h989r3360',
+  baseURL: 'https://media.dlib.indiana.edu',
+  masterFileID: 'x920gh165',
   initStructure: {
-    label: 'BBC Planet Earth',
+    label: 'Lunchroom manners',
     type: 'div',
-    items: [
-      {
-        label: 'Introduction',
-        type: 'div',
-        items: [
-          {
-            label: 'Darwin',
-            begin: '00:00:00.00',
-            end: '00:00:12.199',
-            type: 'span',
-          },
-          {
-            label: 'Story of life',
-            begin: '00:00:12.199',
-            end: '00:00:25.000',
-            type: 'span',
-          },
-        ],
-      },
-      {
-        label: 'History of Life',
-        type: 'div',
-        items: [
-          {
-            label: 'Sea',
-            begin: '00:00:25.00',
-            end: '00:00:37.30',
-            type: 'span',
-          },
-          {
-            label: 'Tree of life',
-            begin: '00:00:38.296',
-            end: '00:01:24.00',
-            type: 'span',
-          },
-        ],
-      },
-    ],
+    items: [],
   },
   audioStreamURL:
-    'https://spruce.dlib.indiana.edu/master_files/h989r3360/auto.m3u8',
-  streamDuration: 377338,
+    'https://media.dlib.indiana.edu/master_files/x920gh165/auto.m3u8',
+  streamDuration: 572000,
   structureIsSaved: (val) => {},
 };
 

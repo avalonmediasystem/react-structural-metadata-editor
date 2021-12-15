@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/react-structural-metadata-editor/static/css/main.3d1bf2b7.css",
+    "main.js": "/react-structural-metadata-editor/static/js/main.9aec549f.js",
+    "index.html": "/react-structural-metadata-editor/index.html",
+    "main.3d1bf2b7.css.map": "/react-structural-metadata-editor/static/css/main.3d1bf2b7.css.map",
+    "main.9aec549f.js.map": "/react-structural-metadata-editor/static/js/main.9aec549f.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.3d1bf2b7.css",
+    "static/js/main.9aec549f.js"
+  ]
+}

@@ -2,6 +2,7 @@
   "name": "react-structural-metadata-editor",
   "version": "1.1.0",
   "description": "React Structural Metadata Editor for Avalon Media System",
+  "homepage": "https://avalonmediasystem.github.io/react-structural-metadata-editor",
   "main": "dist/index.js",
   "scripts": {
     "clean": "rimraf dist",
@@ -9,7 +10,10 @@
     "test": "jest --coverage --colors",
     "test:watch": "jest --watch",
     "transpile": "rimraf dist & babel src --out-dir dist --ignore src/**/*.spec.js,src/**/*.test.js --copy-files",
-    "prepublishOnly": "npm run transpile"
+    "prepublishOnly": "npm run transpile",
+    "build": "react-scripts build",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
   },
   "contributors": [
     "Adam Arling <aarling@gmail.com>",
@@ -31,6 +35,7 @@
     "babel-jest": "^24.7.1",
     "babel-loader": "^8.0.5",
     "css-loader": "^2.1.1",
+    "gh-pages": "^3.2.3",
     "html-webpack-plugin": "^3.2.0",
     "jest": "^24.7.1",
     "jest-dom": "^3.2.1",
@@ -75,5 +80,17 @@
     "set-value": "2.0.1",
     "istanbul-reports": "2.2.7",
     "mkdirp": "^0.5.3"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   }
 }

@@ -133,7 +133,6 @@ class ListItem extends Component {
   };
 
   onHoverOverInput = () => {
-    console.log('onhover');
     this.props.setCanDrag(false);
   };
 

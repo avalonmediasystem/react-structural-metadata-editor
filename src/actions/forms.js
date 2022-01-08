@@ -97,7 +97,7 @@ export function retrieveStreamMedia(audioFile, mediaPlayer, opts = {}) {
       const hls = new Hls(config);
 
       // Bind media player
-      hls.attachMedia(mediaPlayer.current);
+      hls.attachMedia(mediaPlayer);
       // MEDIA_ATTACHED event is fired by hls object once MediaSource is ready
       hls.on(Hls.Events.MEDIA_ATTACHED, function () {
         hls.loadSource(audioFile);

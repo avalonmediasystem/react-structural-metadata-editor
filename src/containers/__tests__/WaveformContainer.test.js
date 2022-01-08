@@ -87,8 +87,8 @@ describe('WaveformContainer component', () => {
 
     await wait(() => {
       expect(getByTestId('waveform-container')).toBeInTheDocument();
-      expect(getByTestId('zoom-view')).toBeInTheDocument();
-      expect(getByTestId('over-view')).toBeInTheDocument();
+      expect(getByTestId('zoomview-view')).toBeInTheDocument();
+      expect(getByTestId('overview-view')).toBeInTheDocument();
     });
   });
 

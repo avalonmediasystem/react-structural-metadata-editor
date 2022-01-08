@@ -26,9 +26,9 @@ let peaksOptions = {
 class WaveformContainer extends Component {
   constructor(props) {
     super(props);
-    this.zoomView = null;
-    this.overView = null;
-    this.mediaPlayer = null;
+    this.zoomView = React.createRef();
+    this.overView = React.createRef();
+    this.mediaPlayer = React.createRef();
     this.peaks = null;
   }
 
@@ -45,10 +45,11 @@ class WaveformContainer extends Component {
     peaksOptions = {
       ...peaksOptions,
       containers: {
-        zoomview: this.zoomView,
-        overview: this.overView,
+        zoomview: this.zoomView.current,
+        overview: this.overView.current,
       },
-      mediaElement: this.mediaPlayer,
+      mediaElement: this.mediaPlayer.current,
+      withCredentials: this.props.withCredentials,
     };
     this.initializePeaksInstance();
   }
@@ -79,21 +80,15 @@ class WaveformContainer extends Component {
           err
         );
       this.peaks = peaks;
-      this.updatePeaks();
+
+      this.props.fetchDataAndBuildPeaks(
+        this.peaks,
+        baseURL,
+        masterFileID,
+        initStructure,
+        streamLength
+      );
     });
-  }
-
-  updatePeaks() {
-    const { baseURL, masterFileID, initStructure, streamLength } = this.state;
-
-    // Fetch structure.json and build Peaks
-    this.props.fetchDataAndBuildPeaks(
-      this.peaks,
-      baseURL,
-      masterFileID,
-      initStructure,
-      streamLength
-    );
   }
 
   handleError(error) {
@@ -119,16 +114,16 @@ class WaveformContainer extends Component {
   }
 
   render() {
-    const { audioStreamURL } = this.props;
-
     return (
       <section className="waveform-section" data-testid="waveform-container">
         <Waveform
-          zoomViewRef={(ref) => (this.zoomView = ref)}
-          overViewRef={(ref) => (this.overView = ref)}
-          mediaPlayerRef={(ref) => (this.mediaPlayer = ref)}
-          audioStreamURL={audioStreamURL}
+          audioStreamURL={this.props.audioStreamURL}
           withCredentials={this.props.withCredentials}
+          ref={{
+            zoomViewRef: this.zoomView,
+            overViewRef: this.overView,
+            mediaPlayerRef: this.mediaPlayer,
+          }}
         />{' '}
       </section>
     );

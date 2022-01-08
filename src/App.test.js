@@ -95,6 +95,9 @@ describe('App component', () => {
             },
           ],
         },
+        peaksInstance: {
+          readyPeaks: true,
+        },
       };
 
       app.rerenderWithRedux(<App {...props} />, updatedProps);

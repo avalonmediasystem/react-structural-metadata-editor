@@ -164,7 +164,7 @@ function retrieveStreamMedia(audioFile, mediaPlayer) {
         hls.loadSource(audioFile); // BUFFER_CREATED event is fired when fetching the media stream is successful
 
         hls.on(_hls["default"].Events.BUFFER_CREATED, function () {
-          dispatch(streamMediaSuccess()); // dispatch(handleEditingTimespans(0));
+          dispatch(streamMediaSuccess());
         });
       }); // ERROR event is fired when fetching media stream is not successful
 

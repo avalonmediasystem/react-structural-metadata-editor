@@ -4,9 +4,15 @@ import 'jest-dom/extend-expect';
 import WaveformContainer from '../WaveformContainer';
 import { renderWithRedux, testSmData } from '../../services/testing-helpers';
 import mockAxios from 'axios';
+import Peaks from 'peaks';
 
 // Mocking the external libraries used in the component execution
 jest.mock('rxjs');
+
+let peaksInst = null;
+Peaks.init({}, (err, peaks) => {
+  peaksInst = peaks;
+});
 
 // Setup Redux store for tests
 const initialState = {
@@ -39,6 +45,19 @@ const initStructure = {
 afterEach(cleanup);
 
 describe('WaveformContainer component', () => {
+  let originalError;
+  beforeEach(() => {
+    /** Mock console.error function with empty jest.fn().
+     *  This avoids multiple console.error outputs from within Peaks.init() function
+     *  while the Waveform component (child of WaveformContainer) gets rendered.
+     */
+    originalError = console.error;
+    console.error = jest.fn();
+  });
+  afterEach(() => {
+    console.error = originalError;
+  });
+
   test('renders', async () => {
     mockAxios.head.mockImplementationOnce(() => {
       return Promise.resolve({

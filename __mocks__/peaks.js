@@ -110,7 +110,8 @@ export const Segment = jest.fn((opts) => {
 });
 
 export default {
-  init: jest.fn((opts) => {
-    return Peaks(opts);
+  init: jest.fn((opts, callback) => {
+    let peaks = Peaks(opts);
+    callback(null, peaks);
   }),
 };

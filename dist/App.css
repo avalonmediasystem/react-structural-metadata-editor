@@ -77,6 +77,10 @@
   height: 85px;
 }
 
+#zoomview-container {
+  height: 200px;
+}
+
 /* Loading spinner from https://github.com/avalonmediasystem/avalon/blob/develop/app/assets/stylesheets/avalon/_loading-spinner.scss*/
 /* Modified to block the background while loading */
 .loading-spinner {

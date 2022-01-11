@@ -156,6 +156,7 @@ function (_Component) {
       })), _react["default"].createElement("audio", {
         ref: this.mediaPlayer,
         hidden: true,
+        src: this.state.audioFile,
         "data-testid": "waveform-media"
       }, "Your browser does not support the audio element."), !streamMediaLoading && !streamMediaError && _react["default"].createElement(_reactBootstrap.Row, {
         "data-testid": "waveform-toolbar"

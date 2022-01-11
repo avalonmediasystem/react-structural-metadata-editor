@@ -30,6 +30,12 @@ describe('ButtonSection component', () => {
         _zoomLevelIndex: 0,
         _zoomLevels: [512, 1024, 2048, 4096],
       };
+
+      let peaksInst = null;
+      Peaks.init(peaksOptions, (err, peaks) => {
+        peaksInst = peaks;
+      });
+
       initialState = {
         forms: {
           waveformRetrieved: true,
@@ -44,7 +50,7 @@ describe('ButtonSection component', () => {
           alerts: [],
         },
         peaksInstance: {
-          peaks: Peaks.init(peaksOptions),
+          peaks: peaksInst,
           duration: 1738945.306,
         },
         structuralMetadata: { smData: testSmData },

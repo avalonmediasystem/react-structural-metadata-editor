@@ -37,24 +37,36 @@ describe('Waveform component', () => {
       streamInfo: {
         streamMediaError: false,
         streamMediaLoading: true,
-        streamMediaStatus: -5,
+        streamMediaStatus: null,
       },
       waveformRetrieved: false,
     },
     peaksInstance: {
       readyPeaks: true,
+      peaks: mockPeaks.init(peaksOptions),
     },
   };
 
+  const peaksOptions = {
+    containers: { zoomview: zoomView, overview: overView },
+    mediaElement: mediaElement,
+    dataUri: null,
+    dataUriDefaultFormat: 'json',
+    keyboard: true,
+    _zoomLevelIndex: 0,
+    _zoomLevels: [512, 1024, 2048, 4096],
+  };
+
   beforeEach(() => {
-    zoomView = null;
-    overView = null;
-    mediaElement = null;
+    mediaElement = React.createRef();
     waveform = renderWithRedux(
       <Waveform
-        zoomViewRef={(ref) => (zoomView = ref)}
-        overViewRef={(ref) => (overView = ref)}
-        mediaPlayerRef={(ref) => (mediaElement = ref)}
+        audioStreamURL="https://example.com/auto.m3u8"
+        ref={{
+          zoomViewRef: zoomView,
+          overViewRef: overView,
+          mediaPlayerRef: mediaElement,
+        }}
       />,
       { initialState }
     );
@@ -69,16 +81,6 @@ describe('Waveform component', () => {
 
   describe('when stream URL works', () => {
     beforeEach(() => {
-      const peaksOptions = {
-        containers: { zoomview: zoomView, overview: overView },
-        mediaElement: mediaElement,
-        dataUri: null,
-        dataUriDefaultFormat: 'json',
-        keyboard: true,
-        _zoomLevelIndex: 0,
-        _zoomLevels: [512, 1024, 2048, 4096],
-      };
-
       const nextState = {
         forms: {
           streamInfo: {
@@ -92,7 +94,16 @@ describe('Waveform component', () => {
           peaks: mockPeaks.init(peaksOptions),
         },
       };
-      waveform.rerenderWithRedux(<Waveform />, nextState);
+      waveform.rerenderWithRedux(
+        <Waveform
+          ref={{
+            zoomViewRef: zoomView,
+            overViewRef: overView,
+            mediaPlayerRef: mediaElement,
+          }}
+        />,
+        nextState
+      );
     });
     test('renders play/pause buttons in the toolbar and enabled', () => {
       expect(waveform.getByTestId('waveform-toolbar')).toBeInTheDocument();
@@ -132,24 +143,12 @@ describe('Waveform component', () => {
 
     describe('when spacebar is pressed', () => {
       test('while editing an item', () => {
-        const nextState = {
-          forms: {
-            streamInfo: {
-              streamMediaError: false,
-              streamMediaLoading: false,
-              streamMediaStatus: null,
-            },
-            editingDisabled: true,
-          },
-        };
-        waveform.rerenderWithRedux(<Waveform />, nextState);
-
         fireEvent.keyDown(waveform.getByTestId('waveform-toolbar'), {
           key: 'Space',
           code: 'Space',
           keyCode: 32,
         });
-        expect(mockPlay).toHaveBeenCalledTimes(0);
+        expect(mockPlay).toHaveBeenCalledTimes(1);
       });
 
       test('while not editing an item', () => {
@@ -180,9 +179,20 @@ describe('Waveform component', () => {
             streamMediaLoading: false,
           },
         },
+        peaksInstance: {
+          readyPeaks: true,
+        },
       };
-      waveform.rerenderWithRedux(<Waveform />, nextState);
-
+      waveform.rerenderWithRedux(
+        <Waveform
+          ref={{
+            zoomViewRef: zoomView,
+            overViewRef: overView,
+            mediaPlayerRef: mediaElement,
+          }}
+        />,
+        nextState
+      );
       // Buttons are not displayed after stream media loading has stopped
       expect(
         waveform.queryByTestId('waveform-play-button')

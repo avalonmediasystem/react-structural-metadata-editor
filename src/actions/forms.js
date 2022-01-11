@@ -92,19 +92,18 @@ export function retrieveStreamMedia(audioFile, mediaPlayer, opts = {}) {
       const config = {
         xhrSetup: function (xhr) {
           xhr.withCredentials = opts.withCredentials;
-        }
+        },
       };
       const hls = new Hls(config);
 
       // Bind media player
-      hls.attachMedia(mediaPlayer.current);
+      hls.attachMedia(mediaPlayer);
       // MEDIA_ATTACHED event is fired by hls object once MediaSource is ready
       hls.on(Hls.Events.MEDIA_ATTACHED, function () {
         hls.loadSource(audioFile);
         // BUFFER_CREATED event is fired when fetching the media stream is successful
         hls.on(Hls.Events.BUFFER_CREATED, function () {
           dispatch(streamMediaSuccess());
-          // dispatch(handleEditingTimespans(0));
         });
       });
 

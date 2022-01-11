@@ -6,12 +6,12 @@ import { setAlert } from '../actions/forms';
 import Waveform from '../components/Waveform';
 import { configureAlert } from '../services/alert-status';
 import { retrieveWaveformSuccess } from '../actions/forms';
+import Peaks from 'peaks.js';
 
 const apiUtils = new APIUtils();
 
 // Peaks options
 let peaksOptions = {
-  container: null,
   mediaElement: null,
   dataUri: null,
   dataUriDefaultFormat: 'json',
@@ -26,13 +26,13 @@ let peaksOptions = {
 class WaveformContainer extends Component {
   constructor(props) {
     super(props);
-    this.zoomView = null;
-    this.overView = null;
-    this.mediaPlayer = null;
+    this.zoomView = React.createRef();
+    this.overView = React.createRef();
+    this.mediaPlayer = React.createRef();
+    this.peaks = null;
   }
 
   state = {
-    // alertObj: { alert: this.props.alert, showAlert: false },
     streamAlert: {},
     masterFileID: this.props.masterFileID,
     baseURL: this.props.baseURL,
@@ -42,11 +42,15 @@ class WaveformContainer extends Component {
   };
 
   componentDidMount() {
-    peaksOptions.containers = {
-      zoomview: this.zoomView,
-      overview: this.overView,
+    peaksOptions = {
+      ...peaksOptions,
+      containers: {
+        zoomview: this.zoomView.current,
+        overview: this.overView.current,
+      },
+      mediaElement: this.mediaPlayer.current,
+      withCredentials: this.props.withCredentials,
     };
-    peaksOptions.mediaElement = this.mediaPlayer;
     this.initializePeaksInstance();
   }
 
@@ -57,7 +61,9 @@ class WaveformContainer extends Component {
       await apiUtils.headRequest(baseURL, masterFileID, 'waveform.json');
 
       // Set waveform URI
-      peaksOptions.dataUri = `${baseURL}/master_files/${masterFileID}/waveform.json`;
+      peaksOptions.dataUri = {
+        json: `${baseURL}/master_files/${masterFileID}/waveform.json`,
+      };
 
       // Update redux-store flag for waveform file retrieval
       this.props.retrieveWaveformSuccess();
@@ -66,14 +72,23 @@ class WaveformContainer extends Component {
       this.handleError(error);
     }
 
-    // Fetch structure.json and build Peaks
-    this.props.fetchDataAndBuildPeaks(
-      baseURL,
-      masterFileID,
-      initStructure,
-      peaksOptions,
-      streamLength
-    );
+    // Initialize Peaks intance with the given options
+    Peaks.init(peaksOptions, (err, peaks) => {
+      if (err)
+        console.error(
+          'TCL: WaveformContainer -> initializePeaksInstance -> Peaks.init ->',
+          err
+        );
+      this.peaks = peaks;
+
+      this.props.fetchDataAndBuildPeaks(
+        this.peaks,
+        baseURL,
+        masterFileID,
+        initStructure,
+        streamLength
+      );
+    });
   }
 
   handleError(error) {
@@ -85,7 +100,9 @@ class WaveformContainer extends Component {
     if (error.response !== undefined) {
       status = error.response.status;
       if (status == 404) {
-        peaksOptions.dataUri = `${baseURL}/master_files/${masterFileID}/waveform.json?empty=true`;
+        peaksOptions.dataUri = {
+          json: `${baseURL}/master_files/${masterFileID}/waveform.json?empty=true`,
+        };
         status = -7; // for persistent missing waveform data alert
       }
     } else if (error.request !== undefined) {
@@ -97,16 +114,16 @@ class WaveformContainer extends Component {
   }
 
   render() {
-    const { audioStreamURL } = this.props;
-
     return (
       <section className="waveform-section" data-testid="waveform-container">
         <Waveform
-          zoomViewRef={(ref) => (this.zoomView = ref)}
-          overViewRef={(ref) => (this.overView = ref)}
-          mediaPlayerRef={(ref) => (this.mediaPlayer = ref)}
-          audioStreamURL={audioStreamURL}
+          audioStreamURL={this.props.audioStreamURL}
           withCredentials={this.props.withCredentials}
+          ref={{
+            zoomViewRef: this.zoomView,
+            overViewRef: this.overView,
+            mediaPlayerRef: this.mediaPlayer,
+          }}
         />{' '}
       </section>
     );

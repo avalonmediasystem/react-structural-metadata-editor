@@ -13,15 +13,20 @@ const peaksOptions = {
   dataUriDefaultFormat: 'json',
   keyboard: true,
   _zoomLevelIndex: 0,
-  _zoomLevels: [512, 1024, 2048, 4096]
+  _zoomLevels: [512, 1024, 2048, 4096],
 };
+
+let peaksInst = null;
+Peaks.init(peaksOptions, (err, peaks) => {
+  peaksInst = peaks;
+});
 
 const initialState = {
   structuralMetadata: {
-    smData: testSmData
+    smData: testSmData,
   },
   peaksInstance: {
-    peaks: Peaks.init(peaksOptions),
+    peaks: peaksInst,
     isDragging: false,
     segment: {
       startTime: 0,
@@ -29,9 +34,9 @@ const initialState = {
       labelText: '',
       id: 'temp-segment',
       editable: true,
-      color: '#FBB040'
-    }
-  }
+      color: '#FBB040',
+    },
+  },
 };
 
 // Setting up props for the tests
@@ -46,7 +51,7 @@ const props = {
     endTime: 3.321,
     editable: true,
     color: '#FBB040',
-    id: 'temp-segment'
+    id: 'temp-segment',
   },
   timespanOpen: true,
   isTyping: false,
@@ -54,7 +59,7 @@ const props = {
   setIsTyping: setTypingMock,
   setIsInitializing: setInitializeMock,
   onSubmit: onSubmitMock,
-  cancelClick: cancelMock
+  cancelClick: cancelMock,
 };
 
 afterEach(cleanup);
@@ -112,8 +117,8 @@ test('shows proper validation messages for title and save button is disabled/ena
   const childOfSelect = getByLabelText(/child of/i);
   fireEvent.change(childOfSelect, {
     target: {
-      value: '123a-456b-789c-2d'
-    }
+      value: '123a-456b-789c-2d',
+    },
   });
   expect(saveButton).toBeEnabled();
 });
@@ -122,7 +127,7 @@ describe('shows proper validation messages for begin/end time changes and save b
   let timespanForm, saveButton;
   beforeEach(() => {
     timespanForm = renderWithRedux(<TimespanForm {...props} />, {
-      initialState
+      initialState,
     });
     saveButton = timespanForm.getByTestId('timespan-form-save-button');
     // Make the other values valid, so that form status depends on the changes to times
@@ -149,7 +154,7 @@ describe('shows proper validation messages for begin/end time changes and save b
     const updatedProps = {
       ...props,
       isInitializing: false,
-      isTyping: true
+      isTyping: true,
     };
 
     timespanForm.rerenderWithRedux(
@@ -159,7 +164,7 @@ describe('shows proper validation messages for begin/end time changes and save b
 
     const endTimeInput = timespanForm.getByLabelText(/end time/i);
     fireEvent.change(endTimeInput, {
-      target: { value: '00:00:04.001' }
+      target: { value: '00:00:04.001' },
     });
 
     expect(
@@ -174,7 +179,7 @@ describe('shows proper validation messages for begin/end time changes and save b
     const updatedProps = {
       ...props,
       isInitializing: false,
-      isTyping: true
+      isTyping: true,
     };
 
     timespanForm.rerenderWithRedux(
@@ -184,7 +189,7 @@ describe('shows proper validation messages for begin/end time changes and save b
 
     const beginTimeInput = timespanForm.getByLabelText(/begin time/i);
     fireEvent.change(beginTimeInput, {
-      target: { value: '00:00:05.001' }
+      target: { value: '00:00:05.001' },
     });
 
     expect(
@@ -222,13 +227,13 @@ describe('submitting the form', () => {
   let timespanForm;
   beforeEach(() => {
     timespanForm = renderWithRedux(<TimespanForm {...props} />, {
-      initialState
+      initialState,
     });
     fireEvent.change(timespanForm.getByLabelText(/title/i), {
-      target: { value: 'New Timespan' }
+      target: { value: 'New Timespan' },
     });
     fireEvent.change(timespanForm.getByLabelText(/child of/i), {
-      target: { value: '123a-456b-789c-2d' }
+      target: { value: '123a-456b-789c-2d' },
     });
   });
   test('save the new timespan', () => {
@@ -236,7 +241,7 @@ describe('submitting the form', () => {
       beginTime: '00:00:00.000',
       endTime: '00:00:03.321',
       timespanChildOf: '123a-456b-789c-2d',
-      timespanTitle: 'New Timespan'
+      timespanTitle: 'New Timespan',
     };
     fireEvent.click(timespanForm.getByTestId('timespan-form-save-button'));
     expect(onSubmitMock).toHaveBeenCalledWith(expectedPayload);

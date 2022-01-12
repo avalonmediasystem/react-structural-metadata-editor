@@ -11,7 +11,7 @@ var _react = _interopRequireDefault(require("react"));
 
 var LoadingSpinner = function LoadingSpinner(_ref) {
   var isLoading = _ref.isLoading;
-  return isLoading ? _react["default"].createElement("div", {
+  return isLoading ? /*#__PURE__*/_react["default"].createElement("div", {
     className: "loading-spinner"
   }) : null;
 };

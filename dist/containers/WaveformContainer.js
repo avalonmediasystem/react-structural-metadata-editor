@@ -1,8 +1,8 @@
 "use strict";
 
-var _interopRequireWildcard = require("@babel/runtime/helpers/interopRequireWildcard");
-
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+var _typeof = require("@babel/runtime/helpers/typeof");
 
 Object.defineProperty(exports, "__esModule", {
   value: true
@@ -17,13 +17,13 @@ var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/cl
 
 var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
 
-var _possibleConstructorReturn2 = _interopRequireDefault(require("@babel/runtime/helpers/possibleConstructorReturn"));
-
-var _getPrototypeOf2 = _interopRequireDefault(require("@babel/runtime/helpers/getPrototypeOf"));
-
 var _assertThisInitialized2 = _interopRequireDefault(require("@babel/runtime/helpers/assertThisInitialized"));
 
 var _inherits2 = _interopRequireDefault(require("@babel/runtime/helpers/inherits"));
+
+var _possibleConstructorReturn2 = _interopRequireDefault(require("@babel/runtime/helpers/possibleConstructorReturn"));
+
+var _getPrototypeOf2 = _interopRequireDefault(require("@babel/runtime/helpers/getPrototypeOf"));
 
 var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/defineProperty"));
 
@@ -43,9 +43,17 @@ var _alertStatus = require("../services/alert-status");
 
 var _peaks = _interopRequireDefault(require("peaks.js"));
 
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
 
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { (0, _defineProperty2["default"])(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { "default": obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { (0, _defineProperty2["default"])(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = (0, _getPrototypeOf2["default"])(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = (0, _getPrototypeOf2["default"])(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return (0, _possibleConstructorReturn2["default"])(this, result); }; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
 
 var apiUtils = new _Utils["default"](); // Peaks options
 
@@ -61,16 +69,16 @@ var peaksOptions = {
   timeLabelPrecision: 3
 };
 
-var WaveformContainer =
-/*#__PURE__*/
-function (_Component) {
+var WaveformContainer = /*#__PURE__*/function (_Component) {
   (0, _inherits2["default"])(WaveformContainer, _Component);
+
+  var _super = _createSuper(WaveformContainer);
 
   function WaveformContainer(props) {
     var _this;
 
     (0, _classCallCheck2["default"])(this, WaveformContainer);
-    _this = (0, _possibleConstructorReturn2["default"])(this, (0, _getPrototypeOf2["default"])(WaveformContainer).call(this, props));
+    _this = _super.call(this, props);
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "state", {
       streamAlert: {},
       masterFileID: _this.props.masterFileID,
@@ -79,9 +87,9 @@ function (_Component) {
       streamLength: _this.props.streamDuration,
       dataUri: null
     });
-    _this.zoomView = null;
-    _this.overView = null;
-    _this.mediaPlayer = null;
+    _this.zoomView = /*#__PURE__*/_react["default"].createRef();
+    _this.overView = /*#__PURE__*/_react["default"].createRef();
+    _this.mediaPlayer = /*#__PURE__*/_react["default"].createRef();
     _this.peaks = null;
     return _this;
   }
@@ -89,21 +97,20 @@ function (_Component) {
   (0, _createClass2["default"])(WaveformContainer, [{
     key: "componentDidMount",
     value: function componentDidMount() {
-      peaksOptions = _objectSpread({}, peaksOptions, {
+      peaksOptions = _objectSpread(_objectSpread({}, peaksOptions), {}, {
         containers: {
-          zoomview: this.zoomView,
-          overview: this.overView
+          zoomview: this.zoomView.current,
+          overview: this.overView.current
         },
-        mediaElement: this.mediaPlayer
+        mediaElement: this.mediaPlayer.current,
+        withCredentials: this.props.withCredentials
       });
       this.initializePeaksInstance();
     }
   }, {
     key: "initializePeaksInstance",
     value: function () {
-      var _initializePeaksInstance = (0, _asyncToGenerator2["default"])(
-      /*#__PURE__*/
-      _regenerator["default"].mark(function _callee() {
+      var _initializePeaksInstance = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee() {
         var _this2 = this;
 
         var _this$state, baseURL, masterFileID, initStructure, streamLength;
@@ -139,7 +146,7 @@ function (_Component) {
                   if (err) console.error('TCL: WaveformContainer -> initializePeaksInstance -> Peaks.init ->', err);
                   _this2.peaks = peaks;
 
-                  _this2.updatePeaks();
+                  _this2.props.fetchDataAndBuildPeaks(_this2.peaks, baseURL, masterFileID, initStructure, streamLength);
                 });
 
               case 12:
@@ -157,24 +164,13 @@ function (_Component) {
       return initializePeaksInstance;
     }()
   }, {
-    key: "updatePeaks",
-    value: function updatePeaks() {
-      var _this$state2 = this.state,
-          baseURL = _this$state2.baseURL,
-          masterFileID = _this$state2.masterFileID,
-          initStructure = _this$state2.initStructure,
-          streamLength = _this$state2.streamLength; // Fetch structure.json and build Peaks
-
-      this.props.fetchDataAndBuildPeaks(this.peaks, baseURL, masterFileID, initStructure, streamLength);
-    }
-  }, {
     key: "handleError",
     value: function handleError(error) {
       console.log('TCL: WaveformContainer -> handleError -> error', error);
       var status = null;
-      var _this$state3 = this.state,
-          baseURL = _this$state3.baseURL,
-          masterFileID = _this$state3.masterFileID; // Pull status code out of error response/request
+      var _this$state2 = this.state,
+          baseURL = _this$state2.baseURL,
+          masterFileID = _this$state2.masterFileID; // Pull status code out of error response/request
 
       if (error.response !== undefined) {
         status = error.response.status;
@@ -195,24 +191,17 @@ function (_Component) {
   }, {
     key: "render",
     value: function render() {
-      var _this3 = this;
-
-      var audioStreamURL = this.props.audioStreamURL;
-      return _react["default"].createElement("section", {
+      return /*#__PURE__*/_react["default"].createElement("section", {
         className: "waveform-section",
         "data-testid": "waveform-container"
-      }, _react["default"].createElement(_Waveform["default"], {
-        zoomViewRef: function zoomViewRef(ref) {
-          return _this3.zoomView = ref;
-        },
-        overViewRef: function overViewRef(ref) {
-          return _this3.overView = ref;
-        },
-        mediaPlayerRef: function mediaPlayerRef(ref) {
-          return _this3.mediaPlayer = ref;
-        },
-        audioStreamURL: audioStreamURL,
-        withCredentials: this.props.withCredentials
+      }, /*#__PURE__*/_react["default"].createElement(_Waveform["default"], {
+        audioStreamURL: this.props.audioStreamURL,
+        withCredentials: this.props.withCredentials,
+        ref: {
+          zoomViewRef: this.zoomView,
+          overViewRef: this.overView,
+          mediaPlayerRef: this.mediaPlayer
+        }
       }), ' ');
     }
   }]);

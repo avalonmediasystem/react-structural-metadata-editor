@@ -10,8 +10,8 @@ exports.getValidationBeginState = getValidationBeginState;
 exports.getValidationEndState = getValidationEndState;
 exports.getValidationTitleState = getValidationTitleState;
 exports.isTitleValid = isTitleValid;
-exports.validTimespans = validTimespans;
 exports.validTimeFormat = validTimeFormat;
+exports.validTimespans = validTimespans;
 
 var _StructuralMetadataUtils = _interopRequireDefault(require("./StructuralMetadataUtils"));
 

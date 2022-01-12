@@ -22,9 +22,9 @@ var _reduxThunk = _interopRequireDefault(require("redux-thunk"));
 var store = (0, _redux.createStore)(_reducers["default"], (0, _redux.applyMiddleware)(_reduxThunk["default"]));
 
 var Root = function Root(props) {
-  return _react["default"].createElement(_reactRedux.Provider, {
+  return /*#__PURE__*/_react["default"].createElement(_reactRedux.Provider, {
     store: store
-  }, _react["default"].createElement(_App["default"], props));
+  }, /*#__PURE__*/_react["default"].createElement(_App["default"], props));
 };
 
 var _default = Root;

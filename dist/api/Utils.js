@@ -21,16 +21,14 @@ var defaultHeaders = {
   'Content-Type': 'application/json'
 };
 
-var APIUtils =
-/*#__PURE__*/
-function () {
+var APIUtils = /*#__PURE__*/function () {
   function APIUtils() {
     (0, _classCallCheck2["default"])(this, APIUtils);
   }
 
   (0, _createClass2["default"])(APIUtils, [{
     key: "getRequest",
-
+    value:
     /**
      * Construct GET request with parameters,
      * @param {String} baseURL - base URL of the server hosting master file
@@ -38,7 +36,7 @@ function () {
      * @param {String} urlEndPoint - end point to make the network request
      * @param {Headers} headers
      */
-    value: function getRequest(baseURL, masterFile, urlEndPoint) {
+    function getRequest(baseURL, masterFile, urlEndPoint) {
       var headers = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : defaultHeaders;
       var url = useLocalData ? "".concat(BASE_URL).concat(urlEndPoint) : "".concat(baseURL, "/master_files/").concat(masterFile, "/").concat(urlEndPoint);
       return _axios["default"].get(url, {

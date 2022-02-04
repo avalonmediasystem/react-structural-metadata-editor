@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import './App.css';
 import WaveformContainer from './containers/WaveformContainer';
 import ButtonSection from './components/ButtonSection';
@@ -63,6 +64,21 @@ class App extends Component {
     );
   }
 }
+
+App.propTypes = {
+  structureURL: PropTypes.string.isRequired,
+  waveformURL: PropTypes.string.isRequired,
+  audioURL: PropTypes.string.isRequired,
+  streamDuration: PropTypes.number.isRequired,
+  initStructure: PropTypes.object,
+  withCredentials: PropTypes.bool,
+  structureIsSaved: PropTypes.func,
+};
+
+App.defaultProps = {
+  withCredentials: false,
+  structureIsSaved: (val) => {},
+};
 
 const mapDispatchToProps = {
   resetStore: resetReduxStore,

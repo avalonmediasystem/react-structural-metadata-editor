@@ -2,6 +2,8 @@
 
 A React component which displays structural metadata about an ingested audio/video file, and displays a visualized waveform to help navigating sections of the audio waveform. A user can add, edit and delete headers and timespans within the structural metadata, and save the record into a consuming application.
 
+To see how this React component work, please visit the [demo page](https://avalonmediasystem.github.io/react-structural-metadata-editor/) hosted with GitHub pages.
+
 **Note**: We are not currently publishing this package to NPM, but rather consuming it directly via a Github repository URL address. See [Deployment](#user-content-deployment) notes below for more info and example code.
 
 ## Getting Started
@@ -51,23 +53,27 @@ If you'd like to try out a new development feature before merging your code into
 
 A consuming application is expected to provide the following configuration `props` passed to the SME component.
 
-| prop              | type    | description                                                                                                                                                                                                                                                                                                                                                                                                                                          |     |     |
-| ----------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --- | --- |
-| `baseURL`         | string  | Base url where structured data, waveform data, and streaming files will be served from                                                                                                                                                                                                                                                                                                                                                               |     |     |
-| `masterFileID`    | string  | Unique id of the work.                                                                                                                                                                                                                                                                                                                                                                                                                               |     |     |
-| `initStructure`   | string  | When ingesting a new file in Avalon, the structure is not defined. In the legacy editor, they construct an XML with section title within the HTML code and pass that in. Similar to that, for SME we create a JSON object and pass it as `initStructure` as a prop. Othewise SME gets an empty structure, which it cannot work with. Because the app is built on the assumption the structure that's received from the back-end server is not empty. |     |     |
-| `audioStreamURL`  | string  | Url of HLS audio stream file.                                                                                                                                                                                                                                                                                                                                                                                                                        |     |     |
-| `withCredentials` | boolean | Value to pass through to [xhr.withCredentials](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/withCredentials) on the HLS stream request                                                                                                                                                                                                                                                                                            |     |     |
+| Prop Name          | Type     | Description                                                                                                                                                                                                                                                                                                                                                                                                                                         |          |
+| ------------------ | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
+| `structureURL`     | string   | URL of the `structure.json` file on the server. There should be an identical endpoint to accept POST requests with the updates made to the structure in the editor                                                                                                                                                                                                                                                                                  | Required |
+| `initStructure`    | string   | When ingesting a new file in Avalon, the structure is not defined. In the legacy editor, they construct an XML with section title within the HTML code and pass that in. Similar to that, for SME we create a JSON object and pass it as `initStructure` as a prop. Othewise SME gets an empty structure, which it cannot work with. Because the app is built on the assumption the structure that's received from the back-end server is not empty | Required |
+| `waveformURL`      | string   | URL of the `waveform.json` file on the server                                                                                                                                                                                                                                                                                                                                                                                                       | Required |
+| `audioURL`         | string   | Url of HLS audio stream / media file                                                                                                                                                                                                                                                                                                                                                                                                                | Required |
+| `streamDuration`   | number   | Time length of the media file in milliseconds                                                                                                                                                                                                                                                                                                                                                                                                       | Required |
+| `withCredentials`  | boolean  | Value to pass through to [xhr.withCredentials](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/withCredentials) on the HLS stream request                                                                                                                                                                                                                                                                                           | Optional |
+| `structureIsSaved` | function | Function to keep track of the status of the structure changes in the editor                                                                                                                                                                                                                                                                                                                                                                         | Optional |
 
 #### Example usage
 
 ```
 const props = {
-  baseURL: 'https://spruce.dlib.indiana.edu',
-  masterFileID: 'sj1392061',
+  structureURL: 'http://example.com/structure.json',
   initStructure: '',
-  audioStreamURL:
-    'https://spruce.dlib.indiana.edu/master_files/sj1392061/auto.m3u8'
+  waveformURL: 'http://example.com/waveform.json',
+  audioURL:
+    'http://example.com/auto.m3u8',
+  streamDuration: 572000,
+  structureIsSaved: (value) => {},
 };
 
 <StructuralMetadataEditor {...props} />
@@ -87,7 +93,7 @@ Cleans the output directory `dist`, ensuring a fresh copy of files when preparin
 yarn start
 ```
 
-Starts the webpack development server in which you can view your work. http://localhost:3001/
+Starts the webpack development server in which you can view your work. http://localhost:3001/ with a `Node.js` server at http://localhost:3002 to serve the demo content needed for the development server.
 
 ```
 yarn test

@@ -3,15 +3,14 @@ import { render } from 'react-dom';
 import Root from '../../src';
 
 const props = {
-  baseURL: 'https://media.dlib.indiana.edu',
-  masterFileID: 'x920gh165',
   initStructure: {
     label: 'Lunchroom manners',
     type: 'div',
     items: [],
   },
-  audioStreamURL:
-    'https://media.dlib.indiana.edu/master_files/x920gh165/auto.m3u8',
+  structureURL: 'http://localhost:3002/structure.json',
+  waveformURL: 'http://localhost:3002/waveform.json',
+  audioURL: 'http://localhost:3002/media.mp4',
   streamDuration: 572000,
   structureIsSaved: (val) => {},
 };

@@ -2,9 +2,14 @@ import React, { Component } from 'react';
 import { Button, ButtonToolbar, Row, Col } from 'react-bootstrap';
 import { connect, useSelector, useDispatch } from 'react-redux';
 import { configureAlert } from '../services/alert-status';
-import { retrieveStreamMedia, setAlert } from '../actions/forms';
+import {
+  retrieveStreamMedia,
+  setAlert,
+  streamMediaSuccess,
+} from '../actions/forms';
 import VolumeSlider from './Slider';
 import LoadingSpinner from '../services/LoadingSpinner';
+import { getMimetype } from '../services/utils';
 
 // Content of aria-label for UI components
 const waveformLabel = `Two interactive waveforms, plotted one after the other using data from a masterfile in a back-end server.
@@ -21,7 +26,7 @@ const Waveform = React.forwardRef((props, ref) => {
   const editingDisabled = useSelector((state) => state.forms.editingDisabled);
   const dispatch = useDispatch();
 
-  const [audioFile, setAudioFile] = React.useState(props.audioStreamURL);
+  const [audioFile, setAudioFile] = React.useState(props.audioURL);
   const [volume, setVolume] = React.useState(100);
   const [peaksIsReady, setPeaksIsReady] = React.useState(readyPeaks);
 
@@ -33,7 +38,7 @@ const Waveform = React.forwardRef((props, ref) => {
   };
 
   React.useEffect(() => {
-    setAudioFile(props.audioStreamURL);
+    setAudioFile(props.audioURL);
 
     return () => {
       document.removeEventListener('keydown', handleKeyPress);
@@ -47,7 +52,9 @@ const Waveform = React.forwardRef((props, ref) => {
   React.useEffect(() => {
     setPeaksIsReady(readyPeaks);
 
-    if (readyPeaks) {
+    const mimeType = getMimetype(audioFile);
+    // When given a .m3u8 playlist, use HLS to stream media
+    if (readyPeaks && mimeType == 'application/x-mpegURL') {
       dispatch(
         retrieveStreamMedia(audioFile, ref.mediaPlayerRef.current, {
           withCredentials: props.withCredentials,
@@ -56,6 +63,9 @@ const Waveform = React.forwardRef((props, ref) => {
 
       // Add a listener to keydown event
       document.addEventListener('keydown', handleKeyPress);
+    } else {
+      // Given a audio/video file, the HTML player handles the playback
+      dispatch(streamMediaSuccess());
     }
   }, [readyPeaks]);
 

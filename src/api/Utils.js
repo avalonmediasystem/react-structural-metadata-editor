@@ -11,52 +11,31 @@ const defaultHeaders = { 'Content-Type': 'application/json' };
 export default class APIUtils {
   /**
    * Construct GET request with parameters,
-   * @param {String} baseURL - base URL of the server hosting master file
-   * @param {String} masterFile - master file ID on the server
-   * @param {String} urlEndPoint - end point to make the network request
+   * @param {String} url - url of the resource to be fetched
    * @param {Headers} headers
    */
-  getRequest(baseURL, masterFile, urlEndPoint, headers = defaultHeaders) {
-    const url = useLocalData
-      ? `${BASE_URL}${urlEndPoint}`
-      : `${baseURL}/master_files/${masterFile}/${urlEndPoint}`;
+  getRequest(url, headers = defaultHeaders) {
     return axios.get(url, { headers });
   }
 
   /**
    * Construct POST request with parameters,
-   * @param {String} baseURL - base URL of the server hosting master file
-   * @param {String} masterFile - master file ID on the server
-   * @param {String} urlEndPoint - end point to make the network request
+   * @param {String} url - url where data gets posted
    * @param {JSON} data - JSON data posting to the server
    * @param {Headers} headers
    */
-  postRequest(
-    baseURL,
-    masterFile,
-    urlEndPoint,
-    data,
-    headers = defaultHeaders
-  ) {
-    const url = useLocalData
-      ? `${BASE_URL}${urlEndPoint}`
-      : `${baseURL}/master_files/${masterFile}/${urlEndPoint}`;
+  postRequest(url, data, headers = defaultHeaders) {
     return axios.post(url, data, {
-      headers
+      headers,
     });
   }
 
   /**
    * Construct HEAD request with parameters,
-   * @param {String} baseURL - base URL of the server hosting master file
-   * @param {String} masterFile - master file ID on the server
-   * @param {String} urlEndPoint - end point to make the network request
+   * @param {String} url
    * @param {Headers} headers
    */
-  headRequest(baseURL, masterFile, urlEndPoint, headers = defaultHeaders) {
-    const url = useLocalData
-      ? `${BASE_URL}${urlEndPoint}`
-      : `${baseURL}/master_files/${masterFile}/${urlEndPoint}`;
+  headRequest(url, headers = defaultHeaders) {
     return axios.head(url, { headers });
   }
 }

@@ -25,6 +25,8 @@ var _Slider = _interopRequireDefault(require("./Slider"));
 
 var _LoadingSpinner = _interopRequireDefault(require("../services/LoadingSpinner"));
 
+var _utils = require("../services/utils");
+
 function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
 
 function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { "default": obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
@@ -49,7 +51,7 @@ var Waveform = /*#__PURE__*/_react["default"].forwardRef(function (props, ref) {
   });
   var dispatch = (0, _reactRedux.useDispatch)();
 
-  var _React$useState = _react["default"].useState(props.audioStreamURL),
+  var _React$useState = _react["default"].useState(props.audioURL),
       _React$useState2 = (0, _slicedToArray2["default"])(_React$useState, 2),
       audioFile = _React$useState2[0],
       setAudioFile = _React$useState2[1];
@@ -74,7 +76,7 @@ var Waveform = /*#__PURE__*/_react["default"].forwardRef(function (props, ref) {
   };
 
   _react["default"].useEffect(function () {
-    setAudioFile(props.audioStreamURL);
+    setAudioFile(props.audioURL);
     return function () {
       document.removeEventListener('keydown', handleKeyPress);
     };
@@ -86,13 +88,17 @@ var Waveform = /*#__PURE__*/_react["default"].forwardRef(function (props, ref) {
 
   _react["default"].useEffect(function () {
     setPeaksIsReady(readyPeaks);
+    var mimeType = (0, _utils.getMimetype)(audioFile); // When given a .m3u8 playlist, use HLS to stream media
 
-    if (readyPeaks) {
+    if (readyPeaks && mimeType == 'application/x-mpegURL') {
       dispatch((0, _forms.retrieveStreamMedia)(audioFile, ref.mediaPlayerRef.current, {
         withCredentials: props.withCredentials
       })); // Add a listener to keydown event
 
       document.addEventListener('keydown', handleKeyPress);
+    } else {
+      // Given a audio/video file, the HTML player handles the playback
+      dispatch((0, _forms.streamMediaSuccess)());
     }
   }, [readyPeaks]);
 

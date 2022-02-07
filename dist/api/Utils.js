@@ -31,49 +31,40 @@ var APIUtils = /*#__PURE__*/function () {
     value:
     /**
      * Construct GET request with parameters,
-     * @param {String} baseURL - base URL of the server hosting master file
-     * @param {String} masterFile - master file ID on the server
-     * @param {String} urlEndPoint - end point to make the network request
+     * @param {String} url - url of the resource to be fetched
      * @param {Headers} headers
      */
-    function getRequest(baseURL, masterFile, urlEndPoint) {
-      var headers = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : defaultHeaders;
-      var url = useLocalData ? "".concat(BASE_URL).concat(urlEndPoint) : "".concat(baseURL, "/master_files/").concat(masterFile, "/").concat(urlEndPoint);
+    function getRequest(url) {
+      var headers = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : defaultHeaders;
       return _axios["default"].get(url, {
         headers: headers
       });
     }
     /**
      * Construct POST request with parameters,
-     * @param {String} baseURL - base URL of the server hosting master file
-     * @param {String} masterFile - master file ID on the server
-     * @param {String} urlEndPoint - end point to make the network request
+     * @param {String} url - url where data gets posted
      * @param {JSON} data - JSON data posting to the server
      * @param {Headers} headers
      */
 
   }, {
     key: "postRequest",
-    value: function postRequest(baseURL, masterFile, urlEndPoint, data) {
-      var headers = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : defaultHeaders;
-      var url = useLocalData ? "".concat(BASE_URL).concat(urlEndPoint) : "".concat(baseURL, "/master_files/").concat(masterFile, "/").concat(urlEndPoint);
+    value: function postRequest(url, data) {
+      var headers = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : defaultHeaders;
       return _axios["default"].post(url, data, {
         headers: headers
       });
     }
     /**
      * Construct HEAD request with parameters,
-     * @param {String} baseURL - base URL of the server hosting master file
-     * @param {String} masterFile - master file ID on the server
-     * @param {String} urlEndPoint - end point to make the network request
+     * @param {String} url
      * @param {Headers} headers
      */
 
   }, {
     key: "headRequest",
-    value: function headRequest(baseURL, masterFile, urlEndPoint) {
-      var headers = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : defaultHeaders;
-      var url = useLocalData ? "".concat(BASE_URL).concat(urlEndPoint) : "".concat(baseURL, "/master_files/").concat(masterFile, "/").concat(urlEndPoint);
+    value: function headRequest(url) {
+      var headers = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : defaultHeaders;
       return _axios["default"].head(url, {
         headers: headers
       });

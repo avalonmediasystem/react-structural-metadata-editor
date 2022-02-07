@@ -25,6 +25,8 @@ var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/de
 
 var _react = _interopRequireWildcard(require("react"));
 
+var _propTypes = _interopRequireDefault(require("prop-types"));
+
 require("./App.css");
 
 var _WaveformContainer = _interopRequireDefault(require("./containers/WaveformContainer"));
@@ -102,6 +104,19 @@ var App = /*#__PURE__*/function (_Component) {
   return App;
 }(_react.Component);
 
+App.propTypes = {
+  structureURL: _propTypes["default"].string.isRequired,
+  waveformURL: _propTypes["default"].string.isRequired,
+  audioURL: _propTypes["default"].string.isRequired,
+  streamDuration: _propTypes["default"].number.isRequired,
+  initStructure: _propTypes["default"].object,
+  withCredentials: _propTypes["default"].bool,
+  structureIsSaved: _propTypes["default"].func
+};
+App.defaultProps = {
+  withCredentials: false,
+  structureIsSaved: function structureIsSaved(val) {}
+};
 var mapDispatchToProps = {
   resetStore: _actions.resetReduxStore,
   handleStructureError: _forms.handleStructureError,

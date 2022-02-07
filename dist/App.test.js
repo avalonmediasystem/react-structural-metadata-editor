@@ -55,8 +55,6 @@ mockPeaks.init = jest.fn((options) => {
 });
 
 const props = {
-  baseURL: 'https://mockurl.edu',
-  masterFileID: '3421d4fg',
   initStructure: initStructure,
   streamDuration: 1738945,
   structureIsSaved: mockStructureIsSaved,
@@ -118,8 +116,7 @@ describe('App component', () => {
         return Promise.resolve({
           status: 200,
           request: {
-            responseURL:
-              'https://mockurl.edu/master_files/3421d4fg/waveform.json?empty=true',
+            responseURL: 'https://mockurl.edu/waveform.json?empty=true',
           },
         });
       });

@@ -63,8 +63,7 @@ describe('WaveformContainer component', () => {
       return Promise.resolve({
         status: 200,
         request: {
-          responseURL:
-            'https://mockurl.edu/master_files/3421d4fg/waveform.json',
+          responseURL: 'https://mockurl.edu/waveform.json',
         },
       });
     });
@@ -77,8 +76,9 @@ describe('WaveformContainer component', () => {
 
     const { getByTestId } = renderWithRedux(
       <WaveformContainer
-        baseURL={'https://mockurl.edu'}
-        masterFileID={'3421d4fg'}
+        structureURL="https://mockurl.edu/structure.json"
+        waveformURL="https://mockurl.edu/waveform.json"
+        audioURL="https://mockurl.edu/media.mp4"
         initStructure={initStructure}
         streamDuration={1738945}
       />,
@@ -97,8 +97,7 @@ describe('WaveformContainer component', () => {
       return Promise.resolve({
         status: 200,
         request: {
-          responseURL:
-            'https://mockurl.edu/master_files/3421d4fg/waveform.json',
+          responseURL: 'https://mockurl.edu/waveform.json',
         },
         headers: {
           'content-disposition': 'attachment; filename="waveform.json"',
@@ -113,9 +112,8 @@ describe('WaveformContainer component', () => {
 
     const { getByTestId } = renderWithRedux(
       <WaveformContainer
-        baseURL={'https://mockurl.edu'}
-        masterFileID={'3421d4fg'}
         initStructure={initStructure}
+        structureURL="https://mockurl.edu/structure.json"
         streamDuration={1738945}
       />,
       { initialState }
@@ -124,7 +122,7 @@ describe('WaveformContainer component', () => {
     await wait(() => {
       expect(mockAxios.get).toHaveBeenCalledTimes(1);
       expect(mockAxios.get).toHaveBeenCalledWith(
-        'https://mockurl.edu/master_files/3421d4fg/structure.json',
+        'https://mockurl.edu/structure.json',
         { headers: { 'Content-Type': 'application/json' } }
       );
       expect(getByTestId('waveform-container')).toBeInTheDocument();

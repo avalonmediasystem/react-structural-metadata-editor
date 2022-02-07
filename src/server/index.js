@@ -7,35 +7,24 @@ const express = require('express');
 const path = require('path');
 const fs = require('fs');
 const bodyParser = require('body-parser');
-const cors = require('cors');
 
-const PORT = process.env.PORT || 3002;
-
+const PORT = process.env.PORT || 3001;
+console.log(PORT);
 const app = express();
-app.use(cors());
+
+//This will create a middleware.
+//When you navigate to the root page, it would use the built react-app
+const buildPath = path.join(__dirname, '../../demo/dist');
+const htmlFile = path.join(__dirname, '../../demo/src/index.html');
+console.log(buildPath);
+app.use(express.static(buildPath));
 
 // Middleware to extract incoming data for POST requests
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-// Clean-up structure before saving to file
-const cleanStructure = (struct) => {
-  let formatItems = (items) => {
-    for (let item of items) {
-      delete item.valid;
-      delete item.id;
-      if (item.items) {
-        formatItems(item.items);
-      }
-    }
-  };
-
-  formatItems([struct]);
-  return struct;
-};
-
-app.listen(PORT, () => {
-  console.log(`Server listening on ${PORT}`);
+app.get('/', (req, res) => {
+  res.sendFile(htmlFile);
 });
 
 app.get('/structure.json', (req, res) => {
@@ -87,3 +76,24 @@ app.post('/structure.json', (req, res) => {
     res.end('Error');
   }
 });
+
+app.listen(PORT, () => {
+  console.log(`Server listening on ${PORT}`);
+});
+
+/** Server utility functions */
+// Clean-up structure before saving to file
+const cleanStructure = (struct) => {
+  let formatItems = (items) => {
+    for (let item of items) {
+      delete item.valid;
+      delete item.id;
+      if (item.items) {
+        formatItems(item.items);
+      }
+    }
+  };
+
+  formatItems([struct]);
+  return struct;
+};

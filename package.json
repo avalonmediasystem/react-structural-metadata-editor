@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "clean": "rimraf dist",
-    "start": "npm run build && node src/server/index.js",
+    "start": "node src/server/index.js",
     "dev": "webpack --mode development && node src/server/index.js",
     "test": "jest --coverage --colors",
     "test:watch": "jest --watch",

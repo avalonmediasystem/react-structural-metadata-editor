@@ -13,9 +13,6 @@
     "prepublishOnly": "npm run transpile",
     "build": "webpack --mode production"
   },
-  "engines": {
-    "node": "14.18.1"
-  },
   "contributors": [
     "Adam Arling <aarling@gmail.com>",
     "Dananji Withana"

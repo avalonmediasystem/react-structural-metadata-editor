@@ -1,7 +1,7 @@
 /**
  * Server implemented with Express.js, a backend web application
  * framework for Node.js. This serves the content required to render
- * the demo application used for development and the GitHub demo.
+ * the demo application used for development and production using Heroku.
  */
 const express = require('express');
 const path = require('path');
@@ -9,14 +9,14 @@ const fs = require('fs');
 const bodyParser = require('body-parser');
 
 const PORT = process.env.PORT || 3001;
-console.log(PORT);
+
 const app = express();
 
 //This will create a middleware.
 //When you navigate to the root page, it would use the built react-app
 const buildPath = path.join(__dirname, '../../demo/dist');
 const htmlFile = path.join(__dirname, '../../demo/src/index.html');
-console.log(buildPath);
+
 app.use(express.static(buildPath));
 
 // Middleware to extract incoming data for POST requests

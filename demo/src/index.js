@@ -2,8 +2,6 @@ import React from 'react';
 import { render } from 'react-dom';
 import Root from '../../src';
 
-console.log(process.env.NODE_ENV);
-
 export const BASE_API_URL = '';
 
 const props = {

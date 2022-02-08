@@ -2,7 +2,7 @@
 
 A React component which displays structural metadata about an ingested audio/video file, and displays a visualized waveform to help navigating sections of the audio waveform. A user can add, edit and delete headers and timespans within the structural metadata, and save the record into a consuming application.
 
-To see how this React component work, please visit the [demo page](https://avalonmediasystem.github.io/react-structural-metadata-editor/) hosted with GitHub pages.
+To see how this React component work, please visit the [demo page](https://structural-metadata-editor.herokuapp.com/) hosted using [Heroku](https://www.heroku.com/).
 
 **Note**: We are not currently publishing this package to NPM, but rather consuming it directly via a Github repository URL address. See [Deployment](#user-content-deployment) notes below for more info and example code.
 
@@ -36,16 +36,16 @@ yarn install
 3. Start the development server
 
 ```
-yarn start
+yarn dev
 ```
 
-Open up a browser and navigate to: http://localhost:3001/. Hot reloading via `webpack` is enabled, so you'll see live updates in the browser during development.
+Open up a browser and navigate to: http://localhost:3001/. Hot reloading via `webpack-hot-middleware` is enabled for the Node.js server implemented with Express.js, so you'll see live updates in the browser during development.
 
 ### Development
 
 All development should be done in the `/src` directory.
 
-The `/demo` directory contains the demo application entry point `index.html` file, and mocks Avalon consuming the SME component.
+The `/demo` directory contains the demo application entry point `index.html` file, and mocks a host application consuming the SME component.
 
 If you'd like to try out a new development feature before merging your code into `master`, create a new branch, ie: `my-new-feature`, and push your branch to `https://github.com/avalonmediasystem/react-structural-metadata-editor`. See the [Deployment](#user-content-deployment) section below on how to import from either `master` or your own feature branch.
 
@@ -90,10 +90,10 @@ yarn clean
 Cleans the output directory `dist`, ensuring a fresh copy of files when preparing your files for packaging.
 
 ```
-yarn start
+yarn dev
 ```
 
-Starts the webpack development server in which you can view your work. http://localhost:3001/ with a `Node.js` server at http://localhost:3002 to serve the demo content needed for the development server.
+Starts the Node.js server with the built ReactJS components via webpack, in which you can view your work. Open up the browser and navigate to http://localhost:3001/, where the component is rendered with the content served by the Node.js server.
 
 ```
 yarn test

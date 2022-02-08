@@ -9,7 +9,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 /**
  * Server implemented with Express.js, a backend web application
  * framework for Node.js. This serves the content required to render
- * the demo application used for development and the GitHub demo.
+ * the demo application used for development and production using Heroku.
  */
 var express = require('express');
 
@@ -19,14 +19,22 @@ var fs = require('fs');
 
 var bodyParser = require('body-parser');
 
+var webpack = require('webpack');
+
+var webpackConfig = require('../../webpack.config');
+
 var PORT = process.env.PORT || 3001;
-console.log(PORT);
-var app = express(); //This will create a middleware.
-//When you navigate to the root page, it would use the built react-app
+var app = express(); // Add hot reloading into the Node.js server
+
+var compiler = webpack(webpackConfig);
+app.use(require('webpack-dev-middleware')(compiler, {
+  noInfo: true,
+  publicPath: webpackConfig.output.publicPath
+}));
+app.use(require('webpack-hot-middleware')(compiler)); // When you navigate to the root page, use the built React components
 
 var buildPath = path.join(__dirname, '../../demo/dist');
 var htmlFile = path.join(__dirname, '../../demo/src/index.html');
-console.log(buildPath);
 app.use(express["static"](buildPath)); // Middleware to extract incoming data for POST requests
 
 app.use(bodyParser.urlencoded({

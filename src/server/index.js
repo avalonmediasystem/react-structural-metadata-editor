@@ -7,13 +7,24 @@ const express = require('express');
 const path = require('path');
 const fs = require('fs');
 const bodyParser = require('body-parser');
+const webpack = require('webpack');
+const webpackConfig = require('../../webpack.config');
 
 const PORT = process.env.PORT || 3001;
 
 const app = express();
 
-//This will create a middleware.
-//When you navigate to the root page, it would use the built react-app
+// Add hot reloading into the Node.js server
+const compiler = webpack(webpackConfig);
+app.use(
+  require('webpack-dev-middleware')(compiler, {
+    noInfo: true,
+    publicPath: webpackConfig.output.publicPath,
+  })
+);
+app.use(require('webpack-hot-middleware')(compiler));
+
+// When you navigate to the root page, use the built React components
 const buildPath = path.join(__dirname, '../../demo/dist');
 const htmlFile = path.join(__dirname, '../../demo/src/index.html');
 

@@ -213,7 +213,7 @@ WaveformContainer.propTypes = {
   waveformURL: _propTypes["default"].string.isRequired,
   audioURL: _propTypes["default"].string.isRequired,
   streamDuration: _propTypes["default"].number.isRequired,
-  initStructure: _propTypes["default"].object
+  initStructure: _propTypes["default"].object.isRequired
 };
 
 var mapStateToProps = function mapStateToProps(state) {

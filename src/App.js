@@ -70,7 +70,7 @@ App.propTypes = {
   waveformURL: PropTypes.string.isRequired,
   audioURL: PropTypes.string.isRequired,
   streamDuration: PropTypes.number.isRequired,
-  initStructure: PropTypes.object,
+  initStructure: PropTypes.object.isRequired,
   withCredentials: PropTypes.bool,
   structureIsSaved: PropTypes.func,
 };

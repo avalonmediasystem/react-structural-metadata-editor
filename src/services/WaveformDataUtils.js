@@ -1,5 +1,4 @@
 import StructuralMetadataUtils from './StructuralMetadataUtils';
-import Peaks from 'peaks.js';
 
 // Colors for segments from Avalon branding pallette
 const COLOR_PALETTE = ['#80A590', '#2A5459', '#FBB040'];

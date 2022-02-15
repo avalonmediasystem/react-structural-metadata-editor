@@ -54,13 +54,12 @@ var structuralMetadataUtils = new _StructuralMetadataUtils["default"]();
 /**
  * Fetch structure.json and initialize Peaks
  * @param {Object} peaks - initialized peaks instance
- * @param {String} baseURL - base URL of masterfile location
- * @param {String} masterFileID - ID of the masterfile relevant to media element
+ * @param {String} structureURL - URL of the structure.json
  * @param {JSON} initStructure - structure with root element when empty
  * @param {Object} options - peaks options
  */
 
-function initializeSMDataPeaks(peaks, baseURL, masterFileID, initStructure, duration) {
+function initializeSMDataPeaks(peaks, structureURL, initStructure, duration) {
   return /*#__PURE__*/function () {
     var _ref = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee(dispatch, getState) {
       var smData, response, status, alert, segments, _getState, peaksInstance, dragged;
@@ -79,7 +78,7 @@ function initializeSMDataPeaks(peaks, baseURL, masterFileID, initStructure, dura
 
               _context.prev = 2;
               _context.next = 5;
-              return apiUtils.getRequest(baseURL, masterFileID, 'structure.json');
+              return apiUtils.getRequest(structureURL);
 
             case 5:
               response = _context.sent;

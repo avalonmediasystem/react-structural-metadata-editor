@@ -2,16 +2,17 @@ import React from 'react';
 import { render } from 'react-dom';
 import Root from '../../src';
 
+export const BASE_API_URL = '';
+
 const props = {
-  baseURL: 'https://media.dlib.indiana.edu',
-  masterFileID: 'x920gh165',
   initStructure: {
     label: 'Lunchroom manners',
     type: 'div',
     items: [],
   },
-  audioStreamURL:
-    'https://media.dlib.indiana.edu/master_files/x920gh165/auto.m3u8',
+  structureURL: `${BASE_API_URL}/structure.json`,
+  waveformURL: `${BASE_API_URL}/waveform.json`,
+  audioURL: `${BASE_API_URL}/media.mp4`,
   streamDuration: 572000,
   structureIsSaved: (val) => {},
 };

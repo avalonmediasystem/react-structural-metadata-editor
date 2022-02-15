@@ -12,7 +12,7 @@ const StructureOutputContainer = (props) => {
   const smu = new StructuralMetadataUtils();
   const apiUtils = new APIUtils();
 
-  const { baseURL, masterFileID, structureInfo, structuralMetadata } = props;
+  const { structureURL, structureInfo, structuralMetadata } = props;
   const { structureSaved } = structureInfo;
   const { smData, initSmData, smDataIsValid } = structuralMetadata;
 
@@ -54,12 +54,7 @@ const StructureOutputContainer = (props) => {
   const handleSaveItClick = async () => {
     let postData = { json: smData[0] };
     try {
-      const response = await apiUtils.postRequest(
-        baseURL,
-        masterFileID,
-        'structure.json',
-        postData
-      );
+      const response = await apiUtils.postRequest(structureURL, postData);
       const { status } = response;
       const alert = configureAlert(status);
       props.setAlert(alert);

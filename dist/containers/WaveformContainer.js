@@ -29,6 +29,8 @@ var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/de
 
 var _react = _interopRequireWildcard(require("react"));
 
+var _propTypes = _interopRequireDefault(require("prop-types"));
+
 var _Utils = _interopRequireDefault(require("../api/Utils"));
 
 var _reactRedux = require("react-redux");
@@ -81,8 +83,8 @@ var WaveformContainer = /*#__PURE__*/function (_Component) {
     _this = _super.call(this, props);
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "state", {
       streamAlert: {},
-      masterFileID: _this.props.masterFileID,
-      baseURL: _this.props.baseURL,
+      structureURL: _this.props.structureURL,
+      waveformURL: _this.props.waveformURL,
       initStructure: _this.props.initStructure,
       streamLength: _this.props.streamDuration,
       dataUri: null
@@ -113,21 +115,21 @@ var WaveformContainer = /*#__PURE__*/function (_Component) {
       var _initializePeaksInstance = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee() {
         var _this2 = this;
 
-        var _this$state, baseURL, masterFileID, initStructure, streamLength;
+        var _this$state, structureURL, waveformURL, initStructure, streamLength;
 
         return _regenerator["default"].wrap(function _callee$(_context) {
           while (1) {
             switch (_context.prev = _context.next) {
               case 0:
-                _this$state = this.state, baseURL = _this$state.baseURL, masterFileID = _this$state.masterFileID, initStructure = _this$state.initStructure, streamLength = _this$state.streamLength;
+                _this$state = this.state, structureURL = _this$state.structureURL, waveformURL = _this$state.waveformURL, initStructure = _this$state.initStructure, streamLength = _this$state.streamLength;
                 _context.prev = 1;
                 _context.next = 4;
-                return apiUtils.headRequest(baseURL, masterFileID, 'waveform.json');
+                return apiUtils.headRequest(waveformURL);
 
               case 4:
                 // Set waveform URI
                 peaksOptions.dataUri = {
-                  json: "".concat(baseURL, "/master_files/").concat(masterFileID, "/waveform.json")
+                  json: waveformURL
                 }; // Update redux-store flag for waveform file retrieval
 
                 this.props.retrieveWaveformSuccess();
@@ -146,7 +148,7 @@ var WaveformContainer = /*#__PURE__*/function (_Component) {
                   if (err) console.error('TCL: WaveformContainer -> initializePeaksInstance -> Peaks.init ->', err);
                   _this2.peaks = peaks;
 
-                  _this2.props.fetchDataAndBuildPeaks(_this2.peaks, baseURL, masterFileID, initStructure, streamLength);
+                  _this2.props.fetchDataAndBuildPeaks(_this2.peaks, structureURL, initStructure, streamLength);
                 });
 
               case 12:
@@ -168,16 +170,14 @@ var WaveformContainer = /*#__PURE__*/function (_Component) {
     value: function handleError(error) {
       console.log('TCL: WaveformContainer -> handleError -> error', error);
       var status = null;
-      var _this$state2 = this.state,
-          baseURL = _this$state2.baseURL,
-          masterFileID = _this$state2.masterFileID; // Pull status code out of error response/request
+      var waveformURL = this.state.waveformURL; // Pull status code out of error response/request
 
       if (error.response !== undefined) {
         status = error.response.status;
 
         if (status == 404) {
           peaksOptions.dataUri = {
-            json: "".concat(baseURL, "/master_files/").concat(masterFileID, "/waveform.json?empty=true")
+            json: "".concat(waveformURL, "?empty=true")
           };
           status = -7; // for persistent missing waveform data alert
         }
@@ -195,7 +195,7 @@ var WaveformContainer = /*#__PURE__*/function (_Component) {
         className: "waveform-section",
         "data-testid": "waveform-container"
       }, /*#__PURE__*/_react["default"].createElement(_Waveform["default"], {
-        audioStreamURL: this.props.audioStreamURL,
+        audioURL: this.props.audioURL,
         withCredentials: this.props.withCredentials,
         ref: {
           zoomViewRef: this.zoomView,
@@ -207,6 +207,14 @@ var WaveformContainer = /*#__PURE__*/function (_Component) {
   }]);
   return WaveformContainer;
 }(_react.Component);
+
+WaveformContainer.propTypes = {
+  structureURL: _propTypes["default"].string.isRequired,
+  waveformURL: _propTypes["default"].string.isRequired,
+  audioURL: _propTypes["default"].string.isRequired,
+  streamDuration: _propTypes["default"].number.isRequired,
+  initStructure: _propTypes["default"].object.isRequired
+};
 
 var mapStateToProps = function mapStateToProps(state) {
   return {

@@ -40,8 +40,7 @@ function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && 
 var StructureOutputContainer = function StructureOutputContainer(props) {
   var smu = new _StructuralMetadataUtils["default"]();
   var apiUtils = new _Utils["default"]();
-  var baseURL = props.baseURL,
-      masterFileID = props.masterFileID,
+  var structureURL = props.structureURL,
       structureInfo = props.structureInfo,
       structuralMetadata = props.structuralMetadata;
   var structureSaved = structureInfo.structureSaved;
@@ -95,7 +94,7 @@ var StructureOutputContainer = function StructureOutputContainer(props) {
               };
               _context.prev = 1;
               _context.next = 4;
-              return apiUtils.postRequest(baseURL, masterFileID, 'structure.json', postData);
+              return apiUtils.postRequest(structureURL, postData);
 
             case 4:
               response = _context.sent;

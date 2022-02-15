@@ -61,7 +61,7 @@ describe('Waveform component', () => {
     mediaElement = React.createRef();
     waveform = renderWithRedux(
       <Waveform
-        audioStreamURL="https://example.com/auto.m3u8"
+        audioURL="https://example.com/auto.m3u8"
         ref={{
           zoomViewRef: zoomView,
           overViewRef: overView,

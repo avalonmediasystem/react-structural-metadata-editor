@@ -5,6 +5,15 @@ email, or any other method with the owners of this repository before making a ch
 
 Please note we have a code of conduct, please follow it in all your interactions with the project.
 
+## Development Process
+
+Once the feature request has been discussed;
+
+1. Follow the steps in `Getting Started` section in the README.md file
+2. Create a separate branch to work, from the latest `master` branch
+3. Write necessary code and tests as required
+4. Once the code is ready run `yarn transpile` and push to GitHub and follow the [Pull Request Process](#pull-request-process)
+
 ## Pull Request Process
 
 1. Update the README.md with details of changes to the interface, this includes new environment

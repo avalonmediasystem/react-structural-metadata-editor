@@ -1,13 +1,5 @@
 import React, { Component } from 'react';
-import {
-  Button,
-  ButtonToolbar,
-  Col,
-  ControlLabel,
-  FormControl,
-  FormGroup,
-  Row,
-} from 'react-bootstrap';
+import { Button, ButtonToolbar, Col, Form, Row } from 'react-bootstrap';
 import { connect } from 'react-redux';
 import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
 import {
@@ -240,69 +232,72 @@ class TimespanForm extends Component {
       this.state;
 
     return (
-      <form onSubmit={this.handleSubmit} data-testid="timespan-form">
-        <FormGroup
-          controlId="timespanTitle"
-          validationState={getValidationTitleState(timespanTitle)}
-          data-testid="timespan-form-title"
-        >
-          <ControlLabel>Title</ControlLabel>
-          <FormControl
+      <Form onSubmit={this.handleSubmit} data-testid="timespan-form">
+        <Form.Group controlId="timespanTitle" data-testid="timespan-form-title">
+          <Form.Label>Title</Form.Label>
+          <Form.Control
             type="text"
             value={timespanTitle}
+            isValid={getValidationTitleState(timespanTitle)}
+            isInvalid={!getValidationTitleState(timespanTitle)}
             onChange={this.handleInputChange}
           />
-          <FormControl.Feedback />
-        </FormGroup>
+          <Form.Control.Feedback />
+        </Form.Group>
 
         <Row>
           <Col sm={6}>
-            <FormGroup
+            <Form.Group
               controlId="beginTime"
-              validationState={getValidationBeginState(beginTime, allSpans)}
               data-testid="timespan-form-begintime"
             >
-              <ControlLabel>Begin Time</ControlLabel>
-              <FormControl
+              <Form.Label>Begin Time</Form.Label>
+              <Form.Control
                 type="text"
                 value={beginTime}
+                isValid={getValidationBeginState(beginTime, allSpans)}
+                isInvalid={!getValidationBeginState(beginTime, allSpans)}
                 placeholder="00:00:00"
                 onChange={this.handleTimeChange}
               />
-              <FormControl.Feedback />
-            </FormGroup>
+              <Form.Control.Feedback />
+            </Form.Group>
           </Col>
           <Col sm={6}>
-            <FormGroup
-              controlId="endTime"
-              validationState={getValidationEndState(
-                beginTime,
-                endTime,
-                allSpans,
-                this.props.peaksInstance.peaks
-              )}
-              data-testid="timespan-form-endtime"
-            >
-              <ControlLabel>End Time</ControlLabel>
-              <FormControl
+            <Form.Group controlId="endTime" data-testid="timespan-form-endtime">
+              <Form.Label>End Time</Form.Label>
+              <Form.Control
                 type="text"
                 value={endTime}
+                isValid={getValidationEndState(
+                  beginTime,
+                  endTime,
+                  allSpans,
+                  this.props.peaksInstance.peaks
+                )}
+                isInvalid={
+                  !getValidationEndState(
+                    beginTime,
+                    endTime,
+                    allSpans,
+                    this.props.peaksInstance.peaks
+                  )
+                }
                 placeholder="00:00:00"
                 onChange={this.handleTimeChange}
               />
-              <FormControl.Feedback />
-            </FormGroup>
+              <Form.Control.Feedback />
+            </Form.Group>
           </Col>
         </Row>
 
-        <FormGroup
+        <Form.Group
           controlId="timespanChildOf"
           data-testid="timespan-form-childof"
         >
-          <ControlLabel>Child Of</ControlLabel>
-          <FormControl
-            componentClass="select"
-            placeholder="select"
+          <Form.Label>Child Of</Form.Label>
+          <Form.Control
+            as="select"
             onChange={this.handleChildOfChange}
             value={timespanChildOf}
           >
@@ -312,8 +307,8 @@ class TimespanForm extends Component {
                 {item.label}
               </option>
             ))}
-          </FormControl>
-        </FormGroup>
+          </Form.Control>
+        </Form.Group>
 
         <Row>
           <Col xs={12}>
@@ -325,7 +320,7 @@ class TimespanForm extends Component {
                 Cancel
               </Button>
               <Button
-                bsStyle="primary"
+                variant="primary"
                 type="submit"
                 disabled={!this.formIsValid()}
                 data-testid="timespan-form-save-button"
@@ -335,7 +330,7 @@ class TimespanForm extends Component {
             </ButtonToolbar>
           </Col>
         </Row>
-      </form>
+      </Form>
     );
   }
 }

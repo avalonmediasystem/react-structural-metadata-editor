@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { ControlLabel, Form, FormControl, FormGroup } from 'react-bootstrap';
+import { Form } from 'react-bootstrap';
 import {
   getExistingFormValues,
   getValidationBeginState,
@@ -206,52 +206,57 @@ class TimespanInlineForm extends Component {
       <Form inline data-testid="timespan-inline-form">
         <div className="row-wrapper">
           <div>
-            <FormGroup
+            <Form.Group
               controlId="timespanTitle"
-              validationState={getValidationTitleState(timespanTitle)}
               data-testid="timespan-inline-form-title"
             >
-              <ControlLabel>Title</ControlLabel>
-              <FormControl
+              <Form.Label>Title</Form.Label>
+              <Form.Control
                 type="text"
                 style={styles.formControl}
                 value={timespanTitle}
+                isValid={getValidationTitleState(timespanTitle)}
+                isInvalid={!getValidationTitleState(timespanTitle)}
                 onChange={this.handleInputChange}
               />
-            </FormGroup>
-            <FormGroup
+            </Form.Group>
+            <Form.Group
               controlId="beginTime"
-              validationState={getValidationBeginState(
-                beginTime,
-                this.allSpans
-              )}
               data-testid="timespan-inline-form-begintime"
             >
-              <ControlLabel>Begin Time</ControlLabel>
-              <FormControl
-                type="text"
+              <Form.Label>Begin Time</Form.Label>
+              <Form.Control
+                as="input"
                 style={styles.formControl}
                 value={beginTime}
                 onChange={this.handleInputChange}
+                isValid={getValidationBeginState(beginTime, this.allSpans)}
+                isInvalid={!getValidationBeginState(beginTime, this.allSpans)}
               />
-            </FormGroup>
-            <FormGroup
-              controlId="endTime"
-              validationState={getValidationEndState(
-                beginTime,
-                endTime,
-                this.allSpans,
-                this.props.peaksInstance.duration
-              )}
-            >
-              <ControlLabel>End Time</ControlLabel>
-              <FormControl
+            </Form.Group>
+            <Form.Group controlId="endTime">
+              <Form.Label>End Time</Form.Label>
+              <Form.Control
                 type="text"
                 style={styles.formControl}
                 value={endTime}
+                isValid={getValidationEndState(
+                  beginTime,
+                  endTime,
+                  this.allSpans,
+                  this.props.peaksInstance.duration
+                )}
+                isInvalid={
+                  !getValidationEndState(
+                    beginTime,
+                    endTime,
+                    this.allSpans,
+                    this.props.peaksInstance.duration
+                  )
+                }
                 onChange={this.handleInputChange}
               />
-            </FormGroup>
+            </Form.Group>
           </div>
           <ListItemInlineEditControls
             formIsValid={this.formIsValid()}

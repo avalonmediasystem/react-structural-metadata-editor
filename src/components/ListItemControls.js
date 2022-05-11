@@ -1,5 +1,10 @@
 import React, { Component } from 'react';
-import { Button, ButtonToolbar, Overlay, Popover } from 'react-bootstrap';
+import {
+  Button,
+  ButtonToolbar,
+  OverlayTrigger,
+  Popover,
+} from 'react-bootstrap';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { connect } from 'react-redux';
@@ -82,11 +87,40 @@ class ListItemControls extends Component {
       this.props;
     const { deleteMessage, showDeleteConfirm } = this.state;
 
+    const popover = (
+      <Popover id="popover-basic">
+        <Popover.Title as="h3">Confirm delete?</Popover.Title>
+        <Popover.Content>
+          <p
+            dangerouslySetInnerHTML={{ __html: deleteMessage }}
+            data-testid="delete-confirmation-message"
+          />
+          <ButtonToolbar style={styles.buttonToolbar}>
+            <Button
+              variant="danger"
+              size="sm"
+              onClick={this.handleConfirmDelete}
+              data-testid="delete-confirmation-confirm-btn"
+            >
+              Delete
+            </Button>
+            <Button
+              size="sm"
+              onClick={this.cancelDeleteClick}
+              data-testid="delete-confirmation-cancel-btn"
+            >
+              Cancel
+            </Button>
+          </ButtonToolbar>
+        </Popover.Content>
+      </Popover>
+    );
+
     return (
       <div className="edit-controls-wrapper" data-testid="list-item-controls">
         {item.type === 'span' && (
           <Button
-            bsStyle="link"
+            variant="link"
             disabled={forms.editingDisabled && !item.active}
             onClick={handleShowDropTargetsClick}
             data-testid="list-item-dnd-btn"
@@ -95,7 +129,7 @@ class ListItemControls extends Component {
           </Button>
         )}
         <Button
-          bsStyle="link"
+          variant="link"
           onClick={handleEditClick}
           disabled={forms.editingDisabled}
           data-testid="list-item-edit-btn"
@@ -105,15 +139,17 @@ class ListItemControls extends Component {
 
         {item.type !== 'root' && (
           <React.Fragment>
-            <Button
-              bsStyle="link"
-              onClick={this.handleDeleteClick}
-              disabled={forms.editingDisabled}
-              data-testid="list-item-delete-btn"
-            >
-              <FontAwesomeIcon icon={faTrash} />
-            </Button>
-            <Overlay
+            <OverlayTrigger trigger="click" placement="left" overlay={popover}>
+              <Button
+                variant="link"
+                onClick={this.handleDeleteClick}
+                disabled={forms.editingDisabled}
+                data-testid="list-item-delete-btn"
+              >
+                <FontAwesomeIcon icon={faTrash} />
+              </Button>
+            </OverlayTrigger>
+            {/* <Overlay
               show={showDeleteConfirm}
               target={this.state.target}
               placement="left"
@@ -131,7 +167,7 @@ class ListItemControls extends Component {
                 />
                 <ButtonToolbar style={styles.buttonToolbar}>
                   <Button
-                    bsStyle="danger"
+                    variant="danger"
                     bsSize="xsmall"
                     onClick={this.handleConfirmDelete}
                     data-testid="delete-confirmation-confirm-btn"
@@ -147,7 +183,7 @@ class ListItemControls extends Component {
                   </Button>
                 </ButtonToolbar>
               </Popover>
-            </Overlay>
+            </Overlay> */}
           </React.Fragment>
         )}
       </div>

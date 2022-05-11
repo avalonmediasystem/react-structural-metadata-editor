@@ -108,8 +108,9 @@ class ButtonSection extends Component {
     return structureInfo.structureRetrieved ? (
       <section>
         <Row data-testid="button-row">
-          <Col xs={6}>
+          <Col sm="6">
             <Button
+              variant="outline-secondary"
               data-testid="add-heading-button"
               block
               onClick={this.handleHeadingClick}
@@ -118,8 +119,9 @@ class ButtonSection extends Component {
               Add a Heading
             </Button>
           </Col>
-          <Col xs={6}>
+          <Col sm="6">
             <Button
+              variant="outline-secondary"
               data-testid="add-timespan-button"
               block
               onClick={this.handleTimeSpanClick}

@@ -10,6 +10,13 @@ import { handleEditingTimespans, setAlert } from '../actions/forms';
 const styles = {
   well: {
     marginTop: '1rem',
+    minHeight: '20px',
+    padding: '19px',
+    marginBottom: '20px',
+    backgroundColor: '#f5f5f5',
+    border: '1px solid #e3e3e3',
+    borderRadius: '4px',
+    boxShadow: 'inset 0 1px 1px rgb(0 0 0 / 5%)',
   },
 };
 
@@ -136,20 +143,12 @@ class ButtonSection extends Component {
         </Row>
 
         <Collapse in={this.state.headingOpen}>
-          <div
-            className="well"
-            style={styles.well}
-            data-testid="heading-form-wrapper"
-          >
+          <div style={styles.well} data-testid="heading-form-wrapper">
             <HeadingFormContainer cancelClick={this.handleCancelHeadingClick} />
           </div>
         </Collapse>
         <Collapse in={this.state.timespanOpen}>
-          <div
-            className="well"
-            style={styles.well}
-            data-testid="timespan-form-wrapper"
-          >
+          <div style={styles.well} data-testid="timespan-form-wrapper">
             <TimespanFormContainer {...timespanFormProps} />
           </div>
         </Collapse>

@@ -49,7 +49,14 @@ function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Re
 
 var styles = {
   well: {
-    marginTop: '1rem'
+    marginTop: '1rem',
+    minHeight: '20px',
+    padding: '19px',
+    marginBottom: '20px',
+    backgroundColor: '#f5f5f5',
+    border: '1px solid #e3e3e3',
+    borderRadius: '4px',
+    boxShadow: 'inset 0 1px 1px rgb(0 0 0 / 5%)'
   }
 };
 
@@ -195,7 +202,6 @@ var ButtonSection = /*#__PURE__*/function (_Component) {
       }, "Add a Timespan"))), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Collapse, {
         "in": this.state.headingOpen
       }, /*#__PURE__*/_react["default"].createElement("div", {
-        className: "well",
         style: styles.well,
         "data-testid": "heading-form-wrapper"
       }, /*#__PURE__*/_react["default"].createElement(_HeadingFormContainer["default"], {
@@ -203,7 +209,6 @@ var ButtonSection = /*#__PURE__*/function (_Component) {
       }))), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Collapse, {
         "in": this.state.timespanOpen
       }, /*#__PURE__*/_react["default"].createElement("div", {
-        className: "well",
         style: styles.well,
         "data-testid": "timespan-form-wrapper"
       }, /*#__PURE__*/_react["default"].createElement(_TimespanFormContainer["default"], timespanFormProps)))) : null;

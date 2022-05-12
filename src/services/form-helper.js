@@ -37,8 +37,6 @@ export function getValidationBeginState(beginTime, allSpans) {
     return false;
   }
 
-  console.log(allSpans);
-
   const validFormat = validTimeFormat(beginTime);
   const validBeginTime = structuralMetadataUtils.doesTimeOverlap(
     beginTime,
@@ -46,11 +44,9 @@ export function getValidationBeginState(beginTime, allSpans) {
   );
 
   if (validFormat && validBeginTime) {
-    console.log('Start time: valid');
     return true;
   }
   if (!validFormat || !validBeginTime) {
-    console.log('Start time: invalid');
     return false;
   }
   return false;
@@ -78,11 +74,9 @@ export function getValidationEndState(beginTime, endTime, allSpans, duration) {
   );
 
   if (validFormat && validEndTime && validOrdering && !doesTimespanOverlap) {
-    console.log('End time: valid');
     return true;
   }
   if (!validFormat || !validEndTime || !validOrdering || doesTimespanOverlap) {
-    console.log('End time: invalid');
     return false;
   }
   return false;

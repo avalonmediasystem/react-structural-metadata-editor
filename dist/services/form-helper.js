@@ -53,17 +53,14 @@ function getValidationBeginState(beginTime, allSpans) {
     return false;
   }
 
-  console.log(allSpans);
   var validFormat = validTimeFormat(beginTime);
   var validBeginTime = structuralMetadataUtils.doesTimeOverlap(beginTime, allSpans);
 
   if (validFormat && validBeginTime) {
-    console.log('Start time: valid');
     return true;
   }
 
   if (!validFormat || !validBeginTime) {
-    console.log('Start time: invalid');
     return false;
   }
 
@@ -81,12 +78,10 @@ function getValidationEndState(beginTime, endTime, allSpans, duration) {
   var doesTimespanOverlap = structuralMetadataUtils.doesTimespanOverlap(beginTime, endTime, allSpans);
 
   if (validFormat && validEndTime && validOrdering && !doesTimespanOverlap) {
-    console.log('End time: valid');
     return true;
   }
 
   if (!validFormat || !validEndTime || !validOrdering || doesTimespanOverlap) {
-    console.log('End time: invalid');
     return false;
   }
 

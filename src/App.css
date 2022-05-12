@@ -55,16 +55,6 @@
   cursor: pointer;
 }
 
-.form-control.is-valid {
-  border-color: #138913;
-  color: #466812;
-}
-
-.form-control.is-invalid {
-  border-color: #920d0d;
-  color: #a24858;
-}
-
 /* Override Bootstrap CSS */
 .alert {
   margin-top: 5px;

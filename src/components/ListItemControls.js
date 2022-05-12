@@ -87,35 +87,6 @@ class ListItemControls extends Component {
       this.props;
     const { deleteMessage, showDeleteConfirm } = this.state;
 
-    const popover = (
-      <Popover id="popover-basic">
-        <Popover.Title as="h3">Confirm delete?</Popover.Title>
-        <Popover.Content>
-          <p
-            dangerouslySetInnerHTML={{ __html: deleteMessage }}
-            data-testid="delete-confirmation-message"
-          />
-          <ButtonToolbar style={styles.buttonToolbar}>
-            <Button
-              variant="danger"
-              size="sm"
-              onClick={this.handleConfirmDelete}
-              data-testid="delete-confirmation-confirm-btn"
-            >
-              Delete
-            </Button>
-            <Button
-              size="sm"
-              onClick={this.cancelDeleteClick}
-              data-testid="delete-confirmation-cancel-btn"
-            >
-              Cancel
-            </Button>
-          </ButtonToolbar>
-        </Popover.Content>
-      </Popover>
-    );
-
     return (
       <div className="edit-controls-wrapper" data-testid="list-item-controls">
         {item.type === 'span' && (
@@ -139,7 +110,41 @@ class ListItemControls extends Component {
 
         {item.type !== 'root' && (
           <React.Fragment>
-            <OverlayTrigger trigger="click" placement="left" overlay={popover}>
+            <OverlayTrigger
+              trigger="click"
+              placement="left"
+              show={showDeleteConfirm}
+              overlay={
+                <Popover id="popover-basic">
+                  <Popover.Title as="h3">Confirm delete?</Popover.Title>
+                  <Popover.Content>
+                    <p
+                      dangerouslySetInnerHTML={{ __html: deleteMessage }}
+                      data-testid="delete-confirmation-message"
+                    />
+                    <ButtonToolbar style={styles.buttonToolbar}>
+                      <Button
+                        variant="danger"
+                        size="sm"
+                        onClick={this.handleConfirmDelete}
+                        data-testid="delete-confirmation-confirm-btn"
+                        className="mr-1"
+                      >
+                        Delete
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline-secondary"
+                        onClick={this.cancelDeleteClick}
+                        data-testid="delete-confirmation-cancel-btn"
+                      >
+                        Cancel
+                      </Button>
+                    </ButtonToolbar>
+                  </Popover.Content>
+                </Popover>
+              }
+            >
               <Button
                 variant="link"
                 onClick={this.handleDeleteClick}
@@ -149,41 +154,6 @@ class ListItemControls extends Component {
                 <FontAwesomeIcon icon={faTrash} />
               </Button>
             </OverlayTrigger>
-            {/* <Overlay
-              show={showDeleteConfirm}
-              target={this.state.target}
-              placement="left"
-              container={this}
-            >
-              <Popover
-                id="popover-contained"
-                title="Confirm delete?"
-                style={styles.popover}
-                data-testid="delete-confirmation-popup"
-              >
-                <p
-                  dangerouslySetInnerHTML={{ __html: deleteMessage }}
-                  data-testid="delete-confirmation-message"
-                />
-                <ButtonToolbar style={styles.buttonToolbar}>
-                  <Button
-                    variant="danger"
-                    bsSize="xsmall"
-                    onClick={this.handleConfirmDelete}
-                    data-testid="delete-confirmation-confirm-btn"
-                  >
-                    Delete
-                  </Button>
-                  <Button
-                    bsSize="xsmall"
-                    onClick={this.cancelDeleteClick}
-                    data-testid="delete-confirmation-cancel-btn"
-                  >
-                    Cancel
-                  </Button>
-                </ButtonToolbar>
-              </Popover>
-            </Overlay> */}
           </React.Fragment>
         )}
       </div>

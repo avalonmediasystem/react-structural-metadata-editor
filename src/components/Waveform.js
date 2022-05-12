@@ -167,6 +167,7 @@ const Waveform = React.forwardRef((props, ref) => {
                 onClick={playAudio}
                 data-testid="waveform-play-button"
                 disabled={streamMediaError || streamMediaLoading}
+                className="mr-1"
               >
                 <FontAwesomeIcon icon={faPlay} />
               </Button>
@@ -176,6 +177,7 @@ const Waveform = React.forwardRef((props, ref) => {
                 onClick={pauseAudio}
                 data-testid="waveform-pause-button"
                 disabled={streamMediaError || streamMediaLoading}
+                className="mr-1"
               >
                 <FontAwesomeIcon icon={faPause} />
               </Button>
@@ -184,6 +186,7 @@ const Waveform = React.forwardRef((props, ref) => {
                 aria-label="Zoom in"
                 onClick={zoomIn}
                 data-testid="waveform-zoomin-button"
+                className="mr-1"
               >
                 <FontAwesomeIcon icon={faSearchPlus} />
               </Button>

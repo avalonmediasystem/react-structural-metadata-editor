@@ -69,31 +69,29 @@ class HeadingInlineForm extends Component {
     const { headingTitle } = this.state;
 
     return (
-      <Form inline data-testid="heading-inline-form">
-        <div className="row-wrapper">
-          <div>
-            <Form.Group
-              controlId="headingTitle"
+      <div className="row-wrapper">
+        <Form inline data-testid="heading-inline-form" className="mb-0">
+          <Form.Group
+            controlId="headingTitle"
+            data-testid="inline-heading-title-form-group"
+          >
+            <Form.Label>Title</Form.Label>
+            <Form.Control
+              type="text"
+              style={styles.formControl}
+              value={headingTitle}
               isValid={getValidationTitleState(headingTitle)}
               isInvalid={!getValidationTitleState(headingTitle)}
-              data-testid="inline-heading-title-form-group"
-            >
-              <Form.Label>Title</Form.Label>
-              <Form.Control
-                type="text"
-                style={styles.formControl}
-                value={headingTitle}
-                onChange={this.handleInputChange}
-              />
-            </Form.Group>
-          </div>
-          <ListItemInlineEditControls
-            formIsValid={this.formIsValid()}
-            handleSaveClick={this.handleSaveClick}
-            handleCancelClick={this.handleCancelClick}
-          />
-        </div>
-      </Form>
+              onChange={this.handleInputChange}
+            />
+          </Form.Group>
+        </Form>
+        <ListItemInlineEditControls
+          formIsValid={this.formIsValid()}
+          handleSaveClick={this.handleSaveClick}
+          handleCancelClick={this.handleCancelClick}
+        />
+      </div>
     );
   }
 }

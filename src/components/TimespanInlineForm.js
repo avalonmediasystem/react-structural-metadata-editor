@@ -203,68 +203,66 @@ class TimespanInlineForm extends Component {
     const { beginTime, endTime, timespanTitle } = this.state;
 
     return (
-      <Form inline data-testid="timespan-inline-form">
-        <div className="row-wrapper">
-          <div>
-            <Form.Group
-              controlId="timespanTitle"
-              data-testid="timespan-inline-form-title"
-            >
-              <Form.Label>Title</Form.Label>
-              <Form.Control
-                type="text"
-                style={styles.formControl}
-                value={timespanTitle}
-                isValid={getValidationTitleState(timespanTitle)}
-                isInvalid={!getValidationTitleState(timespanTitle)}
-                onChange={this.handleInputChange}
-              />
-            </Form.Group>
-            <Form.Group
-              controlId="beginTime"
-              data-testid="timespan-inline-form-begintime"
-            >
-              <Form.Label>Begin Time</Form.Label>
-              <Form.Control
-                as="input"
-                style={styles.formControl}
-                value={beginTime}
-                onChange={this.handleInputChange}
-                isValid={getValidationBeginState(beginTime, this.allSpans)}
-                isInvalid={!getValidationBeginState(beginTime, this.allSpans)}
-              />
-            </Form.Group>
-            <Form.Group controlId="endTime">
-              <Form.Label>End Time</Form.Label>
-              <Form.Control
-                type="text"
-                style={styles.formControl}
-                value={endTime}
-                isValid={getValidationEndState(
+      <div className="row-wrapper">
+        <Form inline data-testid="timespan-inline-form" className="mb-0">
+          <Form.Group
+            controlId="timespanTitle"
+            data-testid="timespan-inline-form-title"
+          >
+            <Form.Label>Title</Form.Label>
+            <Form.Control
+              type="text"
+              style={styles.formControl}
+              value={timespanTitle}
+              isValid={getValidationTitleState(timespanTitle)}
+              isInvalid={!getValidationTitleState(timespanTitle)}
+              onChange={this.handleInputChange}
+            />
+          </Form.Group>
+          <Form.Group
+            controlId="beginTime"
+            data-testid="timespan-inline-form-begintime"
+          >
+            <Form.Label>Begin Time</Form.Label>
+            <Form.Control
+              as="input"
+              style={styles.formControl}
+              value={beginTime}
+              onChange={this.handleInputChange}
+              isValid={getValidationBeginState(beginTime, this.allSpans)}
+              isInvalid={!getValidationBeginState(beginTime, this.allSpans)}
+            />
+          </Form.Group>
+          <Form.Group controlId="endTime">
+            <Form.Label>End Time</Form.Label>
+            <Form.Control
+              type="text"
+              style={styles.formControl}
+              value={endTime}
+              isValid={getValidationEndState(
+                beginTime,
+                endTime,
+                this.allSpans,
+                this.props.peaksInstance.duration
+              )}
+              isInvalid={
+                !getValidationEndState(
                   beginTime,
                   endTime,
                   this.allSpans,
                   this.props.peaksInstance.duration
-                )}
-                isInvalid={
-                  !getValidationEndState(
-                    beginTime,
-                    endTime,
-                    this.allSpans,
-                    this.props.peaksInstance.duration
-                  )
-                }
-                onChange={this.handleInputChange}
-              />
-            </Form.Group>
-          </div>
-          <ListItemInlineEditControls
-            formIsValid={this.formIsValid()}
-            handleSaveClick={this.handleSaveClick}
-            handleCancelClick={this.handleCancelClick}
-          />
-        </div>
-      </Form>
+                )
+              }
+              onChange={this.handleInputChange}
+            />
+          </Form.Group>
+        </Form>
+        <ListItemInlineEditControls
+          formIsValid={this.formIsValid()}
+          handleSaveClick={this.handleSaveClick}
+          handleCancelClick={this.handleCancelClick}
+        />
+      </div>
     );
   }
 }

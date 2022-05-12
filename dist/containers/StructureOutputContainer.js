@@ -134,7 +134,7 @@ var StructureOutputContainer = function StructureOutputContainer(props) {
     xs: 12,
     className: "text-right"
   }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Button, {
-    bsStyle: "primary",
+    variant: "primary",
     onClick: handleSaveItClick,
     "data-testid": "structure-save-button",
     disabled: props.editingDisabled

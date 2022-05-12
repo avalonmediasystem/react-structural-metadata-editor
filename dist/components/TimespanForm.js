@@ -245,45 +245,47 @@ var TimespanForm = /*#__PURE__*/function (_Component) {
           timespanChildOf = _this$state5.timespanChildOf,
           timespanTitle = _this$state5.timespanTitle,
           allSpans = _this$state5.allSpans;
-      return /*#__PURE__*/_react["default"].createElement("form", {
+      return /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Form, {
         onSubmit: this.handleSubmit,
         "data-testid": "timespan-form"
-      }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.FormGroup, {
+      }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Form.Group, {
         controlId: "timespanTitle",
-        validationState: (0, _formHelper.getValidationTitleState)(timespanTitle),
         "data-testid": "timespan-form-title"
-      }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.ControlLabel, null, "Title"), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.FormControl, {
+      }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Form.Label, null, "Title"), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Form.Control, {
         type: "text",
         value: timespanTitle,
+        isValid: (0, _formHelper.getValidationTitleState)(timespanTitle),
+        isInvalid: !(0, _formHelper.getValidationTitleState)(timespanTitle),
         onChange: this.handleInputChange
-      }), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.FormControl.Feedback, null)), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Row, null, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Col, {
+      }), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Form.Control.Feedback, null)), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Row, null, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Col, {
         sm: 6
-      }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.FormGroup, {
+      }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Form.Group, {
         controlId: "beginTime",
-        validationState: (0, _formHelper.getValidationBeginState)(beginTime, allSpans),
         "data-testid": "timespan-form-begintime"
-      }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.ControlLabel, null, "Begin Time"), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.FormControl, {
+      }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Form.Label, null, "Begin Time"), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Form.Control, {
         type: "text",
         value: beginTime,
+        isValid: (0, _formHelper.getValidationBeginState)(beginTime, allSpans),
+        isInvalid: !(0, _formHelper.getValidationBeginState)(beginTime, allSpans),
         placeholder: "00:00:00",
         onChange: this.handleTimeChange
-      }), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.FormControl.Feedback, null))), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Col, {
+      }), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Form.Control.Feedback, null))), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Col, {
         sm: 6
-      }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.FormGroup, {
+      }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Form.Group, {
         controlId: "endTime",
-        validationState: (0, _formHelper.getValidationEndState)(beginTime, endTime, allSpans, this.props.peaksInstance.peaks),
         "data-testid": "timespan-form-endtime"
-      }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.ControlLabel, null, "End Time"), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.FormControl, {
+      }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Form.Label, null, "End Time"), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Form.Control, {
         type: "text",
         value: endTime,
+        isValid: (0, _formHelper.getValidationEndState)(beginTime, endTime, allSpans, this.props.peaksInstance.peaks),
+        isInvalid: !(0, _formHelper.getValidationEndState)(beginTime, endTime, allSpans, this.props.peaksInstance.peaks),
         placeholder: "00:00:00",
         onChange: this.handleTimeChange
-      }), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.FormControl.Feedback, null)))), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.FormGroup, {
+      }), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Form.Control.Feedback, null)))), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Form.Group, {
         controlId: "timespanChildOf",
         "data-testid": "timespan-form-childof"
-      }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.ControlLabel, null, "Child Of"), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.FormControl, {
-        componentClass: "select",
-        placeholder: "select",
+      }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Form.Label, null, "Child Of"), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Form.Control, {
+        as: "select",
         onChange: this.handleChildOfChange,
         value: timespanChildOf
       }, /*#__PURE__*/_react["default"].createElement("option", {
@@ -301,7 +303,7 @@ var TimespanForm = /*#__PURE__*/function (_Component) {
         onClick: this.handleCancelClick,
         "data-testid": "timespan-form-cancel-button"
       }, "Cancel"), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Button, {
-        bsStyle: "primary",
+        variant: "primary",
         type: "submit",
         disabled: !this.formIsValid(),
         "data-testid": "timespan-form-save-button"

@@ -15,6 +15,10 @@ var _react = _interopRequireWildcard(require("react"));
 
 var _reactBootstrap = require("react-bootstrap");
 
+var _reactFontawesome = require("@fortawesome/react-fontawesome");
+
+var _freeSolidSvgIcons = require("@fortawesome/free-solid-svg-icons");
+
 var _reactRedux = require("react-redux");
 
 var _alertStatus = require("../services/alert-status");
@@ -184,28 +188,39 @@ var Waveform = /*#__PURE__*/_react["default"].forwardRef(function (props, ref) {
     xs: 12,
     md: 6
   }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.ButtonToolbar, null, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Button, {
-    className: "glyphicon glyphicon-play",
+    variant: "outline-secondary",
     "aria-label": "Play",
     onClick: playAudio,
     "data-testid": "waveform-play-button",
-    disabled: streamMediaError || streamMediaLoading
-  }), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Button, {
-    className: "glyphicon glyphicon-pause",
+    disabled: streamMediaError || streamMediaLoading,
+    className: "mr-1"
+  }, /*#__PURE__*/_react["default"].createElement(_reactFontawesome.FontAwesomeIcon, {
+    icon: _freeSolidSvgIcons.faPlay
+  })), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Button, {
+    variant: "outline-secondary",
     "aria-label": "Pause",
     onClick: pauseAudio,
     "data-testid": "waveform-pause-button",
-    disabled: streamMediaError || streamMediaLoading
-  }), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Button, {
-    className: "glyphicon glyphicon-zoom-in",
+    disabled: streamMediaError || streamMediaLoading,
+    className: "mr-1"
+  }, /*#__PURE__*/_react["default"].createElement(_reactFontawesome.FontAwesomeIcon, {
+    icon: _freeSolidSvgIcons.faPause
+  })), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Button, {
+    variant: "outline-secondary",
     "aria-label": "Zoom in",
     onClick: zoomIn,
-    "data-testid": "waveform-zoomin-button"
-  }), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Button, {
-    className: "glyphicon glyphicon-zoom-out",
+    "data-testid": "waveform-zoomin-button",
+    className: "mr-1"
+  }, /*#__PURE__*/_react["default"].createElement(_reactFontawesome.FontAwesomeIcon, {
+    icon: _freeSolidSvgIcons.faSearchPlus
+  })), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Button, {
+    variant: "outline-secondary",
     "aria-label": "Zoom out",
     onClick: zoomOut,
     "data-testid": "waveform-zoomout-button"
-  })))));
+  }, /*#__PURE__*/_react["default"].createElement(_reactFontawesome.FontAwesomeIcon, {
+    icon: _freeSolidSvgIcons.faSearchMinus
+  }))))));
 });
 
 var _default = Waveform;

@@ -23,7 +23,7 @@ function AlertContainer(props) {
           persistent = alert.persistent,
           id = alert.id;
       var alertProps = {
-        bsStyle: alertStyle,
+        variant: alertStyle,
         'data-testid': "".concat(persistent ? 'persistent-' : '', "alert-container"),
         key: id,
         dismissible: persistent ? 'false' : 'true',
@@ -31,7 +31,7 @@ function AlertContainer(props) {
       };
 
       if (!persistent) {
-        alertProps.onDismiss = function () {
+        alertProps.onClose = function () {
           props.removeAlert(id);
         };
       }

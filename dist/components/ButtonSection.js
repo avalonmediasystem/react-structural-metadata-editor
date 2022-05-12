@@ -177,15 +177,17 @@ var ButtonSection = /*#__PURE__*/function (_Component) {
       return structureInfo.structureRetrieved ? /*#__PURE__*/_react["default"].createElement("section", null, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Row, {
         "data-testid": "button-row"
       }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Col, {
-        xs: 6
+        sm: "6"
       }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Button, {
+        variant: "outline-secondary",
         "data-testid": "add-heading-button",
         block: true,
         onClick: this.handleHeadingClick,
         disabled: this.state.disabled && editingDisabled
       }, "Add a Heading")), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Col, {
-        xs: 6
+        sm: "6"
       }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Button, {
+        variant: "outline-secondary",
         "data-testid": "add-timespan-button",
         block: true,
         onClick: this.handleTimeSpanClick,

@@ -115,7 +115,7 @@ class ListItemControls extends Component {
               placement="left"
               show={showDeleteConfirm}
               overlay={
-                <Popover id="popover-basic">
+                <Popover data-testid="delete-confirmation-popup">
                   <Popover.Title as="h3">Confirm delete?</Popover.Title>
                   <Popover.Content>
                     <p

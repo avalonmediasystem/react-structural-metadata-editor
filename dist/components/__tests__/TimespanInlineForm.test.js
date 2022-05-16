@@ -91,7 +91,7 @@ describe('TimespanInlineForm component', () => {
       expect(
         timespanInlineForm
           .getByTestId('timespan-inline-form-title')
-          .classList.contains('has-success')
+          .classList.contains('is-valid')
       ).toBeTruthy();
       expect(
         timespanInlineForm.getByTestId('inline-form-save-button')
@@ -101,7 +101,7 @@ describe('TimespanInlineForm component', () => {
       expect(
         timespanInlineForm
           .getByTestId('timespan-inline-form-title')
-          .classList.contains('has-error')
+          .classList.contains('is-invalid')
       ).toBeTruthy();
       expect(
         timespanInlineForm.getByTestId('inline-form-save-button')
@@ -126,14 +126,14 @@ describe('TimespanInlineForm component', () => {
       fireEvent.change(beginTimeInput, {
         target: { value: '00:' },
       });
-      expect(beginTimeForm.classList.contains('has-error')).toBeTruthy();
+      expect(beginTimeForm.classList.contains('is-invalid')).toBeTruthy();
       expect(saveButton).toBeDisabled();
 
       fireEvent.change(beginTimeInput, {
         target: { value: '00:09:00.001' },
       });
-      expect(beginTimeForm.classList.contains('has-error')).toBeFalsy();
-      expect(beginTimeForm.classList.contains('has-success')).toBeTruthy();
+      expect(beginTimeForm.classList.contains('is-invalid')).toBeFalsy();
+      expect(beginTimeForm.classList.contains('is-valid')).toBeTruthy();
       expect(saveButton).toBeEnabled();
     });
   });
@@ -179,7 +179,7 @@ describe('TimespanInlineForm component', () => {
     expect(
       timespanInlineForm
         .getByTestId('timespan-inline-form-begintime')
-        .classList.contains('has-success')
+        .classList.contains('is-valid')
     ).toBeTruthy();
   });
 

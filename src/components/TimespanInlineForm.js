@@ -205,10 +205,7 @@ class TimespanInlineForm extends Component {
     return (
       <div className="row-wrapper">
         <Form inline data-testid="timespan-inline-form" className="mb-0">
-          <Form.Group
-            controlId="timespanTitle"
-            data-testid="timespan-inline-form-title"
-          >
+          <Form.Group controlId="timespanTitle">
             <Form.Label>Title</Form.Label>
             <Form.Control
               type="text"
@@ -217,12 +214,10 @@ class TimespanInlineForm extends Component {
               isValid={getValidationTitleState(timespanTitle)}
               isInvalid={!getValidationTitleState(timespanTitle)}
               onChange={this.handleInputChange}
+              data-testid="timespan-inline-form-title"
             />
           </Form.Group>
-          <Form.Group
-            controlId="beginTime"
-            data-testid="timespan-inline-form-begintime"
-          >
+          <Form.Group controlId="beginTime">
             <Form.Label>Begin Time</Form.Label>
             <Form.Control
               as="input"
@@ -231,6 +226,7 @@ class TimespanInlineForm extends Component {
               onChange={this.handleInputChange}
               isValid={getValidationBeginState(beginTime, this.allSpans)}
               isInvalid={!getValidationBeginState(beginTime, this.allSpans)}
+              data-testid="timespan-inline-form-begintime"
             />
           </Form.Group>
           <Form.Group controlId="endTime">
@@ -254,6 +250,7 @@ class TimespanInlineForm extends Component {
                 )
               }
               onChange={this.handleInputChange}
+              data-testid="timespan-inline-form-endtime"
             />
           </Form.Group>
         </Form>

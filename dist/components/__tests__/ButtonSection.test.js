@@ -4,7 +4,6 @@ import { fireEvent, cleanup, wait } from 'react-testing-library';
 import 'jest-dom/extend-expect';
 import { renderWithRedux, testSmData } from '../../services/testing-helpers';
 import ButtonSection from '../ButtonSection';
-import mockAxios from 'axios';
 
 afterEach(cleanup);
 
@@ -73,7 +72,7 @@ describe('ButtonSection component', () => {
 
         await wait(() => {
           expect(getByTestId('heading-form-wrapper')).toHaveClass(
-            'collapse in'
+            'collapse show'
           );
         });
         expect(getByTestId('heading-form-save-button')).toBeDisabled();
@@ -83,25 +82,25 @@ describe('ButtonSection component', () => {
         const { getByTestId } = buttonSection;
         fireEvent.click(getByTestId('heading-form-cancel-button'));
         await wait(() => {
-          expect(getByTestId('heading-form-wrapper')).not.toHaveClass('in');
+          expect(getByTestId('heading-form-wrapper')).not.toHaveClass('show');
         });
       });
     });
 
     describe('timespan button', () => {
-      test('opens add new timespan form with default values for begin/end times and disabled save button', async () => {
+      test('opens add new timespan form with default values', async () => {
         const { getByTestId } = buttonSection;
         fireEvent.click(getByTestId('add-timespan-button'));
 
         await wait(() => {
-          expect(getByTestId('timespan-form-wrapper')).toHaveClass('in');
+          expect(getByTestId('timespan-form-wrapper')).toHaveClass('show');
           // Begin Time and End Time is already filled with default values
-          expect(
-            getByTestId('timespan-form-begintime').querySelector('input').value
-          ).toBe('00:00:00.000');
-          expect(
-            getByTestId('timespan-form-endtime').querySelector('input').value
-          ).toBe('00:00:03.321');
+          expect(getByTestId('timespan-form-begintime').value).toBe(
+            '00:00:00.000'
+          );
+          expect(getByTestId('timespan-form-endtime').value).toBe(
+            '00:00:03.321'
+          );
           // Save button is disabled
           expect(getByTestId('timespan-form-save-button')).toBeDisabled();
         });
@@ -113,7 +112,7 @@ describe('ButtonSection component', () => {
 
         fireEvent.click(getByTestId('timespan-form-cancel-button'));
         await wait(() => {
-          expect(getByTestId('timespan-form-wrapper')).not.toHaveClass('in');
+          expect(getByTestId('timespan-form-wrapper')).not.toHaveClass('show');
         });
       });
 
@@ -137,13 +136,17 @@ describe('ButtonSection component', () => {
       const { getByTestId } = buttonSection;
       fireEvent.click(getByTestId('add-heading-button'));
       await wait(() => {
-        expect(getByTestId('heading-form-wrapper')).toHaveClass('in');
+        expect(getByTestId('heading-form-wrapper')).toHaveClass(
+          'collapse show'
+        );
       });
 
       fireEvent.click(getByTestId('add-timespan-button'));
       await wait(() => {
-        expect(getByTestId('heading-form-wrapper')).not.toHaveClass('in');
-        expect(getByTestId('timespan-form-wrapper')).toHaveClass('in');
+        expect(getByTestId('heading-form-wrapper')).not.toHaveClass('show');
+        expect(getByTestId('timespan-form-wrapper')).toHaveClass(
+          'collapse show'
+        );
       });
     });
 
@@ -152,10 +155,8 @@ describe('ButtonSection component', () => {
       beforeEach(() => {
         const { getByTestId } = buttonSection;
         timespanButton = getByTestId('add-timespan-button');
-        beginTime = getByTestId('timespan-form-begintime').querySelector(
-          'input'
-        );
-        endTime = getByTestId('timespan-form-endtime').querySelector('input');
+        beginTime = getByTestId('timespan-form-begintime');
+        endTime = getByTestId('timespan-form-endtime');
       });
 
       test('after saving first timespan', async () => {
@@ -169,22 +170,17 @@ describe('ButtonSection component', () => {
 
         // Fill the form
         fireEvent.change(beginTime, { target: { value: '00:00:01.000' } });
-        fireEvent.change(
-          getByTestId('timespan-form-title').querySelector('input'),
-          {
-            target: { value: 'Title' },
-          }
-        );
-        fireEvent.change(
-          getByTestId('timespan-form-childof').querySelector('select'),
-          {
-            target: { value: '123a-456b-789c-1d' },
-          }
-        );
+        fireEvent.change(getByTestId('timespan-form-title'), {
+          target: { value: 'Title' },
+        });
+        fireEvent.change(getByTestId('timespan-form-childof'), {
+          target: { value: '123a-456b-789c-1d' },
+        });
         fireEvent.click(getByTestId('timespan-form-save-button'));
 
         // Adding second timespan
         fireEvent.click(timespanButton);
+
         await wait(() => {
           // Form is filled with next possible time values
           expect(beginTime.value).toBe('00:00:10.321');

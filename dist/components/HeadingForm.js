@@ -163,14 +163,14 @@ var HeadingForm = /*#__PURE__*/function (_Component) {
         onSubmit: this.handleSubmit,
         "data-testid": "heading-form"
       }, /*#__PURE__*/_react["default"].createElement(_Form["default"].Group, {
-        controlId: "headingTitle",
-        "data-testid": "heading-title-form-group"
+        controlId: "headingTitle"
       }, /*#__PURE__*/_react["default"].createElement(_Form["default"].Label, null, "Title"), /*#__PURE__*/_react["default"].createElement(_Form["default"].Control, {
         type: "text",
         value: headingTitle,
         isValid: (0, _formHelper.getValidationTitleState)(headingTitle),
         isInvalid: !(0, _formHelper.getValidationTitleState)(headingTitle),
-        onChange: this.handleHeadingChange
+        onChange: this.handleHeadingChange,
+        "data-testid": "heading-title-form-control"
       }), /*#__PURE__*/_react["default"].createElement(_Form["default"].Control.Feedback, null)), /*#__PURE__*/_react["default"].createElement(_Form["default"].Group, {
         controlId: "headingChildOf"
       }, /*#__PURE__*/_react["default"].createElement(_Form["default"].Label, null, "Child Of"), /*#__PURE__*/_react["default"].createElement(_Form["default"].Control, {
@@ -180,10 +180,20 @@ var HeadingForm = /*#__PURE__*/function (_Component) {
       }, /*#__PURE__*/_react["default"].createElement("option", {
         value: ""
       }, "Select..."), this.state.childOfOptions)), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Row, null, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Col, {
-        xs: 12
+        sm: {
+          offset: 5
+        },
+        md: {
+          offset: 5
+        },
+        lg: {
+          offset: 10
+        }
       }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.ButtonToolbar, {
-        className: "pull-right"
+        className: "float-right"
       }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Button, {
+        variant: "outline-secondary",
+        className: "mr-1",
         onClick: this.props.cancelClick,
         "data-testid": "heading-form-cancel-button"
       }, "Cancel"), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Button, {

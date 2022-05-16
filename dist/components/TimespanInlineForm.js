@@ -210,25 +210,25 @@ var TimespanInlineForm = /*#__PURE__*/function (_Component) {
         "data-testid": "timespan-inline-form",
         className: "mb-0"
       }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Form.Group, {
-        controlId: "timespanTitle",
-        "data-testid": "timespan-inline-form-title"
+        controlId: "timespanTitle"
       }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Form.Label, null, "Title"), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Form.Control, {
         type: "text",
         style: styles.formControl,
         value: timespanTitle,
         isValid: (0, _formHelper.getValidationTitleState)(timespanTitle),
         isInvalid: !(0, _formHelper.getValidationTitleState)(timespanTitle),
-        onChange: this.handleInputChange
+        onChange: this.handleInputChange,
+        "data-testid": "timespan-inline-form-title"
       })), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Form.Group, {
-        controlId: "beginTime",
-        "data-testid": "timespan-inline-form-begintime"
+        controlId: "beginTime"
       }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Form.Label, null, "Begin Time"), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Form.Control, {
         as: "input",
         style: styles.formControl,
         value: beginTime,
         onChange: this.handleInputChange,
         isValid: (0, _formHelper.getValidationBeginState)(beginTime, this.allSpans),
-        isInvalid: !(0, _formHelper.getValidationBeginState)(beginTime, this.allSpans)
+        isInvalid: !(0, _formHelper.getValidationBeginState)(beginTime, this.allSpans),
+        "data-testid": "timespan-inline-form-begintime"
       })), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Form.Group, {
         controlId: "endTime"
       }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Form.Label, null, "End Time"), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Form.Control, {
@@ -237,7 +237,8 @@ var TimespanInlineForm = /*#__PURE__*/function (_Component) {
         value: endTime,
         isValid: (0, _formHelper.getValidationEndState)(beginTime, endTime, this.allSpans, this.props.peaksInstance.duration),
         isInvalid: !(0, _formHelper.getValidationEndState)(beginTime, endTime, this.allSpans, this.props.peaksInstance.duration),
-        onChange: this.handleInputChange
+        onChange: this.handleInputChange,
+        "data-testid": "timespan-inline-form-endtime"
       }))), /*#__PURE__*/_react["default"].createElement(_ListItemInlineEditControls["default"], {
         formIsValid: this.formIsValid(),
         handleSaveClick: this.handleSaveClick,

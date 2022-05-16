@@ -233,7 +233,7 @@ class TimespanForm extends Component {
 
     return (
       <Form onSubmit={this.handleSubmit} data-testid="timespan-form">
-        <Form.Group controlId="timespanTitle" data-testid="timespan-form-title">
+        <Form.Group controlId="timespanTitle">
           <Form.Label>Title</Form.Label>
           <Form.Control
             type="text"
@@ -241,16 +241,14 @@ class TimespanForm extends Component {
             isValid={getValidationTitleState(timespanTitle)}
             isInvalid={!getValidationTitleState(timespanTitle)}
             onChange={this.handleInputChange}
+            data-testid="timespan-form-title"
           />
           <Form.Control.Feedback />
         </Form.Group>
 
         <Row>
           <Col sm={6}>
-            <Form.Group
-              controlId="beginTime"
-              data-testid="timespan-form-begintime"
-            >
+            <Form.Group controlId="beginTime">
               <Form.Label>Begin Time</Form.Label>
               <Form.Control
                 type="text"
@@ -259,12 +257,13 @@ class TimespanForm extends Component {
                 isInvalid={!getValidationBeginState(beginTime, allSpans)}
                 placeholder="00:00:00"
                 onChange={this.handleTimeChange}
+                data-testid="timespan-form-begintime"
               />
               <Form.Control.Feedback />
             </Form.Group>
           </Col>
           <Col sm={6}>
-            <Form.Group controlId="endTime" data-testid="timespan-form-endtime">
+            <Form.Group controlId="endTime">
               <Form.Label>End Time</Form.Label>
               <Form.Control
                 type="text"
@@ -285,21 +284,20 @@ class TimespanForm extends Component {
                 }
                 placeholder="00:00:00"
                 onChange={this.handleTimeChange}
+                data-testid="timespan-form-endtime"
               />
               <Form.Control.Feedback />
             </Form.Group>
           </Col>
         </Row>
 
-        <Form.Group
-          controlId="timespanChildOf"
-          data-testid="timespan-form-childof"
-        >
+        <Form.Group controlId="timespanChildOf">
           <Form.Label>Child Of</Form.Label>
           <Form.Control
             as="select"
             onChange={this.handleChildOfChange}
             value={timespanChildOf}
+            data-testid="timespan-form-childof"
           >
             <option value="">Select...</option>
             {this.state.validHeadings.map((item) => (
@@ -311,9 +309,11 @@ class TimespanForm extends Component {
         </Form.Group>
 
         <Row>
-          <Col xs={12}>
-            <ButtonToolbar className="pull-right">
+          <Col sm={{ offset: 5 }} md={{ offset: 5 }} lg={{ offset: 10 }}>
+            <ButtonToolbar className="float-right">
               <Button
+                variant="outline-secondary"
+                className="mr-1"
                 onClick={this.handleCancelClick}
                 data-testid="timespan-form-cancel-button"
               >

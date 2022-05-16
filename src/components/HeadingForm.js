@@ -97,10 +97,7 @@ class HeadingForm extends Component {
 
     return (
       <Form onSubmit={this.handleSubmit} data-testid="heading-form">
-        <Form.Group
-          controlId="headingTitle"
-          data-testid="heading-title-form-group"
-        >
+        <Form.Group controlId="headingTitle">
           <Form.Label>Title</Form.Label>
           <Form.Control
             type="text"
@@ -108,6 +105,7 @@ class HeadingForm extends Component {
             isValid={getValidationTitleState(headingTitle)}
             isInvalid={!getValidationTitleState(headingTitle)}
             onChange={this.handleHeadingChange}
+            data-testid="heading-title-form-control"
           />
           <Form.Control.Feedback />
         </Form.Group>
@@ -125,9 +123,11 @@ class HeadingForm extends Component {
         </Form.Group>
 
         <Row>
-          <Col xs={12}>
-            <ButtonToolbar className="pull-right">
+          <Col sm={{ offset: 5 }} md={{ offset: 5 }} lg={{ offset: 10 }}>
+            <ButtonToolbar className="float-right">
               <Button
+                variant="outline-secondary"
+                className="mr-1"
                 onClick={this.props.cancelClick}
                 data-testid="heading-form-cancel-button"
               >

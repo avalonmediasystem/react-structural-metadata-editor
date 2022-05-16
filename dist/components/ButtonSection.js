@@ -84,7 +84,8 @@ var ButtonSection = /*#__PURE__*/function (_Component) {
         alert: null,
         showAlert: false
       },
-      disabled: true
+      disabled: true,
+      formOpen: false
     });
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "setIsInitializing", function (value) {
       if (value === 1) {
@@ -99,7 +100,8 @@ var ButtonSection = /*#__PURE__*/function (_Component) {
     });
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "handleCancelHeadingClick", function () {
       _this.setState({
-        headingOpen: false
+        headingOpen: false,
+        formOpen: false
       });
 
       _this.props.handleEditingTimespans(0);
@@ -113,14 +115,16 @@ var ButtonSection = /*#__PURE__*/function (_Component) {
       _this.setState({
         headingOpen: true,
         timespanOpen: false,
-        disabled: false
+        disabled: false,
+        formOpen: true
       });
     });
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "handleCancelTimespanClick", function () {
       _this.deleteTempSegment();
 
       _this.setState({
-        timespanOpen: false
+        timespanOpen: false,
+        formOpen: false
       });
 
       _this.props.handleEditingTimespans(0);
@@ -136,25 +140,24 @@ var ButtonSection = /*#__PURE__*/function (_Component) {
 
       var tempSegment = _this.props.peaksInstance.peaks.segments.getSegment('temp-segment');
 
+      _this.setState({
+        headingOpen: false,
+        disabled: false,
+        formOpen: true
+      });
+
       if (tempSegment === null) {
         var noSpaceAlert = (0, _alertStatus.configureAlert)(-4);
 
         _this.props.setAlert(noSpaceAlert);
-
-        _this.setState({
-          headingOpen: false,
-          disabled: false
-        });
       } else {
         // Initialize Redux store with temporary segment
         _this.props.dragSegment(tempSegment.id, null, 0);
 
         _this.setState({
           initSegment: tempSegment,
-          headingOpen: false,
           timespanOpen: true,
-          isInitializing: true,
-          disabled: false
+          isInitializing: true
         });
       }
     });
@@ -212,6 +215,20 @@ var ButtonSection = /*#__PURE__*/function (_Component) {
         style: styles.well,
         "data-testid": "timespan-form-wrapper"
       }, /*#__PURE__*/_react["default"].createElement(_TimespanFormContainer["default"], timespanFormProps)))) : null;
+    }
+  }], [{
+    key: "getDerivedStateFromProps",
+    value: function getDerivedStateFromProps(nextProps, prevState) {
+      var formOpen = prevState.formOpen;
+      var editingDisabled = nextProps.forms.editingDisabled;
+
+      if (editingDisabled && !formOpen) {
+        return {
+          disabled: true
+        };
+      }
+
+      return null;
     }
   }]);
   return ButtonSection;

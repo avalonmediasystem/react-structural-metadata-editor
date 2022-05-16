@@ -71,10 +71,7 @@ class HeadingInlineForm extends Component {
     return (
       <div className="row-wrapper">
         <Form inline data-testid="heading-inline-form" className="mb-0">
-          <Form.Group
-            controlId="headingTitle"
-            data-testid="inline-heading-title-form-group"
-          >
+          <Form.Group controlId="headingTitle">
             <Form.Label>Title</Form.Label>
             <Form.Control
               type="text"
@@ -83,6 +80,7 @@ class HeadingInlineForm extends Component {
               isValid={getValidationTitleState(headingTitle)}
               isInvalid={!getValidationTitleState(headingTitle)}
               onChange={this.handleInputChange}
+              data-testid="inline-heading-title-form-control"
             />
           </Form.Group>
         </Form>

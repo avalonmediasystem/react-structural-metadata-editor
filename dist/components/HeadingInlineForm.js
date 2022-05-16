@@ -109,15 +109,15 @@ var HeadingInlineForm = /*#__PURE__*/function (_Component) {
         "data-testid": "heading-inline-form",
         className: "mb-0"
       }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Form.Group, {
-        controlId: "headingTitle",
-        "data-testid": "inline-heading-title-form-group"
+        controlId: "headingTitle"
       }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Form.Label, null, "Title"), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Form.Control, {
         type: "text",
         style: styles.formControl,
         value: headingTitle,
         isValid: (0, _formHelper.getValidationTitleState)(headingTitle),
         isInvalid: !(0, _formHelper.getValidationTitleState)(headingTitle),
-        onChange: this.handleInputChange
+        onChange: this.handleInputChange,
+        "data-testid": "inline-heading-title-form-control"
       }))), /*#__PURE__*/_react["default"].createElement(_ListItemInlineEditControls["default"], {
         formIsValid: this.formIsValid(),
         handleSaveClick: this.handleSaveClick,

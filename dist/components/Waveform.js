@@ -179,14 +179,15 @@ var Waveform = /*#__PURE__*/_react["default"].forwardRef(function (props, ref) {
   }, "Your browser does not support the audio element."), !streamMediaLoading && !streamMediaError && /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Row, {
     "data-testid": "waveform-toolbar"
   }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Col, {
-    xs: 6,
+    sm: 6,
     md: 6
   }, /*#__PURE__*/_react["default"].createElement(_Slider["default"], {
     volume: volume,
     setVolume: adjustVolume
   })), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Col, {
-    xs: 12,
-    md: 6
+    sm: 6,
+    md: 6,
+    className: "mt-1"
   }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.ButtonToolbar, null, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Button, {
     variant: "outline-secondary",
     "aria-label": "Play",

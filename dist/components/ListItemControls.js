@@ -158,7 +158,7 @@ var ListItemControls = /*#__PURE__*/function (_Component) {
         placement: "left",
         show: showDeleteConfirm,
         overlay: /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Popover, {
-          id: "popover-basic"
+          "data-testid": "delete-confirmation-popup"
         }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Popover.Title, {
           as: "h3"
         }, "Confirm delete?"), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Popover.Content, null, /*#__PURE__*/_react["default"].createElement("p", {

@@ -31,7 +31,17 @@ class ButtonSection extends Component {
       showAlert: false,
     },
     disabled: true,
+    formOpen: false,
   };
+
+  static getDerivedStateFromProps(nextProps, prevState) {
+    const { formOpen } = prevState;
+    const { editingDisabled } = nextProps.forms;
+    if (editingDisabled && !formOpen) {
+      return { disabled: true };
+    }
+    return null;
+  }
 
   setIsInitializing = (value) => {
     if (value === 1) {
@@ -42,7 +52,7 @@ class ButtonSection extends Component {
   };
 
   handleCancelHeadingClick = () => {
-    this.setState({ headingOpen: false });
+    this.setState({ headingOpen: false, formOpen: false });
     this.props.handleEditingTimespans(0);
   };
 
@@ -54,12 +64,13 @@ class ButtonSection extends Component {
       headingOpen: true,
       timespanOpen: false,
       disabled: false,
+      formOpen: true,
     });
   };
 
   handleCancelTimespanClick = () => {
     this.deleteTempSegment();
-    this.setState({ timespanOpen: false });
+    this.setState({ timespanOpen: false, formOpen: false });
     this.props.handleEditingTimespans(0);
   };
 
@@ -73,22 +84,23 @@ class ButtonSection extends Component {
     }
     const tempSegment =
       this.props.peaksInstance.peaks.segments.getSegment('temp-segment');
+
+    this.setState({
+      headingOpen: false,
+      disabled: false,
+      formOpen: true,
+    });
+
     if (tempSegment === null) {
       const noSpaceAlert = configureAlert(-4);
       this.props.setAlert(noSpaceAlert);
-      this.setState({
-        headingOpen: false,
-        disabled: false,
-      });
     } else {
       // Initialize Redux store with temporary segment
       this.props.dragSegment(tempSegment.id, null, 0);
       this.setState({
         initSegment: tempSegment,
-        headingOpen: false,
         timespanOpen: true,
         isInitializing: true,
-        disabled: false,
       });
     }
   };

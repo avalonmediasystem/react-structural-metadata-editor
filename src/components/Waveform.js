@@ -156,10 +156,10 @@ const Waveform = React.forwardRef((props, ref) => {
       </audio>
       {!streamMediaLoading && !streamMediaError && (
         <Row data-testid="waveform-toolbar">
-          <Col xs={6} md={6}>
+          <Col sm={6} md={6}>
             <VolumeSlider volume={volume} setVolume={adjustVolume} />
           </Col>
-          <Col xs={12} md={6}>
+          <Col sm={6} md={6} className="mt-1">
             <ButtonToolbar>
               <Button
                 variant="outline-secondary"

@@ -140,53 +140,54 @@ var ListItemControls = /*#__PURE__*/function (_Component) {
         className: "edit-controls-wrapper",
         "data-testid": "list-item-controls"
       }, item.type === 'span' && /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Button, {
-        bsStyle: "link",
+        variant: "link",
         disabled: forms.editingDisabled && !item.active,
         onClick: handleShowDropTargetsClick,
         "data-testid": "list-item-dnd-btn"
       }, /*#__PURE__*/_react["default"].createElement(_reactFontawesome.FontAwesomeIcon, {
         icon: _freeSolidSvgIcons.faDotCircle
       })), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Button, {
-        bsStyle: "link",
+        variant: "link",
         onClick: handleEditClick,
         disabled: forms.editingDisabled,
         "data-testid": "list-item-edit-btn"
       }, /*#__PURE__*/_react["default"].createElement(_reactFontawesome.FontAwesomeIcon, {
         icon: _freeSolidSvgIcons.faPen
-      })), item.type !== 'root' && /*#__PURE__*/_react["default"].createElement(_react["default"].Fragment, null, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Button, {
-        bsStyle: "link",
+      })), item.type !== 'root' && /*#__PURE__*/_react["default"].createElement(_react["default"].Fragment, null, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.OverlayTrigger, {
+        trigger: "click",
+        placement: "left",
+        show: showDeleteConfirm,
+        overlay: /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Popover, {
+          "data-testid": "delete-confirmation-popup"
+        }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Popover.Title, {
+          as: "h3"
+        }, "Confirm delete?"), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Popover.Content, null, /*#__PURE__*/_react["default"].createElement("p", {
+          dangerouslySetInnerHTML: {
+            __html: deleteMessage
+          },
+          "data-testid": "delete-confirmation-message"
+        }), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.ButtonToolbar, {
+          style: styles.buttonToolbar
+        }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Button, {
+          variant: "danger",
+          size: "sm",
+          onClick: this.handleConfirmDelete,
+          "data-testid": "delete-confirmation-confirm-btn",
+          className: "mr-1"
+        }, "Delete"), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Button, {
+          size: "sm",
+          variant: "outline-secondary",
+          onClick: this.cancelDeleteClick,
+          "data-testid": "delete-confirmation-cancel-btn"
+        }, "Cancel"))))
+      }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Button, {
+        variant: "link",
         onClick: this.handleDeleteClick,
         disabled: forms.editingDisabled,
         "data-testid": "list-item-delete-btn"
       }, /*#__PURE__*/_react["default"].createElement(_reactFontawesome.FontAwesomeIcon, {
         icon: _freeSolidSvgIcons.faTrash
-      })), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Overlay, {
-        show: showDeleteConfirm,
-        target: this.state.target,
-        placement: "left",
-        container: this
-      }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Popover, {
-        id: "popover-contained",
-        title: "Confirm delete?",
-        style: styles.popover,
-        "data-testid": "delete-confirmation-popup"
-      }, /*#__PURE__*/_react["default"].createElement("p", {
-        dangerouslySetInnerHTML: {
-          __html: deleteMessage
-        },
-        "data-testid": "delete-confirmation-message"
-      }), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.ButtonToolbar, {
-        style: styles.buttonToolbar
-      }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Button, {
-        bsStyle: "danger",
-        bsSize: "xsmall",
-        onClick: this.handleConfirmDelete,
-        "data-testid": "delete-confirmation-confirm-btn"
-      }, "Delete"), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Button, {
-        bsSize: "xsmall",
-        onClick: this.cancelDeleteClick,
-        "data-testid": "delete-confirmation-cancel-btn"
-      }, "Cancel"))))));
+      })))));
     }
   }]);
   return ListItemControls;

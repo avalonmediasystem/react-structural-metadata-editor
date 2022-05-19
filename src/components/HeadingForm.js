@@ -1,15 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
-import {
-  Button,
-  ButtonToolbar,
-  Col,
-  ControlLabel,
-  FormControl,
-  FormGroup,
-  Row,
-} from 'react-bootstrap';
+import { Button, ButtonToolbar, Col, Row } from 'react-bootstrap';
+import Form from 'react-bootstrap/Form';
 import * as actions from '../actions/forms';
 import PropTypes from 'prop-types';
 import { isEqual } from 'lodash';
@@ -103,46 +96,45 @@ class HeadingForm extends Component {
     const { headingTitle } = this.state;
 
     return (
-      <form onSubmit={this.handleSubmit} data-testid="heading-form">
-        <FormGroup
-          controlId="headingTitle"
-          validationState={getValidationTitleState(headingTitle)}
-          data-testid="heading-title-form-group"
-        >
-          <ControlLabel>Title</ControlLabel>
-          <FormControl
+      <Form onSubmit={this.handleSubmit} data-testid="heading-form">
+        <Form.Group controlId="headingTitle">
+          <Form.Label>Title</Form.Label>
+          <Form.Control
             type="text"
             value={headingTitle}
+            isValid={getValidationTitleState(headingTitle)}
+            isInvalid={!getValidationTitleState(headingTitle)}
             onChange={this.handleHeadingChange}
+            data-testid="heading-title-form-control"
           />
-          <FormControl.Feedback />
-        </FormGroup>
+          <Form.Control.Feedback />
+        </Form.Group>
 
-        <FormGroup controlId="headingChildOf">
-          <ControlLabel>Child Of</ControlLabel>
-
-          <FormControl
-            componentClass="select"
-            placeholder="select"
+        <Form.Group controlId="headingChildOf">
+          <Form.Label>Child Of</Form.Label>
+          <Form.Control
+            as="select"
             onChange={this.handleChildOfChange}
             value={this.state.headingChildOf}
           >
             <option value="">Select...</option>
             {this.state.childOfOptions}
-          </FormControl>
-        </FormGroup>
+          </Form.Control>
+        </Form.Group>
 
         <Row>
-          <Col xs={12}>
-            <ButtonToolbar className="pull-right">
+          <Col sm={{ offset: 5 }} md={{ offset: 5 }} lg={{ offset: 10 }}>
+            <ButtonToolbar className="float-right">
               <Button
+                variant="outline-secondary"
+                className="mr-1"
                 onClick={this.props.cancelClick}
                 data-testid="heading-form-cancel-button"
               >
                 Cancel
               </Button>
               <Button
-                bsStyle="primary"
+                variant="primary"
                 type="submit"
                 disabled={!this.formIsValid()}
                 data-testid="heading-form-save-button"
@@ -152,7 +144,7 @@ class HeadingForm extends Component {
             </ButtonToolbar>
           </Col>
         </Row>
-      </form>
+      </Form>
     );
   }
 }

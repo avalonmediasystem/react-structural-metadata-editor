@@ -64,7 +64,7 @@
     "lodash": "4.17.21",
     "peaks.js": "^0.26.0",
     "prop-types": "^15.6.2",
-    "react-bootstrap": "0.33.1",
+    "react-bootstrap": "1.6.4",
     "react-dnd": "^7.0.2",
     "react-dnd-html5-backend": "^7.0.2",
     "react-redux": "^7.2.6",

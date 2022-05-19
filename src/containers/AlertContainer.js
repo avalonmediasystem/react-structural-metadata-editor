@@ -8,14 +8,14 @@ function AlertContainer(props) {
     props.alerts.map((alert) => {
       const { alertStyle, message, persistent, id } = alert;
       const alertProps = {
-        bsStyle: alertStyle,
+        variant: alertStyle,
         'data-testid': `${persistent ? 'persistent-' : ''}alert-container`,
         key: id,
         dismissible: persistent ? 'false' : 'true',
         className: persistent ? '' : 'alert-dismissable',
       };
       if (!persistent) {
-        alertProps.onDismiss = function () {
+        alertProps.onClose = function () {
           props.removeAlert(id);
         };
       }

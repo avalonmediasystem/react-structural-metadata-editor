@@ -1,5 +1,10 @@
 import React, { Component } from 'react';
-import { Button, ButtonToolbar, Overlay, Popover } from 'react-bootstrap';
+import {
+  Button,
+  ButtonToolbar,
+  OverlayTrigger,
+  Popover,
+} from 'react-bootstrap';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { connect } from 'react-redux';
@@ -86,7 +91,7 @@ class ListItemControls extends Component {
       <div className="edit-controls-wrapper" data-testid="list-item-controls">
         {item.type === 'span' && (
           <Button
-            bsStyle="link"
+            variant="link"
             disabled={forms.editingDisabled && !item.active}
             onClick={handleShowDropTargetsClick}
             data-testid="list-item-dnd-btn"
@@ -95,7 +100,7 @@ class ListItemControls extends Component {
           </Button>
         )}
         <Button
-          bsStyle="link"
+          variant="link"
           onClick={handleEditClick}
           disabled={forms.editingDisabled}
           data-testid="list-item-edit-btn"
@@ -105,49 +110,50 @@ class ListItemControls extends Component {
 
         {item.type !== 'root' && (
           <React.Fragment>
-            <Button
-              bsStyle="link"
-              onClick={this.handleDeleteClick}
-              disabled={forms.editingDisabled}
-              data-testid="list-item-delete-btn"
-            >
-              <FontAwesomeIcon icon={faTrash} />
-            </Button>
-            <Overlay
-              show={showDeleteConfirm}
-              target={this.state.target}
+            <OverlayTrigger
+              trigger="click"
               placement="left"
-              container={this}
+              show={showDeleteConfirm}
+              overlay={
+                <Popover data-testid="delete-confirmation-popup">
+                  <Popover.Title as="h3">Confirm delete?</Popover.Title>
+                  <Popover.Content>
+                    <p
+                      dangerouslySetInnerHTML={{ __html: deleteMessage }}
+                      data-testid="delete-confirmation-message"
+                    />
+                    <ButtonToolbar style={styles.buttonToolbar}>
+                      <Button
+                        variant="danger"
+                        size="sm"
+                        onClick={this.handleConfirmDelete}
+                        data-testid="delete-confirmation-confirm-btn"
+                        className="mr-1"
+                      >
+                        Delete
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline-secondary"
+                        onClick={this.cancelDeleteClick}
+                        data-testid="delete-confirmation-cancel-btn"
+                      >
+                        Cancel
+                      </Button>
+                    </ButtonToolbar>
+                  </Popover.Content>
+                </Popover>
+              }
             >
-              <Popover
-                id="popover-contained"
-                title="Confirm delete?"
-                style={styles.popover}
-                data-testid="delete-confirmation-popup"
+              <Button
+                variant="link"
+                onClick={this.handleDeleteClick}
+                disabled={forms.editingDisabled}
+                data-testid="list-item-delete-btn"
               >
-                <p
-                  dangerouslySetInnerHTML={{ __html: deleteMessage }}
-                  data-testid="delete-confirmation-message"
-                />
-                <ButtonToolbar style={styles.buttonToolbar}>
-                  <Button
-                    bsStyle="danger"
-                    bsSize="xsmall"
-                    onClick={this.handleConfirmDelete}
-                    data-testid="delete-confirmation-confirm-btn"
-                  >
-                    Delete
-                  </Button>
-                  <Button
-                    bsSize="xsmall"
-                    onClick={this.cancelDeleteClick}
-                    data-testid="delete-confirmation-cancel-btn"
-                  >
-                    Cancel
-                  </Button>
-                </ButtonToolbar>
-              </Popover>
-            </Overlay>
+                <FontAwesomeIcon icon={faTrash} />
+              </Button>
+            </OverlayTrigger>
           </React.Fragment>
         )}
       </div>

@@ -102,25 +102,27 @@ var HeadingInlineForm = /*#__PURE__*/function (_Component) {
     key: "render",
     value: function render() {
       var headingTitle = this.state.headingTitle;
-      return /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Form, {
-        inline: true,
-        "data-testid": "heading-inline-form"
-      }, /*#__PURE__*/_react["default"].createElement("div", {
+      return /*#__PURE__*/_react["default"].createElement("div", {
         className: "row-wrapper"
-      }, /*#__PURE__*/_react["default"].createElement("div", null, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.FormGroup, {
-        controlId: "headingTitle",
-        validationState: (0, _formHelper.getValidationTitleState)(headingTitle),
-        "data-testid": "inline-heading-title-form-group"
-      }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.ControlLabel, null, "Title"), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.FormControl, {
+      }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Form, {
+        inline: true,
+        "data-testid": "heading-inline-form",
+        className: "mb-0"
+      }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Form.Group, {
+        controlId: "headingTitle"
+      }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Form.Label, null, "Title"), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Form.Control, {
         type: "text",
         style: styles.formControl,
         value: headingTitle,
-        onChange: this.handleInputChange
+        isValid: (0, _formHelper.getValidationTitleState)(headingTitle),
+        isInvalid: !(0, _formHelper.getValidationTitleState)(headingTitle),
+        onChange: this.handleInputChange,
+        "data-testid": "inline-heading-title-form-control"
       }))), /*#__PURE__*/_react["default"].createElement(_ListItemInlineEditControls["default"], {
         formIsValid: this.formIsValid(),
         handleSaveClick: this.handleSaveClick,
         handleCancelClick: this.handleCancelClick
-      })));
+      }));
     }
   }]);
   return HeadingInlineForm;

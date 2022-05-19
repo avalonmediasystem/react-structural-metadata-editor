@@ -31,7 +31,7 @@ var ListItemInlineEditControls = function ListItemInlineEditControls(props) {
     placement: "top",
     overlay: tooltip('Save')
   }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Button, {
-    bsStyle: "link",
+    variant: "link",
     disabled: !props.formIsValid,
     onClick: props.handleSaveClick,
     "data-testid": "inline-form-save-button"
@@ -39,11 +39,11 @@ var ListItemInlineEditControls = function ListItemInlineEditControls(props) {
     icon: _freeSolidSvgIcons.faSave
   }))), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.OverlayTrigger, {
     placement: "top",
-    overlay: tooltip('Cancel'),
-    onClick: props.handleCancelClick
+    overlay: tooltip('Cancel')
   }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Button, {
-    bsStyle: "link",
-    "data-testid": "inline-form-cancel-button"
+    variant: "link",
+    "data-testid": "inline-form-cancel-button",
+    onClick: props.handleCancelClick
   }, /*#__PURE__*/_react["default"].createElement(_reactFontawesome.FontAwesomeIcon, {
     icon: _freeSolidSvgIcons.faMinusCircle
   }))));

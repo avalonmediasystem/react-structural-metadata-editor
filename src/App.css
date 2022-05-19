@@ -61,6 +61,10 @@
   margin-bottom: 5px;
 }
 
+.alert p {
+  margin-bottom: 0;
+}
+
 /* Waveform */
 #waveform-container,
 #zoomview-container,

@@ -2,7 +2,7 @@
 
 A React component which displays structural metadata about an ingested audio/video file, and displays a visualized waveform to help navigating sections of the audio waveform. A user can add, edit and delete headers and timespans within the structural metadata, and save the record into a consuming application.
 
-See how this React component works on the [demo page](https://structural-metadata-editor.herokuapp.com/) hosted using [Heroku](https://www.heroku.com/).
+See how this React component works on the [demo page](https://structural-metadata-editor.herokuapp.com/) hosted using [Heroku](https://www.heroku.com/). Please note that, sometimes this pages takes time to load.
 
 **Note**: We are not currently publishing this package to NPM, but rather consuming it directly via a Github repository URL address. See [Usage](#usage) notes below for more info and example code.
 

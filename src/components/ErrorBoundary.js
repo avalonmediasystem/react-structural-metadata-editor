@@ -19,7 +19,7 @@ class ErrorBoundary extends Component {
   render() {
     if (this.state.error) {
       return (
-        <Alert bsStyle="danger" data-testid="alert-container">
+        <Alert variant="danger" data-testid="alert-container">
           <p data-testid="alert-message">Something went wrong...</p>
         </Alert>
       );

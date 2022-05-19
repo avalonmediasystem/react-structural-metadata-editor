@@ -203,42 +203,47 @@ var TimespanInlineForm = /*#__PURE__*/function (_Component) {
           beginTime = _this$state3.beginTime,
           endTime = _this$state3.endTime,
           timespanTitle = _this$state3.timespanTitle;
-      return /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Form, {
-        inline: true,
-        "data-testid": "timespan-inline-form"
-      }, /*#__PURE__*/_react["default"].createElement("div", {
+      return /*#__PURE__*/_react["default"].createElement("div", {
         className: "row-wrapper"
-      }, /*#__PURE__*/_react["default"].createElement("div", null, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.FormGroup, {
-        controlId: "timespanTitle",
-        validationState: (0, _formHelper.getValidationTitleState)(timespanTitle),
-        "data-testid": "timespan-inline-form-title"
-      }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.ControlLabel, null, "Title"), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.FormControl, {
+      }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Form, {
+        inline: true,
+        "data-testid": "timespan-inline-form",
+        className: "mb-0"
+      }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Form.Group, {
+        controlId: "timespanTitle"
+      }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Form.Label, null, "Title"), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Form.Control, {
         type: "text",
         style: styles.formControl,
         value: timespanTitle,
-        onChange: this.handleInputChange
-      })), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.FormGroup, {
-        controlId: "beginTime",
-        validationState: (0, _formHelper.getValidationBeginState)(beginTime, this.allSpans),
-        "data-testid": "timespan-inline-form-begintime"
-      }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.ControlLabel, null, "Begin Time"), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.FormControl, {
-        type: "text",
+        isValid: (0, _formHelper.getValidationTitleState)(timespanTitle),
+        isInvalid: !(0, _formHelper.getValidationTitleState)(timespanTitle),
+        onChange: this.handleInputChange,
+        "data-testid": "timespan-inline-form-title"
+      })), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Form.Group, {
+        controlId: "beginTime"
+      }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Form.Label, null, "Begin Time"), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Form.Control, {
+        as: "input",
         style: styles.formControl,
         value: beginTime,
-        onChange: this.handleInputChange
-      })), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.FormGroup, {
-        controlId: "endTime",
-        validationState: (0, _formHelper.getValidationEndState)(beginTime, endTime, this.allSpans, this.props.peaksInstance.duration)
-      }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.ControlLabel, null, "End Time"), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.FormControl, {
+        onChange: this.handleInputChange,
+        isValid: (0, _formHelper.getValidationBeginState)(beginTime, this.allSpans),
+        isInvalid: !(0, _formHelper.getValidationBeginState)(beginTime, this.allSpans),
+        "data-testid": "timespan-inline-form-begintime"
+      })), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Form.Group, {
+        controlId: "endTime"
+      }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Form.Label, null, "End Time"), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Form.Control, {
         type: "text",
         style: styles.formControl,
         value: endTime,
-        onChange: this.handleInputChange
+        isValid: (0, _formHelper.getValidationEndState)(beginTime, endTime, this.allSpans, this.props.peaksInstance.duration),
+        isInvalid: !(0, _formHelper.getValidationEndState)(beginTime, endTime, this.allSpans, this.props.peaksInstance.duration),
+        onChange: this.handleInputChange,
+        "data-testid": "timespan-inline-form-endtime"
       }))), /*#__PURE__*/_react["default"].createElement(_ListItemInlineEditControls["default"], {
         formIsValid: this.formIsValid(),
         handleSaveClick: this.handleSaveClick,
         handleCancelClick: this.handleCancelClick
-      })));
+      }));
     }
   }], [{
     key: "getDerivedStateFromProps",

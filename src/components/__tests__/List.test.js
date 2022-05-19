@@ -7,8 +7,8 @@ import { wrapInTestContext } from 'react-dnd-test-utils';
 
 const initialState = {
   structuralMetadata: {
-    smData: testSmData
-  }
+    smData: testSmData,
+  },
 };
 
 let ListContext = null;
@@ -18,66 +18,68 @@ beforeEach(() => {
 });
 afterEach(cleanup);
 
-test('List component renders successfully', () => {
-  const { getByText } = renderWithRedux(<ListContext items={testSmData} />, {
-    initialState
+describe('List component', () => {
+  test('renders successfully', () => {
+    const { getByText } = renderWithRedux(<ListContext items={testSmData} />, {
+      initialState,
+    });
+    expect(getByText(/^Ima Title$/)).toBeInTheDocument();
   });
-  expect(getByText(/^Ima Title$/)).toBeInTheDocument();
-});
 
-test('List component displays its list items successfully', () => {
-  const { getByText, queryByText } = renderWithRedux(
-    <ListContext items={testSmData} />,
-    {
-      initialState
-    }
-  );
-  // Just test for some random items
-  expect(getByText(/^First segment$/)).toBeInTheDocument();
-  expect(getByText(/^Sub-Segment 1.1$/)).toBeInTheDocument();
-  expect(getByText(/^Segment 1.1/)).toBeInTheDocument();
-  expect(getByText(/^Second segment$/)).toBeInTheDocument();
-  expect(queryByText(/^foobar$/)).not.toBeInTheDocument();
-});
-
-describe('List drop items', () => {
-  test('do not show on initial load', () => {
-    const { queryByTestId } = renderWithRedux(
+  test('displays list items successfully', () => {
+    const { getByText, queryByText } = renderWithRedux(
       <ListContext items={testSmData} />,
       {
-        initialState
+        initialState,
       }
     );
-    expect(queryByTestId('drop-list-item')).not.toBeInTheDocument();
+    // Just test for some random items
+    expect(getByText(/^First segment$/)).toBeInTheDocument();
+    expect(getByText(/^Sub-Segment 1.1$/)).toBeInTheDocument();
+    expect(getByText(/^Segment 1.1/)).toBeInTheDocument();
+    expect(getByText(/^Second segment$/)).toBeInTheDocument();
+    expect(queryByText(/^foobar$/)).not.toBeInTheDocument();
   });
 
-  test('appear if an item has a type value of optional', () => {
-    const smWithOption = [
-      {
-        type: 'div',
-        label: 'Title',
-        id: '123a-456b-789c-0d',
-        items: [
-          {
-            type: 'optional',
-            id: 'asdfasdzz53443'
-          },
-          {
-            type: 'div',
-            label: 'A ',
-            id: '123a-456b-789c-9d',
-            items: []
-          }
-        ]
-      }
-    ];
+  describe('List drop items', () => {
+    test('do not show on initial load', () => {
+      const { queryByTestId } = renderWithRedux(
+        <ListContext items={testSmData} />,
+        {
+          initialState,
+        }
+      );
+      expect(queryByTestId('drop-list-item')).not.toBeInTheDocument();
+    });
 
-    const { queryByTestId } = renderWithRedux(
-      <ListContext items={smWithOption} />,
-      {
-        initialState
-      }
-    );
-    expect(queryByTestId('drop-list-item')).toBeInTheDocument();
+    test('appears if an item has a type value of optional', () => {
+      const smWithOption = [
+        {
+          type: 'div',
+          label: 'Title',
+          id: '123a-456b-789c-0d',
+          items: [
+            {
+              type: 'optional',
+              id: 'asdfasdzz53443',
+            },
+            {
+              type: 'div',
+              label: 'A ',
+              id: '123a-456b-789c-9d',
+              items: [],
+            },
+          ],
+        },
+      ];
+
+      const { queryByTestId } = renderWithRedux(
+        <ListContext items={smWithOption} />,
+        {
+          initialState,
+        }
+      );
+      expect(queryByTestId('drop-list-item')).toBeInTheDocument();
+    });
   });
 });

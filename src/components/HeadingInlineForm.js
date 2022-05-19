@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { ControlLabel, Form, FormControl, FormGroup } from 'react-bootstrap';
+import { Form, FormGroup } from 'react-bootstrap';
 import {
   getExistingFormValues,
   getValidationTitleState,
-  isTitleValid
+  isTitleValid,
 } from '../services/form-helper';
 import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
@@ -13,8 +13,8 @@ import ListItemInlineEditControls from './ListItemInlineEditControls';
 const styles = {
   formControl: {
     margin: '0 5px',
-    width: '300px'
-  }
+    width: '300px',
+  },
 };
 
 class HeadingInlineForm extends Component {
@@ -29,11 +29,11 @@ class HeadingInlineForm extends Component {
   static propTypes = {
     item: PropTypes.object,
     cancelFn: PropTypes.func,
-    saveFn: PropTypes.func
+    saveFn: PropTypes.func,
   };
 
   state = {
-    headingTitle: ''
+    headingTitle: '',
   };
 
   componentDidMount() {
@@ -54,14 +54,14 @@ class HeadingInlineForm extends Component {
     this.props.cancelFn();
   };
 
-  handleInputChange = e => {
+  handleInputChange = (e) => {
     this.setState({ [e.target.id]: e.target.value });
   };
 
   handleSaveClick = () => {
     const { headingTitle } = this.state;
     this.props.saveFn(this.props.item.id, {
-      headingTitle
+      headingTitle,
     });
   };
 
@@ -69,36 +69,33 @@ class HeadingInlineForm extends Component {
     const { headingTitle } = this.state;
 
     return (
-      <Form inline data-testid="heading-inline-form">
-        <div className="row-wrapper">
-          <div>
-            <FormGroup
-              controlId="headingTitle"
-              validationState={getValidationTitleState(headingTitle)}
-              data-testid="inline-heading-title-form-group"
-            >
-              <ControlLabel>Title</ControlLabel>
-              <FormControl
-                type="text"
-                style={styles.formControl}
-                value={headingTitle}
-                onChange={this.handleInputChange}
-              />
-            </FormGroup>
-          </div>
-          <ListItemInlineEditControls
-            formIsValid={this.formIsValid()}
-            handleSaveClick={this.handleSaveClick}
-            handleCancelClick={this.handleCancelClick}
-          />
-        </div>
-      </Form>
+      <div className="row-wrapper">
+        <Form inline data-testid="heading-inline-form" className="mb-0">
+          <Form.Group controlId="headingTitle">
+            <Form.Label>Title</Form.Label>
+            <Form.Control
+              type="text"
+              style={styles.formControl}
+              value={headingTitle}
+              isValid={getValidationTitleState(headingTitle)}
+              isInvalid={!getValidationTitleState(headingTitle)}
+              onChange={this.handleInputChange}
+              data-testid="inline-heading-title-form-control"
+            />
+          </Form.Group>
+        </Form>
+        <ListItemInlineEditControls
+          formIsValid={this.formIsValid()}
+          handleSaveClick={this.handleSaveClick}
+          handleCancelClick={this.handleCancelClick}
+        />
+      </div>
     );
   }
 }
 
-const mapStateToProps = state => ({
-  smData: state.structuralMetadata.smData
+const mapStateToProps = (state) => ({
+  smData: state.structuralMetadata.smData,
 });
 
 export default connect(mapStateToProps)(HeadingInlineForm);

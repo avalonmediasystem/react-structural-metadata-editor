@@ -123,7 +123,7 @@ describe('ListItem component', () => {
       });
       expect(utils.queryByTestId('heading-label')).toBeInTheDocument();
       expect(
-        utils.queryByTestId('inline-heading-title-form-group')
+        utils.queryByTestId('inline-heading-title-form-control')
       ).not.toBeInTheDocument();
       expect(
         utils.queryByTestId('timespan-inline-form')
@@ -233,7 +233,7 @@ describe('ListItem component', () => {
       fireEvent.click(editButton);
 
       expect(
-        utils.getByTestId('inline-heading-title-form-group')
+        utils.getByTestId('inline-heading-title-form-control')
       ).toBeInTheDocument();
       expect(utils.getByLabelText('Title')).toBeInTheDocument();
       expect(utils.getByDisplayValue(label)).toBeInTheDocument();

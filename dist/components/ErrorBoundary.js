@@ -58,7 +58,7 @@ var ErrorBoundary = /*#__PURE__*/function (_Component) {
     value: function render() {
       if (this.state.error) {
         return /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Alert, {
-          bsStyle: "danger",
+          variant: "danger",
           "data-testid": "alert-container"
         }, /*#__PURE__*/_react["default"].createElement("p", {
           "data-testid": "alert-message"

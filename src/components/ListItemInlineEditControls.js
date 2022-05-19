@@ -11,7 +11,7 @@ const ListItemInlineEditControls = (props) => {
     <div className="edit-controls-wrapper" data-testid="inline-form-controls">
       <OverlayTrigger placement="top" overlay={tooltip('Save')}>
         <Button
-          bsStyle="link"
+          variant="link"
           disabled={!props.formIsValid}
           onClick={props.handleSaveClick}
           data-testid="inline-form-save-button"
@@ -19,12 +19,12 @@ const ListItemInlineEditControls = (props) => {
           <FontAwesomeIcon icon={faSave} />
         </Button>
       </OverlayTrigger>
-      <OverlayTrigger
-        placement="top"
-        overlay={tooltip('Cancel')}
-        onClick={props.handleCancelClick}
-      >
-        <Button bsStyle="link" data-testid="inline-form-cancel-button">
+      <OverlayTrigger placement="top" overlay={tooltip('Cancel')}>
+        <Button
+          variant="link"
+          data-testid="inline-form-cancel-button"
+          onClick={props.handleCancelClick}
+        >
           <FontAwesomeIcon icon={faMinusCircle} />
         </Button>
       </OverlayTrigger>

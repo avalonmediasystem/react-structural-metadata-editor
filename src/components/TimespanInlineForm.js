@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { ControlLabel, Form, FormControl, FormGroup } from 'react-bootstrap';
+import { Form } from 'react-bootstrap';
 import {
   getExistingFormValues,
   getValidationBeginState,
@@ -203,63 +203,63 @@ class TimespanInlineForm extends Component {
     const { beginTime, endTime, timespanTitle } = this.state;
 
     return (
-      <Form inline data-testid="timespan-inline-form">
-        <div className="row-wrapper">
-          <div>
-            <FormGroup
-              controlId="timespanTitle"
-              validationState={getValidationTitleState(timespanTitle)}
+      <div className="row-wrapper">
+        <Form inline data-testid="timespan-inline-form" className="mb-0">
+          <Form.Group controlId="timespanTitle">
+            <Form.Label>Title</Form.Label>
+            <Form.Control
+              type="text"
+              style={styles.formControl}
+              value={timespanTitle}
+              isValid={getValidationTitleState(timespanTitle)}
+              isInvalid={!getValidationTitleState(timespanTitle)}
+              onChange={this.handleInputChange}
               data-testid="timespan-inline-form-title"
-            >
-              <ControlLabel>Title</ControlLabel>
-              <FormControl
-                type="text"
-                style={styles.formControl}
-                value={timespanTitle}
-                onChange={this.handleInputChange}
-              />
-            </FormGroup>
-            <FormGroup
-              controlId="beginTime"
-              validationState={getValidationBeginState(
-                beginTime,
-                this.allSpans
-              )}
+            />
+          </Form.Group>
+          <Form.Group controlId="beginTime">
+            <Form.Label>Begin Time</Form.Label>
+            <Form.Control
+              as="input"
+              style={styles.formControl}
+              value={beginTime}
+              onChange={this.handleInputChange}
+              isValid={getValidationBeginState(beginTime, this.allSpans)}
+              isInvalid={!getValidationBeginState(beginTime, this.allSpans)}
               data-testid="timespan-inline-form-begintime"
-            >
-              <ControlLabel>Begin Time</ControlLabel>
-              <FormControl
-                type="text"
-                style={styles.formControl}
-                value={beginTime}
-                onChange={this.handleInputChange}
-              />
-            </FormGroup>
-            <FormGroup
-              controlId="endTime"
-              validationState={getValidationEndState(
+            />
+          </Form.Group>
+          <Form.Group controlId="endTime">
+            <Form.Label>End Time</Form.Label>
+            <Form.Control
+              type="text"
+              style={styles.formControl}
+              value={endTime}
+              isValid={getValidationEndState(
                 beginTime,
                 endTime,
                 this.allSpans,
                 this.props.peaksInstance.duration
               )}
-            >
-              <ControlLabel>End Time</ControlLabel>
-              <FormControl
-                type="text"
-                style={styles.formControl}
-                value={endTime}
-                onChange={this.handleInputChange}
-              />
-            </FormGroup>
-          </div>
-          <ListItemInlineEditControls
-            formIsValid={this.formIsValid()}
-            handleSaveClick={this.handleSaveClick}
-            handleCancelClick={this.handleCancelClick}
-          />
-        </div>
-      </Form>
+              isInvalid={
+                !getValidationEndState(
+                  beginTime,
+                  endTime,
+                  this.allSpans,
+                  this.props.peaksInstance.duration
+                )
+              }
+              onChange={this.handleInputChange}
+              data-testid="timespan-inline-form-endtime"
+            />
+          </Form.Group>
+        </Form>
+        <ListItemInlineEditControls
+          formIsValid={this.formIsValid()}
+          handleSaveClick={this.handleSaveClick}
+          handleCancelClick={this.handleCancelClick}
+        />
+      </div>
     );
   }
 }

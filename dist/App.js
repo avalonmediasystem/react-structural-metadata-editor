@@ -47,10 +47,6 @@ var _forms = require("./actions/forms");
 
 var _ErrorBoundary = _interopRequireDefault(require("./components/ErrorBoundary"));
 
-var _fontawesomeSvgCore = require("@fortawesome/fontawesome-svg-core");
-
-var _freeSolidSvgIcons = require("@fortawesome/free-solid-svg-icons");
-
 var _AlertContainer = _interopRequireDefault(require("./containers/AlertContainer"));
 
 function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
@@ -61,8 +57,14 @@ function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflec
 
 function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
 
-_fontawesomeSvgCore.library.add(_freeSolidSvgIcons.faDotCircle, _freeSolidSvgIcons.faMinusCircle, _freeSolidSvgIcons.faPen, _freeSolidSvgIcons.faSave, _freeSolidSvgIcons.faTrash, _freeSolidSvgIcons.faExclamationTriangle);
-
+// library.add(
+//   faDotCircle,
+//   faMinusCircle,
+//   faPen,
+//   faSave,
+//   faTrash,
+//   faExclamationTriangle
+// );
 var App = /*#__PURE__*/function (_Component) {
   (0, _inherits2["default"])(App, _Component);
 

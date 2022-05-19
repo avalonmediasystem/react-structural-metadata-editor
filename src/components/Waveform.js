@@ -1,5 +1,12 @@
 import React, { Component } from 'react';
 import { Button, ButtonToolbar, Row, Col } from 'react-bootstrap';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faPause,
+  faPlay,
+  faSearchMinus,
+  faSearchPlus,
+} from '@fortawesome/free-solid-svg-icons';
 import { connect, useSelector, useDispatch } from 'react-redux';
 import { configureAlert } from '../services/alert-status';
 import {
@@ -149,37 +156,48 @@ const Waveform = React.forwardRef((props, ref) => {
       </audio>
       {!streamMediaLoading && !streamMediaError && (
         <Row data-testid="waveform-toolbar">
-          <Col xs={6} md={6}>
+          <Col sm={6} md={6}>
             <VolumeSlider volume={volume} setVolume={adjustVolume} />
           </Col>
-          <Col xs={12} md={6}>
+          <Col sm={6} md={6} className="mt-1">
             <ButtonToolbar>
               <Button
-                className="glyphicon glyphicon-play"
+                variant="outline-secondary"
                 aria-label="Play"
                 onClick={playAudio}
                 data-testid="waveform-play-button"
                 disabled={streamMediaError || streamMediaLoading}
-              />
+                className="mr-1"
+              >
+                <FontAwesomeIcon icon={faPlay} />
+              </Button>
               <Button
-                className="glyphicon glyphicon-pause"
+                variant="outline-secondary"
                 aria-label="Pause"
                 onClick={pauseAudio}
                 data-testid="waveform-pause-button"
                 disabled={streamMediaError || streamMediaLoading}
-              />
+                className="mr-1"
+              >
+                <FontAwesomeIcon icon={faPause} />
+              </Button>
               <Button
-                className="glyphicon glyphicon-zoom-in"
+                variant="outline-secondary"
                 aria-label="Zoom in"
                 onClick={zoomIn}
                 data-testid="waveform-zoomin-button"
-              />
+                className="mr-1"
+              >
+                <FontAwesomeIcon icon={faSearchPlus} />
+              </Button>
               <Button
-                className="glyphicon glyphicon-zoom-out"
+                variant="outline-secondary"
                 aria-label="Zoom out"
                 onClick={zoomOut}
                 data-testid="waveform-zoomout-button"
-              />
+              >
+                <FontAwesomeIcon icon={faSearchMinus} />
+              </Button>
             </ButtonToolbar>
           </Col>
         </Row>

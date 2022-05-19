@@ -10,6 +10,13 @@ import { handleEditingTimespans, setAlert } from '../actions/forms';
 const styles = {
   well: {
     marginTop: '1rem',
+    minHeight: '20px',
+    padding: '19px',
+    marginBottom: '20px',
+    backgroundColor: '#f5f5f5',
+    border: '1px solid #e3e3e3',
+    borderRadius: '4px',
+    boxShadow: 'inset 0 1px 1px rgb(0 0 0 / 5%)',
   },
 };
 
@@ -24,7 +31,17 @@ class ButtonSection extends Component {
       showAlert: false,
     },
     disabled: true,
+    formOpen: false,
   };
+
+  static getDerivedStateFromProps(nextProps, prevState) {
+    const { formOpen } = prevState;
+    const { editingDisabled } = nextProps.forms;
+    if (editingDisabled && !formOpen) {
+      return { disabled: true };
+    }
+    return null;
+  }
 
   setIsInitializing = (value) => {
     if (value === 1) {
@@ -35,7 +52,7 @@ class ButtonSection extends Component {
   };
 
   handleCancelHeadingClick = () => {
-    this.setState({ headingOpen: false });
+    this.setState({ headingOpen: false, formOpen: false });
     this.props.handleEditingTimespans(0);
   };
 
@@ -47,12 +64,13 @@ class ButtonSection extends Component {
       headingOpen: true,
       timespanOpen: false,
       disabled: false,
+      formOpen: true,
     });
   };
 
   handleCancelTimespanClick = () => {
     this.deleteTempSegment();
-    this.setState({ timespanOpen: false });
+    this.setState({ timespanOpen: false, formOpen: false });
     this.props.handleEditingTimespans(0);
   };
 
@@ -66,22 +84,23 @@ class ButtonSection extends Component {
     }
     const tempSegment =
       this.props.peaksInstance.peaks.segments.getSegment('temp-segment');
+
+    this.setState({
+      headingOpen: false,
+      disabled: false,
+      formOpen: true,
+    });
+
     if (tempSegment === null) {
       const noSpaceAlert = configureAlert(-4);
       this.props.setAlert(noSpaceAlert);
-      this.setState({
-        headingOpen: false,
-        disabled: false,
-      });
     } else {
       // Initialize Redux store with temporary segment
       this.props.dragSegment(tempSegment.id, null, 0);
       this.setState({
         initSegment: tempSegment,
-        headingOpen: false,
         timespanOpen: true,
         isInitializing: true,
-        disabled: false,
       });
     }
   };
@@ -108,8 +127,9 @@ class ButtonSection extends Component {
     return structureInfo.structureRetrieved ? (
       <section>
         <Row data-testid="button-row">
-          <Col xs={6}>
+          <Col sm="6">
             <Button
+              variant="outline-secondary"
               data-testid="add-heading-button"
               block
               onClick={this.handleHeadingClick}
@@ -118,8 +138,9 @@ class ButtonSection extends Component {
               Add a Heading
             </Button>
           </Col>
-          <Col xs={6}>
+          <Col sm="6">
             <Button
+              variant="outline-secondary"
               data-testid="add-timespan-button"
               block
               onClick={this.handleTimeSpanClick}
@@ -134,20 +155,12 @@ class ButtonSection extends Component {
         </Row>
 
         <Collapse in={this.state.headingOpen}>
-          <div
-            className="well"
-            style={styles.well}
-            data-testid="heading-form-wrapper"
-          >
+          <div style={styles.well} data-testid="heading-form-wrapper">
             <HeadingFormContainer cancelClick={this.handleCancelHeadingClick} />
           </div>
         </Collapse>
         <Collapse in={this.state.timespanOpen}>
-          <div
-            className="well"
-            style={styles.well}
-            data-testid="timespan-form-wrapper"
-          >
+          <div style={styles.well} data-testid="timespan-form-wrapper">
             <TimespanFormContainer {...timespanFormProps} />
           </div>
         </Collapse>

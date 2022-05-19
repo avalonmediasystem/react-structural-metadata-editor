@@ -34,7 +34,7 @@ export function getExistingFormValues(id, smData, peaks = {}) {
 
 export function getValidationBeginState(beginTime, allSpans) {
   if (!beginTime || beginTime.indexOf(':') === -1) {
-    return null;
+    return false;
   }
 
   const validFormat = validTimeFormat(beginTime);
@@ -44,17 +44,17 @@ export function getValidationBeginState(beginTime, allSpans) {
   );
 
   if (validFormat && validBeginTime) {
-    return 'success';
+    return true;
   }
   if (!validFormat || !validBeginTime) {
-    return 'error';
+    return false;
   }
-  return null;
+  return false;
 }
 
 export function getValidationEndState(beginTime, endTime, allSpans, duration) {
   if (!endTime || endTime.indexOf(':') === -1) {
-    return null;
+    return false;
   }
 
   const validFormat = validTimeFormat(endTime);
@@ -74,22 +74,22 @@ export function getValidationEndState(beginTime, endTime, allSpans, duration) {
   );
 
   if (validFormat && validEndTime && validOrdering && !doesTimespanOverlap) {
-    return 'success';
+    return true;
   }
   if (!validFormat || !validEndTime || !validOrdering || doesTimespanOverlap) {
-    return 'error';
+    return false;
   }
-  return null;
+  return false;
 }
 
 export function getValidationTitleState(title) {
   if (title.length > 2) {
-    return 'success';
+    return true;
   }
   if (title.length > 0) {
-    return 'error';
+    return false;
   }
-  return null;
+  return false;
 }
 
 /**

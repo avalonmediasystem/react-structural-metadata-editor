@@ -75,7 +75,7 @@ const StructureOutputContainer = (props) => {
         <Row>
           <Col xs={12} className="text-right">
             <Button
-              bsStyle="primary"
+              variant="primary"
               onClick={handleSaveItClick}
               data-testid="structure-save-button"
               disabled={props.editingDisabled}

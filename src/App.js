@@ -12,25 +12,25 @@ import { handleStructureError, removeAlert } from './actions/forms';
 import ErrorBoundary from './components/ErrorBoundary';
 
 // Font Awesome Imports
-import { library } from '@fortawesome/fontawesome-svg-core';
-import {
-  faDotCircle,
-  faExclamationTriangle,
-  faMinusCircle,
-  faPen,
-  faSave,
-  faTrash,
-} from '@fortawesome/free-solid-svg-icons';
+// import { library } from '@fortawesome/fontawesome-svg-core';
+// import {
+//   faDotCircle,
+//   faExclamationTriangle,
+//   faMinusCircle,
+//   faPen,
+//   faSave,
+//   faTrash,
+// } from '@fortawesome/free-solid-svg-icons';
 import AlertContainer from './containers/AlertContainer';
 
-library.add(
-  faDotCircle,
-  faMinusCircle,
-  faPen,
-  faSave,
-  faTrash,
-  faExclamationTriangle
-);
+// library.add(
+//   faDotCircle,
+//   faMinusCircle,
+//   faPen,
+//   faSave,
+//   faTrash,
+//   faExclamationTriangle
+// );
 
 class App extends Component {
   constructor(props) {

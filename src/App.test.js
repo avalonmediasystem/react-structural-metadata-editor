@@ -5,8 +5,24 @@ import App from './App';
 import './App.css';
 import { renderWithRedux, testSmData } from './services/testing-helpers';
 import mockAxios from 'axios';
+import Peaks from 'peaks';
 
 const mockStructureIsSaved = jest.fn();
+
+let peaksInst = null;
+const peaksOptions = {
+  container: null,
+  mediaElement: null,
+  dataUri: null,
+  dataUriDefaultFormat: 'json',
+  keyboard: true,
+  _zoomLevelIndex: 0,
+  _zoomLevels: [512, 1024, 2048, 4096],
+};
+Peaks.init(peaksOptions, (err, peaks) => {
+  peaksInst = peaks;
+});
+
 const baseState = {
   structuralMetadata: {
     smData: testSmData,
@@ -24,6 +40,9 @@ const baseState = {
       structureSaved: true,
     },
   },
+  peaksInstance: {
+    peaks: peaksInst,
+  }
 };
 
 const initStructure = {
@@ -46,13 +65,6 @@ const initStructure = {
     },
   ],
 };
-
-const mockPeaks = jest.genMockFromModule('peaks.js');
-mockPeaks.init = jest.fn((options) => {
-  return {
-    options: options,
-  };
-});
 
 const props = {
   initStructure: initStructure,
@@ -95,6 +107,7 @@ describe('App component', () => {
         },
         peaksInstance: {
           readyPeaks: true,
+          peaks: peaksInst,
         },
       };
 

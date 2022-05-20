@@ -48,7 +48,7 @@ var Waveform = /*#__PURE__*/_react["default"].forwardRef(function (props, ref) {
     return state.peaksInstance.readyPeaks;
   });
   var peaksInstance = (0, _reactRedux.useSelector)(function (state) {
-    return state.peaksInstance;
+    return state.peaksInstance.peaks;
   });
   var editingDisabled = (0, _reactRedux.useSelector)(function (state) {
     return state.forms.editingDisabled;
@@ -105,11 +105,11 @@ var Waveform = /*#__PURE__*/_react["default"].forwardRef(function (props, ref) {
   }, [readyPeaks]);
 
   _react["default"].useEffect(function () {
-    if (peaksInstance.peaks.player) {
+    if (peaksInstance !== null && peaksInstance !== void 0 && peaksInstance.player) {
       // Add a listener to keydown event
       document.addEventListener('keydown', handleKeyPress);
     }
-  }, [peaksInstance.peaks.player]);
+  }, [peaksInstance]);
 
   _react["default"].useEffect(function () {
     if (streamMediaStatus) {
@@ -127,19 +127,19 @@ var Waveform = /*#__PURE__*/_react["default"].forwardRef(function (props, ref) {
   };
 
   var zoomIn = function zoomIn() {
-    peaksInstance.peaks.zoom.zoomIn();
+    peaksInstance.zoom.zoomIn();
   };
 
   var zoomOut = function zoomOut() {
-    peaksInstance.peaks.zoom.zoomOut();
+    peaksInstance.zoom.zoomOut();
   };
 
   var playAudio = function playAudio() {
-    peaksInstance.peaks.player.play();
+    peaksInstance.player.play();
   };
 
   var pauseAudio = function pauseAudio() {
-    peaksInstance.peaks.player.pause();
+    peaksInstance.player.pause();
   };
 
   var adjustVolume = function adjustVolume(volume) {

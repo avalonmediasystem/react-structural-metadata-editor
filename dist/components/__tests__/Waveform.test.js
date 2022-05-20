@@ -3,49 +3,14 @@ import { cleanup, fireEvent } from 'react-testing-library';
 import 'jest-dom/extend-expect';
 import Waveform from '../Waveform';
 import { renderWithRedux } from '../../services/testing-helpers';
-
-// Mock Peaks library
-const mockZoomIn = jest.fn();
-const mockZoomOut = jest.fn();
-const mockPlay = jest.fn();
-const mockPause = jest.fn();
-const mockPeaks = jest.genMockFromModule('peaks.js');
-mockPeaks.init = jest.fn((opts) => {
-  return {
-    options: opts,
-    zoom: {
-      zoomIn: mockZoomIn,
-      zoomOut: mockZoomOut,
-    },
-    player: {
-      _isPlaying: false,
-      play: mockPlay,
-      pause: mockPause,
-    },
-  };
-});
+import Peaks from 'peaks';
 
 afterEach(cleanup);
 
 describe('Waveform component', () => {
   // Variables to contain the refs for container and mediaElement
   let zoomView, overView, mediaElement, waveform;
-
-  // Set up initial Redux store
-  const initialState = {
-    forms: {
-      streamInfo: {
-        streamMediaError: false,
-        streamMediaLoading: true,
-        streamMediaStatus: null,
-      },
-      waveformRetrieved: false,
-    },
-    peaksInstance: {
-      readyPeaks: true,
-      peaks: mockPeaks.init(peaksOptions),
-    },
-  };
+  let peaksInst = null;
 
   const peaksOptions = {
     containers: { zoomview: zoomView, overview: overView },
@@ -55,6 +20,27 @@ describe('Waveform component', () => {
     keyboard: true,
     _zoomLevelIndex: 0,
     _zoomLevels: [512, 1024, 2048, 4096],
+  };
+
+  Peaks.init(peaksOptions, (err, peaks) => {
+    peaksInst = peaks;
+  });
+  
+  // Set up initial Redux store
+  const initialState = {
+    forms: {
+      streamInfo: {
+        streamMediaError: false,
+        streamMediaLoading: false,
+        streamMediaStatus: null,
+      },
+      waveformRetrieved: true,
+      editingDisabled: true,
+    },
+    peaksInstance: {
+      readyPeaks: true,
+      peaks: peaksInst,
+    },
   };
 
   beforeEach(() => {
@@ -76,35 +62,10 @@ describe('Waveform component', () => {
     expect(
       waveform.container.querySelector('#waveform-container')
     ).toBeInTheDocument();
-    expect(waveform.queryByTestId('waveform-toolbar')).not.toBeInTheDocument();
+    expect(waveform.queryByTestId('waveform-toolbar')).toBeInTheDocument();
   });
 
   describe('when stream URL works', () => {
-    beforeEach(() => {
-      const nextState = {
-        forms: {
-          streamInfo: {
-            streamMediaError: false,
-            streamMediaLoading: false,
-            streamMediaStatus: null,
-          },
-          waveformRetrieved: true,
-        },
-        peaksInstance: {
-          peaks: mockPeaks.init(peaksOptions),
-        },
-      };
-      waveform.rerenderWithRedux(
-        <Waveform
-          ref={{
-            zoomViewRef: zoomView,
-            overViewRef: overView,
-            mediaPlayerRef: mediaElement,
-          }}
-        />,
-        nextState
-      );
-    });
     test('renders play/pause buttons in the toolbar and enabled', () => {
       expect(waveform.getByTestId('waveform-toolbar')).toBeInTheDocument();
       expect(waveform.getByTestId('waveform-play-button')).toBeEnabled();
@@ -127,14 +88,14 @@ describe('Waveform component', () => {
 
     test('simulate waveform toolbar buttons', () => {
       fireEvent.click(waveform.getByTestId('waveform-zoomin-button'));
-      expect(mockZoomIn).toHaveBeenCalledTimes(1);
+      expect(peaksInst.zoom.zoomIn).toHaveBeenCalledTimes(1);
       fireEvent.click(waveform.getByTestId('waveform-zoomout-button'));
-      expect(mockZoomOut).toHaveBeenCalledTimes(1);
+      expect(peaksInst.zoom.zoomOut).toHaveBeenCalledTimes(1);
 
       fireEvent.click(waveform.getByTestId('waveform-play-button'));
-      expect(mockPlay).toHaveBeenCalledTimes(1);
+      expect(peaksInst.player.play).toHaveBeenCalledTimes(1);
       fireEvent.click(waveform.getByTestId('waveform-pause-button'));
-      expect(mockPause).toHaveBeenCalledTimes(1);
+      expect(peaksInst.player.pause).toHaveBeenCalledTimes(1);
     });
 
     test('error alert is not displayed', () => {
@@ -148,29 +109,52 @@ describe('Waveform component', () => {
           code: 'Space',
           keyCode: 32,
         });
-        expect(mockPlay).toHaveBeenCalledTimes(1);
+        expect(peaksInst.player.play).not.toHaveBeenCalledTimes(1);
       });
 
       test('while not editing an item', () => {
+        const nextState = {
+          forms: {
+            streamInfo: {
+              streamMediaError: false,
+              streamMediaLoading: false,
+            },
+            editingDisabled: false,
+          },
+          peaksInstance: {
+            readyPeaks: true,
+            peaks: null
+          },
+        };
+        waveform.rerenderWithRedux(
+          <Waveform
+            ref={{
+              zoomViewRef: zoomView,
+              overViewRef: overView,
+              mediaPlayerRef: mediaElement,
+            }}
+          />,
+          nextState
+        );
         fireEvent.keyDown(waveform.getByTestId('waveform-toolbar'), {
           key: 'Space',
           code: 'Space',
           keyCode: 32,
         });
-        expect(mockPlay).toHaveBeenCalledTimes(1);
+        expect(peaksInst.player.play).toHaveBeenCalledTimes(1);
       });
     });
   });
 
   describe('when stream URL does not work', () => {
     test('play/pause buttons are not dispalyed', () => {
-      // Buttons are not displayed intially
+      // Buttons are displayed intially
       expect(
         waveform.queryByTestId('waveform-play-button')
-      ).not.toBeInTheDocument();
+      ).toBeInTheDocument();
       expect(
         waveform.queryByTestId('waveform-pause-button')
-      ).not.toBeInTheDocument();
+      ).toBeInTheDocument();
 
       const nextState = {
         forms: {
@@ -181,6 +165,7 @@ describe('Waveform component', () => {
         },
         peaksInstance: {
           readyPeaks: true,
+          peaks: null
         },
       };
       waveform.rerenderWithRedux(

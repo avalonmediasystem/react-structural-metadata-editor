@@ -65,6 +65,10 @@
   margin-bottom: 0;
 }
 
+.form-label {
+  font-weight: bold;
+}
+
 /* Waveform */
 #waveform-container,
 #zoomview-container,

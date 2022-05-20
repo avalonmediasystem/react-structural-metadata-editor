@@ -67,14 +67,18 @@ const Waveform = React.forwardRef((props, ref) => {
           withCredentials: props.withCredentials,
         })
       );
-
-      // Add a listener to keydown event
-      document.addEventListener('keydown', handleKeyPress);
     } else {
       // Given a audio/video file, the HTML player handles the playback
       dispatch(streamMediaSuccess());
     }
   }, [readyPeaks]);
+
+  React.useEffect(() => {
+    if(peaksInstance.peaks.player) {
+      // Add a listener to keydown event
+      document.addEventListener('keydown', handleKeyPress);
+    }
+  }, [peaksInstance.peaks.player])
 
   React.useEffect(() => {
     if (streamMediaStatus) {

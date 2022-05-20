@@ -97,14 +97,19 @@ var Waveform = /*#__PURE__*/_react["default"].forwardRef(function (props, ref) {
     if (readyPeaks && mimeType == 'application/x-mpegURL') {
       dispatch((0, _forms.retrieveStreamMedia)(audioFile, ref.mediaPlayerRef.current, {
         withCredentials: props.withCredentials
-      })); // Add a listener to keydown event
-
-      document.addEventListener('keydown', handleKeyPress);
+      }));
     } else {
       // Given a audio/video file, the HTML player handles the playback
       dispatch((0, _forms.streamMediaSuccess)());
     }
   }, [readyPeaks]);
+
+  _react["default"].useEffect(function () {
+    if (peaksInstance.peaks.player) {
+      // Add a listener to keydown event
+      document.addEventListener('keydown', handleKeyPress);
+    }
+  }, [peaksInstance.peaks.player]);
 
   _react["default"].useEffect(function () {
     if (streamMediaStatus) {

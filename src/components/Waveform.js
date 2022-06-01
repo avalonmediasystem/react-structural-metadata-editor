@@ -29,7 +29,7 @@ const Waveform = React.forwardRef((props, ref) => {
     (state) => state.forms.streamInfo.streamMediaStatus
   );
   const readyPeaks = useSelector((state) => state.peaksInstance.readyPeaks);
-  const peaksInstance = useSelector((state) => state.peaksInstance);
+  const peaksInstance = useSelector((state) => state.peaksInstance.peaks);
   const editingDisabled = useSelector((state) => state.forms.editingDisabled);
   const dispatch = useDispatch();
 
@@ -67,14 +67,18 @@ const Waveform = React.forwardRef((props, ref) => {
           withCredentials: props.withCredentials,
         })
       );
-
-      // Add a listener to keydown event
-      document.addEventListener('keydown', handleKeyPress);
     } else {
       // Given a audio/video file, the HTML player handles the playback
       dispatch(streamMediaSuccess());
     }
   }, [readyPeaks]);
+
+  React.useEffect(() => {
+    if(peaksInstance?.player) {
+      // Add a listener to keydown event
+      document.addEventListener('keydown', handleKeyPress);
+    }
+  }, [peaksInstance])
 
   React.useEffect(() => {
     if (streamMediaStatus) {
@@ -92,19 +96,19 @@ const Waveform = React.forwardRef((props, ref) => {
   };
 
   const zoomIn = () => {
-    peaksInstance.peaks.zoom.zoomIn();
+    peaksInstance.zoom.zoomIn();
   };
 
   const zoomOut = () => {
-    peaksInstance.peaks.zoom.zoomOut();
+    peaksInstance.zoom.zoomOut();
   };
 
   const playAudio = () => {
-    peaksInstance.peaks.player.play();
+    peaksInstance.player.play();
   };
 
   const pauseAudio = () => {
-    peaksInstance.peaks.player.pause();
+    peaksInstance.player.pause();
   };
 
   const adjustVolume = (volume) => {

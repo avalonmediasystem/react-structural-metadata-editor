@@ -5,6 +5,8 @@ export const Peaks = jest.fn((opts) => {
     seek: jest.fn((time) => {
       peaks.player._mediaElement.currentTime = time;
     }),
+    play: jest.fn(() => {}),
+    pause: jest.fn(() => {}),
     getCurrentTime: jest.fn(() => {
       return peaks.player._mediaElement.currentTime;
     }),
@@ -78,6 +80,10 @@ export const Peaks = jest.fn((opts) => {
       }),
     ],
   };
+  peaks.zoom = {
+    zoomIn: jest.fn(() => {}),
+    zoomOut: jest.fn(() => {}),
+  }
   return peaks;
 });
 

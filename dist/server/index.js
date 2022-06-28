@@ -28,7 +28,7 @@ var app = express(); // Add hot reloading into the Node.js server
 
 var compiler = webpack(webpackConfig);
 app.use(require('webpack-dev-middleware')(compiler, {
-  noInfo: true,
+  // noInfo: true,
   publicPath: webpackConfig.output.publicPath
 }));
 app.use(require('webpack-hot-middleware')(compiler)); // When you navigate to the root page, use the built React components

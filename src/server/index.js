@@ -67,8 +67,22 @@ app.get('/waveform.json', (req, res) => {
 
 app.get('/media.mp4', (req, res) => {
   res.header('Content-Type', 'video/mp4');
-  res.sendFile(path.join(__dirname, 'assets', 'media.mp4'));
+  res.sendFile(path.join(__dirname, 'assets/lunchroom_manners/medium', 'lunchroom_manners_512kb.mp4'));
 });
+
+app.get('/manifests/lunchroom_manners.json', (req, res) => {
+  res.header('Content-Type', 'application/json');
+  let manifest;
+  try {
+    manifest = fs.readFileSync(
+      path.join(__dirname, 'assets/manifests', 'lunchroom_manners.json'),
+      'utf-8'
+    );
+  } catch (err) {
+    console.error('Server -> Error fetching manifest -> ', err);
+  }
+  res.send(manifest);
+})
 
 app.post('/structure.json', (req, res) => {
   const newStructure = req.body.json;

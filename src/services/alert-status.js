@@ -15,6 +15,8 @@ export const MISSING_WAVEFORM_ERROR =
   'Requested waveform data is not available.';
 export const INVALID_SEGMENTS_WARNING =
   'Please check start/end times of the marked invalid timespan(s).';
+export const FETCH_MANIFEST_ERROR = 
+  'Error occurred fetching Manifest.';
 
 /**
  * Helper function which prepares a configuration object to feed the AlertContainer component
@@ -46,6 +48,9 @@ export function configureAlert(status = 0) {
     alertObj.persistent = true;
   } else if (status === -8) {
     alertObj.message = INVALID_SEGMENTS_WARNING;
+    alertObj.alertStyle = 'warning';
+  } else if (status == -9) {
+    alertObj.message = FETCH_MANIFEST_ERROR;
     alertObj.alertStyle = 'warning';
   } else {
     alertObj.message = NETWORK_ERROR;

@@ -1,68 +1,48 @@
-import React, { Component } from 'react';
+import React from 'react';
+import { DragDropContextProvider } from 'react-dnd';
+import HTML5Backend from 'react-dnd-html5-backend';
+import {  useDispatch } from 'react-redux';
 import PropTypes from 'prop-types';
-import './App.css';
+
+import ErrorBoundary from './components/ErrorBoundary';
+import AlertContainer from './containers/AlertContainer';
 import WaveformContainer from './containers/WaveformContainer';
 import ButtonSection from './components/ButtonSection';
 import StructureOutputContainer from './containers/StructureOutputContainer';
-import { DragDropContextProvider } from 'react-dnd';
-import HTML5Backend from 'react-dnd-html5-backend';
-import { connect } from 'react-redux';
+
 import { resetReduxStore } from './actions';
-import { handleStructureError, removeAlert } from './actions/forms';
-import ErrorBoundary from './components/ErrorBoundary';
+import { removeAlert } from './actions/forms';
+import { fetchManifest } from './actions/manifest';
 
-// Font Awesome Imports
-// import { library } from '@fortawesome/fontawesome-svg-core';
-// import {
-//   faDotCircle,
-//   faExclamationTriangle,
-//   faMinusCircle,
-//   faPen,
-//   faSave,
-//   faTrash,
-// } from '@fortawesome/free-solid-svg-icons';
-import AlertContainer from './containers/AlertContainer';
+import './App.css';
 
-// library.add(
-//   faDotCircle,
-//   faMinusCircle,
-//   faPen,
-//   faSave,
-//   faTrash,
-//   faExclamationTriangle
-// );
+const App = (props) => {
+  const dispatch = useDispatch();
+  // const [structureAlert, setStructureAlert] = React.useState({});
 
-class App extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      structureAlert: {},
-    };
+  React.useEffect(() => {
+    dispatch(fetchManifest(props.manifestURL));
+
+    return () => {
+      dispatch(resetReduxStore());
+    }
+  }, [])
+
+  const structureIsSaved = (value) => {
+    props.structureIsSaved(value);
   }
-  // Lifecycle method fired before unmounting the React component
-  componentWillUnmount() {
-    // Reset the redux-store
-    this.props.resetStore();
-  }
-
-  structureIsSaved = (value) => {
-    this.props.structureIsSaved(value);
-  };
-
-  render() {
-    return (
+  return (
       <DragDropContextProvider backend={HTML5Backend}>
         <div className="sme-container">
-          <WaveformContainer {...this.props} />
+          <WaveformContainer {...props} />
           <ErrorBoundary>
-            <AlertContainer removeAlert={this.props.removeAlert} />
+            <AlertContainer removeAlert={removeAlert} />
             <ButtonSection />
-            <StructureOutputContainer {...this.props} />
+            <StructureOutputContainer {...props} />
           </ErrorBoundary>
         </div>
       </DragDropContextProvider>
-    );
-  }
+  );
 }
 
 App.propTypes = {
@@ -71,6 +51,7 @@ App.propTypes = {
   audioURL: PropTypes.string.isRequired,
   streamDuration: PropTypes.number.isRequired,
   initStructure: PropTypes.object.isRequired,
+  manifestURL: PropTypes.string.isRequired,
   withCredentials: PropTypes.bool,
   structureIsSaved: PropTypes.func,
 };
@@ -80,10 +61,4 @@ App.defaultProps = {
   structureIsSaved: (val) => {},
 };
 
-const mapDispatchToProps = {
-  resetStore: resetReduxStore,
-  handleStructureError: handleStructureError,
-  removeAlert: removeAlert,
-};
-
-export default connect(null, mapDispatchToProps)(App);
+export default App;

@@ -9,7 +9,6 @@ import {
 } from './forms';
 import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
 import { configureAlert } from '../services/alert-status';
-// import Peaks from 'peaks.js';
 import WaveformDataUtils from '../services/WaveformDataUtils';
 
 const waveformUtils = new WaveformDataUtils();

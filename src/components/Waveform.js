@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { Button, ButtonToolbar, Row, Col } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -7,7 +7,7 @@ import {
   faSearchMinus,
   faSearchPlus,
 } from '@fortawesome/free-solid-svg-icons';
-import { connect, useSelector, useDispatch } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { configureAlert } from '../services/alert-status';
 import {
   retrieveStreamMedia,
@@ -17,6 +17,7 @@ import {
 import VolumeSlider from './Slider';
 import LoadingSpinner from '../services/LoadingSpinner';
 import { getMimetype } from '../services/utils';
+import { getMediaInfo } from '../services/iiif-services/iiif-parser';
 
 // Content of aria-label for UI components
 const waveformLabel = `Two interactive waveforms, plotted one after the other using data from a masterfile in a back-end server.
@@ -31,6 +32,7 @@ const Waveform = React.forwardRef((props, ref) => {
   const readyPeaks = useSelector((state) => state.peaksInstance.readyPeaks);
   const peaksInstance = useSelector((state) => state.peaksInstance.peaks);
   const editingDisabled = useSelector((state) => state.forms.editingDisabled);
+  const manifest = useSelector((state) => state.manifest.manifest);
   const dispatch = useDispatch();
 
   const [audioFile, setAudioFile] = React.useState(props.audioURL);
@@ -47,10 +49,15 @@ const Waveform = React.forwardRef((props, ref) => {
   React.useEffect(() => {
     setAudioFile(props.audioURL);
 
+    if (manifest) {
+      let mediaInfo = getMediaInfo(manifest);
+      console.log(mediaInfo);
+    }
+
     return () => {
       document.removeEventListener('keydown', handleKeyPress);
     };
-  }, []);
+  }, [manifest]);
 
   React.useEffect(() => {
     setEditing(editingDisabled);
@@ -74,11 +81,11 @@ const Waveform = React.forwardRef((props, ref) => {
   }, [readyPeaks]);
 
   React.useEffect(() => {
-    if(peaksInstance?.player) {
+    if (peaksInstance?.player) {
       // Add a listener to keydown event
       document.addEventListener('keydown', handleKeyPress);
     }
-  }, [peaksInstance])
+  }, [peaksInstance]);
 
   React.useEffect(() => {
     if (streamMediaStatus) {

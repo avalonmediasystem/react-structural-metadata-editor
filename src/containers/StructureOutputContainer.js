@@ -12,7 +12,7 @@ const StructureOutputContainer = (props) => {
   const smu = new StructuralMetadataUtils();
   const apiUtils = new APIUtils();
 
-  const { structureURL, structureInfo, structuralMetadata } = props;
+  const { manifest, structureURL, structureInfo, structuralMetadata } = props;
   const { structureSaved } = structureInfo;
   const { smData, initSmData, smDataIsValid } = structuralMetadata;
 
@@ -70,27 +70,32 @@ const StructureOutputContainer = (props) => {
       className="structure-section"
       data-testid="structure-output-section"
     >
-      <div data-testid="structure-output-list">
-        <List items={smData} />
-        <Row>
-          <Col xs={12} className="text-right">
-            <Button
-              variant="primary"
-              onClick={handleSaveItClick}
-              data-testid="structure-save-button"
-              disabled={props.editingDisabled}
-            >
-              Save Structure
-            </Button>
-          </Col>
-        </Row>
-      </div>
+      {manifest.manifestStructure != null && (
+        <div data-testid="structure-output-list">
+          <List items={manifest.manifestStructure} />
+          <Row>
+            <Col xs={12} className="text-right">
+              <Button
+                variant="primary"
+                onClick={handleSaveItClick}
+                data-testid="structure-save-button"
+                disabled={props.editingDisabled}
+              >
+                Save Structure
+              </Button>
+            </Col>
+          </Row>
+        </div>
+      )
+      }
+
     </section>
   );
 };
 
 const mapStateToProps = (state) => ({
   structuralMetadata: state.structuralMetadata,
+  manifest: state.manifest,
   structureInfo: state.forms.structureInfo,
   editingDisabled: state.forms.editingDisabled,
   alert: state.forms.alert,

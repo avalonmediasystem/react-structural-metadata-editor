@@ -26,12 +26,32 @@ export const setManifest = (manifest) => ({
 export const handleManifestError = (flag, status) => ({
   type: types.FETCH_MANIFEST_ERROR,
   flag,
-  status
+  status,
+});
+
+/**
+ * Update Redux store flag on successful manifest retreival
+ * from the given URL
+ */
+export const fetchManifestSuccess = () => ({
+  type: types.FETCH_MANIFEST_SUCCESS,
+});
+
+/**
+ * Parse `structure` in manifest into the nested JSON object
+ * the structure navigation components can utilize to display 
+ * structure on the page
+ */
+export const parseStructure = (structure) => ({
+  type: types.PARSE_MANIFEST_STRUCTURE,
+  structure,
 });
 
 
-export const fetchManifestSuccess = () => ({
-  type: types.FETCH_MANIFEST_SUCCESS
+export const setMediaInfo = (mediaSrc, duration) => ({
+  type: types.SET_MANIFEST_MEDIAINFO,
+  mediaSrc,
+  duration,
 })
 
 /**
@@ -52,10 +72,13 @@ export function fetchManifest(manifestURL) {
     } catch (error) {
       console.log('TCL: Manifest -> catch -> error', error);
 
+      // Update manifest error in the redux store
       let status = error.response !== undefined ? error.response.status : -9;
       dispatch(handleManifestError(1, status));
+
+      // Create an alert to be displayed in the UI
       let alert = configureAlert(status);
       dispatch(setAlert(alert));
     }
-  }
+  };
 }

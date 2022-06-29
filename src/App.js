@@ -1,7 +1,7 @@
 import React from 'react';
 import { DragDropContextProvider } from 'react-dnd';
 import HTML5Backend from 'react-dnd-html5-backend';
-import {  useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 
 import ErrorBoundary from './components/ErrorBoundary';
@@ -12,12 +12,14 @@ import StructureOutputContainer from './containers/StructureOutputContainer';
 
 import { resetReduxStore } from './actions';
 import { removeAlert } from './actions/forms';
-import { fetchManifest } from './actions/manifest';
+import { fetchManifest, parseStructure, setMediaInfo } from './actions/manifest';
+import { getMediaInfo, parseStructureToJSON } from './services/iiif-services/iiif-parser';
 
 import './App.css';
 
 const App = (props) => {
   const dispatch = useDispatch();
+  const manifest = useSelector((state) => state.manifest.manifest);
   // const [structureAlert, setStructureAlert] = React.useState({});
 
   React.useEffect(() => {
@@ -25,25 +27,31 @@ const App = (props) => {
 
     return () => {
       dispatch(resetReduxStore());
-    }
-  }, [])
+    };
+  }, []);
 
-  const structureIsSaved = (value) => {
-    props.structureIsSaved(value);
-  }
+  React.useEffect(() => {
+    if (manifest) {
+      const { mediaSrc, duration } = getMediaInfo(manifest);
+      dispatch(setMediaInfo(mediaSrc, duration));
+      const structure = parseStructureToJSON(manifest, duration);
+      dispatch(parseStructure(structure));
+    }
+  }, [manifest]);
+
   return (
-      <DragDropContextProvider backend={HTML5Backend}>
-        <div className="sme-container">
-          <WaveformContainer {...props} />
-          <ErrorBoundary>
-            <AlertContainer removeAlert={removeAlert} />
-            <ButtonSection />
-            <StructureOutputContainer {...props} />
-          </ErrorBoundary>
-        </div>
-      </DragDropContextProvider>
+    <DragDropContextProvider backend={HTML5Backend}>
+      <div className="sme-container">
+        <WaveformContainer {...props} />
+        <ErrorBoundary>
+          <AlertContainer removeAlert={removeAlert} />
+          <ButtonSection />
+          <StructureOutputContainer {...props} />
+        </ErrorBoundary>
+      </div>
+    </DragDropContextProvider>
   );
-}
+};
 
 App.propTypes = {
   structureURL: PropTypes.string.isRequired,
@@ -58,7 +66,7 @@ App.propTypes = {
 
 App.defaultProps = {
   withCredentials: false,
-  structureIsSaved: (val) => {},
+  structureIsSaved: (val) => { },
 };
 
 export default App;

@@ -17,7 +17,6 @@ import {
 import VolumeSlider from './Slider';
 import LoadingSpinner from '../services/LoadingSpinner';
 import { getMimetype } from '../services/utils';
-import { getMediaInfo } from '../services/iiif-services/iiif-parser';
 
 // Content of aria-label for UI components
 const waveformLabel = `Two interactive waveforms, plotted one after the other using data from a masterfile in a back-end server.
@@ -32,10 +31,10 @@ const Waveform = React.forwardRef((props, ref) => {
   const readyPeaks = useSelector((state) => state.peaksInstance.readyPeaks);
   const peaksInstance = useSelector((state) => state.peaksInstance.peaks);
   const editingDisabled = useSelector((state) => state.forms.editingDisabled);
-  const manifest = useSelector((state) => state.manifest.manifest);
+  const manifest = useSelector((state) => state.manifest);
   const dispatch = useDispatch();
 
-  const [audioFile, setAudioFile] = React.useState(props.audioURL);
+  const [audioFile, setAudioFile] = React.useState('');
   const [volume, setVolume] = React.useState(100);
   const [peaksIsReady, setPeaksIsReady] = React.useState(readyPeaks);
 
@@ -47,11 +46,9 @@ const Waveform = React.forwardRef((props, ref) => {
   };
 
   React.useEffect(() => {
-    setAudioFile(props.audioURL);
 
-    if (manifest) {
-      let mediaInfo = getMediaInfo(manifest);
-      console.log(mediaInfo);
+    if (manifest.manifestMedia) {
+      setAudioFile(manifest.manifestMedia.mediaSrc);
     }
 
     return () => {

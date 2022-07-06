@@ -2,7 +2,7 @@
 
 A React component which displays structural metadata about an ingested audio/video file, and displays a visualized waveform to help navigating sections of the audio waveform. A user can add, edit and delete headers and timespans within the structural metadata, and save the record into a consuming application.
 
-See how this React component works on the [demo page](https://structural-metadata-editor.herokuapp.com/) hosted using [Heroku](https://www.heroku.com/). Please note that, sometimes this pages takes time to load.
+See how this React component works on the [demo page](https://structural-metadata-editor.herokuapp.com/) hosted using [Heroku](https://www.heroku.com/). Please note that, sometimes this page takes time to load.
 
 **Note**: We are not currently publishing this package to NPM, but rather consuming it directly via a Github repository URL address. See [Usage](#usage) notes below for more info and example code.
 
@@ -131,7 +131,7 @@ git pull origin
 git checkout master
 ```
 
-3. Create a `heroku` remote in your local repo for the app you wish to deploy to, here the app name is `structural-metadata-editor`;
+3. Create a `heroku` remote in your local repo for the app you wish to deploy to, here the app name is `structural-metadata-editor`. For this you need a Heroku account.
 
 ```
 heroku git:remote -a structural-metadata-editor
@@ -145,7 +145,7 @@ This will prompt to login to your Heroku account, once logged in it will link th
 git push heroku master:main
 ```
 
-This will start building and compiling the source code and finally deploy to https://structural-metadata-editor.herokuapp.com/.
+This will take some time while it builds and compiles the source code. And then it deploys the changes to https://structural-metadata-editor.herokuapp.com/.
 
 ## Usage
 

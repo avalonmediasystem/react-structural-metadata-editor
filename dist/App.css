@@ -28,7 +28,7 @@
   font-weight: bold;
 }
 
-.structure-title > .icon-invalid {
+.structure-title>.icon-invalid {
   color: #dc5353;
 }
 
@@ -56,16 +56,16 @@
 }
 
 /* Override Bootstrap CSS */
-.alert {
+.sme-container .alert {
   margin-top: 5px;
   margin-bottom: 5px;
 }
 
-.alert p {
+.sme-container .alert p {
   margin-bottom: 0;
 }
 
-.form-label {
+.sme-container .form-label {
   font-weight: bold;
 }
 
@@ -122,6 +122,7 @@
   0% {
     transform: rotate(0deg);
   }
+
   100% {
     transform: rotate(360deg);
   }
@@ -131,6 +132,7 @@
   0% {
     -webkit-transform: rotate(0deg);
   }
+
   100% {
     -webkit-transform: rotate(360deg);
   }

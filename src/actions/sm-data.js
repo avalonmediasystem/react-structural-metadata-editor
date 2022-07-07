@@ -13,6 +13,14 @@ export function reBuildSMUI(items, duration) {
   };
 }
 
+export function setSMData(structure, isValid) {
+  return {
+    type: types.SET_SMDATA,
+    structure,
+    isValid,
+  };
+}
+
 export function buildSMUI(json, duration) {
   return {
     type: types.BUILD_SM_UI,

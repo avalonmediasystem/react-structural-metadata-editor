@@ -20,6 +20,14 @@ const structuralMetadata = (state = initialState, action) => {
       );
       return { ...state, smData: newState[0], smDataIsValid: newState[1] };
 
+    case types.SET_SMDATA:
+      return {
+        ...state,
+        smData: action.structure,
+        initSmData: action.structure,
+        smDataIsValid: action.isValid
+      };
+
     case types.REBUILD_SM_UI:
       return { ...state, smData: action.items };
 

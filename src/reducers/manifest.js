@@ -31,7 +31,7 @@ const manifest = (state = initialState, action) => {
         }
       };
 
-    case types.PARSE_MANIFEST_STRUCTURE:
+    case types.SET_MANIFEST_STRUCTURE:
       return { ...state, manifestStructure: action.structure };
 
     default:

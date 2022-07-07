@@ -14,7 +14,6 @@ export default class WaveformDataUtils {
   initSegments(smData, duration) {
     let segments = [];
     let count = 0;
-    const durationInSeconds = duration / 1000;
 
     // Recursively build segments for timespans in the structure
     let createSegment = (items) => {
@@ -40,7 +39,7 @@ export default class WaveformDataUtils {
     // Build segments from initial metadata structure
     createSegment(smData);
     const validSegments = segments.filter(
-      (s) => s.startTime < s.endTime && s.startTime < durationInSeconds
+      (s) => s.startTime < s.endTime && s.startTime < duration
     );
 
     return validSegments;

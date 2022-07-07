@@ -121,10 +121,11 @@ class ButtonSection extends Component {
       setIsInitializing: this.setIsInitializing,
     };
 
-    const { editingDisabled, structureInfo, streamInfo } = this.props.forms;
+    const { editingDisabled, streamInfo } = this.props.forms;
+    const { manifestFetched, manifestStructure } = this.props.manifest;
 
     // Only return UI when both structure and waveform data exist
-    return structureInfo.structureRetrieved ? (
+    return manifestFetched && manifestStructure != null ? (
       <section>
         <Row data-testid="button-row">
           <Col sm="6">
@@ -172,6 +173,7 @@ class ButtonSection extends Component {
 const mapStateToProps = (state) => ({
   peaksInstance: state.peaksInstance,
   forms: state.forms,
+  manifest: state.manifest,
 });
 
 const mapDispatchToProps = {

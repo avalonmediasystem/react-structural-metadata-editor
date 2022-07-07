@@ -1,5 +1,6 @@
 import { parseManifest } from "manifesto.js";
 import StructuralMetadataUtils from "../StructuralMetadataUtils";
+import uuidv1 from 'uuid';
 
 const smUtils = new StructuralMetadataUtils;
 
@@ -40,17 +41,43 @@ function filterMediaSrc(sources) {
   }
 }
 
+
+/**
+ * Retrieve the list of alternative representation files in manifest or canvas
+ * level to make available to download
+ * @param {Object} manifest
+ * @param {Number} canvasIndex
+ * @returns List of files under `rendering` property in manifest
+ */
+export function getWaveformInfo(manifest) {
+  let files = [];
+  let rendering = parseManifest(manifest).getRenderings();
+
+  if (rendering.length > 0) {
+    rendering.map((r) => {
+      const format = r.getFormat();
+      const name = getLabelValue(r.getProperty('label'));
+      if (format == 'application/json' && name == 'waveform.json') {
+        files.push(r.id);
+      }
+    });
+  }
+  return files;
+}
+
 /**
  * Parse the structures within manifest into a nested JSON object
  * structure to be consumed by the ReactJS components to help visualize
  * and edit structure
  * @param {Object} manifest current manifest
  * @param {*} duration duration of the canvas in manifest
- * @returns {Array} of nested JSON objects with structure items
- * parsed from the given manifest
+ * @returns {Array, Boolean} array of nested JSON objects with structure items
+ * parsed from the given manifest and boolean flag to indicate structure is
+ * valid/not.
  */
 export function parseStructureToJSON(manifest, duration) {
   let structureJSON = [];
+  let structureIsValid = true;
 
   let buildStructureItems = (items, children) => {
     if (items.length > 0) {
@@ -59,12 +86,15 @@ export function parseStructureToJSON(manifest, duration) {
         let structItem = {};
         if (childCanvases.length > 0) {
           const { start, end } = getMediaFragment(childCanvases[0], duration);
+          const { isValid, endTime } = validateTimes(start, end, duration);
+          structureIsValid = isValid;
           structItem = {
             label: getLabelValue(i.label),
             type: "span",
             begin: smUtils.toHHmmss(start),
-            end: smUtils.toHHmmss(end),
-            valid: start <= end,
+            end: smUtils.toHHmmss(endTime),
+            valid: isValid,
+            id: uuidv1(),
           };
           children.push(structItem);
         } else {
@@ -73,6 +103,7 @@ export function parseStructureToJSON(manifest, duration) {
             type: "div",
             valid: true,
             items: [],
+            id: uuidv1(),
           };
           if (i.items) {
             buildStructureItems(i.items, structItem.items);
@@ -97,10 +128,28 @@ export function parseStructureToJSON(manifest, duration) {
       type: "root",
       label: getLabelValue(root.label),
       valid: true,
-      items: children
+      items: children,
+      id: uuidv1(),
     });
   }
-  return structureJSON;
+
+  return { structureJSON, structureIsValid };
+}
+
+function validateTimes(start, end, duration) {
+  let isValid = true;
+  let endTime = end;
+  if (start > end || start > duration) {
+    isValid = false;
+  } else if (end > duration) {
+    isValid = false;
+    endTime = this.toHHmmss(duration);
+  }
+  if (end === 0) {
+    isValid = false;
+    endTime = this.toHHmmss(duration);
+  }
+  return { isValid, endTime };
 }
 
 /**

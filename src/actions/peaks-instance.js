@@ -1,67 +1,23 @@
 import * as types from './types';
 import { isEmpty } from 'lodash';
-import APIUtils from '../api/Utils';
-import { buildSMUI, saveInitialStructure } from './sm-data';
-import {
-  retrieveStructureSuccess,
-  handleStructureError,
-  setAlert,
-} from './forms';
-import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
-import { configureAlert } from '../services/alert-status';
 import WaveformDataUtils from '../services/WaveformDataUtils';
 
 const waveformUtils = new WaveformDataUtils();
-const apiUtils = new APIUtils();
-const structuralMetadataUtils = new StructuralMetadataUtils();
 
 /**
- * Fetch structure.json and initialize Peaks
+ * Initialize Peaks instance from structure
  * @param {Object} peaks - initialized peaks instance
- * @param {String} structureURL - URL of the structure.json
- * @param {JSON} initStructure - structure with root element when empty
- * @param {Object} options - peaks options
+ * @param {Number} duration - duration of the media file
  */
 export function initializeSMDataPeaks(
   peaks,
-  structureURL,
-  initStructure,
   duration
 ) {
-  return async (dispatch, getState) => {
-    let smData = [];
-    if (typeof initStructure === 'string' && initStructure !== '') {
-      smData = structuralMetadataUtils.addUUIds([JSON.parse(initStructure)]);
-    } else if (!isEmpty(initStructure)) {
-      smData = structuralMetadataUtils.addUUIds([initStructure]);
-    }
-    try {
-      const response = await apiUtils.getRequest(structureURL);
-
-      if (!isEmpty(response.data)) {
-        smData = structuralMetadataUtils.addUUIds([response.data]);
-      }
-      // Update redux-store flag for structure file retrieval
-      dispatch(retrieveStructureSuccess());
-    } catch (error) {
-      console.log('TCL: Structure -> }catch -> error', error);
-
-      let status = error.response !== undefined ? error.response.status : -2;
-      dispatch(handleStructureError(1, status));
-      let alert = configureAlert(status);
-      dispatch(setAlert(alert));
-    }
-
-    // Mark the top element as 'root'
-    structuralMetadataUtils.markRootElement(smData);
-
-    // Initialize Redux state variable with structure
-    dispatch(buildSMUI(smData, duration));
-    dispatch(saveInitialStructure(smData));
-
+  return (dispatch, getState) => {
+    const { structuralMetadata } = getState();
     if (peaks) {
       // Create segments from structural metadata
-      const segments = waveformUtils.initSegments(smData, duration);
+      const segments = waveformUtils.initSegments(structuralMetadata.smData, duration);
 
       // Add segments to peaks instance
       segments.map((seg) => peaks.segments.add(seg));

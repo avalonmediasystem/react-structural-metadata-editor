@@ -20,7 +20,11 @@
     {
       "id": "http://localhost:3001/waveform.json",
       "type": "SpecificResource",
-      "label": { "en": [ "Waveform Data (.json)" ] },
+      "label": {
+        "en": [
+          "waveform.json"
+        ]
+      },
       "format": "application/json"
     }
   ],
@@ -50,7 +54,9 @@
                       "type": "Video",
                       "format": "video/mp4",
                       "label": {
-                        "en": ["High"]
+                        "en": [
+                          "High"
+                        ]
                       }
                     },
                     {
@@ -58,7 +64,9 @@
                       "type": "Video",
                       "format": "video/mp4",
                       "label": {
-                        "en": ["Medium"]
+                        "en": [
+                          "Medium"
+                        ]
                       }
                     },
                     {
@@ -66,7 +74,9 @@
                       "type": "Video",
                       "format": "video/mp4",
                       "label": {
-                        "en": ["Low"]
+                        "en": [
+                          "Low"
+                        ]
                       }
                     }
                   ]
@@ -76,7 +86,9 @@
                   "type": "Text",
                   "format": "text/vtt",
                   "label": {
-                    "en": ["Captions in WebVTT format"]
+                    "en": [
+                      "Captions in WebVTT format"
+                    ]
                   },
                   "language": "en"
                 }
@@ -100,7 +112,9 @@
                 "type": "Text",
                 "format": "text/vtt",
                 "label": {
-                  "en": ["WebVTT Transcript"]
+                  "en": [
+                    "WebVTT Transcript"
+                  ]
                 }
               },
               "target": "/manifests/lunchroom_manners/canvas/1"
@@ -114,22 +128,38 @@
     {
       "id": "http://localhost:3001/manifests/lunchroom_manners/range/0",
       "type": "Range",
-      "label": { "en": ["Table of Contents"] },
+      "label": {
+        "en": [
+          "Table of Contents"
+        ]
+      },
       "items": [
         {
           "id": "http://localhost:3001/manifests/lunchroom_manners/range/1",
           "type": "Range",
-          "label": { "en": ["Lunchroom Manners"] },
+          "label": {
+            "en": [
+              "Lunchroom Manners"
+            ]
+          },
           "items": [
             {
               "id": "http://localhost:3001/manifests/lunchroom_manners/range/1-1",
               "type": "Range",
-              "label": { "en": ["Washing Hands"] },
+              "label": {
+                "en": [
+                  "Washing Hands"
+                ]
+              },
               "items": [
                 {
                   "id": "http://localhost:3001/manifests/lunchroom_manners/range/1-1-1",
                   "type": "Range",
-                  "label": { "en": ["Using Soap"] },
+                  "label": {
+                    "en": [
+                      "Using Soap"
+                    ]
+                  },
                   "items": [
                     {
                       "id": "http://localhost:3001/manifests/lunchroom_manners/canvas/1#t=157,160",
@@ -140,7 +170,11 @@
                 {
                   "id": "http://localhost:3001/manifests/lunchroom_manners/range/1-1-3",
                   "type": "Range",
-                  "label": { "en": ["Rinsing Well"] },
+                  "label": {
+                    "en": [
+                      "Rinsing Well"
+                    ]
+                  },
                   "items": [
                     {
                       "id": "http://localhost:3001/manifests/lunchroom_manners/canvas/1#t=165,170",
@@ -151,12 +185,20 @@
                 {
                   "id": "http://localhost:3001/manifests/lunchroom_manners/range/1-2",
                   "type": "Range",
-                  "label": { "en": ["After Washing Hands"] },
+                  "label": {
+                    "en": [
+                      "After Washing Hands"
+                    ]
+                  },
                   "items": [
                     {
                       "id": "http://localhost:3001/manifests/lunchroom_manners/range/1-2-1",
                       "type": "Range",
-                      "label": { "en": ["Drying Hands"] },
+                      "label": {
+                        "en": [
+                          "Drying Hands"
+                        ]
+                      },
                       "items": [
                         {
                           "id": "http://localhost:3001/manifests/lunchroom_manners/canvas/1#t=170,180",
@@ -167,7 +209,11 @@
                     {
                       "id": "http://localhost:3001/manifests/lunchroom_manners/range/1-2-2",
                       "type": "Range",
-                      "label": { "en": ["Getting Ready"] },
+                      "label": {
+                        "en": [
+                          "Getting Ready"
+                        ]
+                      },
                       "items": [
                         {
                           "id": "http://localhost:3001/manifests/lunchroom_manners/canvas/1#t=180,190",
@@ -182,17 +228,29 @@
             {
               "id": "http://localhost:3001/manifests/lunchroom_manners/range/2",
               "type": "Range",
-              "label": { "en": ["In the Lunchroom"] },
+              "label": {
+                "en": [
+                  "In the Lunchroom"
+                ]
+              },
               "items": [
                 {
                   "id": "http://localhost:3001/manifests/lunchroom_manners/range/2-1",
                   "type": "Range",
-                  "label": { "en": ["At the Counter"] },
+                  "label": {
+                    "en": [
+                      "At the Counter"
+                    ]
+                  },
                   "items": [
                     {
                       "id": "http://localhost:3001/manifests/lunchroom_manners/range/2-1-1",
                       "type": "Range",
-                      "label": { "en": ["Getting Tray"] },
+                      "label": {
+                        "en": [
+                          "Getting Tray"
+                        ]
+                      },
                       "items": [
                         {
                           "id": "http://localhost:3001/manifests/lunchroom_manners/canvas/1#t=227,245",
@@ -203,7 +261,11 @@
                     {
                       "id": "http://localhost:3001/manifests/lunchroom_manners/range/2-1-2",
                       "type": "Range",
-                      "label": { "en": ["Choosing Food"] },
+                      "label": {
+                        "en": [
+                          "Choosing Food"
+                        ]
+                      },
                       "items": [
                         {
                           "id": "http://localhost:3001/manifests/lunchroom_manners/canvas/1#t=258,288",
@@ -214,7 +276,11 @@
                     {
                       "id": "http://localhost:3001/manifests/lunchroom_manners/range/2-1-3",
                       "type": "Range",
-                      "label": { "en": ["There will be Cake"] },
+                      "label": {
+                        "en": [
+                          "There will be Cake"
+                        ]
+                      },
                       "items": [
                         {
                           "id": "http://localhost:3001/manifests/lunchroom_manners/canvas/1#t=301,308",
@@ -227,12 +293,20 @@
                 {
                   "id": "http://localhost:3001/manifests/lunchroom_manners/range/2-2",
                   "type": "Range",
-                  "label": { "en": ["At the Table"] },
+                  "label": {
+                    "en": [
+                      "At the Table"
+                    ]
+                  },
                   "items": [
                     {
                       "id": "http://localhost:3001/manifests/lunchroom_manners/range/2-2-1",
                       "type": "Range",
-                      "label": { "en": ["Sitting Quietly"] },
+                      "label": {
+                        "en": [
+                          "Sitting Quietly"
+                        ]
+                      },
                       "items": [
                         {
                           "id": "http://localhost:3001/manifests/lunchroom_manners/canvas/1#t=323,333",
@@ -243,7 +317,11 @@
                     {
                       "id": "http://localhost:3001/manifests/lunchroom_manners/range/2-2-2",
                       "type": "Range",
-                      "label": { "en": ["Eating Neatly"] },
+                      "label": {
+                        "en": [
+                          "Eating Neatly"
+                        ]
+                      },
                       "items": [
                         {
                           "id": "http://localhost:3001/manifests/lunchroom_manners/canvas/1#t=362,378",
@@ -256,12 +334,20 @@
                 {
                   "id": "http://localhost:3001/manifests/lunchroom_manners/range/2-3",
                   "type": "Range",
-                  "label": { "en": ["Leavning the Lunchroom"] },
+                  "label": {
+                    "en": [
+                      "Leavning the Lunchroom"
+                    ]
+                  },
                   "items": [
                     {
                       "id": "http://localhost:3001/manifests/lunchroom_manners/range/2-3-1",
                       "type": "Range",
-                      "label": { "en": ["Cleaning Up"] },
+                      "label": {
+                        "en": [
+                          "Cleaning Up"
+                        ]
+                      },
                       "items": [
                         {
                           "id": "http://localhost:3001/manifests/lunchroom_manners/canvas/1#t=448,492",
@@ -272,7 +358,11 @@
                     {
                       "id": "http://localhost:3001/manifests/lunchroom_manners/range/2-3-2",
                       "type": "Range",
-                      "label": { "en": ["Putting Things Away"] },
+                      "label": {
+                        "en": [
+                          "Putting Things Away"
+                        ]
+                      },
                       "items": [
                         {
                           "id": "http://localhost:3001/manifests/lunchroom_manners/canvas/1#t=511,527",

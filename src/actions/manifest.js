@@ -3,8 +3,12 @@ import { isEmpty } from 'lodash';
 import { setAlert } from './forms';
 import APIUtils from '../api/Utils';
 import { configureAlert } from '../services/alert-status';
+import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
+import { setSMData } from './sm-data';
+import { getMediaInfo, parseStructureToJSON } from '../services/iiif-services/iiif-parser';
 
 const apiUtils = new APIUtils();
+const smUtils = new StructuralMetadataUtils();
 
 /**
  * Set manifest content fetched from the given manifestURL
@@ -42,17 +46,22 @@ export const fetchManifestSuccess = () => ({
  * the structure navigation components can utilize to display 
  * structure on the page
  */
-export const parseStructure = (structure) => ({
-  type: types.PARSE_MANIFEST_STRUCTURE,
+export const setManifestStructure = (structure) => ({
+  type: types.SET_MANIFEST_STRUCTURE,
   structure,
 });
 
-
+/**
+ * Set media file related info parsed from the manifest in
+ * the Redux store
+ * @param {String} mediaSrc - media file URI
+ * @param {Number} duration - duration of the media file
+ */
 export const setMediaInfo = (mediaSrc, duration) => ({
   type: types.SET_MANIFEST_MEDIAINFO,
   mediaSrc,
   duration,
-})
+});
 
 /**
  * Fetch the manifest from the given URL and handle relavant
@@ -64,9 +73,18 @@ export function fetchManifest(manifestURL) {
     try {
       const response = await apiUtils.getRequest(manifestURL);
 
-      if (!isEmpty(response.data)) {
-        dispatch(setManifest(response.data));
+      const manifest = response.data;
+      if (!isEmpty(manifest)) {
+        dispatch(setManifest(manifest));
       }
+
+      const { mediaSrc, duration } = getMediaInfo(manifest);
+      dispatch(setMediaInfo(mediaSrc, duration));
+
+      const { structureJSON, structureIsValid } = parseStructureToJSON(manifest, duration);
+
+      dispatch(setManifestStructure(structureJSON));
+      dispatch(setSMData(structureJSON, structureIsValid));
 
       dispatch(fetchManifestSuccess());
     } catch (error) {

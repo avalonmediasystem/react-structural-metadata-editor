@@ -4,10 +4,10 @@ const initialState = {
   manifest: null,
   manifestError: null,
   manifestFetched: false,
-  manifestStructure: null,
-  manifestMedia: {
-    mediaSrc: '',
-    mediaDuration: 0,
+  structure: null,
+  mediaInfo: {
+    src: '',
+    duration: 0,
   }
 };
 
@@ -24,15 +24,15 @@ const manifest = (state = initialState, action) => {
 
     case types.SET_MANIFEST_MEDIAINFO:
       return {
-        ...state, manifestMedia: {
-          ...state.manifestMedia,
-          mediaSrc: action.mediaSrc,
-          mediaDuration: action.duration
+        ...state, mediaInfo: {
+          ...state.mediaInfo,
+          src: action.src,
+          duration: action.duration
         }
       };
 
     case types.SET_MANIFEST_STRUCTURE:
-      return { ...state, manifestStructure: action.structure };
+      return { ...state, structure: action.structure };
 
     default:
       return state;

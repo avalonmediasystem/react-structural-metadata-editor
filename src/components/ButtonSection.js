@@ -122,10 +122,10 @@ class ButtonSection extends Component {
     };
 
     const { editingDisabled, streamInfo } = this.props.forms;
-    const { manifestFetched, manifestStructure } = this.props.manifest;
+    const { manifestFetched, structure } = this.props.manifest;
 
     // Only return UI when both structure and waveform data exist
-    return manifestFetched && manifestStructure != null ? (
+    return manifestFetched && structure != null ? (
       <section>
         <Row data-testid="button-row">
           <Col sm="6">

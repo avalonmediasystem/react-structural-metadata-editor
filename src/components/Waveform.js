@@ -46,14 +46,15 @@ const Waveform = React.forwardRef((props, ref) => {
   };
 
   React.useEffect(() => {
-
-    if (manifest.manifestMedia) {
-      setAudioFile(manifest.manifestMedia.mediaSrc);
-    }
-
     return () => {
       document.removeEventListener('keydown', handleKeyPress);
     };
+  }, []);
+
+  React.useEffect(() => {
+    if (manifest.mediaInfo) {
+      setAudioFile(manifest.mediaInfo.src);
+    }
   }, [manifest]);
 
   React.useEffect(() => {

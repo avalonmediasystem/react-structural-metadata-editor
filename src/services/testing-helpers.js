@@ -263,3 +263,198 @@ export const testInvalidData = [
     ],
   },
 ];
+
+export const manifestWoStructure = {
+  '@context': [
+    'http://www.w3.org/ns/anno.jsonld',
+    'http://iiif.io/api/presentation/3/context.json',
+  ],
+  type: 'Manifest',
+  id: 'https://example.com/lunchroom-manners/manifest',
+  label: {
+    en: ['Beginning Responsibility: Lunchroom Manners'],
+  },
+  rendering: [
+    {
+      id: 'https://example.com/lunchroom_manners/waveform.json',
+      type: 'SpecificResource',
+      label: { en: ['waveform.json'] },
+      format: 'application/json',
+    }
+  ],
+  items: [
+    {
+      type: 'Canvas',
+      id: 'https://example.com/lunchroom-manners/manifest/canvas/1',
+      width: 480,
+      height: 360,
+      duration: 660,
+      items: [
+        {
+          id: 'https://example.com/manifest/canvas/1/page',
+          type: 'AnnotationPage',
+          items: [
+            {
+              id: 'https://example.com/manifest/canvas/1/page/annotation',
+              type: 'Annotation',
+              motivation: 'painting',
+              body: [
+                {
+                  type: 'Choice',
+                  choiceHint: 'user',
+                  items: [
+                    {
+                      id: 'https://example.com/manifest/high/lunchroom_manners_1024kb.mp4',
+                      type: 'Video',
+                      format: 'video/mp4',
+                      label: {
+                        en: ['High'],
+                      },
+                    },
+                    {
+                      id: 'https://example.com/manifest/medium/lunchroom_manners_512kb.mp4',
+                      type: 'Video',
+                      format: 'video/mp4',
+                      label: {
+                        en: ['Medium'],
+                      },
+                    },
+                  ],
+                },
+              ],
+              target: 'https://example.com/manifest/canvas/1',
+            },
+          ],
+        },
+      ],
+    },
+    {
+      type: 'Canvas',
+      id: 'https://example.com/lunchroom-manners/manifest/canvas/2',
+      width: 480,
+      height: 360,
+      duration: 660,
+      items: [
+        {
+          id: 'https://example.com/manifest/canvas/2/page',
+          type: 'AnnotationPage',
+          items: [
+            {
+              id: 'https://example.com/manifest/canvas/2/page/annotation',
+              type: 'Annotation',
+              motivation: 'painting',
+              body: [
+                {
+                  type: 'Choice',
+                  choiceHint: 'user',
+                  items: [
+                    {
+                      id: 'https://example.com/manifest/high/lunchroom_manners_1024kb.mp4',
+                      type: 'Video',
+                      format: 'video/mp4',
+                      label: {
+                        en: ['High'],
+                      },
+                    },
+                    {
+                      id: 'https://example.com/manifest/medium/lunchroom_manners_512kb.mp4',
+                      type: 'Video',
+                      format: 'video/mp4',
+                      label: {
+                        en: ['Medium'],
+                      },
+                    },
+                  ],
+                },
+              ],
+              target: 'https://example.com/manifest/canvas/2',
+            },
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+export const manifestWithStructure = {
+  ' @context': [
+    'http://iiif.io/api/presentation/3/context.json',
+  ],
+  type: 'Manifest',
+  id: 'http://example.com/volleyball-for-boys/manifest',
+  label: {
+    en: ['Volley Ball for Boys'],
+  },
+  items: [
+    {
+      type: 'Canvas',
+      id: 'http://example.com/volleyball-for-boys/manifest/canvas/1',
+      items: [
+        {
+          type: 'AnnotationPage',
+          id: 'http://example.com/volleyball-for-boys/manifest/canvas/1/annotation_page/1',
+          items: [
+            {
+              type: 'Annotation',
+              motivation: 'painting',
+              target:
+                'http://example.com/volleyball-for-boys/manifest/canvas/#t=44.53,100.403',
+              body: {
+                type: 'Choice',
+                choiceHint: 'user',
+                items: [
+                  {
+                    id: 'http://dlib.indiana.edu/iiif_av/volleyball/high/volleyball-for-boys.mp4',
+                    type: 'Video',
+                    format: 'video/mp4',
+                    height: 1080,
+                    width: 1920,
+                    duration: 662.037,
+                    label: {
+                      en: ['high'],
+                    },
+                  },
+                  {
+                    id: 'http://dlib.indiana.edu/iiif_av/volleyball/medium/volleyball-for-boys.mp4',
+                    type: 'Video',
+                    format: 'video/mp4',
+                    height: 1080,
+                    width: 1920,
+                    duration: 662.037,
+                    label: {
+                      en: ['medium'],
+                    },
+                  },
+                ],
+              },
+            },
+          ],
+        },
+      ],
+      width: 1920,
+      height: 1080,
+      duration: 662.037,
+    },
+  ],
+  structures: [
+    {
+      type: 'Range',
+      behavior: 'no-nav',
+      id: 'http://example.com/volleyball-for-boys/manifest/range/1',
+      label: { en: ['Volleyball for Boys'] },
+      items: [
+        {
+          type: 'Range',
+          id: 'http://example.com/volleyball-for-boys/manifest/range/2',
+          label: { en: ['Volleyball for Boys'] },
+          items: [
+            {
+              type: 'Canvas',
+              id: 'http://example.com/volleyball-for-boys/manifest/canvas/1#t=0,',
+            },
+          ],
+        },
+      ],
+    },
+  ]
+};

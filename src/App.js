@@ -20,7 +20,7 @@ const App = (props) => {
   const dispatch = useDispatch();
 
   React.useEffect(() => {
-    dispatch(fetchManifest(props.manifestURL));
+    dispatch(fetchManifest(props.manifestURL, props.initStructure));
 
     return () => {
       dispatch(resetReduxStore());
@@ -42,6 +42,8 @@ const App = (props) => {
 };
 
 App.propTypes = {
+  manifestURL: PropTypes.string.isRequired,
+  initStructure: PropTypes.object,
   withCredentials: PropTypes.bool,
   structureIsSaved: PropTypes.func,
 };

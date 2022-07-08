@@ -25,7 +25,7 @@ describe('Waveform component', () => {
   Peaks.init(peaksOptions, (err, peaks) => {
     peaksInst = peaks;
   });
-  
+
   // Set up initial Redux store
   const initialState = {
     forms: {
@@ -41,13 +41,18 @@ describe('Waveform component', () => {
       readyPeaks: true,
       peaks: peaksInst,
     },
+    manifest: {
+      mediaInfo: {
+        src: 'http://example.com/auto.m3u8',
+        duration: 572.43,
+      }
+    }
   };
 
   beforeEach(() => {
     mediaElement = React.createRef();
     waveform = renderWithRedux(
       <Waveform
-        audioURL="https://example.com/auto.m3u8"
         ref={{
           zoomViewRef: zoomView,
           overViewRef: overView,
@@ -125,6 +130,12 @@ describe('Waveform component', () => {
             readyPeaks: true,
             peaks: null
           },
+          manifest: {
+            mediaInfo: {
+              src: 'http://example.com/auto.mp4',
+              duration: 572.4,
+            }
+          }
         };
         waveform.rerenderWithRedux(
           <Waveform
@@ -167,6 +178,12 @@ describe('Waveform component', () => {
           readyPeaks: true,
           peaks: null
         },
+        manifest: {
+          mediaInfo: {
+            src: 'http://example.com/auto.mp4',
+            duration: 572.4,
+          }
+        }
       };
       waveform.rerenderWithRedux(
         <Waveform

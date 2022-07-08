@@ -4,15 +4,22 @@ import uuidv1 from 'uuid';
 
 const smUtils = new StructuralMetadataUtils;
 
-export function getMediaInfo(manifest) {
+/**
+ * Fetch media information relavant to the current canvas
+ * from manifest
+ * @param {Object} manifest IIIF manifest from given URL
+ * @param {Number} canvasIndex index of the current canvas
+ * @returns { String, Number } { media src, media duration }
+ */
+export function getMediaInfo(manifest, canvasIndex) {
   let canvas;
   let mediaInfo = {};
   try {
     canvas = parseManifest(manifest)
       .getSequences()[0]
-      .getCanvases()[0];
+      .getCanvases()[canvasIndex];
     const sources = canvas.getContent()[0].getBody();
-    mediaInfo.mediaSrc = filterMediaSrc(sources);
+    mediaInfo.src = filtersrc(sources);
     mediaInfo.duration = canvas.getDuration();
   } catch (err) {
     console.log('Error fetching resources, ', err);
@@ -23,7 +30,7 @@ export function getMediaInfo(manifest) {
 
 }
 
-function filterMediaSrc(sources) {
+function filtersrc(sources) {
   if (sources.length < 1) {
     return '';
   }
@@ -49,17 +56,29 @@ function filterMediaSrc(sources) {
  * @param {Number} canvasIndex
  * @returns List of files under `rendering` property in manifest
  */
-export function getWaveformInfo(manifest) {
+export function getWaveformInfo(manifest, canvasIndex) {
   let files = [];
-  let rendering = parseManifest(manifest).getRenderings();
+  const manifestParsed = parseManifest(manifest);
+  let manifestRendering = manifestParsed.getRenderings();
 
-  if (rendering.length > 0) {
-    rendering.map((r) => {
-      const format = r.getFormat();
-      const name = getLabelValue(r.getProperty('label'));
-      if (format == 'application/json' && name == 'waveform.json') {
-        files.push(r.id);
-      }
+  let canvas = manifestParsed.getSequences()[0]
+    .getCanvasByIndex(canvasIndex);
+  let canvasRendering = canvas.__jsonld.rendering;
+
+  let buildFileInfo = (format, label, id) => {
+    const name = getLabelValue(label);
+    if (format == 'application/json' && name == 'waveform.json') {
+      files.push(id);
+    }
+  };
+
+  manifestRendering.map((r) => {
+    buildFileInfo(r.getFormat(), r.getProperty('label'), r.id);
+  });
+
+  if (canvasRendering) {
+    canvasRendering.map((r) => {
+      buildFileInfo(r.format, r.label, r.id);
     });
   }
   return files;
@@ -70,12 +89,13 @@ export function getWaveformInfo(manifest) {
  * structure to be consumed by the ReactJS components to help visualize
  * and edit structure
  * @param {Object} manifest current manifest
- * @param {*} duration duration of the canvas in manifest
+ * @param {Object} initStructure  backup blank structure to use
+ * @param {Number} duration duration of the canvas in manifest
  * @returns {Array, Boolean} array of nested JSON objects with structure items
  * parsed from the given manifest and boolean flag to indicate structure is
  * valid/not.
  */
-export function parseStructureToJSON(manifest, duration) {
+export function parseStructureToJSON(manifest, initStructure, duration) {
   let structureJSON = [];
   let structureIsValid = true;
 
@@ -131,6 +151,9 @@ export function parseStructureToJSON(manifest, duration) {
       items: children,
       id: uuidv1(),
     });
+  } else {
+    const root = buildInitStructure(manifest, initStructure);
+    structureJSON.push(root);
   }
 
   return { structureJSON, structureIsValid };
@@ -151,6 +174,22 @@ function validateTimes(start, end, duration) {
   }
   return { isValid, endTime };
 }
+
+
+export function buildInitStructure(manifest, initStructure) {
+  let root = initStructure;
+  if (initStructure == undefined) {
+    const manifestName = getLabelValue(manifest.label);
+    root = {
+      label: manifestName,
+      items: [],
+      type: 'root',
+      id: uuidv1(),
+      valid: true,
+    };
+  }
+  return root;
+};
 
 /**
  * Retrieve the canvas URI with mediafragment of a given

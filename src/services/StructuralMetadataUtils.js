@@ -66,14 +66,11 @@ export default class StructuralMetadataUtils {
    * @param {Float} duration - end time of the media file in Milliseconds
    */
   buildSMUI(allItems, duration) {
-    // Convert file duration to seconds
-    const durationInSeconds = Math.round(duration / 10) / 100;
-
     let smDataIsValid = true;
 
     // Convert time to HH:mm:ss.ms format to use in validation logic
     let convertToSeconds = (time) => {
-      let timeSeconds = this.toMs(time) / 1000;
+      let timeSeconds = this.timeToS(time);
       // When time property is missing
       if (isNaN(timeSeconds)) {
         return 0;
@@ -102,16 +99,16 @@ export default class StructuralMetadataUtils {
           let endTime = convertToSeconds(end);
           item.begin = this.toHHmmss(beginTime);
           item.end = this.toHHmmss(endTime);
-          if (beginTime > endTime || beginTime > durationInSeconds) {
+          if (beginTime > endTime || beginTime > duration) {
             item.valid = false;
             smDataIsValid = false;
-          } else if (endTime > durationInSeconds) {
+          } else if (endTime > duration) {
             item.valid = false;
             smDataIsValid = false;
-            item.end = this.toHHmmss(durationInSeconds);
+            item.end = this.toHHmmss(duration);
           }
           if (endTime === 0) {
-            item.end = this.toHHmmss(durationInSeconds);
+            item.end = this.toHHmmss(duration);
           }
         }
         if (item.items) {
@@ -294,13 +291,13 @@ export default class StructuralMetadataUtils {
    * @return {Boolean}
    */
   doesTimeOverlap(time, allSpans, duration = Number.MAX_SAFE_INTEGER) {
-    const { toMs } = this;
+    const { timeToS } = this;
     let valid = true;
-    time = toMs(time);
+    time = timeToS(time);
     // Loop through all spans
     for (let i in allSpans) {
-      let spanBegin = toMs(allSpans[i].begin);
-      let spanEnd = toMs(allSpans[i].end);
+      let spanBegin = timeToS(allSpans[i].begin);
+      let spanEnd = timeToS(allSpans[i].end);
 
       // Illegal time (falls between existing start/end times)
       if (time > spanBegin && time < spanEnd) {
@@ -308,7 +305,7 @@ export default class StructuralMetadataUtils {
         break;
       }
       // Time exceeds the end time of the media file
-      if (time / 1000 > duration) {
+      if (time > duration) {
         valid = false;
         break;
       }
@@ -324,14 +321,14 @@ export default class StructuralMetadataUtils {
    * @returns {Boolean}
    */
   doesTimespanOverlap(beginTime, endTime, allSpans) {
-    const { toMs } = this;
+    const { timeToS } = this;
     // Filter out only spans where new begin time is before an existing begin time
     let filteredSpans = allSpans.filter((span) => {
-      return toMs(beginTime) < toMs(span.begin);
+      return timeToS(beginTime) < timeToS(span.begin);
     });
     // Return whether new end time overlaps the next begin time, if there are timespans after the current timespan
     if (filteredSpans.length !== 0) {
-      return toMs(endTime) > toMs(filteredSpans[0].begin);
+      return timeToS(endTime) > timeToS(filteredSpans[0].begin);
     }
     return false;
   }
@@ -366,16 +363,16 @@ export default class StructuralMetadataUtils {
    * @returns {Object} - wrapper <span>s object: { before: spanObject, after: spanObject }
    */
   findWrapperSpans(newSpan, allSpans) {
-    const { toMs } = this;
+    const { timeToS } = this;
     let wrapperSpans = {
       before: null,
       after: null,
     };
     let spansBefore = allSpans.filter(
-      (span) => toMs(newSpan.begin) >= toMs(span.end)
+      (span) => timeToS(newSpan.begin) >= timeToS(span.end)
     );
     let spansAfter = allSpans.filter(
-      (span) => toMs(newSpan.end) <= toMs(span.begin)
+      (span) => timeToS(newSpan.end) <= timeToS(span.begin)
     );
 
     wrapperSpans.before =
@@ -487,7 +484,7 @@ export default class StructuralMetadataUtils {
     let uniqueHeadings = [];
     // New timespan falls between timespans in the same parent
     let stuckInMiddle = false;
-    const { toMs } = this;
+    const { timeToS } = this;
 
     const { before, after } = wrapperSpans;
     const allHeadings = this.getItemsOfType('root', allItems).concat(
@@ -507,10 +504,10 @@ export default class StructuralMetadataUtils {
         siblings.forEach((sibling, i) => {
           if (sibling.type === 'span') {
             const { begin, end } = sibling;
-            if (toMs(newEnd) < toMs(begin) && i < headingIndex) {
+            if (timeToS(newEnd) < timeToS(begin) && i < headingIndex) {
               invalid = true;
             }
-            if (toMs(newBegin) > toMs(end) && i > headingIndex) {
+            if (timeToS(newBegin) > timeToS(end) && i > headingIndex) {
               invalid = true;
             }
           }
@@ -789,7 +786,7 @@ export default class StructuralMetadataUtils {
     if (!begin || !end) {
       return true;
     }
-    if (this.toMs(begin) >= this.toMs(end)) {
+    if (this.timeToS(begin) >= this.timeToS(end)) {
       return false;
     }
     return true;
@@ -836,13 +833,13 @@ export default class StructuralMetadataUtils {
    * Convert hh:mm:ss to milliseconds to make calculations consistent
    * @param {String} strTime form input value
    */
-  toMs(strTime) {
+  timeToS(strTime) {
     let [seconds, minutes, hours] = strTime.split(':').reverse();
     let hoursInS = hours ? parseInt(hours) * 3600 : 0;
     let minutesInS = minutes ? parseInt(minutes) * 60 : 0;
     let secondsNum = seconds === '' ? 0.0 : parseFloat(seconds);
     let timeSeconds = hoursInS + minutesInS + secondsNum;
-    return timeSeconds * 1000;
+    return timeSeconds;
   }
 
   /**

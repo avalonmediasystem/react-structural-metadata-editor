@@ -76,11 +76,7 @@ describe('WaveformContainer component', () => {
 
     const { getByTestId } = renderWithRedux(
       <WaveformContainer
-        structureURL="https://mockurl.edu/structure.json"
-        waveformURL="https://mockurl.edu/waveform.json"
-        audioURL="https://mockurl.edu/media.mp4"
         initStructure={initStructure}
-        streamDuration={1738945}
       />,
       { initialState }
     );
@@ -92,15 +88,15 @@ describe('WaveformContainer component', () => {
     });
   });
 
-  test('waveform renders when fetching structure.json fails', async () => {
+  test('waveform doesn\'t render when fetching manifest fails', async () => {
     mockAxios.head.mockImplementationOnce(() => {
       return Promise.resolve({
         status: 200,
         request: {
-          responseURL: 'https://mockurl.edu/waveform.json',
+          responseURL: 'https://mockurl.edu/manifest.json',
         },
         headers: {
-          'content-disposition': 'attachment; filename="waveform.json"',
+          'content-disposition': 'attachment; filename="manifest.json"',
         },
       });
     });
@@ -113,8 +109,6 @@ describe('WaveformContainer component', () => {
     const { getByTestId } = renderWithRedux(
       <WaveformContainer
         initStructure={initStructure}
-        structureURL="https://mockurl.edu/structure.json"
-        streamDuration={1738945}
       />,
       { initialState }
     );

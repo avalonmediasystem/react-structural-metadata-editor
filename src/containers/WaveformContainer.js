@@ -33,7 +33,7 @@ const WaveformContainer = (props) => {
 
   const {
     manifest,
-    manifestMedia,
+    mediaInfo,
     manifestFetched
   } = useSelector((state) => state.manifest);
   const dispatch = useDispatch();
@@ -52,7 +52,7 @@ const WaveformContainer = (props) => {
 
   React.useEffect(() => {
     if (manifest != null && manifestFetched) {
-      const waveformInfo = getWaveformInfo(manifest);
+      const waveformInfo = getWaveformInfo(manifest, 0);
       if (waveformInfo.length > 0) {
         initializePeaksInstance(waveformInfo[0]);
       }
@@ -73,7 +73,7 @@ const WaveformContainer = (props) => {
       dispatch(retrieveWaveformSuccess());
     } catch (error) {
       // Enable the flash message alert
-      handleError(error);
+      handleError(waveformURL, error);
     }
 
     // Initialize Peaks intance with the given options
@@ -86,12 +86,12 @@ const WaveformContainer = (props) => {
       peaksInstance = peaks;
 
       dispatch(
-        initializeSMDataPeaks(peaksInstance, manifestMedia.mediaDuration)
+        initializeSMDataPeaks(peaksInstance, mediaInfo.duration)
       );
     });
   };
 
-  const handleError = (error) => {
+  const handleError = (waveformURL, error) => {
     console.log('TCL: WaveformContainer -> handleError -> error', error);
     let status = null;
 
@@ -115,7 +115,6 @@ const WaveformContainer = (props) => {
   return (
     <section className="waveform-section" data-testid="waveform-container">
       <Waveform
-        audioURL={manifestMedia.mediaSrc}
         withCredentials={props.withCredentials}
         ref={{
           zoomViewRef: zoomView,

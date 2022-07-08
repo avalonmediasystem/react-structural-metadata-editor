@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { connect } from 'react-redux';
+import { connect, useSelector } from 'react-redux';
 import List from '../components/List';
 import { Button, Col, Row } from 'react-bootstrap';
 import APIUtils from '../api/Utils';
 import { configureAlert } from '../services/alert-status';
-import { setAlert, updateStructureStatus } from '../actions/forms';
 import { isEqual } from 'lodash';
 import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
 
@@ -12,9 +11,9 @@ const StructureOutputContainer = (props) => {
   const smu = new StructuralMetadataUtils();
   const apiUtils = new APIUtils();
 
-  const { manifest, structureURL, structureInfo, structuralMetadata } = props;
-  const { structureSaved } = structureInfo;
-  const { smData, initSmData, smDataIsValid } = structuralMetadata;
+  const { structure, manifestFetched } = useSelector((state) => state.manifest);
+  const { smData, initSmData, smDataIsValid } = useSelector((state) => state.structuralMetadata);
+  const { editingDisabled, structureInfo } = useSelector((state) => state.forms);
 
   const [stateInitStructure, setInitStructure] = useState(initSmData);
 
@@ -29,7 +28,7 @@ const StructureOutputContainer = (props) => {
   }, [smDataIsValid]);
 
   useEffect(() => {
-    if (structureSaved) {
+    if (structureInfo.structureSaved) {
       props.structureIsSaved(true);
     } else {
       const cleanSmData = smu.filterObjectKey(smData, 'active');
@@ -39,7 +38,7 @@ const StructureOutputContainer = (props) => {
         props.structureIsSaved(true);
       }
     }
-  }, [structureSaved]);
+  }, [structureInfo.structureSaved]);
 
   const handleSaveError = (error) => {
     console.log('TCL: handleSaveError -> error', error);
@@ -70,16 +69,16 @@ const StructureOutputContainer = (props) => {
       className="structure-section"
       data-testid="structure-output-section"
     >
-      {manifest.manifestStructure != null && (
+      {manifestFetched && structure != undefined && (
         <div data-testid="structure-output-list">
-          <List items={manifest.manifestStructure} />
+          <List items={smData} />
           <Row>
             <Col xs={12} className="text-right">
               <Button
                 variant="primary"
                 onClick={handleSaveItClick}
                 data-testid="structure-save-button"
-                disabled={props.editingDisabled}
+                disabled={editingDisabled}
               >
                 Save Structure
               </Button>
@@ -93,20 +92,21 @@ const StructureOutputContainer = (props) => {
   );
 };
 
-const mapStateToProps = (state) => ({
-  structuralMetadata: state.structuralMetadata,
-  manifest: state.manifest,
-  structureInfo: state.forms.structureInfo,
-  editingDisabled: state.forms.editingDisabled,
-  alert: state.forms.alert,
-});
+export default StructureOutputContainer;
+// const mapStateToProps = (state) => ({
+//   structuralMetadata: state.structuralMetadata,
+//   manifest: state.manifest,
+//   structureInfo: state.forms.structureInfo,
+//   editingDisabled: state.forms.editingDisabled,
+//   alert: state.forms.alert,
+// });
 
-const mapDispatchToProps = {
-  postStructureSuccess: updateStructureStatus,
-  setAlert: setAlert,
-};
+// const mapDispatchToProps = {
+//   postStructureSuccess: updateStructureStatus,
+//   setAlert: setAlert,
+// };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(StructureOutputContainer);
+// export default connect(
+//   mapStateToProps,
+//   mapDispatchToProps
+// )(StructureOutputContainer);

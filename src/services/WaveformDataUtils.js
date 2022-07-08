@@ -52,8 +52,8 @@ export default class WaveformDataUtils {
   convertTimespanToSegment(timespan) {
     const { begin, end, label, id } = timespan;
     return {
-      startTime: this.timeToS(begin),
-      endTime: this.timeToS(end),
+      startTime: smu.timeToS(begin),
+      endTime: smu.timeToS(end),
       labelText: label,
       id: id,
     };
@@ -68,8 +68,6 @@ export default class WaveformDataUtils {
   insertTempSegment(peaksInstance, duration) {
     // Current time of the playhead
     const currentTime = this.roundOff(peaksInstance.player.getCurrentTime());
-    // Convert from milliseconds to seconds
-    const durationInSeconds = duration / 1000;
 
     let rangeEndTime,
       rangeBeginTime = currentTime;
@@ -91,19 +89,19 @@ export default class WaveformDataUtils {
     // Set the default end time of the temporary segment
     if (currentSegments.length === 0) {
       rangeEndTime =
-        durationInSeconds < 60
-          ? durationInSeconds
-          : Math.round((rangeBeginTime + 60.0) * 1000) / 1000;
+        duration < 60
+          ? duration
+          : (rangeBeginTime + 60.0);
     } else {
-      rangeEndTime = Math.round((rangeBeginTime + 60.0) * 1000) / 1000;
+      rangeEndTime = (rangeBeginTime + 60.0);
     }
 
     // Validate end time of the temporary segment
     currentSegments.map((segment) => {
       if (rangeBeginTime < segment.startTime) {
         const segmentLength = segment.endTime - segment.startTime;
-        if (durationInSeconds < 60) {
-          rangeEndTime = durationInSeconds;
+        if (duration < 60) {
+          rangeEndTime = duration;
         }
         if (segmentLength < 60 && rangeEndTime >= segment.startTime) {
           rangeEndTime = segment.startTime;
@@ -115,13 +113,13 @@ export default class WaveformDataUtils {
           rangeEndTime = segment.startTime;
         }
       }
-      if (rangeEndTime > durationInSeconds) {
-        rangeEndTime = durationInSeconds;
+      if (rangeEndTime > duration) {
+        rangeEndTime = duration;
       }
       return rangeEndTime;
     });
 
-    if (rangeBeginTime < durationInSeconds && rangeEndTime > rangeBeginTime) {
+    if (rangeBeginTime < duration && rangeEndTime > rangeBeginTime) {
       const tempSegmentLength = rangeEndTime - rangeBeginTime;
       // Continue if temporary segment has a length greater than 1ms
       if (tempSegmentLength > 0.1) {
@@ -216,7 +214,6 @@ export default class WaveformDataUtils {
   addTempInvalidSegment(item, wrapperSpans, peaksInstance, duration) {
     const { id, labelText } = this.convertTimespanToSegment(item);
     const { prevSpan, nextSpan } = wrapperSpans;
-    const durationInSeconds = duration / 1000;
     let tempSegment = {
       id,
       labelText,
@@ -227,20 +224,20 @@ export default class WaveformDataUtils {
     if (prevSpan && nextSpan) {
       tempSegment = {
         ...tempSegment,
-        startTime: this.timeToS(prevSpan.end),
-        endTime: this.timeToS(nextSpan.begin),
+        startTime: smu.timeToS(prevSpan.end),
+        endTime: smu.timeToS(nextSpan.begin),
       };
     } else if (!prevSpan) {
       tempSegment = {
         ...tempSegment,
         startTime: 0,
-        endTime: this.timeToS(nextSpan.begin),
+        endTime: smu.timeToS(nextSpan.begin),
       };
     } else if (!nextSpan) {
       tempSegment = {
         ...tempSegment,
-        startTime: this.timeToS(prevSpan.end),
-        endTime: durationInSeconds,
+        startTime: smu.timeToS(prevSpan.end),
+        endTime: duration,
       };
     }
 
@@ -262,8 +259,6 @@ export default class WaveformDataUtils {
    * @param {Number} duration - file length in milliseconds
    */
   initialSegmentValidation(id, peaksInstance, duration) {
-    const durationInSeconds = duration / 1000;
-
     let segment = peaksInstance.segments.getSegment(id);
 
     if (!segment) {
@@ -277,7 +272,7 @@ export default class WaveformDataUtils {
     // Check for margin of +/- 0.02 milliseconds to be considered
     let isDuration = (time) => {
       return (
-        time <= durationInSeconds + 0.02 && time >= durationInSeconds - 0.02
+        time <= duration + 0.02 && time >= duration - 0.02
       );
     };
     if (
@@ -341,8 +336,8 @@ export default class WaveformDataUtils {
   saveSegment(currentState, peaksInstance) {
     const { beginTime, endTime, clonedSegment } = currentState;
     clonedSegment.update({
-      startTime: this.timeToS(beginTime),
-      endTime: this.timeToS(endTime),
+      startTime: smu.timeToS(beginTime),
+      endTime: smu.timeToS(endTime),
     });
     return peaksInstance;
   }
@@ -380,8 +375,8 @@ export default class WaveformDataUtils {
   updateSegment(segment, currentState, peaksInstance) {
     const { beginTime, endTime } = currentState;
     // Convert time from hh:mm:ss(.ss) format to Number
-    let beginSeconds = this.timeToS(beginTime);
-    let endSeconds = this.timeToS(endTime);
+    let beginSeconds = smu.timeToS(beginTime);
+    let endSeconds = smu.timeToS(endTime);
     let changeSegment = peaksInstance.segments.getSegment(segment.id);
 
     // Update segment only when the entered times are valid
@@ -405,8 +400,6 @@ export default class WaveformDataUtils {
    * @param {Number} duration - file length in milliseconds
    */
   validateSegment(segment, startTimeChanged, peaksInstance, duration) {
-    const durationInSeconds = duration / 1000;
-
     const { startTime, endTime } = segment;
 
     // Segments before and after the editing segment
@@ -415,7 +408,7 @@ export default class WaveformDataUtils {
     // Check for margin of +/- 0.02 milliseconds to be considered
     let isDuration = (time) => {
       return (
-        time <= durationInSeconds + 0.02 && time >= durationInSeconds - 0.02
+        time <= duration + 0.02 && time >= duration - 0.02
       );
     };
 
@@ -434,9 +427,9 @@ export default class WaveformDataUtils {
       } else if (endTime < startTime) {
         // when end handle is dragged over the start time of the segment
         segment.update({ endTime: segment.startTime + 0.001 });
-      } else if (endTime > durationInSeconds) {
+      } else if (endTime > duration) {
         // when end handle is dragged beyond the duration of file
-        segment.update({ endTime: durationInSeconds });
+        segment.update({ endTime: duration });
       }
     }
     return segment;
@@ -508,14 +501,5 @@ export default class WaveformDataUtils {
       valueString = intVal + '.' + decVal.substring(0, 3);
     }
     return parseFloat(valueString);
-  }
-
-  /**
-   * Convert time in hh:mm:ss.ms format to seconds
-   * @param {String} time time in hh:mm:ss.ms format
-   * @returns {Number} time in seconds
-   */
-  timeToS(time) {
-    return smu.toMs(time) / 1000;
   }
 }

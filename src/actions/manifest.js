@@ -4,7 +4,7 @@ import { setAlert } from './forms';
 import APIUtils from '../api/Utils';
 import { configureAlert } from '../services/alert-status';
 import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
-import { setSMData } from './sm-data';
+import { saveInitialStructure, setSMData } from './sm-data';
 import { getMediaInfo, parseStructureToJSON } from '../services/iiif-services/iiif-parser';
 
 const apiUtils = new APIUtils();
@@ -46,7 +46,7 @@ export const fetchManifestSuccess = () => ({
  * the structure navigation components can utilize to display 
  * structure on the page
  */
-export const setManifestStructure = (structure) => ({
+export const setstructure = (structure) => ({
   type: types.SET_MANIFEST_STRUCTURE,
   structure,
 });
@@ -54,12 +54,12 @@ export const setManifestStructure = (structure) => ({
 /**
  * Set media file related info parsed from the manifest in
  * the Redux store
- * @param {String} mediaSrc - media file URI
+ * @param {String} src - media file URI
  * @param {Number} duration - duration of the media file
  */
-export const setMediaInfo = (mediaSrc, duration) => ({
+export const setMediaInfo = (src, duration) => ({
   type: types.SET_MANIFEST_MEDIAINFO,
-  mediaSrc,
+  src,
   duration,
 });
 
@@ -67,8 +67,10 @@ export const setMediaInfo = (mediaSrc, duration) => ({
  * Fetch the manifest from the given URL and handle relavant
  * errors and update manifest in the Redux store
  * @param {String} manifestURL - URL of the manifest
+ * @param {Object} initStructure - initial structure if manifest does not
+ * have structures in it
  */
-export function fetchManifest(manifestURL) {
+export function fetchManifest(manifestURL, initStructure) {
   return async (dispatch, getState) => {
     try {
       const response = await apiUtils.getRequest(manifestURL);
@@ -78,13 +80,14 @@ export function fetchManifest(manifestURL) {
         dispatch(setManifest(manifest));
       }
 
-      const { mediaSrc, duration } = getMediaInfo(manifest);
-      dispatch(setMediaInfo(mediaSrc, duration));
+      const { src, duration } = getMediaInfo(manifest, 0);
+      dispatch(setMediaInfo(src, duration));
 
-      const { structureJSON, structureIsValid } = parseStructureToJSON(manifest, duration);
+      const { structureJSON, structureIsValid } = parseStructureToJSON(manifest, initStructure, duration);
 
-      dispatch(setManifestStructure(structureJSON));
+      dispatch(setstructure(structureJSON));
       dispatch(setSMData(structureJSON, structureIsValid));
+      dispatch(saveInitialStructure(structureJSON));
 
       dispatch(fetchManifestSuccess());
     } catch (error) {

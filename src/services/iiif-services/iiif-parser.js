@@ -107,7 +107,7 @@ export function parseStructureToJSON(manifest, initStructure, duration) {
         if (childCanvases.length > 0) {
           const { start, end } = getMediaFragment(childCanvases[0], duration);
           const { isValid, endTime } = validateTimes(start, end, duration);
-          structureIsValid = isValid;
+          structureIsValid = structureIsValid && isValid;
           structItem = {
             label: getLabelValue(i.label),
             type: "span",
@@ -134,9 +134,10 @@ export function parseStructureToJSON(manifest, initStructure, duration) {
     }
   };
 
-  const structures = manifest.structures;
+
   // Check for empty structures in manifest
-  if (structures.length > 0) {
+  if (manifest && manifest.structures.length > 0) {
+    const structures = manifest.structures;
     const root = structures[0];
     let children = [];
 
@@ -166,11 +167,11 @@ function validateTimes(start, end, duration) {
     isValid = false;
   } else if (end > duration) {
     isValid = false;
-    endTime = this.toHHmmss(duration);
+    endTime = smUtils.toHHmmss(duration);
   }
   if (end === 0) {
     isValid = false;
-    endTime = this.toHHmmss(duration);
+    endTime = smUtils.toHHmmss(duration);
   }
   return { isValid, endTime };
 }
@@ -225,7 +226,7 @@ export function getMediaFragment(uri, duration) {
     const fragment = uri.split('#t=')[1];
     if (fragment !== undefined) {
       const splitFragment = fragment.split(',');
-      if (splitFragment[1] == undefined) {
+      if (splitFragment[1] == undefined || splitFragment[1] == '') {
         splitFragment[1] = duration;
       }
       return { start: Number(splitFragment[0]), end: Number(splitFragment[1]) };

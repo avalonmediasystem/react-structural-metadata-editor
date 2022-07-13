@@ -264,6 +264,98 @@ export const testInvalidData = [
   },
 ];
 
+
+export const manifest = {
+  ' @context': [
+    'http://iiif.io/api/presentation/3/context.json',
+  ],
+  type: 'Manifest',
+  id: 'http://example.com/volleyball-for-boys/manifest',
+  label: {
+    en: ['Volley Ball for Boys'],
+  },
+  rendering: [
+    {
+      id: 'https://example.com/volleyball-for-boys/waveform.json',
+      type: 'SpecificResource',
+      label: { en: ['waveform.json'] },
+      format: 'application/json',
+    }
+  ],
+  items: [
+    {
+      type: 'Canvas',
+      id: 'http://example.com/volleyball-for-boys/manifest/canvas/1',
+      items: [
+        {
+          type: 'AnnotationPage',
+          id: 'http://example.com/volleyball-for-boys/manifest/canvas/1/annotation_page/1',
+          items: [
+            {
+              type: 'Annotation',
+              motivation: 'painting',
+              target:
+                'http://example.com/volleyball-for-boys/manifest/canvas/#t=44.53,100.403',
+              body: {
+                type: 'Choice',
+                choiceHint: 'user',
+                items: [
+                  {
+                    id: 'https://example.com/volleyball-for-boys/volleyball-for-boys.mp4',
+                    type: 'Video',
+                    format: 'video/mp4',
+                    height: 1080,
+                    width: 1920,
+                    duration: 662.037,
+                    label: {
+                      en: ['high'],
+                    },
+                  },
+                  {
+                    id: 'https://example.com/volleyball-for-boys/volleyball-for-boys.mp4',
+                    type: 'Video',
+                    format: 'video/mp4',
+                    height: 1080,
+                    width: 1920,
+                    duration: 662.037,
+                    label: {
+                      en: ['medium'],
+                    },
+                  },
+                ],
+              },
+            },
+          ],
+        },
+      ],
+      width: 1920,
+      height: 1080,
+      duration: 662.037,
+    },
+  ],
+  structures: [
+    {
+      type: 'Range',
+      behavior: 'no-nav',
+      id: 'http://example.com/volleyball-for-boys/manifest/range/1',
+      label: { en: ['Volleyball for Boys'] },
+      items: [
+        {
+          type: 'Range',
+          id: 'http://example.com/volleyball-for-boys/manifest/range/2',
+          label: { en: ['Volleyball for Boys'] },
+          items: [
+            {
+              type: 'Canvas',
+              id: 'http://example.com/volleyball-for-boys/manifest/canvas/1#t=0,',
+            },
+          ],
+        },
+      ],
+    },
+  ]
+};
+
 export const manifestWoStructure = {
   '@context': [
     'http://www.w3.org/ns/anno.jsonld',

@@ -15,7 +15,7 @@ export const MISSING_WAVEFORM_ERROR =
   'Requested waveform data is not available.';
 export const INVALID_SEGMENTS_WARNING =
   'Please check start/end times of the marked invalid timespan(s).';
-export const FETCH_MANIFEST_ERROR = 
+export const FETCH_MANIFEST_ERROR =
   'Error occurred fetching Manifest.';
 
 /**
@@ -27,8 +27,8 @@ export function configureAlert(status = 0) {
 
   if (status === 401) {
     alertObj.message = UNAUTHORIZED_ACCESS;
-  } else if (status === 404) {
-    alertObj.message = MASTERFILE_NOT_FOUND;
+  } else if (status === 404 || status === -9) {
+    alertObj.message = FETCH_MANIFEST_ERROR;
   } else if (status >= 200 && status < 300) {
     alertObj.alertStyle = 'success';
     alertObj.message = SAVED_MASTERFILE_SUCCESS;
@@ -48,9 +48,6 @@ export function configureAlert(status = 0) {
     alertObj.persistent = true;
   } else if (status === -8) {
     alertObj.message = INVALID_SEGMENTS_WARNING;
-    alertObj.alertStyle = 'warning';
-  } else if (status == -9) {
-    alertObj.message = FETCH_MANIFEST_ERROR;
     alertObj.alertStyle = 'warning';
   } else {
     alertObj.message = NETWORK_ERROR;

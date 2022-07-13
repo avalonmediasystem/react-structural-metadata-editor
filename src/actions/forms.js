@@ -11,14 +11,14 @@ export const handleEditingTimespans =
     code,
     valid = true // assumes structure data is valid by default
   ) =>
-  (dispatch) => {
-    dispatch({ type: types.IS_EDITING_TIMESPAN, code });
-    // Remove dismissible alerts when a CRUD action has been initiated
-    // given editing is starting (code = 1) and structure is validated.
-    if (code == 1 && valid) {
-      dispatch(clearExistingAlerts());
-    }
-  };
+    (dispatch) => {
+      dispatch({ type: types.IS_EDITING_TIMESPAN, code });
+      // Remove dismissible alerts when a CRUD action has been initiated
+      // given editing is starting (code = 1) and structure is validated.
+      if (code == 1 && valid) {
+        dispatch(clearExistingAlerts());
+      }
+    };
 
 export const setAlert = (alert) => (dispatch) => {
   const id = uuidv1();
@@ -77,7 +77,7 @@ export const handleStructureError = (flag, status) => ({
  * of retries and still cannot load the stream media
  * @param {Integer} code - choose from; 1(true -> failed) | 0(false -> success)
  */
-export const streamMediaError = (code) => ({
+export const setStreamMediaError = (code) => ({
   type: types.STREAM_MEDIA_ERROR,
   payload: code,
 });
@@ -124,7 +124,7 @@ export function retrieveStreamMedia(audioFile, mediaPlayer, opts = {}) {
           } else {
             errorCode = -6;
           }
-          dispatch(streamMediaError(errorCode));
+          dispatch(setStreamMediaError(errorCode));
         }
       });
     }

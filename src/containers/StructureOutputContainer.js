@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import { connect, useSelector } from 'react-redux';
+import React from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import List from '../components/List';
 import { Button, Col, Row } from 'react-bootstrap';
 import APIUtils from '../api/Utils';
 import { configureAlert } from '../services/alert-status';
 import { isEqual } from 'lodash';
 import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
+import { setAlert } from '../actions/forms';
 
 const StructureOutputContainer = (props) => {
   const smu = new StructuralMetadataUtils();
@@ -14,20 +15,21 @@ const StructureOutputContainer = (props) => {
   const { structure, manifestFetched } = useSelector((state) => state.manifest);
   const { smData, initSmData, smDataIsValid } = useSelector((state) => state.structuralMetadata);
   const { editingDisabled, structureInfo } = useSelector((state) => state.forms);
+  const dispatch = useDispatch();
 
-  const [stateInitStructure, setInitStructure] = useState(initSmData);
+  const [stateInitStructure, setInitStructure] = React.useState(initSmData);
 
-  useEffect(() => {
+  React.useEffect(() => {
     setInitStructure(initSmData);
   }, [initSmData]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (!smDataIsValid) {
-      props.setAlert(configureAlert(-8));
+      dispatch(setAlert(configureAlert(-8)));
     }
   }, [smDataIsValid]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (structureInfo.structureSaved) {
       props.structureIsSaved(true);
     } else {
@@ -93,20 +95,3 @@ const StructureOutputContainer = (props) => {
 };
 
 export default StructureOutputContainer;
-// const mapStateToProps = (state) => ({
-//   structuralMetadata: state.structuralMetadata,
-//   manifest: state.manifest,
-//   structureInfo: state.forms.structureInfo,
-//   editingDisabled: state.forms.editingDisabled,
-//   alert: state.forms.alert,
-// });
-
-// const mapDispatchToProps = {
-//   postStructureSuccess: updateStructureStatus,
-//   setAlert: setAlert,
-// };
-
-// export default connect(
-//   mapStateToProps,
-//   mapDispatchToProps
-// )(StructureOutputContainer);

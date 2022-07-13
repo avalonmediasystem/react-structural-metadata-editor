@@ -13,6 +13,7 @@ import {
   retrieveStreamMedia,
   setAlert,
   streamMediaSuccess,
+  setStreamMediaError,
 } from '../actions/forms';
 import VolumeSlider from './Slider';
 import LoadingSpinner from '../services/LoadingSpinner';
@@ -31,7 +32,7 @@ const Waveform = React.forwardRef((props, ref) => {
   const readyPeaks = useSelector((state) => state.peaksInstance.readyPeaks);
   const peaksInstance = useSelector((state) => state.peaksInstance.peaks);
   const editingDisabled = useSelector((state) => state.forms.editingDisabled);
-  const manifest = useSelector((state) => state.manifest);
+  const { manifest, manifestFetched, mediaInfo } = useSelector((state) => state.manifest);
   const dispatch = useDispatch();
 
   const [audioFile, setAudioFile] = React.useState('');
@@ -52,10 +53,8 @@ const Waveform = React.forwardRef((props, ref) => {
   }, []);
 
   React.useEffect(() => {
-    if (manifest.mediaInfo) {
-      setAudioFile(manifest.mediaInfo.src);
-    }
-  }, [manifest]);
+    setAudioFile(mediaInfo.src);
+  }, [mediaInfo]);
 
   React.useEffect(() => {
     setEditing(editingDisabled);
@@ -125,7 +124,12 @@ const Waveform = React.forwardRef((props, ref) => {
     (state) => state.forms.streamInfo
   );
   const stillLoading =
-    (streamMediaLoading && !streamMediaError) || !peaksIsReady;
+    (
+      (streamMediaLoading && !streamMediaError)
+      || !peaksIsReady
+    ) && manifestFetched;
+  const playerDisabled = streamMediaError
+    || streamMediaLoading || !manifestFetched;
   return (
     <React.Fragment>
       <div
@@ -175,7 +179,7 @@ const Waveform = React.forwardRef((props, ref) => {
                 aria-label="Play"
                 onClick={playAudio}
                 data-testid="waveform-play-button"
-                disabled={streamMediaError || streamMediaLoading}
+                disabled={playerDisabled}
                 className="mr-1"
               >
                 <FontAwesomeIcon icon={faPlay} />
@@ -185,7 +189,7 @@ const Waveform = React.forwardRef((props, ref) => {
                 aria-label="Pause"
                 onClick={pauseAudio}
                 data-testid="waveform-pause-button"
-                disabled={streamMediaError || streamMediaLoading}
+                disabled={playerDisabled}
                 className="mr-1"
               >
                 <FontAwesomeIcon icon={faPause} />

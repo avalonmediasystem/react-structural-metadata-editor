@@ -2,7 +2,7 @@ import React from 'react';
 import { cleanup, wait } from 'react-testing-library';
 import 'jest-dom/extend-expect';
 import WaveformContainer from '../WaveformContainer';
-import { renderWithRedux, testSmData } from '../../services/testing-helpers';
+import { manifestWithStructure, manifestWoStructure, renderWithRedux, testSmData } from '../../services/testing-helpers';
 import mockAxios from 'axios';
 import Peaks from 'peaks';
 
@@ -13,13 +13,6 @@ let peaksInst = null;
 Peaks.init({}, (err, peaks) => {
   peaksInst = peaks;
 });
-
-// Setup Redux store for tests
-const initialState = {
-  structuralMetadata: {
-    smData: testSmData,
-  },
-};
 
 const initStructure = {
   type: 'root',
@@ -42,6 +35,7 @@ const initStructure = {
   ],
 };
 
+
 afterEach(cleanup);
 
 describe('WaveformContainer component', () => {
@@ -54,72 +48,118 @@ describe('WaveformContainer component', () => {
     originalError = console.error;
     console.error = jest.fn();
   });
+
   afterEach(() => {
     console.error = originalError;
   });
 
-  test('renders', async () => {
-    mockAxios.head.mockImplementationOnce(() => {
-      return Promise.resolve({
-        status: 200,
-        request: {
-          responseURL: 'https://mockurl.edu/waveform.json',
+  describe('renders successfully', () => {
+    let waveformContainer;
+
+    const initialState = {
+      manifest: {
+        manifestFetched: true,
+        mediaInfo: {
+          src: 'https://example.com/manifest/high/lunchroom_manners_1024kb.mp4',
+          duration: 572.4,
         },
+        manifest: manifestWoStructure
+      }
+    };
+
+    beforeEach(() => {
+      waveformContainer = renderWithRedux(
+        <WaveformContainer
+          initStructure={initStructure}
+        />,
+        { initialState }
+      );
+    });
+
+    test('with manifest', async () => {
+      await wait(() => {
+        expect(waveformContainer.getByTestId('waveform-container')).toBeInTheDocument();
+        expect(waveformContainer.getByTestId('zoomview-view')).toBeInTheDocument();
+        expect(waveformContainer.getByTestId('overview-view')).toBeInTheDocument();
       });
     });
 
-    mockAxios.get.mockImplementationOnce(() => {
-      return Promise.resolve({
-        data: testSmData[0],
+    test('when manifest has a wavefrom resource', async () => {
+      mockAxios.head.mockImplementationOnce(() => {
+        return Promise.resolve({
+          status: 200,
+          request: {
+            responseURL: 'https://example.com/lunchroom_manners/waveform.json',
+          },
+        });
       });
-    });
 
-    const { getByTestId } = renderWithRedux(
-      <WaveformContainer
-        initStructure={initStructure}
-      />,
-      { initialState }
-    );
-
-    await wait(() => {
-      expect(getByTestId('waveform-container')).toBeInTheDocument();
-      expect(getByTestId('zoomview-view')).toBeInTheDocument();
-      expect(getByTestId('overview-view')).toBeInTheDocument();
+      await wait(() => {
+        expect(mockAxios.head).toHaveBeenCalledTimes(1);
+        expect(waveformContainer.getByTestId('waveform-container')).toBeInTheDocument();
+        expect(waveformContainer.getByTestId('zoomview-view')).toBeInTheDocument();
+        expect(waveformContainer.getByTestId('overview-view')).toBeInTheDocument();
+      });
     });
   });
 
-  test('waveform doesn\'t render when fetching manifest fails', async () => {
-    mockAxios.head.mockImplementationOnce(() => {
-      return Promise.resolve({
-        status: 200,
-        request: {
-          responseURL: 'https://mockurl.edu/manifest.json',
-        },
-        headers: {
-          'content-disposition': 'attachment; filename="manifest.json"',
-        },
+  describe('doesn\'t render', () => {
+    beforeEach(() => {
+      mockAxios.head.mockImplementationOnce(() => {
+        return Promise.resolve({
+          status: 200,
+          request: {
+            responseURL: 'https://example.com/lunchroom_manners/waveform.json',
+          },
+        });
       });
     });
-    mockAxios.get.mockImplementationOnce(() => {
-      return Promise.reject({
-        error: 'Network Error',
-      });
-    });
+    test('without manifest', async () => {
+      const initialState = {
+        manifest: {
+          manifestFetched: false,
+          mediaInfo: {
+            src: '',
+            duration: 0,
+          },
+          manifest: null
+        },
+      };
 
-    const { getByTestId } = renderWithRedux(
-      <WaveformContainer
-        initStructure={initStructure}
-      />,
-      { initialState }
-    );
-
-    await wait(() => {
-      expect(mockAxios.get).toHaveBeenCalledTimes(1);
-      expect(mockAxios.get).toHaveBeenCalledWith(
-        'https://mockurl.edu/structure.json',
-        { headers: { 'Content-Type': 'application/json' } }
+      const { getByTestId } = renderWithRedux(
+        <WaveformContainer
+          initStructure={initStructure}
+        />,
+        { initialState }
       );
-      expect(getByTestId('waveform-container')).toBeInTheDocument();
+      await wait(() => {
+        expect(getByTestId('waveform-container')).toBeInTheDocument();
+        expect(mockAxios.head).toHaveBeenCalledTimes(0);
+      });
+    });
+
+    test('without waveform as a resource in manifest', async () => {
+      const initialState = {
+        manifest: {
+          manifestFetched: true,
+          manifest: manifestWithStructure,
+          mediaInfo: {
+            src: 'http://dlib.indiana.edu/iiif_av/volleyball/high/volleyball-for-boys.mp4',
+            duration: 572.4,
+          }
+        },
+      };
+      const { getByTestId, queryByTestId } = renderWithRedux(
+        <WaveformContainer
+          initStructure={initStructure}
+        />,
+        { initialState }
+      );
+
+      await wait(() => {
+        expect(getByTestId('waveform-container')).toBeInTheDocument();
+        expect(mockAxios.head).toHaveBeenCalledTimes(0);
+      });
     });
   });
 });

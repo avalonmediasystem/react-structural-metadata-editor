@@ -10,8 +10,7 @@ const initialState = {
   },
   alerts: [],
   structureInfo: {
-    structureRetrieved: false,
-    structureStatus: null,
+    structureError: null,
     structureSaved: true,
   },
 };
@@ -23,13 +22,6 @@ const forms = (state = initialState, action) => {
         editingDisabled: action.code === 1 ? true : false,
       });
 
-    case types.RETRIEVE_STRUCTURE_SUCCESS:
-      return Object.assign({}, state, {
-        structureInfo: Object.assign({}, state.structureInfo, {
-          structureRetrieved: true,
-        }),
-      });
-
     case types.RETRIEVE_WAVEFORM_SUCCESS:
       return Object.assign({}, state, {
         waveformRetrieved: true,
@@ -38,7 +30,7 @@ const forms = (state = initialState, action) => {
     case types.HANDLE_STRUCTURE_ERROR:
       return Object.assign({}, state, {
         structureInfo: Object.assign({}, state.structureInfo, {
-          structureStatus: action.flag === 0 ? null : action.status,
+          structureError: action.flag === 0 ? null : action.status,
         }),
       });
 

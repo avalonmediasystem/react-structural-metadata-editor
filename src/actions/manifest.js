@@ -1,14 +1,12 @@
 import * as types from '../actions/types';
 import { isEmpty } from 'lodash';
-import { setAlert } from './forms';
+import { handleStructureError, setAlert } from './forms';
 import APIUtils from '../api/Utils';
 import { configureAlert } from '../services/alert-status';
-import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
 import { saveInitialStructure, setSMData } from './sm-data';
-import { getMediaInfo, parseStructureToJSON } from '../services/iiif-services/iiif-parser';
+import { getMediaInfo, parseStructureToJSON } from '../services/iiif-parser';
 
 const apiUtils = new APIUtils();
-const smUtils = new StructuralMetadataUtils();
 
 /**
  * Set manifest content fetched from the given manifestURL
@@ -83,11 +81,22 @@ export function fetchManifest(manifestURL, initStructure) {
       const { src, duration } = getMediaInfo(manifest, 0);
       dispatch(setMediaInfo(src, duration));
 
-      const { structureJSON, structureIsValid } = parseStructureToJSON(manifest, initStructure, duration);
+      const {
+        structureJSON,
+        structureIsValid
+      } = parseStructureToJSON(manifest, initStructure, duration);
 
-      dispatch(setstructure(structureJSON));
-      dispatch(setSMData(structureJSON, structureIsValid));
-      dispatch(saveInitialStructure(structureJSON));
+      if (structureJSON.length > 0) {
+        dispatch(setstructure(structureJSON));
+        dispatch(setSMData(structureJSON, structureIsValid));
+        dispatch(saveInitialStructure(structureJSON));
+      } else {
+        const structStatus = -2;
+        dispatch(handleStructureError(1, structStatus));
+        // Create an alert to be displayed in the UI
+        let alert = configureAlert(structStatus);
+        dispatch(setAlert(alert));
+      }
 
       dispatch(fetchManifestSuccess());
     } catch (error) {

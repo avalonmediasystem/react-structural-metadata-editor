@@ -1,14 +1,17 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import APIUtils from '../api/Utils';
 import { useDispatch, useSelector } from 'react-redux';
-import { initializeSMDataPeaks } from '../actions/peaks-instance';
-import { setAlert } from '../actions/forms';
-import Waveform from '../components/Waveform';
-import { configureAlert } from '../services/alert-status';
-import { retrieveWaveformSuccess } from '../actions/forms';
+
 import Peaks from 'peaks.js';
-import { getWaveformInfo } from '../services/iiif-services/iiif-parser';
+
+import APIUtils from '../api/Utils';
+import { retrieveWaveformSuccess, setAlert } from '../actions/forms';
+import { initializeSMDataPeaks } from '../actions/peaks-instance';
+
+import { configureAlert } from '../services/alert-status';
+import { getWaveformInfo } from '../services/iiif-parser';
+
+import Waveform from '../components/Waveform';
 
 const apiUtils = new APIUtils();
 
@@ -128,7 +131,7 @@ const WaveformContainer = (props) => {
 };
 
 WaveformContainer.propTypes = {
-  initStructure: PropTypes.object.isRequired,
+  initStructure: PropTypes.object,
   withCredentials: PropTypes.bool,
 };
 

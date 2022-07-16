@@ -6,7 +6,7 @@ import APIUtils from '../api/Utils';
 import { configureAlert } from '../services/alert-status';
 import { isEqual } from 'lodash';
 import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
-import { setAlert } from '../actions/forms';
+import { setAlert, updateStructureStatus } from '../actions/forms';
 
 const StructureOutputContainer = (props) => {
   const smu = new StructuralMetadataUtils();
@@ -49,18 +49,18 @@ const StructureOutputContainer = (props) => {
         ? error.response.status
         : error.request.status;
     const alert = configureAlert(status);
-    props.setAlert(alert);
+    dispatch(setAlert(alert));
   };
 
   const handleSaveItClick = async () => {
     let postData = { json: smData[0] };
     try {
-      const response = await apiUtils.postRequest(structureURL, postData);
+      const response = await apiUtils.postRequest(props.structureURL, postData);
       const { status } = response;
       const alert = configureAlert(status);
-      props.setAlert(alert);
+      dispatch(setAlert(alert));
 
-      props.postStructureSuccess(1);
+      dispatch(updateStructureStatus(1));
     } catch (error) {
       handleSaveError(error);
     }

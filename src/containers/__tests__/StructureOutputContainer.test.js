@@ -5,8 +5,6 @@ import StructureOutputContainer from '../StructureOutputContainer';
 import {
   renderWithRedux,
   testSmData,
-  manifestWoStructure,
-  manifestWithStructure
 } from '../../services/testing-helpers';
 import { wrapInTestContext } from 'react-dnd-test-utils';
 
@@ -48,7 +46,7 @@ describe('StructureOutputContainer component', () => {
       ...initialState,
       manifest: {
         manifestFetched: true,
-        structure: manifestWithStructure.structures
+        structure: testSmData
       }
     };
     const { getByTestId } = renderWithRedux(
@@ -65,7 +63,7 @@ describe('StructureOutputContainer component', () => {
       ...initialState,
       manifest: {
         manifestFetched: true,
-        structure: manifestWithStructure.structures
+        structure: testSmData
       }
     };
     const { getByTestId, queryByTestId } = renderWithRedux(
@@ -84,7 +82,7 @@ describe('StructureOutputContainer component', () => {
       ...initialState,
       manifest: {
         manifestFetched: true,
-        structure: manifestWoStructure.structures
+        structure: null
       }
     };
     const { queryByTestId } = renderWithRedux(

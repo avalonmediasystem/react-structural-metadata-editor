@@ -1,10 +1,9 @@
 export const UNAUTHORIZED_ACCESS =
   "You're not authorized to access this resource.";
-export const MASTERFILE_NOT_FOUND = 'Requested data is not available.';
 export const SAVED_MASTERFILE_SUCCESS = 'Saved successfully.';
 export const NETWORK_ERROR = 'Network error. Please try again.';
 export const FETCH_STRUCTURED_DATA_ERROR =
-  'There was an error retrieving the structure information.';
+  'No structure information found. Please check your manifest.';
 export const WAVEFORM_INITIALIZE_ERROR =
   'There was an error initializing the waveform.';
 export const PEAKSJS_REACHED_END_OF_FILE =
@@ -16,7 +15,7 @@ export const MISSING_WAVEFORM_ERROR =
 export const INVALID_SEGMENTS_WARNING =
   'Please check start/end times of the marked invalid timespan(s).';
 export const FETCH_MANIFEST_ERROR =
-  'Error occurred fetching Manifest.';
+  'Requested IIIF Manifest was not found.';
 
 /**
  * Helper function which prepares a configuration object to feed the AlertContainer component

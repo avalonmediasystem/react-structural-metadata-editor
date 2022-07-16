@@ -41,10 +41,6 @@ export const clearExistingAlerts = () => ({
   type: types.CLEAR_EXISTING_ALERTS,
 });
 
-export const retrieveStructureSuccess = () => ({
-  type: types.RETRIEVE_STRUCTURE_SUCCESS,
-});
-
 /**
  * Initially the structure status isSaved (true) and changed to false
  * when an edit action is performed on the structure

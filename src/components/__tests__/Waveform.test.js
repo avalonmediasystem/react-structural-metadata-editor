@@ -45,7 +45,8 @@ describe('Waveform component', () => {
       mediaInfo: {
         src: 'http://example.com/auto.m3u8',
         duration: 572.43,
-      }
+      },
+      manifestFetched: true,
     }
   };
 

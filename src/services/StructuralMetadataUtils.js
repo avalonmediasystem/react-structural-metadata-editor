@@ -118,6 +118,9 @@ export default class StructuralMetadataUtils {
     };
 
     formatItems(allItems);
+    if (allItems.length > 0) {
+      allItems[0].type = 'root';
+    }
     return [allItems, smDataIsValid];
   }
 
@@ -816,17 +819,6 @@ export default class StructuralMetadataUtils {
     fn(structureWithIds);
 
     return structureWithIds;
-  }
-
-  /**
-   * Mark the top element as 'root' to help when creating list items
-   * The top elemetn should not have a delete icon
-   * @param {Array} smData - array of structured metadata
-   */
-  markRootElement(smData) {
-    if (smData.length > 0) {
-      smData[0].type = 'root';
-    }
   }
 
   /**

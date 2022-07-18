@@ -20,7 +20,8 @@ const App = (props) => {
   const dispatch = useDispatch();
 
   React.useEffect(() => {
-    dispatch(fetchManifest(props.manifestURL, props.initStructure));
+    const { canvasIndex, initStructure, manifestURL } = props;
+    dispatch(fetchManifest(manifestURL, initStructure, canvasIndex));
 
     return () => {
       dispatch(resetReduxStore());
@@ -42,6 +43,7 @@ const App = (props) => {
 };
 
 App.propTypes = {
+  canvasIndex: PropTypes.number.isRequired,
   manifestURL: PropTypes.string.isRequired,
   initStructure: PropTypes.object,
   withCredentials: PropTypes.bool,

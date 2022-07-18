@@ -113,13 +113,14 @@ var setMediaInfo = function setMediaInfo(src, duration) {
  * errors and update manifest in the Redux store
  * @param {String} manifestURL - URL of the manifest
  * @param {Object} initStructure - initial structure if manifest does not
+ * @param {Number} canvasIndex - index of the current canvas
  * have structures in it
  */
 
 
 exports.setMediaInfo = setMediaInfo;
 
-function fetchManifest(manifestURL, initStructure) {
+function fetchManifest(manifestURL, initStructure, canvasIndex) {
   return /*#__PURE__*/function () {
     var _ref = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee(dispatch, getState) {
       var response, manifest, _getMediaInfo, src, duration, _parseStructureToJSON, structureJSON, structureIsValid, structStatus, alert, status, _alert;
@@ -140,7 +141,7 @@ function fetchManifest(manifestURL, initStructure) {
                 dispatch(setManifest(manifest));
               }
 
-              _getMediaInfo = (0, _iiifParser.getMediaInfo)(manifest, 0), src = _getMediaInfo.src, duration = _getMediaInfo.duration;
+              _getMediaInfo = (0, _iiifParser.getMediaInfo)(manifest, canvasIndex), src = _getMediaInfo.src, duration = _getMediaInfo.duration;
               dispatch(setMediaInfo(src, duration));
               _parseStructureToJSON = (0, _iiifParser.parseStructureToJSON)(manifest, initStructure, duration), structureJSON = _parseStructureToJSON.structureJSON, structureIsValid = _parseStructureToJSON.structureIsValid;
 

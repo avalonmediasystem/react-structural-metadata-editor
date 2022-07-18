@@ -39,7 +39,10 @@ var App = function App(props) {
   var dispatch = (0, _reactRedux.useDispatch)();
 
   _react["default"].useEffect(function () {
-    dispatch((0, _manifest.fetchManifest)(props.manifestURL, props.initStructure));
+    var canvasIndex = props.canvasIndex,
+        initStructure = props.initStructure,
+        manifestURL = props.manifestURL;
+    dispatch((0, _manifest.fetchManifest)(manifestURL, initStructure, canvasIndex));
     return function () {
       dispatch((0, _actions.resetReduxStore)());
     };
@@ -55,6 +58,7 @@ var App = function App(props) {
 };
 
 App.propTypes = {
+  canvasIndex: _propTypes["default"].number.isRequired,
   manifestURL: _propTypes["default"].string.isRequired,
   initStructure: _propTypes["default"].object,
   withCredentials: _propTypes["default"].bool,

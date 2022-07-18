@@ -17,6 +17,7 @@ const props = {
       },
     ],
   },
+  canvasIndex: 0,
   manifestURL: `${BASE_API_URL}/manifests/lunchroom_manners.json`,
   structureURL: `${BASE_API_URL}/structure.json`,
   structureIsSaved: (val) => { },

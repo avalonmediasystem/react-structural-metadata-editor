@@ -50,7 +50,7 @@
                   "choiceHint": "user",
                   "items": [
                     {
-                      "id": "http://localhost:3001/lunchroom_manners/high/lunchroom_manners_1024kb.mp4",
+                      "id": "http://localhost:3000/master_files/f1881k888/low.m3u8",
                       "type": "Video",
                       "format": "video/mp4",
                       "label": {
@@ -60,7 +60,7 @@
                       }
                     },
                     {
-                      "id": "http://localhost:3001/lunchroom_manners/medium/lunchroom_manners_512kb.mp4",
+                      "id": "http://localhost:3000/master_files/f1881k888/low.m3u8",
                       "type": "Video",
                       "format": "video/mp4",
                       "label": {
@@ -70,7 +70,7 @@
                       }
                     },
                     {
-                      "id": "http://localhost:3001/lunchroom_manners/low/lunchroom_manners_256kb.mp4",
+                      "id": "http://localhost:3000/master_files/f1881k888/low.m3u8",
                       "type": "Video",
                       "format": "video/mp4",
                       "label": {

@@ -32,7 +32,7 @@ const Waveform = React.forwardRef((props, ref) => {
   const readyPeaks = useSelector((state) => state.peaksInstance.readyPeaks);
   const peaksInstance = useSelector((state) => state.peaksInstance.peaks);
   const editingDisabled = useSelector((state) => state.forms.editingDisabled);
-  const { manifest, manifestFetched, mediaInfo } = useSelector((state) => state.manifest);
+  const { manifestFetched, mediaInfo } = useSelector((state) => state.manifest);
   const dispatch = useDispatch();
 
   const [audioFile, setAudioFile] = React.useState('');
@@ -53,21 +53,18 @@ const Waveform = React.forwardRef((props, ref) => {
   }, []);
 
   React.useEffect(() => {
-    setAudioFile(mediaInfo.src);
-  }, [mediaInfo]);
-
-  React.useEffect(() => {
     setEditing(editingDisabled);
   }, [editingDisabled]);
 
   React.useEffect(() => {
+    setAudioFile(mediaInfo.src);
     setPeaksIsReady(readyPeaks);
 
-    const mimeType = getMimetype(audioFile);
+    const mimeType = getMimetype(mediaInfo.src);
     // When given a .m3u8 playlist, use HLS to stream media
-    if (readyPeaks && mimeType == 'application/x-mpegURL') {
+    if (readyPeaks == true && mimeType == 'application/x-mpegURL') {
       dispatch(
-        retrieveStreamMedia(audioFile, ref.mediaPlayerRef.current, {
+        retrieveStreamMedia(mediaInfo.src, ref.mediaPlayerRef.current, {
           withCredentials: props.withCredentials,
         })
       );
@@ -75,7 +72,7 @@ const Waveform = React.forwardRef((props, ref) => {
       // Given a audio/video file, the HTML player handles the playback
       dispatch(streamMediaSuccess());
     }
-  }, [readyPeaks]);
+  }, [readyPeaks, mediaInfo]);
 
   React.useEffect(() => {
     if (peaksInstance?.player) {

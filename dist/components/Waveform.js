@@ -51,7 +51,6 @@ var Waveform = /*#__PURE__*/_react["default"].forwardRef(function (props, ref) {
   var _useSelector = (0, _reactRedux.useSelector)(function (state) {
     return state.manifest;
   }),
-      manifest = _useSelector.manifest,
       manifestFetched = _useSelector.manifestFetched,
       mediaInfo = _useSelector.mediaInfo;
 
@@ -88,26 +87,23 @@ var Waveform = /*#__PURE__*/_react["default"].forwardRef(function (props, ref) {
   }, []);
 
   _react["default"].useEffect(function () {
-    setAudioFile(mediaInfo.src);
-  }, [mediaInfo]);
-
-  _react["default"].useEffect(function () {
     setEditing(editingDisabled);
   }, [editingDisabled]);
 
   _react["default"].useEffect(function () {
+    setAudioFile(mediaInfo.src);
     setPeaksIsReady(readyPeaks);
-    var mimeType = (0, _utils.getMimetype)(audioFile); // When given a .m3u8 playlist, use HLS to stream media
+    var mimeType = (0, _utils.getMimetype)(mediaInfo.src); // When given a .m3u8 playlist, use HLS to stream media
 
-    if (readyPeaks && mimeType == 'application/x-mpegURL') {
-      dispatch((0, _forms.retrieveStreamMedia)(audioFile, ref.mediaPlayerRef.current, {
+    if (readyPeaks == true && mimeType == 'application/x-mpegURL') {
+      dispatch((0, _forms.retrieveStreamMedia)(mediaInfo.src, ref.mediaPlayerRef.current, {
         withCredentials: props.withCredentials
       }));
     } else {
       // Given a audio/video file, the HTML player handles the playback
       dispatch((0, _forms.streamMediaSuccess)());
     }
-  }, [readyPeaks]);
+  }, [readyPeaks, mediaInfo]);
 
   _react["default"].useEffect(function () {
     if (peaksInstance !== null && peaksInstance !== void 0 && peaksInstance.player) {

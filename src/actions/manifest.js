@@ -66,9 +66,10 @@ export const setMediaInfo = (src, duration) => ({
  * errors and update manifest in the Redux store
  * @param {String} manifestURL - URL of the manifest
  * @param {Object} initStructure - initial structure if manifest does not
+ * @param {Number} canvasIndex - index of the current canvas
  * have structures in it
  */
-export function fetchManifest(manifestURL, initStructure) {
+export function fetchManifest(manifestURL, initStructure, canvasIndex) {
   return async (dispatch, getState) => {
     try {
       const response = await apiUtils.getRequest(manifestURL);
@@ -78,7 +79,7 @@ export function fetchManifest(manifestURL, initStructure) {
         dispatch(setManifest(manifest));
       }
 
-      const { src, duration } = getMediaInfo(manifest, 0);
+      const { src, duration } = getMediaInfo(manifest, canvasIndex);
       dispatch(setMediaInfo(src, duration));
 
       const {

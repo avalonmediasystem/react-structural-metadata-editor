@@ -55,7 +55,7 @@ const WaveformContainer = (props) => {
 
   React.useEffect(() => {
     if (manifest != null && manifestFetched) {
-      const waveformInfo = getWaveformInfo(manifest, 0);
+      const waveformInfo = getWaveformInfo(manifest, props.canvasIndex);
       if (waveformInfo.length > 0) {
         initializePeaksInstance(waveformInfo[0]);
       }

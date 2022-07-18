@@ -158,12 +158,11 @@ var StructuralMetadataUtils = /*#__PURE__*/function () {
     value: function buildSMUI(allItems, duration) {
       var _this2 = this;
 
-      // Convert file duration to seconds
-      var durationInSeconds = Math.round(duration / 10) / 100;
       var smDataIsValid = true; // Convert time to HH:mm:ss.ms format to use in validation logic
 
       var convertToSeconds = function convertToSeconds(time) {
-        var timeSeconds = _this2.toMs(time) / 1000; // When time property is missing
+        var timeSeconds = _this2.timeToS(time); // When time property is missing
+
 
         if (isNaN(timeSeconds)) {
           return 0;
@@ -195,17 +194,17 @@ var StructuralMetadataUtils = /*#__PURE__*/function () {
               item.begin = _this2.toHHmmss(beginTime);
               item.end = _this2.toHHmmss(endTime);
 
-              if (beginTime > endTime || beginTime > durationInSeconds) {
+              if (beginTime > endTime || beginTime > duration) {
                 item.valid = false;
                 smDataIsValid = false;
-              } else if (endTime > durationInSeconds) {
+              } else if (endTime > duration) {
                 item.valid = false;
                 smDataIsValid = false;
-                item.end = _this2.toHHmmss(durationInSeconds);
+                item.end = _this2.toHHmmss(duration);
               }
 
               if (endTime === 0) {
-                item.end = _this2.toHHmmss(durationInSeconds);
+                item.end = _this2.toHHmmss(duration);
               }
             }
 
@@ -221,6 +220,11 @@ var StructuralMetadataUtils = /*#__PURE__*/function () {
       };
 
       formatItems(allItems);
+
+      if (allItems.length > 0) {
+        allItems[0].type = 'root';
+      }
+
       return [allItems, smDataIsValid];
     }
     /**
@@ -328,13 +332,13 @@ var StructuralMetadataUtils = /*#__PURE__*/function () {
      */
     function doesTimeOverlap(time, allSpans) {
       var duration = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : Number.MAX_SAFE_INTEGER;
-      var toMs = this.toMs;
+      var timeToS = this.timeToS;
       var valid = true;
-      time = toMs(time); // Loop through all spans
+      time = timeToS(time); // Loop through all spans
 
       for (var i in allSpans) {
-        var spanBegin = toMs(allSpans[i].begin);
-        var spanEnd = toMs(allSpans[i].end); // Illegal time (falls between existing start/end times)
+        var spanBegin = timeToS(allSpans[i].begin);
+        var spanEnd = timeToS(allSpans[i].end); // Illegal time (falls between existing start/end times)
 
         if (time > spanBegin && time < spanEnd) {
           valid = false;
@@ -342,7 +346,7 @@ var StructuralMetadataUtils = /*#__PURE__*/function () {
         } // Time exceeds the end time of the media file
 
 
-        if (time / 1000 > duration) {
+        if (time > duration) {
           valid = false;
           break;
         }
@@ -361,14 +365,14 @@ var StructuralMetadataUtils = /*#__PURE__*/function () {
   }, {
     key: "doesTimespanOverlap",
     value: function doesTimespanOverlap(beginTime, endTime, allSpans) {
-      var toMs = this.toMs; // Filter out only spans where new begin time is before an existing begin time
+      var timeToS = this.timeToS; // Filter out only spans where new begin time is before an existing begin time
 
       var filteredSpans = allSpans.filter(function (span) {
-        return toMs(beginTime) < toMs(span.begin);
+        return timeToS(beginTime) < timeToS(span.begin);
       }); // Return whether new end time overlaps the next begin time, if there are timespans after the current timespan
 
       if (filteredSpans.length !== 0) {
-        return toMs(endTime) > toMs(filteredSpans[0].begin);
+        return timeToS(endTime) > timeToS(filteredSpans[0].begin);
       }
 
       return false;
@@ -421,16 +425,16 @@ var StructuralMetadataUtils = /*#__PURE__*/function () {
   }, {
     key: "findWrapperSpans",
     value: function findWrapperSpans(newSpan, allSpans) {
-      var toMs = this.toMs;
+      var timeToS = this.timeToS;
       var wrapperSpans = {
         before: null,
         after: null
       };
       var spansBefore = allSpans.filter(function (span) {
-        return toMs(newSpan.begin) >= toMs(span.end);
+        return timeToS(newSpan.begin) >= timeToS(span.end);
       });
       var spansAfter = allSpans.filter(function (span) {
-        return toMs(newSpan.end) <= toMs(span.begin);
+        return timeToS(newSpan.end) <= timeToS(span.begin);
       });
       wrapperSpans.before = spansBefore.length > 0 ? spansBefore[spansBefore.length - 1] : null;
       wrapperSpans.after = spansAfter.length > 0 ? spansAfter[0] : null;
@@ -570,7 +574,7 @@ var StructuralMetadataUtils = /*#__PURE__*/function () {
       var uniqueHeadings = []; // New timespan falls between timespans in the same parent
 
       var stuckInMiddle = false;
-      var toMs = this.toMs;
+      var timeToS = this.timeToS;
       var before = wrapperSpans.before,
           after = wrapperSpans.after;
       var allHeadings = this.getItemsOfType('root', allItems).concat(this.getItemsOfType('div', allItems)); // Explore possible headings traversing outwards from a suggested heading
@@ -593,11 +597,11 @@ var StructuralMetadataUtils = /*#__PURE__*/function () {
               var begin = sibling.begin,
                   end = sibling.end;
 
-              if (toMs(newEnd) < toMs(begin) && i < headingIndex) {
+              if (timeToS(newEnd) < timeToS(begin) && i < headingIndex) {
                 invalid = true;
               }
 
-              if (toMs(newBegin) > toMs(end) && i > headingIndex) {
+              if (timeToS(newBegin) > timeToS(end) && i > headingIndex) {
                 invalid = true;
               }
             }
@@ -930,7 +934,7 @@ var StructuralMetadataUtils = /*#__PURE__*/function () {
         return true;
       }
 
-      if (this.toMs(begin) >= this.toMs(end)) {
+      if (this.timeToS(begin) >= this.timeToS(end)) {
         return false;
       }
 
@@ -972,26 +976,13 @@ var StructuralMetadataUtils = /*#__PURE__*/function () {
       return structureWithIds;
     }
     /**
-     * Mark the top element as 'root' to help when creating list items
-     * The top elemetn should not have a delete icon
-     * @param {Array} smData - array of structured metadata
-     */
-
-  }, {
-    key: "markRootElement",
-    value: function markRootElement(smData) {
-      if (smData.length > 0) {
-        smData[0].type = 'root';
-      }
-    }
-    /**
      * Convert hh:mm:ss to milliseconds to make calculations consistent
      * @param {String} strTime form input value
      */
 
   }, {
-    key: "toMs",
-    value: function toMs(strTime) {
+    key: "timeToS",
+    value: function timeToS(strTime) {
       var _strTime$split$revers = strTime.split(':').reverse(),
           _strTime$split$revers2 = (0, _slicedToArray2["default"])(_strTime$split$revers, 3),
           seconds = _strTime$split$revers2[0],
@@ -1002,7 +993,7 @@ var StructuralMetadataUtils = /*#__PURE__*/function () {
       var minutesInS = minutes ? parseInt(minutes) * 60 : 0;
       var secondsNum = seconds === '' ? 0.0 : parseFloat(seconds);
       var timeSeconds = hoursInS + minutesInS + secondsNum;
-      return timeSeconds * 1000;
+      return timeSeconds;
     }
     /**
      * Convert seconds to string format hh:mm:ss.ms

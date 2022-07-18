@@ -27,8 +27,7 @@ var initialState = {
   },
   alerts: [],
   structureInfo: {
-    structureRetrieved: false,
-    structureStatus: null,
+    structureError: null,
     structureSaved: true
   }
 };
@@ -43,13 +42,6 @@ var forms = function forms() {
         editingDisabled: action.code === 1 ? true : false
       });
 
-    case types.RETRIEVE_STRUCTURE_SUCCESS:
-      return Object.assign({}, state, {
-        structureInfo: Object.assign({}, state.structureInfo, {
-          structureRetrieved: true
-        })
-      });
-
     case types.RETRIEVE_WAVEFORM_SUCCESS:
       return Object.assign({}, state, {
         waveformRetrieved: true
@@ -58,7 +50,7 @@ var forms = function forms() {
     case types.HANDLE_STRUCTURE_ERROR:
       return Object.assign({}, state, {
         structureInfo: Object.assign({}, state.structureInfo, {
-          structureStatus: action.flag === 0 ? null : action.status
+          structureError: action.flag === 0 ? null : action.status
         })
       });
 

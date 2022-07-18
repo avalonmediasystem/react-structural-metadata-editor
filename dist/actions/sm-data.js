@@ -15,6 +15,7 @@ exports.removeActiveDragSources = removeActiveDragSources;
 exports.removeDropTargets = removeDropTargets;
 exports.saveInitialStructure = saveInitialStructure;
 exports.setActiveDragSource = setActiveDragSource;
+exports.setSMData = setSMData;
 
 var types = _interopRequireWildcard(require("./types"));
 
@@ -37,6 +38,14 @@ function reBuildSMUI(items, duration) {
     }
 
     dispatch((0, _forms.updateStructureStatus)(0));
+  };
+}
+
+function setSMData(structure, isValid) {
+  return {
+    type: types.SET_SMDATA,
+    structure: structure,
+    isValid: isValid
   };
 }
 

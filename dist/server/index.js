@@ -28,7 +28,6 @@ var app = express(); // Add hot reloading into the Node.js server
 
 var compiler = webpack(webpackConfig);
 app.use(require('webpack-dev-middleware')(compiler, {
-  // noInfo: true,
   publicPath: webpackConfig.output.publicPath
 }));
 app.use(require('webpack-hot-middleware')(compiler)); // When you navigate to the root page, use the built React components
@@ -70,7 +69,23 @@ app.get('/waveform.json', function (req, res) {
 });
 app.get('/media.mp4', function (req, res) {
   res.header('Content-Type', 'video/mp4');
-  res.sendFile(path.join(__dirname, 'assets', 'media.mp4'));
+  res.sendFile(path.join(__dirname, 'assets/lunchroom_manners/medium', 'lunchroom_manners_512kb.mp4'));
+});
+app.get('/lunchroom_manners/low/lunchroom_manners_256kb.mp4', function (req, res) {
+  res.header('Content-Type', 'video/mp4');
+  res.sendFile(path.join(__dirname, 'assets/lunchroom_manners/low', 'lunchroom_manners_256kb.mp4'));
+});
+app.get('/manifests/lunchroom_manners.json', function (req, res) {
+  res.header('Content-Type', 'application/json');
+  var manifest;
+
+  try {
+    manifest = fs.readFileSync(path.join(__dirname, 'assets/manifests', 'lunchroom_manners.json'), 'utf-8');
+  } catch (err) {
+    console.error('Server -> Error fetching manifest -> ', err);
+  }
+
+  res.send(manifest);
 });
 app.post('/structure.json', function (req, res) {
   var newStructure = req.body.json;

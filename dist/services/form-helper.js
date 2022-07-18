@@ -172,7 +172,7 @@ function validTimespans(beginTime, endTime, allSpans, peaksInstance) {
   } // Timespan end time is greater than end time of the media file
 
 
-  if (duration < structuralMetadataUtils.toMs(endTime) / 1000) {
+  if (duration < structuralMetadataUtils.timeToS(endTime) / 1000) {
     return {
       valid: false,
       message: 'End time overlaps duration of the media file'

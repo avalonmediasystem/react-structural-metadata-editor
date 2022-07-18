@@ -21,25 +21,11 @@ exports.revertSegment = revertSegment;
 exports.saveSegment = saveSegment;
 exports.updateSegment = updateSegment;
 
-var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
-
 var _slicedToArray2 = _interopRequireDefault(require("@babel/runtime/helpers/slicedToArray"));
-
-var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
 
 var types = _interopRequireWildcard(require("./types"));
 
 var _lodash = require("lodash");
-
-var _Utils = _interopRequireDefault(require("../api/Utils"));
-
-var _smData = require("./sm-data");
-
-var _forms = require("./forms");
-
-var _StructuralMetadataUtils = _interopRequireDefault(require("../services/StructuralMetadataUtils"));
-
-var _alertStatus = require("../services/alert-status");
 
 var _WaveformDataUtils = _interopRequireDefault(require("../services/WaveformDataUtils"));
 
@@ -47,109 +33,49 @@ function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "functio
 
 function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { "default": obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
-// import Peaks from 'peaks.js';
 var waveformUtils = new _WaveformDataUtils["default"]();
-var apiUtils = new _Utils["default"]();
-var structuralMetadataUtils = new _StructuralMetadataUtils["default"]();
 /**
- * Fetch structure.json and initialize Peaks
+ * Initialize Peaks instance from structure
  * @param {Object} peaks - initialized peaks instance
- * @param {String} structureURL - URL of the structure.json
- * @param {JSON} initStructure - structure with root element when empty
- * @param {Object} options - peaks options
+ * @param {Number} duration - duration of the media file
  */
 
-function initializeSMDataPeaks(peaks, structureURL, initStructure, duration) {
-  return /*#__PURE__*/function () {
-    var _ref = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee(dispatch, getState) {
-      var smData, response, status, alert, segments, _getState, peaksInstance, dragged;
+function initializeSMDataPeaks(peaks, duration) {
+  return function (dispatch, getState) {
+    var _getState = getState(),
+        structuralMetadata = _getState.structuralMetadata;
 
-      return _regenerator["default"].wrap(function _callee$(_context) {
-        while (1) {
-          switch (_context.prev = _context.next) {
-            case 0:
-              smData = [];
+    if (peaks) {
+      // Create segments from structural metadata
+      var segments = waveformUtils.initSegments(structuralMetadata.smData, duration); // Add segments to peaks instance
 
-              if (typeof initStructure === 'string' && initStructure !== '') {
-                smData = structuralMetadataUtils.addUUIds([JSON.parse(initStructure)]);
-              } else if (!(0, _lodash.isEmpty)(initStructure)) {
-                smData = structuralMetadataUtils.addUUIds([initStructure]);
-              }
+      segments.map(function (seg) {
+        return peaks.segments.add(seg);
+      });
+      dispatch(initPeaks(peaks, duration)); // Subscribe to Peaks events
 
-              _context.prev = 2;
-              _context.next = 5;
-              return apiUtils.getRequest(structureURL);
+      var _getState2 = getState(),
+          peaksInstance = _getState2.peaksInstance;
 
-            case 5:
-              response = _context.sent;
+      if (!(0, _lodash.isEmpty)(peaksInstance.events)) {
+        var dragged = peaksInstance.events.dragged; // for segment editing using handles
 
-              if (!(0, _lodash.isEmpty)(response.data)) {
-                smData = structuralMetadataUtils.addUUIds([response.data]);
-              } // Update redux-store flag for structure file retrieval
+        if (dragged) {
+          dragged.subscribe(function (eProps) {
+            // startTimeChanged = true -> handle at the start of the segment is being dragged
+            // startTimeChanged = flase -> handle at the end of the segment is being dragged
+            var _eProps = (0, _slicedToArray2["default"])(eProps, 2),
+                segment = _eProps[0],
+                startTimeChanged = _eProps[1];
 
+            dispatch(dragSegment(segment.id, startTimeChanged, 1));
+          }); // Mark peaks is ready
 
-              dispatch((0, _forms.retrieveStructureSuccess)());
-              _context.next = 17;
-              break;
-
-            case 10:
-              _context.prev = 10;
-              _context.t0 = _context["catch"](2);
-              console.log('TCL: Structure -> }catch -> error', _context.t0);
-              status = _context.t0.response !== undefined ? _context.t0.response.status : -2;
-              dispatch((0, _forms.handleStructureError)(1, status));
-              alert = (0, _alertStatus.configureAlert)(status);
-              dispatch((0, _forms.setAlert)(alert));
-
-            case 17:
-              // Mark the top element as 'root'
-              structuralMetadataUtils.markRootElement(smData); // Initialize Redux state variable with structure
-
-              dispatch((0, _smData.buildSMUI)(smData, duration));
-              dispatch((0, _smData.saveInitialStructure)(smData));
-
-              if (peaks) {
-                // Create segments from structural metadata
-                segments = waveformUtils.initSegments(smData, duration); // Add segments to peaks instance
-
-                segments.map(function (seg) {
-                  return peaks.segments.add(seg);
-                });
-                dispatch(initPeaks(peaks, duration)); // Subscribe to Peaks events
-
-                _getState = getState(), peaksInstance = _getState.peaksInstance;
-
-                if (!(0, _lodash.isEmpty)(peaksInstance.events)) {
-                  dragged = peaksInstance.events.dragged; // for segment editing using handles
-
-                  if (dragged) {
-                    dragged.subscribe(function (eProps) {
-                      // startTimeChanged = true -> handle at the start of the segment is being dragged
-                      // startTimeChanged = flase -> handle at the end of the segment is being dragged
-                      var _eProps = (0, _slicedToArray2["default"])(eProps, 2),
-                          segment = _eProps[0],
-                          startTimeChanged = _eProps[1];
-
-                      dispatch(dragSegment(segment.id, startTimeChanged, 1));
-                    }); // Mark peaks is ready
-
-                    dispatch(peaksReady(true));
-                  }
-                }
-              }
-
-            case 21:
-            case "end":
-              return _context.stop();
-          }
+          dispatch(peaksReady(true));
         }
-      }, _callee, null, [[2, 10]]);
-    }));
-
-    return function (_x, _x2) {
-      return _ref.apply(this, arguments);
-    };
-  }();
+      }
+    }
+  };
 }
 
 function initPeaks(peaksInstance, duration) {

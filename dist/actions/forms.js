@@ -9,7 +9,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.removeAlert = exports.handleStructureError = exports.handleEditingTimespans = exports.clearExistingAlerts = void 0;
 exports.retrieveStreamMedia = retrieveStreamMedia;
-exports.updateStructureStatus = exports.streamMediaSuccess = exports.streamMediaError = exports.setAlert = exports.retrieveWaveformSuccess = exports.retrieveStructureSuccess = void 0;
+exports.updateStructureStatus = exports.streamMediaSuccess = exports.setStreamMediaError = exports.setAlert = exports.retrieveWaveformSuccess = void 0;
 
 var types = _interopRequireWildcard(require("./types"));
 
@@ -75,14 +75,6 @@ var clearExistingAlerts = function clearExistingAlerts() {
     type: types.CLEAR_EXISTING_ALERTS
   };
 };
-
-exports.clearExistingAlerts = clearExistingAlerts;
-
-var retrieveStructureSuccess = function retrieveStructureSuccess() {
-  return {
-    type: types.RETRIEVE_STRUCTURE_SUCCESS
-  };
-};
 /**
  * Initially the structure status isSaved (true) and changed to false
  * when an edit action is performed on the structure
@@ -90,7 +82,7 @@ var retrieveStructureSuccess = function retrieveStructureSuccess() {
  */
 
 
-exports.retrieveStructureSuccess = retrieveStructureSuccess;
+exports.clearExistingAlerts = clearExistingAlerts;
 
 var updateStructureStatus = function updateStructureStatus(code) {
   return {
@@ -133,14 +125,14 @@ var handleStructureError = function handleStructureError(flag, status) {
 
 exports.handleStructureError = handleStructureError;
 
-var streamMediaError = function streamMediaError(code) {
+var setStreamMediaError = function setStreamMediaError(code) {
   return {
     type: types.STREAM_MEDIA_ERROR,
     payload: code
   };
 };
 
-exports.streamMediaError = streamMediaError;
+exports.setStreamMediaError = setStreamMediaError;
 
 var streamMediaSuccess = function streamMediaSuccess() {
   return {
@@ -186,7 +178,7 @@ function retrieveStreamMedia(audioFile, mediaPlayer) {
             errorCode = -6;
           }
 
-          dispatch(streamMediaError(errorCode));
+          dispatch(setStreamMediaError(errorCode));
         }
       });
     }

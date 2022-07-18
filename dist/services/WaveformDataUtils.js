@@ -48,8 +48,7 @@ var WaveformDataUtils = /*#__PURE__*/function () {
       var _this = this;
 
       var segments = [];
-      var count = 0;
-      var durationInSeconds = duration / 1000; // Recursively build segments for timespans in the structure
+      var count = 0; // Recursively build segments for timespans in the structure
 
       var createSegment = function createSegment(items) {
         var _iterator = _createForOfIteratorHelper(items),
@@ -82,7 +81,7 @@ var WaveformDataUtils = /*#__PURE__*/function () {
 
       createSegment(smData);
       var validSegments = segments.filter(function (s) {
-        return s.startTime < s.endTime && s.startTime < durationInSeconds;
+        return s.startTime < s.endTime && s.startTime < duration;
       });
       return validSegments;
     }
@@ -99,8 +98,8 @@ var WaveformDataUtils = /*#__PURE__*/function () {
           label = timespan.label,
           id = timespan.id;
       return {
-        startTime: this.timeToS(begin),
-        endTime: this.timeToS(end),
+        startTime: smu.timeToS(begin),
+        endTime: smu.timeToS(end),
         labelText: label,
         id: id
       };
@@ -118,9 +117,7 @@ var WaveformDataUtils = /*#__PURE__*/function () {
       var _this2 = this;
 
       // Current time of the playhead
-      var currentTime = this.roundOff(peaksInstance.player.getCurrentTime()); // Convert from milliseconds to seconds
-
-      var durationInSeconds = duration / 1000;
+      var currentTime = this.roundOff(peaksInstance.player.getCurrentTime());
       var rangeEndTime,
           rangeBeginTime = currentTime;
       var currentSegments = this.sortSegments(peaksInstance, 'startTime'); // Validate start time of the temporary segment
@@ -135,9 +132,9 @@ var WaveformDataUtils = /*#__PURE__*/function () {
       }); // Set the default end time of the temporary segment
 
       if (currentSegments.length === 0) {
-        rangeEndTime = durationInSeconds < 60 ? durationInSeconds : Math.round((rangeBeginTime + 60.0) * 1000) / 1000;
+        rangeEndTime = duration < 60 ? duration : rangeBeginTime + 60.0;
       } else {
-        rangeEndTime = Math.round((rangeBeginTime + 60.0) * 1000) / 1000;
+        rangeEndTime = rangeBeginTime + 60.0;
       } // Validate end time of the temporary segment
 
 
@@ -145,8 +142,8 @@ var WaveformDataUtils = /*#__PURE__*/function () {
         if (rangeBeginTime < segment.startTime) {
           var segmentLength = segment.endTime - segment.startTime;
 
-          if (durationInSeconds < 60) {
-            rangeEndTime = durationInSeconds;
+          if (duration < 60) {
+            rangeEndTime = duration;
           }
 
           if (segmentLength < 60 && rangeEndTime >= segment.startTime) {
@@ -158,14 +155,14 @@ var WaveformDataUtils = /*#__PURE__*/function () {
           }
         }
 
-        if (rangeEndTime > durationInSeconds) {
-          rangeEndTime = durationInSeconds;
+        if (rangeEndTime > duration) {
+          rangeEndTime = duration;
         }
 
         return rangeEndTime;
       });
 
-      if (rangeBeginTime < durationInSeconds && rangeEndTime > rangeBeginTime) {
+      if (rangeBeginTime < duration && rangeEndTime > rangeBeginTime) {
         var tempSegmentLength = rangeEndTime - rangeBeginTime; // Continue if temporary segment has a length greater than 1ms
 
         if (tempSegmentLength > 0.1) {
@@ -284,7 +281,6 @@ var WaveformDataUtils = /*#__PURE__*/function () {
 
       var prevSpan = wrapperSpans.prevSpan,
           nextSpan = wrapperSpans.nextSpan;
-      var durationInSeconds = duration / 1000;
       var tempSegment = {
         id: id,
         labelText: labelText,
@@ -294,18 +290,18 @@ var WaveformDataUtils = /*#__PURE__*/function () {
 
       if (prevSpan && nextSpan) {
         tempSegment = _objectSpread(_objectSpread({}, tempSegment), {}, {
-          startTime: this.timeToS(prevSpan.end),
-          endTime: this.timeToS(nextSpan.begin)
+          startTime: smu.timeToS(prevSpan.end),
+          endTime: smu.timeToS(nextSpan.begin)
         });
       } else if (!prevSpan) {
         tempSegment = _objectSpread(_objectSpread({}, tempSegment), {}, {
           startTime: 0,
-          endTime: this.timeToS(nextSpan.begin)
+          endTime: smu.timeToS(nextSpan.begin)
         });
       } else if (!nextSpan) {
         tempSegment = _objectSpread(_objectSpread({}, tempSegment), {}, {
-          startTime: this.timeToS(prevSpan.end),
-          endTime: durationInSeconds
+          startTime: smu.timeToS(prevSpan.end),
+          endTime: duration
         });
       }
 
@@ -331,7 +327,6 @@ var WaveformDataUtils = /*#__PURE__*/function () {
   }, {
     key: "initialSegmentValidation",
     value: function initialSegmentValidation(id, peaksInstance, duration) {
-      var durationInSeconds = duration / 1000;
       var segment = peaksInstance.segments.getSegment(id);
 
       if (!segment) {
@@ -347,7 +342,7 @@ var WaveformDataUtils = /*#__PURE__*/function () {
 
 
       var isDuration = function isDuration(time) {
-        return time <= durationInSeconds + 0.02 && time >= durationInSeconds - 0.02;
+        return time <= duration + 0.02 && time >= duration - 0.02;
       };
 
       if (before && segment.startTime < before.endTime && !isDuration(before.endTime)) {
@@ -421,8 +416,8 @@ var WaveformDataUtils = /*#__PURE__*/function () {
           endTime = currentState.endTime,
           clonedSegment = currentState.clonedSegment;
       clonedSegment.update({
-        startTime: this.timeToS(beginTime),
-        endTime: this.timeToS(endTime)
+        startTime: smu.timeToS(beginTime),
+        endTime: smu.timeToS(endTime)
       });
       return peaksInstance;
     }
@@ -472,8 +467,8 @@ var WaveformDataUtils = /*#__PURE__*/function () {
       var beginTime = currentState.beginTime,
           endTime = currentState.endTime; // Convert time from hh:mm:ss(.ss) format to Number
 
-      var beginSeconds = this.timeToS(beginTime);
-      var endSeconds = this.timeToS(endTime);
+      var beginSeconds = smu.timeToS(beginTime);
+      var endSeconds = smu.timeToS(endTime);
       var changeSegment = peaksInstance.segments.getSegment(segment.id); // Update segment only when the entered times are valid
 
       if (beginSeconds < segment.endTime && segment.startTime !== beginSeconds) {
@@ -504,7 +499,6 @@ var WaveformDataUtils = /*#__PURE__*/function () {
   }, {
     key: "validateSegment",
     value: function validateSegment(segment, startTimeChanged, peaksInstance, duration) {
-      var durationInSeconds = duration / 1000;
       var startTime = segment.startTime,
           endTime = segment.endTime; // Segments before and after the editing segment
 
@@ -514,7 +508,7 @@ var WaveformDataUtils = /*#__PURE__*/function () {
 
 
       var isDuration = function isDuration(time) {
-        return time <= durationInSeconds + 0.02 && time >= durationInSeconds - 0.02;
+        return time <= duration + 0.02 && time >= duration - 0.02;
       };
 
       if (startTimeChanged) {
@@ -540,10 +534,10 @@ var WaveformDataUtils = /*#__PURE__*/function () {
           segment.update({
             endTime: segment.startTime + 0.001
           });
-        } else if (endTime > durationInSeconds) {
+        } else if (endTime > duration) {
           // when end handle is dragged beyond the duration of file
           segment.update({
-            endTime: durationInSeconds
+            endTime: duration
           });
         }
       }
@@ -632,17 +626,6 @@ var WaveformDataUtils = /*#__PURE__*/function () {
       }
 
       return parseFloat(valueString);
-    }
-    /**
-     * Convert time in hh:mm:ss.ms format to seconds
-     * @param {String} time time in hh:mm:ss.ms format
-     * @returns {Number} time in seconds
-     */
-
-  }, {
-    key: "timeToS",
-    value: function timeToS(time) {
-      return smu.toMs(time) / 1000;
     }
   }]);
   return WaveformDataUtils;

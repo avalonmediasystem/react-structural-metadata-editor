@@ -46,6 +46,13 @@ var structuralMetadata = function structuralMetadata() {
         smDataIsValid: newState[1]
       });
 
+    case types.SET_SMDATA:
+      return _objectSpread(_objectSpread({}, state), {}, {
+        smData: action.structure,
+        initSmData: action.structure,
+        smDataIsValid: action.isValid
+      });
+
     case types.REBUILD_SM_UI:
       return _objectSpread(_objectSpread({}, state), {}, {
         smData: action.items

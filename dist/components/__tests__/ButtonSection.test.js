@@ -2,7 +2,7 @@ import React from 'react';
 import Peaks from 'peaks';
 import { fireEvent, cleanup, wait } from 'react-testing-library';
 import 'jest-dom/extend-expect';
-import { renderWithRedux, testSmData } from '../../services/testing-helpers';
+import { manifest, renderWithRedux, testSmData } from '../../services/testing-helpers';
 import ButtonSection from '../ButtonSection';
 
 afterEach(cleanup);
@@ -53,6 +53,10 @@ describe('ButtonSection component', () => {
           duration: 1738945.306,
         },
         structuralMetadata: { smData: testSmData },
+        manifest: {
+          manifestFetched: true,
+          structure: [manifest.structures]
+        }
       };
       buttonSection = renderWithRedux(<ButtonSection />, {
         initialState,

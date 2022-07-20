@@ -1,11 +1,12 @@
 export const UNAUTHORIZED_ACCESS =
   "You're not authorized to access this resource.";
-export const SAVED_MASTERFILE_SUCCESS = 'Saved successfully.';
+export const SAVE_STRUCTURE_SUCCESS = 'Saved successfully.';
+export const SAVE_STRUCTURE_FAIL = 'Failed to save structure successfully.';
 export const NETWORK_ERROR = 'Network error. Please try again.';
 export const FETCH_STRUCTURED_DATA_ERROR =
-  'No structure information found. Please check your manifest.';
+  'No structure information found. Please check your Manifest.';
 export const WAVEFORM_INITIALIZE_ERROR =
-  'There was an error initializing the waveform.';
+  'There was an error building the waveform. Please check your Manifest.';
 export const PEAKSJS_REACHED_END_OF_FILE =
   'There is no space available to insert a new timespan.';
 export const STREAM_MEDIA_ERROR =
@@ -30,9 +31,11 @@ export function configureAlert(status = 0) {
     alertObj.message = FETCH_MANIFEST_ERROR;
   } else if (status >= 200 && status < 300) {
     alertObj.alertStyle = 'success';
-    alertObj.message = SAVED_MASTERFILE_SUCCESS;
+    alertObj.message = SAVE_STRUCTURE_SUCCESS;
     alertObj.delay = 2000;
     alertObj.type = 'SAVE_FEEDBACK';
+  } else if (status === -10) {
+    alertObj.message = SAVE_STRUCTURE_FAIL;
   } else if (status === -2) {
     alertObj.message = FETCH_STRUCTURED_DATA_ERROR;
   } else if (status === -3) {

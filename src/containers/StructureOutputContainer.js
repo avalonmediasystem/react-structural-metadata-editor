@@ -44,11 +44,8 @@ const StructureOutputContainer = (props) => {
 
   const handleSaveError = (error) => {
     console.log('TCL: handleSaveError -> error', error);
-    let status =
-      error.response !== undefined
-        ? error.response.status
-        : error.request.status;
-    const alert = configureAlert(status);
+
+    const alert = configureAlert(-10);
     dispatch(setAlert(alert));
   };
 
@@ -71,9 +68,9 @@ const StructureOutputContainer = (props) => {
       className="structure-section"
       data-testid="structure-output-section"
     >
-      {manifestFetched && structure != undefined && (
+      {manifestFetched && structure != null && (
         <div data-testid="structure-output-list">
-          <List items={smData} />
+          <List items={structure} />
           <Row>
             <Col xs={12} className="text-right">
               <Button

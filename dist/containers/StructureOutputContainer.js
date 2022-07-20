@@ -87,8 +87,7 @@ var StructureOutputContainer = function StructureOutputContainer(props) {
 
   var handleSaveError = function handleSaveError(error) {
     console.log('TCL: handleSaveError -> error', error);
-    var status = error.response !== undefined ? error.response.status : error.request.status;
-    var alert = (0, _alertStatus.configureAlert)(status);
+    var alert = (0, _alertStatus.configureAlert)(-10);
     dispatch((0, _forms.setAlert)(alert));
   };
 
@@ -136,10 +135,10 @@ var StructureOutputContainer = function StructureOutputContainer(props) {
   return /*#__PURE__*/_react["default"].createElement("section", {
     className: "structure-section",
     "data-testid": "structure-output-section"
-  }, manifestFetched && structure != undefined && /*#__PURE__*/_react["default"].createElement("div", {
+  }, manifestFetched && structure != null && /*#__PURE__*/_react["default"].createElement("div", {
     "data-testid": "structure-output-list"
   }, /*#__PURE__*/_react["default"].createElement(_List["default"], {
-    items: smData
+    items: structure
   }), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Row, null, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Col, {
     xs: 12,
     className: "text-right"

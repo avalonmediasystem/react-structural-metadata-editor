@@ -118,14 +118,8 @@ export function parseStructureToJSON(manifest, initStructure, duration) {
           id: uuidv1(),
         };
         if (childCanvases.length > 0) {
-          const {
-            start,
-            end
-          } = getMediaFragment(childCanvases[0], duration);
-          const {
-            isValid,
-            endTime
-          } = validateTimes(start, end, duration);
+          const { start, end } = getMediaFragment(childCanvases[0], duration);
+          const { isValid, endTime } = validateTimes(start, end, duration);
 
           structureIsValid = structureIsValid && isValid;
           structItem = {

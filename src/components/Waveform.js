@@ -62,7 +62,7 @@ const Waveform = React.forwardRef((props, ref) => {
 
     const mimeType = getMimetype(mediaInfo.src);
     // When given a .m3u8 playlist, use HLS to stream media
-    if (readyPeaks == true && mimeType == 'application/x-mpegURL') {
+    if (mimeType == 'application/x-mpegURL') {
       dispatch(
         retrieveStreamMedia(mediaInfo.src, ref.mediaPlayerRef.current, {
           withCredentials: props.withCredentials,
@@ -164,7 +164,7 @@ const Waveform = React.forwardRef((props, ref) => {
       >
         Your browser does not support the audio element.
       </audio>
-      {!streamMediaLoading && !streamMediaError && (
+      {(!streamMediaLoading && !streamMediaError) && (
         <Row data-testid="waveform-toolbar">
           <Col sm={6} md={6}>
             <VolumeSlider volume={volume} setVolume={adjustVolume} />

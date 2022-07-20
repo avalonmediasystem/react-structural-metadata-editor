@@ -177,13 +177,14 @@ describe('Waveform component', () => {
         },
         peaksInstance: {
           readyPeaks: true,
-          peaks: null
+          peaks: peaksInst,
         },
         manifest: {
           mediaInfo: {
-            src: 'http://example.com/auto.mp4',
+            src: 'http://example.com/auto.m3u8',
             duration: 572.4,
-          }
+          },
+          manifestFetched: true,
         }
       };
       waveform.rerenderWithRedux(

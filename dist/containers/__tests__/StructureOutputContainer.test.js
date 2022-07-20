@@ -1,5 +1,5 @@
 import React from 'react';
-import { cleanup } from 'react-testing-library';
+import { cleanup, fireEvent, wait } from 'react-testing-library';
 import 'jest-dom/extend-expect';
 import StructureOutputContainer from '../StructureOutputContainer';
 import {
@@ -7,6 +7,7 @@ import {
   testSmData,
 } from '../../services/testing-helpers';
 import { wrapInTestContext } from 'react-dnd-test-utils';
+import mockAxios from 'axios';
 
 const mockPeaks = jest.genMockFromModule('peaks.js');
 mockPeaks.init = jest.fn((options) => {
@@ -24,11 +25,12 @@ let initialState = {
     editingDisabled: false,
     alerts: [],
   },
-  structuralMetadata: {
-    smData: testSmData,
-    smDataIsValid: true,
-  },
+  manifest: {
+    structure: testSmData,
+    manifestFetched: true
+  }
 };
+
 const mockStructureIsSaved = jest.fn();
 
 // Wrap the component in DnD context
@@ -42,57 +44,34 @@ afterEach(cleanup);
 
 describe('StructureOutputContainer component', () => {
   test('renders successfully', () => {
-    initialState = {
-      ...initialState,
-      manifest: {
-        manifestFetched: true,
-        structure: testSmData
-      }
-    };
-    const { getByTestId } = renderWithRedux(
+    const { getByTestId, queryAllByTestId, getAllByTestId } = renderWithRedux(
       <StructureOutputContext structureIsSaved={mockStructureIsSaved} />,
       {
         initialState,
       }
     );
     expect(getByTestId('structure-output-section')).toBeInTheDocument();
-  });
-
-  test('shows structure list when manifest has structure', () => {
-    initialState = {
-      ...initialState,
-      manifest: {
-        manifestFetched: true,
-        structure: testSmData
-      }
-    };
-    const { getByTestId, queryByTestId } = renderWithRedux(
-      <StructureOutputContext structureIsSaved={mockStructureIsSaved} />,
-      { initialState }
-    );
-
-    expect(getByTestId('structure-output-list')).toBeInTheDocument();
+    expect(queryAllByTestId('list-item').length).toBeGreaterThan(0);
+    expect(getAllByTestId('heading-label')[0].innerHTML).toEqual('Ima Title');
     expect(getByTestId('structure-save-button')).toBeInTheDocument();
-    // Alert is not present in the DOM
-    expect(queryByTestId('alert-container')).not.toBeInTheDocument();
   });
 
-  test('doesn\'t show structure list when manifest doesn\'t have structure', () => {
-    initialState = {
-      ...initialState,
-      manifest: {
-        manifestFetched: true,
-        structure: null
-      }
-    };
-    const { queryByTestId } = renderWithRedux(
+  test('saves structure successfully', async () => {
+    mockAxios.post.mockImplementationOnce(() => {
+      return Promise.resolve({
+        status: 200,
+      });
+    });
+    const { getByTestId } = renderWithRedux(
       <StructureOutputContext structureIsSaved={mockStructureIsSaved} />,
-      { initialState }
+      {
+        initialState,
+      }
     );
-
-    expect(queryByTestId('structure-output-list')).not.toBeInTheDocument();
-    expect(queryByTestId('structure-save-button')).not.toBeInTheDocument();
-    // Alert is not present in the DOM
-    expect(queryByTestId('alert-container')).not.toBeInTheDocument();
+    fireEvent.click(getByTestId('structure-save-button'));
+    await wait(() => {
+      expect(mockAxios.post).toHaveBeenCalledTimes(1);
+      expect(mockStructureIsSaved).toHaveBeenCalledTimes(1);
+    });
   });
 });

@@ -86,6 +86,11 @@ var WaveformContainer = function WaveformContainer(props) {
 
       if (waveformInfo.length > 0) {
         initializePeaksInstance(waveformInfo[0]);
+      } else {
+        // When the manifest doesn't contain waveform information
+        // display an alert
+        var alert = (0, _alertStatus.configureAlert)(-3);
+        dispatch((0, _forms.setAlert)(alert));
       }
     }
   }, [manifestFetched]);

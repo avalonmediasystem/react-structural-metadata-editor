@@ -527,7 +527,7 @@ export const manifestWithStructure = {
           items: [
             {
               type: 'Canvas',
-              id: 'http://example.com/sample-manifest/manifest/canvas/1#t=0,',
+              id: 'http://example.com/sample-manifest/manifest/canvas/1#t=0,157',
             },
           ],
         },

@@ -127,8 +127,8 @@ class ListItem extends Component {
   getInputElements = (node) => {
     return node
       ? Array.prototype.slice
-          .call(node.getElementsByTagName('input'))
-          .filter((e) => !e.readOnly)
+        .call(node.getElementsByTagName('input'))
+        .filter((e) => !e.readOnly)
       : [];
   };
 

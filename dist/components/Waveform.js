@@ -95,7 +95,7 @@ var Waveform = /*#__PURE__*/_react["default"].forwardRef(function (props, ref) {
     setPeaksIsReady(readyPeaks);
     var mimeType = (0, _utils.getMimetype)(mediaInfo.src); // When given a .m3u8 playlist, use HLS to stream media
 
-    if (readyPeaks == true && mimeType == 'application/x-mpegURL') {
+    if (mimeType == 'application/x-mpegURL') {
       dispatch((0, _forms.retrieveStreamMedia)(mediaInfo.src, ref.mediaPlayerRef.current, {
         withCredentials: props.withCredentials
       }));

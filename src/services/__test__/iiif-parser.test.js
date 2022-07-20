@@ -45,7 +45,6 @@ describe('iiif-parser', () => {
       });
       test('without any media related information', () => {
         const mediaInfo = iiifParser.getMediaInfo(manifestWoStructure, 0);
-        console.log(mediaInfo);
         expect(mediaInfo).toEqual({
           error: 'Error fetching media files. Please check the Manifest.',
         });

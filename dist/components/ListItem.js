@@ -116,8 +116,7 @@ var ListItem = /*#__PURE__*/function (_Component) {
     _this = _super.call.apply(_super, [this].concat(args));
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "state", {
       editing: false,
-      canDrag: _this.props.canDrag,
-      focused: false
+      canDrag: _this.props.canDrag
     });
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "node", undefined);
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "handleDelete", function () {
@@ -182,16 +181,6 @@ var ListItem = /*#__PURE__*/function (_Component) {
     });
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "onHoverOutOfInput", function () {
       _this.props.setCanDrag(true);
-    });
-    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "onFocus", function () {
-      return _this.setState({
-        focused: true
-      });
-    });
-    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "onBlur", function () {
-      return _this.setState({
-        focused: false
-      });
     });
     (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "detachEventListeners", function (node) {
       _this.getInputElements(node).map(function (e) {

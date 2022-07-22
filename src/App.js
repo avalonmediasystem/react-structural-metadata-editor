@@ -29,7 +29,7 @@ const App = (props) => {
   }, []);
 
   return (
-    <DragDropContextProvider backend={HTML5Backend}>
+    <DragDropContextProvider backend={HTML5Backend} key={1}>
       <div className="sme-container">
         <WaveformContainer {...props} />
         <ErrorBoundary>

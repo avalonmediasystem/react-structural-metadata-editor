@@ -18,24 +18,23 @@ const structuralMetadata = (state = initialState, action) => {
         action.json,
         action.duration
       );
-      return { ...state, smData: newState[0], smDataIsValid: newState[1] };
-
-    case types.SET_SMDATA:
-      return {
-        ...state,
-        smData: action.structure,
-        initSmData: action.structure,
-        smDataIsValid: action.isValid
-      };
+      if (action.init) {
+        return {
+          ...state,
+          smData: newState[0],
+          initSmData: newState[0],
+          smDataIsValid: newState[1]
+        };
+      } else {
+        return {
+          ...state,
+          smData: newState[0],
+          smDataIsValid: newState[1]
+        };
+      }
 
     case types.REBUILD_SM_UI:
       return { ...state, smData: action.items };
-
-    case types.SAVE_INIT_SMDATA:
-      return {
-        ...state,
-        initSmData: action.payload,
-      };
 
     case types.DELETE_ITEM:
       newState = structuralMetadataUtils.deleteListItem(

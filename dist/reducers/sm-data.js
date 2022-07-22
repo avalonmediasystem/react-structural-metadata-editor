@@ -41,26 +41,23 @@ var structuralMetadata = function structuralMetadata() {
   switch (action.type) {
     case types.BUILD_SM_UI:
       newState = structuralMetadataUtils.buildSMUI(action.json, action.duration);
-      return _objectSpread(_objectSpread({}, state), {}, {
-        smData: newState[0],
-        smDataIsValid: newState[1]
-      });
 
-    case types.SET_SMDATA:
-      return _objectSpread(_objectSpread({}, state), {}, {
-        smData: action.structure,
-        initSmData: action.structure,
-        smDataIsValid: action.isValid
-      });
+      if (action.init) {
+        return _objectSpread(_objectSpread({}, state), {}, {
+          smData: newState[0],
+          initSmData: newState[0],
+          smDataIsValid: newState[1]
+        });
+      } else {
+        return _objectSpread(_objectSpread({}, state), {}, {
+          smData: newState[0],
+          smDataIsValid: newState[1]
+        });
+      }
 
     case types.REBUILD_SM_UI:
       return _objectSpread(_objectSpread({}, state), {}, {
         smData: action.items
-      });
-
-    case types.SAVE_INIT_SMDATA:
-      return _objectSpread(_objectSpread({}, state), {}, {
-        initSmData: action.payload
       });
 
     case types.DELETE_ITEM:

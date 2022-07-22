@@ -4,7 +4,6 @@ const initialState = {
   manifest: null,
   manifestError: null,
   manifestFetched: false,
-  structure: null,
   mediaInfo: {
     src: '',
     duration: 0,
@@ -30,9 +29,6 @@ const manifest = (state = initialState, action) => {
           duration: action.duration
         }
       };
-
-    case types.SET_MANIFEST_STRUCTURE:
-      return { ...state, structure: action.structure };
 
     default:
       return state;

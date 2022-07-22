@@ -218,6 +218,7 @@ var TimespanInlineForm = /*#__PURE__*/function (_Component) {
         isValid: (0, _formHelper.getValidationTitleState)(timespanTitle),
         isInvalid: !(0, _formHelper.getValidationTitleState)(timespanTitle),
         onChange: this.handleInputChange,
+        onDrag: this.handleDrag,
         "data-testid": "timespan-inline-form-title"
       })), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Form.Group, {
         controlId: "beginTime"

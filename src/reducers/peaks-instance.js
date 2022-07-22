@@ -132,6 +132,7 @@ const peaksInstance = (state = initialState, action) => {
       };
 
     case types.TEMP_INSERT_SEGMENT:
+      console.log(state.duration);
       newPeaks = waveformUtils.insertTempSegment(
         { ...state.peaks },
         state.duration

@@ -75,9 +75,8 @@ describe('iiif-parser', () => {
 
   describe('parseStructureToJSON()', () => {
     test('when both manifest and initStructure are invalid', () => {
-      const { structureJSON, structureIsValid } = iiifParser.parseStructureToJSON(undefined, {}, 0);
+      const structureJSON = iiifParser.parseStructureToJSON(undefined, {}, 0);
       expect(structureJSON).toEqual([]);
-      expect(structureIsValid).toBeFalsy();
     });
 
     test('when manifest is invalid but initStructure is valid', () => {
@@ -93,37 +92,32 @@ describe('iiif-parser', () => {
           },
         ],
       };
-      const { structureJSON, structureIsValid } = iiifParser.parseStructureToJSON(undefined, initStructure, 660);
+      const structureJSON = iiifParser.parseStructureToJSON(undefined, initStructure, 660);
       expect(structureJSON.length).toEqual(1);
-      expect(structureIsValid).toBeTruthy();
 
-      const { type, label, valid, items } = structureJSON[0];
+      const { type, label, items } = structureJSON[0];
       expect(type).toEqual('root');
       expect(label).toEqual('Lunchroom manners');
-      expect(valid).toBeTruthy();
       expect(items.length).toEqual(1);
     });
 
     test('when manifest is valid and intitStructure is invalid', () => {
-      const { structureJSON, structureIsValid } = iiifParser.parseStructureToJSON(manifest, {}, 662.037);
+      const structureJSON = iiifParser.parseStructureToJSON(manifest, {}, 662.037);
       expect(structureJSON.length).toEqual(1);
-      expect(structureIsValid).toBeTruthy();
 
-      const { type, label, valid, items } = structureJSON[0];
+      const { type, label, items } = structureJSON[0];
       expect(type).toEqual('root');
       expect(label).toEqual('Volleyball for Boys');
-      expect(valid).toBeTruthy();
       expect(items.length).toEqual(1);
       expect(items[0].label).toEqual('Volleyball for Boys');
       expect(items[0].type).toEqual('span');
     });
 
     test('when manifest is valid but doesn\'t have structures', () => {
-      const { structureJSON, structureIsValid } = iiifParser.parseStructureToJSON(manifestWoStructure, {}, 660);
+      const structureJSON = iiifParser.parseStructureToJSON(manifestWoStructure, {}, 660);
       expect(structureJSON.length).toEqual(1);
-      expect(structureIsValid).toBeTruthy();
 
-      const { type, label, valid, items } = structureJSON[0];
+      const { type, label, items } = structureJSON[0];
       expect(label).toEqual('Beginning Responsibility: Lunchroom Manners');
       expect(type).toEqual('root');
       expect(items.length).toBe(0);

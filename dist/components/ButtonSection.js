@@ -182,11 +182,9 @@ var ButtonSection = /*#__PURE__*/function (_Component) {
       var _this$props$forms = this.props.forms,
           editingDisabled = _this$props$forms.editingDisabled,
           streamInfo = _this$props$forms.streamInfo;
-      var _this$props$manifest = this.props.manifest,
-          manifestFetched = _this$props$manifest.manifestFetched,
-          structure = _this$props$manifest.structure; // Only return UI when both structure and waveform data exist
+      var manifestFetched = this.props.manifest.manifestFetched; // Only return UI when both structure and waveform data exist
 
-      return manifestFetched && structure != null ? /*#__PURE__*/_react["default"].createElement("section", null, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Row, {
+      return manifestFetched ? /*#__PURE__*/_react["default"].createElement("section", null, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Row, {
         "data-testid": "button-row"
       }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Col, {
         sm: "6"

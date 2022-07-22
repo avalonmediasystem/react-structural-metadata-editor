@@ -8,7 +8,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.fetchManifest = fetchManifest;
-exports.setstructure = exports.setMediaInfo = exports.setManifest = exports.handleManifestError = exports.fetchManifestSuccess = void 0;
+exports.setMediaInfo = exports.setManifest = exports.handleManifestError = exports.fetchManifestSuccess = void 0;
 
 var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
 
@@ -77,21 +77,6 @@ var fetchManifestSuccess = function fetchManifestSuccess() {
   };
 };
 /**
- * Parse `structure` in manifest into the nested JSON object
- * the structure navigation components can utilize to display 
- * structure on the page
- */
-
-
-exports.fetchManifestSuccess = fetchManifestSuccess;
-
-var setstructure = function setstructure(structure) {
-  return {
-    type: types.SET_MANIFEST_STRUCTURE,
-    structure: structure
-  };
-};
-/**
  * Set media file related info parsed from the manifest in
  * the Redux store
  * @param {String} src - media file URI
@@ -99,7 +84,7 @@ var setstructure = function setstructure(structure) {
  */
 
 
-exports.setstructure = setstructure;
+exports.fetchManifestSuccess = fetchManifestSuccess;
 
 var setMediaInfo = function setMediaInfo(src, duration) {
   return {
@@ -123,7 +108,7 @@ exports.setMediaInfo = setMediaInfo;
 function fetchManifest(manifestURL, initStructure, canvasIndex) {
   return /*#__PURE__*/function () {
     var _ref = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee(dispatch, getState) {
-      var response, manifest, _getMediaInfo, src, duration, _parseStructureToJSON, structureJSON, structureIsValid, structStatus, alert, status, _alert;
+      var response, manifest, _getMediaInfo, src, duration, structureJSON, structStatus, alert, status, _alert;
 
       return _regenerator["default"].wrap(function _callee$(_context) {
         while (1) {
@@ -143,12 +128,10 @@ function fetchManifest(manifestURL, initStructure, canvasIndex) {
 
               _getMediaInfo = (0, _iiifParser.getMediaInfo)(manifest, canvasIndex), src = _getMediaInfo.src, duration = _getMediaInfo.duration;
               dispatch(setMediaInfo(src, duration));
-              _parseStructureToJSON = (0, _iiifParser.parseStructureToJSON)(manifest, initStructure, duration), structureJSON = _parseStructureToJSON.structureJSON, structureIsValid = _parseStructureToJSON.structureIsValid;
+              structureJSON = (0, _iiifParser.parseStructureToJSON)(manifest, initStructure, duration);
 
               if (structureJSON.length > 0) {
-                dispatch(setstructure(structureJSON));
-                dispatch((0, _smData.setSMData)(structureJSON, structureIsValid));
-                dispatch((0, _smData.saveInitialStructure)(structureJSON));
+                dispatch((0, _smData.buildSMUI)(structureJSON, duration, true));
               } else {
                 structStatus = -2;
                 dispatch((0, _forms.handleStructureError)(1, structStatus)); // Create an alert to be displayed in the UI

@@ -214,6 +214,7 @@ class TimespanInlineForm extends Component {
               isValid={getValidationTitleState(timespanTitle)}
               isInvalid={!getValidationTitleState(timespanTitle)}
               onChange={this.handleInputChange}
+              onDrag={this.handleDrag}
               data-testid="timespan-inline-form-title"
             />
           </Form.Group>

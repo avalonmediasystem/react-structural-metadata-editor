@@ -49,7 +49,8 @@ var App = function App(props) {
   }, []);
 
   return /*#__PURE__*/_react["default"].createElement(_reactDnd.DragDropContextProvider, {
-    backend: _reactDndHtml5Backend["default"]
+    backend: _reactDndHtml5Backend["default"],
+    key: 1
   }, /*#__PURE__*/_react["default"].createElement("div", {
     className: "sme-container"
   }, /*#__PURE__*/_react["default"].createElement(_WaveformContainer["default"], props), /*#__PURE__*/_react["default"].createElement(_ErrorBoundary["default"], null, /*#__PURE__*/_react["default"].createElement(_AlertContainer["default"], {

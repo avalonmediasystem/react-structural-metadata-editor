@@ -377,7 +377,6 @@ describe('App component', () => {
         expect(app.getByTestId('alert-message').innerHTML)
           .toEqual('Please check start/end times of the marked invalid timespan(s).');
       });
-
     });
   });
 
@@ -391,6 +390,10 @@ describe('App component', () => {
       });
 
       const initialState = {
+        structuralMetadata: {
+          smData: testSmData,
+          smDataIsValid: true,
+        },
         manifest: {
           manifestFetched: true,
           manifest: manifestWithStructure,
@@ -419,6 +422,10 @@ describe('App component', () => {
       });
 
       const initialState = {
+        structuralMetadata: {
+          smData: testSmData,
+          smDataIsValid: true,
+        },
         manifest: {
           manfiest: manifestWoStructure,
           mediaInfo: {
@@ -449,6 +456,10 @@ describe('App component', () => {
       });
 
       const initialState = {
+        structuralMetadata: {
+          smData: testSmData,
+          smDataIsValid: true,
+        },
         manifest: {
           manfiest: manifestWoStructure,
           mediaInfo: {
@@ -491,7 +502,6 @@ describe('App component', () => {
             duration: 0
           },
           manifestFetched: false,
-          structure: null
         }
       };
       const updatedProps = {
@@ -501,13 +511,11 @@ describe('App component', () => {
       const app = renderWithRedux(<App {...updatedProps} />, { initialState });
 
       await wait(() => {
-        expect(app.queryByTestId('structure-output-list')).not.toBeInTheDocument();
-        expect(app.queryByTestId('structure-save-button')).not.toBeInTheDocument();
         expect(app.getByTestId('alert-container')).toBeInTheDocument();
         expect(app.getByTestId('alert-message').innerHTML)
           .toEqual('No structure information found. Please check your Manifest.');
       });
-    }, 10000);
+    });
 
     // test('with rebuilt structure when new structure item is added', async () => {
     //   mockAxios.get.mockImplementationOnce(() => {
@@ -516,7 +524,16 @@ describe('App component', () => {
     //       data: manifestWithStructure
     //     });
     //   });
-    //   const app = renderWithRedux(<App {...props} />, { baseState });
+    //   mockAxios.head.mockImplementationOnce(() => {
+    //     return Promise.resolve({
+    //       status: 200,
+    //       request: {
+    //         responseURL: 'https://example.com/lunchroom_manners/waveform.json',
+    //       },
+    //     });
+    //   });
+    //   const updatedProps = { ...props, canvasIndex: 1 };
+    //   const app = renderWithRedux(<App {...updatedProps} />, { baseState });
 
     //   await wait(() => {
     //     expect(app.getByTestId('structure-output-list')).toBeInTheDocument();

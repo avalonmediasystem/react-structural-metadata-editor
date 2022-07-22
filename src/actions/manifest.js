@@ -3,7 +3,7 @@ import { isEmpty } from 'lodash';
 import { handleStructureError, setAlert } from './forms';
 import APIUtils from '../api/Utils';
 import { configureAlert } from '../services/alert-status';
-import { saveInitialStructure, setSMData } from './sm-data';
+import { buildSMUI } from './sm-data';
 import { getMediaInfo, parseStructureToJSON } from '../services/iiif-parser';
 
 const apiUtils = new APIUtils();
@@ -40,16 +40,6 @@ export const fetchManifestSuccess = () => ({
 });
 
 /**
- * Parse `structure` in manifest into the nested JSON object
- * the structure navigation components can utilize to display 
- * structure on the page
- */
-export const setstructure = (structure) => ({
-  type: types.SET_MANIFEST_STRUCTURE,
-  structure,
-});
-
-/**
  * Set media file related info parsed from the manifest in
  * the Redux store
  * @param {String} src - media file URI
@@ -82,15 +72,10 @@ export function fetchManifest(manifestURL, initStructure, canvasIndex) {
       const { src, duration } = getMediaInfo(manifest, canvasIndex);
       dispatch(setMediaInfo(src, duration));
 
-      const {
-        structureJSON,
-        structureIsValid
-      } = parseStructureToJSON(manifest, initStructure, duration);
+      const structureJSON = parseStructureToJSON(manifest, initStructure, duration);
 
       if (structureJSON.length > 0) {
-        dispatch(setstructure(structureJSON));
-        dispatch(setSMData(structureJSON, structureIsValid));
-        dispatch(saveInitialStructure(structureJSON));
+        dispatch(buildSMUI(structureJSON, duration, true));
       } else {
         const structStatus = -2;
         dispatch(handleStructureError(1, structStatus));

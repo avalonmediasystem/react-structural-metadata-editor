@@ -98,41 +98,29 @@ export function getWaveformInfo(manifest, canvasIndex) {
  * @param {Object} manifest current manifest
  * @param {Object} initStructure  backup blank structure to use
  * @param {Number} duration duration of the canvas in manifest
- * @returns {Object} obj
- * @returns {Array.<Object>} obj.structureJSON - array of nested JSON 
+ * @returns {Array.<Object>} structureJSON - array of nested JSON 
  * objects with structure items parsed from the given manifest
- * @returns {Boolean} obj.structureIsValid a flag to indicate structure 
- * is valid or not.
  */
 export function parseStructureToJSON(manifest, initStructure, duration) {
   let structureJSON = [];
-  let structureIsValid = true;
 
   let buildStructureItems = (items, children) => {
     if (items.length > 0) {
       items.map((i) => {
         const childCanvases = getRangeCanvas(i.id, manifest);
-        let structItem = {
-          label: getLabelValue(i.label),
-          valid: true,
-          id: uuidv1(),
-        };
+        let structItem = {};
         if (childCanvases.length > 0) {
           const { start, end } = getMediaFragment(childCanvases[0], duration);
-          const { isValid, endTime } = validateTimes(start, end, duration);
-
-          structureIsValid = structureIsValid && isValid;
           structItem = {
-            ...structItem,
+            label: getLabelValue(i.label),
             type: "span",
             begin: smUtils.toHHmmss(start),
-            end: smUtils.toHHmmss(endTime),
-            valid: isValid,
+            end: smUtils.toHHmmss(end),
           };
           children.push(structItem);
         } else {
           structItem = {
-            ...structItem,
+            label: getLabelValue(i.label),
             type: "div",
             items: [],
           };
@@ -165,21 +153,15 @@ export function parseStructureToJSON(manifest, initStructure, duration) {
     structureJSON.push({
       type: "root",
       label: getLabelValue(root.label),
-      valid: true,
       items: children,
-      id: uuidv1(),
     });
   }
   // Use default initial structure when manifest doesn't
   // have structures 
   else if (initStructure != undefined &&
     Object.keys(initStructure).length != 0) {
-    const [
-      smData,
-      smDataIsValid
-    ] = smUtils.buildSMUI([initStructure], duration);
-    structureJSON = smUtils.addUUIds(smData);
-    structureIsValid = smDataIsValid;
+    structureJSON = [initStructure];
+    structureJSON[0].type = 'root';
   }
   // Create a dummy structure with manifest information
   else if (manifestName != undefined) {
@@ -187,14 +169,10 @@ export function parseStructureToJSON(manifest, initStructure, duration) {
       label: manifestName,
       items: [],
       type: 'root',
-      valid: true,
-      id: uuidv1(),
     });
-    structureIsValid = true;
-  } else {
-    structureIsValid = false;
   }
-  return { structureJSON, structureIsValid };
+  const structureWithIDs = smUtils.addUUIds(structureJSON);
+  return structureWithIDs;
 }
 
 function validateTimes(start, end, duration) {

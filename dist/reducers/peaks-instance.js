@@ -115,6 +115,7 @@ var peaksInstance = function peaksInstance() {
       });
 
     case types.TEMP_INSERT_SEGMENT:
+      console.log(state.duration);
       newPeaks = waveformUtils.insertTempSegment(_objectSpread({}, state.peaks), state.duration);
       return _objectSpread(_objectSpread({}, state), {}, {
         peaks: _objectSpread({}, newPeaks)

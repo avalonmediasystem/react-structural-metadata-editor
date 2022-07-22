@@ -12,7 +12,7 @@ const StructureOutputContainer = (props) => {
   const smu = new StructuralMetadataUtils();
   const apiUtils = new APIUtils();
 
-  const { structure, manifestFetched } = useSelector((state) => state.manifest);
+  const { manifestFetched } = useSelector((state) => state.manifest);
   const { smData, initSmData, smDataIsValid } = useSelector((state) => state.structuralMetadata);
   const { editingDisabled, structureInfo } = useSelector((state) => state.forms);
   const dispatch = useDispatch();
@@ -68,7 +68,7 @@ const StructureOutputContainer = (props) => {
       className="structure-section"
       data-testid="structure-output-section"
     >
-      {manifestFetched && structure != null && (
+      {manifestFetched && smData != null && (
         <div data-testid="structure-output-list">
           <List items={smData} />
           <Row>

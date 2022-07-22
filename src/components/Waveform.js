@@ -13,7 +13,6 @@ import {
   retrieveStreamMedia,
   setAlert,
   streamMediaSuccess,
-  setStreamMediaError,
 } from '../actions/forms';
 import VolumeSlider from './Slider';
 import LoadingSpinner from '../services/LoadingSpinner';

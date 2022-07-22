@@ -55,7 +55,6 @@ describe('ButtonSection component', () => {
         structuralMetadata: { smData: testSmData },
         manifest: {
           manifestFetched: true,
-          structure: [manifest.structures]
         }
       };
       buttonSection = renderWithRedux(<ButtonSection />, {

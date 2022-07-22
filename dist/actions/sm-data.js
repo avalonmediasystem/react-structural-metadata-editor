@@ -13,9 +13,7 @@ exports.handleListItemDrop = handleListItemDrop;
 exports.reBuildSMUI = reBuildSMUI;
 exports.removeActiveDragSources = removeActiveDragSources;
 exports.removeDropTargets = removeDropTargets;
-exports.saveInitialStructure = saveInitialStructure;
 exports.setActiveDragSource = setActiveDragSource;
-exports.setSMData = setSMData;
 
 var types = _interopRequireWildcard(require("./types"));
 
@@ -41,19 +39,13 @@ function reBuildSMUI(items, duration) {
   };
 }
 
-function setSMData(structure, isValid) {
-  return {
-    type: types.SET_SMDATA,
-    structure: structure,
-    isValid: isValid
-  };
-}
-
 function buildSMUI(json, duration) {
+  var init = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
   return {
     type: types.BUILD_SM_UI,
     json: json,
-    duration: duration
+    duration: duration,
+    init: init
   };
 }
 
@@ -102,12 +94,5 @@ function handleItemDrop(dragSource, dropTarget) {
     type: types.HANDLE_LIST_ITEM_DROP,
     dragSource: dragSource,
     dropTarget: dropTarget
-  };
-}
-
-function saveInitialStructure(initData) {
-  return {
-    type: types.SAVE_INIT_SMDATA,
-    payload: initData
   };
 }

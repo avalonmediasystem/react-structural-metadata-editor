@@ -25,7 +25,6 @@ var initialState = {
   manifest: null,
   manifestError: null,
   manifestFetched: false,
-  structure: null,
   mediaInfo: {
     src: '',
     duration: 0
@@ -58,11 +57,6 @@ var manifest = function manifest() {
           src: action.src,
           duration: action.duration
         })
-      });
-
-    case types.SET_MANIFEST_STRUCTURE:
-      return _objectSpread(_objectSpread({}, state), {}, {
-        structure: action.structure
       });
 
     default:

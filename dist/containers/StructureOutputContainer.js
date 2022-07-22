@@ -38,7 +38,6 @@ var StructureOutputContainer = function StructureOutputContainer(props) {
   var _useSelector = (0, _reactRedux.useSelector)(function (state) {
     return state.manifest;
   }),
-      structure = _useSelector.structure,
       manifestFetched = _useSelector.manifestFetched;
 
   var _useSelector2 = (0, _reactRedux.useSelector)(function (state) {
@@ -135,7 +134,7 @@ var StructureOutputContainer = function StructureOutputContainer(props) {
   return /*#__PURE__*/_react["default"].createElement("section", {
     className: "structure-section",
     "data-testid": "structure-output-section"
-  }, manifestFetched && structure != null && /*#__PURE__*/_react["default"].createElement("div", {
+  }, manifestFetched && smData != null && /*#__PURE__*/_react["default"].createElement("div", {
     "data-testid": "structure-output-list"
   }, /*#__PURE__*/_react["default"].createElement(_List["default"], {
     items: smData

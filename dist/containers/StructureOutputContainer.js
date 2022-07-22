@@ -138,7 +138,7 @@ var StructureOutputContainer = function StructureOutputContainer(props) {
   }, manifestFetched && structure != null && /*#__PURE__*/_react["default"].createElement("div", {
     "data-testid": "structure-output-list"
   }, /*#__PURE__*/_react["default"].createElement(_List["default"], {
-    items: structure
+    items: smData
   }), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Row, null, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Col, {
     xs: 12,
     className: "text-right"

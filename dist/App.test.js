@@ -46,6 +46,10 @@ const baseState = {
       structureSaved: true,
     },
   },
+  peaksInstance: {
+    peaks: peaksInst,
+    duration: 662.037
+  },
   manifest: {
     manifest: manifestWithStructure,
     structure: testSmData,
@@ -504,6 +508,37 @@ describe('App component', () => {
           .toEqual('No structure information found. Please check your Manifest.');
       });
     }, 10000);
+
+    // test('with rebuilt structure when new structure item is added', async () => {
+    //   mockAxios.get.mockImplementationOnce(() => {
+    //     return Promise.resolve({
+    //       status: 200,
+    //       data: manifestWithStructure
+    //     });
+    //   });
+    //   const app = renderWithRedux(<App {...props} />, { baseState });
+
+    //   await wait(() => {
+    //     expect(app.getByTestId('structure-output-list')).toBeInTheDocument();
+    //     expect(app.getByTestId('add-timespan-button')).toBeInTheDocument();
+    //     expect(app.queryByTestId('structure-save-button')).toBeInTheDocument();
+
+    //     const addTimespanBtn = app.getByTestId('add-timespan-button');
+    //     fireEvent.click(addTimespanBtn);
+    //     // console.log(app.getByTestId('timespan-form'));
+    //     // Begin Time and End Time is already filled with default values
+    //     // expect(app.getByTestId('timespan-form-begintime').value).toBe(
+    //     //   '00:00:00.000'
+    //     // );
+    //     // expect(app.getByTestId('timespan-form-endtime').value).toBe(
+    //     //   '00:00:03.321'
+    //     // );
+
+
+    //     expect(app.queryAllByTestId('list-item').length).toBeGreaterThan(0);
+    //     expect(app.queryAllByTestId('heading-label')[0].innerHTML).toEqual('Volleyball for Boys');
+    //   });
+    // }, 10000);
   });
 
 });

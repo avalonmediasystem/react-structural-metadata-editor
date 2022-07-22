@@ -70,7 +70,7 @@ const StructureOutputContainer = (props) => {
     >
       {manifestFetched && structure != null && (
         <div data-testid="structure-output-list">
-          <List items={structure} />
+          <List items={smData} />
           <Row>
             <Col xs={12} className="text-right">
               <Button

@@ -25,6 +25,7 @@ let initialState = {
     editingDisabled: false,
     alerts: [],
   },
+  structuralMetadata: { smData: testSmData },
   manifest: {
     structure: testSmData,
     manifestFetched: true

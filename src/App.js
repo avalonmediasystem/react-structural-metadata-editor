@@ -73,12 +73,14 @@ App.propTypes = {
   initStructure: PropTypes.object.isRequired,
   withCredentials: PropTypes.bool,
   structureIsSaved: PropTypes.func,
-  manifestURL: PropTypes.string.isRequired
+  manifestURL: PropTypes.string.isRequired,
+  canvasIndes: PropTypes.number
 };
 
 App.defaultProps = {
   withCredentials: false,
   structureIsSaved: (val) => { },
+  canvasIndex: 0
 };
 
 const mapDispatchToProps = {

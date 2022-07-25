@@ -114,11 +114,13 @@ App.propTypes = {
   initStructure: _propTypes["default"].object.isRequired,
   withCredentials: _propTypes["default"].bool,
   structureIsSaved: _propTypes["default"].func,
-  manifestURL: _propTypes["default"].string.isRequired
+  manifestURL: _propTypes["default"].string.isRequired,
+  canvasIndes: _propTypes["default"].number
 };
 App.defaultProps = {
   withCredentials: false,
-  structureIsSaved: function structureIsSaved(val) {}
+  structureIsSaved: function structureIsSaved(val) {},
+  canvasIndex: 0
 };
 var mapDispatchToProps = {
   resetStore: _actions.resetReduxStore,

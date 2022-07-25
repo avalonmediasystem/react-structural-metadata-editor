@@ -114,14 +114,13 @@ function getWaveformInfo(manifest, canvasIndex) {
  * structure to be consumed by the ReactJS components to help visualize
  * and edit structure
  * @param {Object} manifest current manifest
- * @param {Object} initStructure  backup blank structure to use
  * @param {Number} duration duration of the canvas in manifest
  * @returns {Array.<Object>} structureJSON - array of nested JSON 
  * objects with structure items parsed from the given manifest
  */
 
 
-function parseStructureToJSON(manifest, initStructure, duration) {
+function parseStructureToJSON(manifest, duration) {
   var structureJSON = [];
 
   var buildStructureItems = function buildStructureItems(items, children) {
@@ -179,11 +178,6 @@ function parseStructureToJSON(manifest, initStructure, duration) {
       label: getLabelValue(root.label),
       items: children
     });
-  } // Use default initial structure when manifest doesn't
-  // have structures 
-  else if (initStructure != undefined && Object.keys(initStructure).length != 0) {
-    structureJSON = [initStructure];
-    structureJSON[0].type = 'root';
   } // Create a dummy structure with manifest information
   else if (manifestName != undefined) {
     structureJSON.push({

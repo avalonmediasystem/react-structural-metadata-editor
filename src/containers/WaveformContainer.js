@@ -40,6 +40,7 @@ class WaveformContainer extends Component {
     initStructure: this.props.initStructure,
     streamLength: this.props.streamDuration,
     manifestURL: this.props.manifestURL,
+    canvasIndex: this.props.canvasIndex,
     dataUri: null,
   };
 
@@ -57,7 +58,7 @@ class WaveformContainer extends Component {
   }
 
   async initializePeaksInstance() {
-    const { structureURL, manifestURL, waveformURL, initStructure, streamLength } =
+    const { canvasIndex, manifestURL, waveformURL, initStructure, streamLength } =
       this.state;
     try {
       // Check whether the waveform.json exists in the server
@@ -86,8 +87,8 @@ class WaveformContainer extends Component {
 
       this.props.fetchDataAndBuildPeaks(
         this.peaks,
-        structureURL,
         manifestURL,
+        canvasIndex,
         initStructure,
         streamLength
       );

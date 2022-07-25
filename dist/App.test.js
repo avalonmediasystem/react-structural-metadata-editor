@@ -75,17 +75,20 @@ const props = {
 afterEach(cleanup);
 
 describe('App component', () => {
-  let originalError;
+  let originalError, originalLogger;
   beforeEach(() => {
-    /** Mock console.error function with empty jest.fn().
-     *  This avoids multiple console.error outputs from within Peaks.init() function
+    /** Mock console.error and console.log functions with empty jest.fn().
+     *  This avoids multiple console outputs from within Peaks.init() function
      *  while the Waveform component (child of WaveformContainer) gets rendered.
      */
     originalError = console.error;
     console.error = jest.fn();
+    originalLogger = console.log;
+    console.log = jest.fn();
   });
   afterEach(() => {
     console.error = originalError;
+    console.log = originalLogger;
   });
 
   describe('Alert integration', () => {

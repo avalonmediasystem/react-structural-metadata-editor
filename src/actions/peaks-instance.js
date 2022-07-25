@@ -27,8 +27,8 @@ const structuralMetadataUtils = new StructuralMetadataUtils();
  */
 export function initializeSMDataPeaks(
   peaks,
-  structureURL,
   manifestURL,
+  canvasIndex,
   initStructure,
   duration
 ) {
@@ -43,13 +43,18 @@ export function initializeSMDataPeaks(
       const manifestRes = await apiUtils.getRequest(manifestURL);
 
       if (!isEmpty(manifestRes.data)) {
-        const { src, duration } = getMediaInfo(manifestRes.data, 0);
+        const { src, duration } = getMediaInfo(manifestRes.data, canvasIndex);
         smData = parseStructureToJSON(manifestRes.data, duration);
       }
-      dispatch(fetchManifestSuccess());
 
-      // Update redux-store flag for structure file retrieval
-      dispatch(retrieveStructureSuccess());
+      if (smData.length > 0) {
+        dispatch(retrieveStructureSuccess());
+      } else {
+        dispatch(handleStructureError(1, -2));
+        let alert = configureAlert(-2);
+        dispatch(setAlert(alert));
+      }
+      dispatch(fetchManifestSuccess());
     } catch (error) {
       console.log('TCL: Structure -> }catch -> error', error);
 

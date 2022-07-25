@@ -63,10 +63,10 @@ var structuralMetadataUtils = new _StructuralMetadataUtils["default"]();
  * @param {Object} options - peaks options
  */
 
-function initializeSMDataPeaks(peaks, structureURL, manifestURL, initStructure, duration) {
+function initializeSMDataPeaks(peaks, manifestURL, canvasIndex, initStructure, duration) {
   return /*#__PURE__*/function () {
     var _ref = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee(dispatch, getState) {
-      var smData, manifestRes, _getMediaInfo, src, _duration, status, alert, segments, _getState, peaksInstance, dragged;
+      var smData, manifestRes, _getMediaInfo, src, _duration, alert, status, _alert, segments, _getState, peaksInstance, dragged;
 
       return _regenerator["default"].wrap(function _callee$(_context) {
         while (1) {
@@ -88,13 +88,19 @@ function initializeSMDataPeaks(peaks, structureURL, manifestURL, initStructure, 
               manifestRes = _context.sent;
 
               if (!(0, _lodash.isEmpty)(manifestRes.data)) {
-                _getMediaInfo = (0, _iiifParser.getMediaInfo)(manifestRes.data, 0), src = _getMediaInfo.src, _duration = _getMediaInfo.duration;
+                _getMediaInfo = (0, _iiifParser.getMediaInfo)(manifestRes.data, canvasIndex), src = _getMediaInfo.src, _duration = _getMediaInfo.duration;
                 smData = (0, _iiifParser.parseStructureToJSON)(manifestRes.data, _duration);
               }
 
-              dispatch((0, _manfiest.fetchManifestSuccess)()); // Update redux-store flag for structure file retrieval
+              if (smData.length > 0) {
+                dispatch((0, _forms.retrieveStructureSuccess)());
+              } else {
+                dispatch((0, _forms.handleStructureError)(1, -2));
+                alert = (0, _alertStatus.configureAlert)(-2);
+                dispatch((0, _forms.setAlert)(alert));
+              }
 
-              dispatch((0, _forms.retrieveStructureSuccess)());
+              dispatch((0, _manfiest.fetchManifestSuccess)());
               _context.next = 18;
               break;
 
@@ -104,8 +110,8 @@ function initializeSMDataPeaks(peaks, structureURL, manifestURL, initStructure, 
               console.log('TCL: Structure -> }catch -> error', _context.t0);
               status = _context.t0.response !== undefined ? _context.t0.response.status : -2;
               dispatch((0, _forms.handleStructureError)(1, status));
-              alert = (0, _alertStatus.configureAlert)(status);
-              dispatch((0, _forms.setAlert)(alert));
+              _alert = (0, _alertStatus.configureAlert)(status);
+              dispatch((0, _forms.setAlert)(_alert));
 
             case 18:
               // Mark the top element as 'root'

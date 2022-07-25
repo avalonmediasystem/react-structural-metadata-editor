@@ -15,6 +15,7 @@ const props = {
   audioURL: `${BASE_API_URL}/media.mp4`,
   streamDuration: 572000,
   manifestURL: `${BASE_API_URL}/manifest.json`,
+  canvasIndex: 0,
   structureIsSaved: (val) => { },
 };
 

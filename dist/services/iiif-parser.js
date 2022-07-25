@@ -31,7 +31,8 @@ var smUtils = new _StructuralMetadataUtils["default"]();
  * @returns { String, Number } { media src, media duration }
  */
 
-function getMediaInfo(manifest, canvasIndex) {
+function getMediaInfo(manifest) {
+  var canvasIndex = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
   var canvas;
   var mediaInfo = {};
 
@@ -174,7 +175,7 @@ function parseStructureToJSON(manifest, duration) {
     buildStructureItems(root.items, children); // Add the root element to the JSON object
 
     structureJSON.push({
-      type: "root",
+      type: 'div',
       label: getLabelValue(root.label),
       items: children
     });
@@ -183,7 +184,7 @@ function parseStructureToJSON(manifest, duration) {
     structureJSON.push({
       label: manifestName,
       items: [],
-      type: 'root'
+      type: 'div'
     });
   }
 

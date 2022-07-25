@@ -1,4 +1,4 @@
-import * as types from '../actions/types';
+import * as types from './types';
 import { isEmpty } from 'lodash';
 import { handleStructureError, setAlert } from './forms';
 import APIUtils from '../api/Utils';

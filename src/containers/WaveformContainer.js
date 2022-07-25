@@ -38,7 +38,6 @@ class WaveformContainer extends Component {
     structureURL: this.props.structureURL,
     waveformURL: this.props.waveformURL,
     initStructure: this.props.initStructure,
-    streamLength: this.props.streamDuration,
     manifestURL: this.props.manifestURL,
     canvasIndex: this.props.canvasIndex,
     dataUri: null,
@@ -58,7 +57,7 @@ class WaveformContainer extends Component {
   }
 
   async initializePeaksInstance() {
-    const { canvasIndex, manifestURL, waveformURL, initStructure, streamLength } =
+    const { canvasIndex, manifestURL, waveformURL, initStructure } =
       this.state;
     try {
       // Check whether the waveform.json exists in the server
@@ -90,7 +89,6 @@ class WaveformContainer extends Component {
         manifestURL,
         canvasIndex,
         initStructure,
-        streamLength
       );
     });
   }
@@ -121,7 +119,6 @@ class WaveformContainer extends Component {
     return (
       <section className="waveform-section" data-testid="waveform-container">
         <Waveform
-          audioURL={this.props.audioURL}
           withCredentials={this.props.withCredentials}
           ref={{
             zoomViewRef: this.zoomView,
@@ -135,10 +132,8 @@ class WaveformContainer extends Component {
 }
 
 WaveformContainer.propTypes = {
-  structureURL: PropTypes.string.isRequired,
+  manifestURL: PropTypes.string.isRequired,
   waveformURL: PropTypes.string.isRequired,
-  audioURL: PropTypes.string.isRequired,
-  streamDuration: PropTypes.number.isRequired,
   initStructure: PropTypes.object.isRequired,
 };
 

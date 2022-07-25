@@ -14,7 +14,7 @@ var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"))
 
 var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
 
-var types = _interopRequireWildcard(require("../actions/types"));
+var types = _interopRequireWildcard(require("./types"));
 
 var _lodash = require("lodash");
 

@@ -17,6 +17,8 @@ var _smData = _interopRequireDefault(require("./sm-data"));
 
 var _peaksInstance = _interopRequireDefault(require("./peaks-instance"));
 
+var _manifest = _interopRequireDefault(require("./manifest"));
+
 var types = _interopRequireWildcard(require("../actions/types"));
 
 function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
@@ -26,7 +28,8 @@ function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && 
 var appReducer = (0, _redux.combineReducers)({
   forms: _forms["default"],
   structuralMetadata: _smData["default"],
-  peaksInstance: _peaksInstance["default"]
+  peaksInstance: _peaksInstance["default"],
+  manifest: _manifest["default"]
 });
 
 var rootReducer = function rootReducer(state, action) {

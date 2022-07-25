@@ -2,7 +2,7 @@ import React from 'react';
 import { cleanup, fireEvent } from 'react-testing-library';
 import 'jest-dom/extend-expect';
 import Waveform from '../Waveform';
-import { renderWithRedux } from '../../services/testing-helpers';
+import { renderWithRedux, manifest } from '../../services/testing-helpers';
 import Peaks from 'peaks';
 
 afterEach(cleanup);
@@ -25,7 +25,7 @@ describe('Waveform component', () => {
   Peaks.init(peaksOptions, (err, peaks) => {
     peaksInst = peaks;
   });
-  
+
   // Set up initial Redux store
   const initialState = {
     forms: {
@@ -41,13 +41,19 @@ describe('Waveform component', () => {
       readyPeaks: true,
       peaks: peaksInst,
     },
+    manifest: {
+      manifest: manifest,
+      mediaInfo: {
+        src: 'https://example.com/volleyball-for-boys/volleyball-for-boys.mp4',
+        duration: 662.037
+      }
+    }
   };
 
   beforeEach(() => {
     mediaElement = React.createRef();
     waveform = renderWithRedux(
       <Waveform
-        audioURL="https://example.com/auto.m3u8"
         ref={{
           zoomViewRef: zoomView,
           overViewRef: overView,
@@ -125,6 +131,13 @@ describe('Waveform component', () => {
             readyPeaks: true,
             peaks: null
           },
+          manifest: {
+            manifest: manifest,
+            mediaInfo: {
+              src: 'https://example.com/volleyball-for-boys/volleyball-for-boys.mp4',
+              duration: 662.037
+            }
+          }
         };
         waveform.rerenderWithRedux(
           <Waveform
@@ -167,6 +180,13 @@ describe('Waveform component', () => {
           readyPeaks: true,
           peaks: null
         },
+        manifest: {
+          manifest: manifest,
+          mediaInfo: {
+            src: 'https://example.com/volleyball-for-boys/volleyball-for-boys.mp4',
+            duration: 662.037
+          }
+        }
       };
       waveform.rerenderWithRedux(
         <Waveform

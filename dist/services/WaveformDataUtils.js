@@ -42,14 +42,13 @@ var WaveformDataUtils = /*#__PURE__*/function () {
     /**
      * Initialize Peaks instance for the app
      * @param {Array} smData - current structured metadata from the server masterfile
-     * @param {Number} duration - duration of the media file in milliseconds
+     * @param {Number} duration - duration of the media file in seconds
      */
     function initSegments(smData, duration) {
       var _this = this;
 
       var segments = [];
-      var count = 0;
-      var durationInSeconds = duration / 1000; // Recursively build segments for timespans in the structure
+      var count = 0; // Recursively build segments for timespans in the structure
 
       var createSegment = function createSegment(items) {
         var _iterator = _createForOfIteratorHelper(items),
@@ -82,7 +81,7 @@ var WaveformDataUtils = /*#__PURE__*/function () {
 
       createSegment(smData);
       var validSegments = segments.filter(function (s) {
-        return s.startTime < s.endTime && s.startTime < durationInSeconds;
+        return s.startTime < s.endTime && s.startTime < duration;
       });
       return validSegments;
     }
@@ -108,7 +107,7 @@ var WaveformDataUtils = /*#__PURE__*/function () {
     /**
      * Add a temporary segment to be edited when adding a new timespan to structure
      * @param {Object} peaksInstance - peaks instance for the current waveform
-     * @param {Integer} duration - duration of the file in milliseconds
+     * @param {Integer} duration - duration of the file in seconds
      * @returns {Object} updated peaksInstance
      */
 
@@ -118,9 +117,7 @@ var WaveformDataUtils = /*#__PURE__*/function () {
       var _this2 = this;
 
       // Current time of the playhead
-      var currentTime = this.roundOff(peaksInstance.player.getCurrentTime()); // Convert from milliseconds to seconds
-
-      var durationInSeconds = duration / 1000;
+      var currentTime = this.roundOff(peaksInstance.player.getCurrentTime());
       var rangeEndTime,
           rangeBeginTime = currentTime;
       var currentSegments = this.sortSegments(peaksInstance, 'startTime'); // Validate start time of the temporary segment
@@ -135,7 +132,7 @@ var WaveformDataUtils = /*#__PURE__*/function () {
       }); // Set the default end time of the temporary segment
 
       if (currentSegments.length === 0) {
-        rangeEndTime = durationInSeconds < 60 ? durationInSeconds : Math.round((rangeBeginTime + 60.0) * 1000) / 1000;
+        rangeEndTime = duration < 60 ? duration : Math.round((rangeBeginTime + 60.0) * 1000) / 1000;
       } else {
         rangeEndTime = Math.round((rangeBeginTime + 60.0) * 1000) / 1000;
       } // Validate end time of the temporary segment
@@ -145,8 +142,8 @@ var WaveformDataUtils = /*#__PURE__*/function () {
         if (rangeBeginTime < segment.startTime) {
           var segmentLength = segment.endTime - segment.startTime;
 
-          if (durationInSeconds < 60) {
-            rangeEndTime = durationInSeconds;
+          if (duration < 60) {
+            rangeEndTime = duration;
           }
 
           if (segmentLength < 60 && rangeEndTime >= segment.startTime) {
@@ -158,14 +155,14 @@ var WaveformDataUtils = /*#__PURE__*/function () {
           }
         }
 
-        if (rangeEndTime > durationInSeconds) {
-          rangeEndTime = durationInSeconds;
+        if (rangeEndTime > duration) {
+          rangeEndTime = duration;
         }
 
         return rangeEndTime;
       });
 
-      if (rangeBeginTime < durationInSeconds && rangeEndTime > rangeBeginTime) {
+      if (rangeBeginTime < duration && rangeEndTime > rangeBeginTime) {
         var tempSegmentLength = rangeEndTime - rangeBeginTime; // Continue if temporary segment has a length greater than 1ms
 
         if (tempSegmentLength > 0.1) {
@@ -271,7 +268,7 @@ var WaveformDataUtils = /*#__PURE__*/function () {
      * @param {Object} item - invalid item in structure
      * @param {Object} wrapperSpans - timespans before and after the item in structure
      * @param {Object} peaksInstance - current peaks instance
-     * @param {Number} duration - duration of the file in milliseconds
+     * @param {Number} duration - duration of the file in seconds
      * @returns peaks instance with an added segment for the invalid timespan
      */
 
@@ -284,7 +281,6 @@ var WaveformDataUtils = /*#__PURE__*/function () {
 
       var prevSpan = wrapperSpans.prevSpan,
           nextSpan = wrapperSpans.nextSpan;
-      var durationInSeconds = duration / 1000;
       var tempSegment = {
         id: id,
         labelText: labelText,
@@ -305,7 +301,7 @@ var WaveformDataUtils = /*#__PURE__*/function () {
       } else if (!nextSpan) {
         tempSegment = _objectSpread(_objectSpread({}, tempSegment), {}, {
           startTime: this.timeToS(prevSpan.end),
-          endTime: durationInSeconds
+          endTime: duration
         });
       }
 
@@ -325,13 +321,12 @@ var WaveformDataUtils = /*#__PURE__*/function () {
      * valid time range it can be spread before editing starts
      * @param {String} id - ID of the segment being edited
      * @param {Object} peaksInstance - current peaks instance for the waveform
-     * @param {Number} duration - file length in milliseconds
+     * @param {Number} duration - file length in seconds
      */
 
   }, {
     key: "initialSegmentValidation",
     value: function initialSegmentValidation(id, peaksInstance, duration) {
-      var durationInSeconds = duration / 1000;
       var segment = peaksInstance.segments.getSegment(id);
 
       if (!segment) {
@@ -347,7 +342,7 @@ var WaveformDataUtils = /*#__PURE__*/function () {
 
 
       var isDuration = function isDuration(time) {
-        return time <= durationInSeconds + 0.02 && time >= durationInSeconds - 0.02;
+        return time <= duration + 0.02 && time >= duration - 0.02;
       };
 
       if (before && segment.startTime < before.endTime && !isDuration(before.endTime)) {
@@ -498,13 +493,12 @@ var WaveformDataUtils = /*#__PURE__*/function () {
      * @param {Object} segment - segement being edited in the waveform
      * @param {Boolean} startTimeChanged - true -> start time changed, false -> end time changed
      * @param {Object} peaksInstance - current peaks instance for waveform
-     * @param {Number} duration - file length in milliseconds
+     * @param {Number} duration - file length in seconds
      */
 
   }, {
     key: "validateSegment",
     value: function validateSegment(segment, startTimeChanged, peaksInstance, duration) {
-      var durationInSeconds = duration / 1000;
       var startTime = segment.startTime,
           endTime = segment.endTime; // Segments before and after the editing segment
 
@@ -514,7 +508,7 @@ var WaveformDataUtils = /*#__PURE__*/function () {
 
 
       var isDuration = function isDuration(time) {
-        return time <= durationInSeconds + 0.02 && time >= durationInSeconds - 0.02;
+        return time <= duration + 0.02 && time >= duration - 0.02;
       };
 
       if (startTimeChanged) {
@@ -540,10 +534,10 @@ var WaveformDataUtils = /*#__PURE__*/function () {
           segment.update({
             endTime: segment.startTime + 0.001
           });
-        } else if (endTime > durationInSeconds) {
+        } else if (endTime > duration) {
           // when end handle is dragged beyond the duration of file
           segment.update({
-            endTime: durationInSeconds
+            endTime: duration
           });
         }
       }

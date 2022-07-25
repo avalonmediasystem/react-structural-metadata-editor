@@ -19,6 +19,13 @@ const initialState = {
   structuralMetadata: {
     smData: testSmData,
   },
+  manifest: {
+    manifest: manifest,
+    mediaInfo: {
+      duraion: 662.037,
+      src: 'https://example.com/volleyball-for-boys/volleyball-for-boys.mp4'
+    }
+  }
 };
 
 const initStructure = {
@@ -82,9 +89,7 @@ describe('WaveformContainer component', () => {
         manifestURL="https://example.com/manifest.json"
         structureURL="https://mockurl.edu/structure.json"
         waveformURL="https://mockurl.edu/waveform.json"
-        audioURL="https://mockurl.edu/media.mp4"
         initStructure={initStructure}
-        streamDuration={1738945}
       />,
       { initialState }
     );
@@ -96,7 +101,7 @@ describe('WaveformContainer component', () => {
     });
   });
 
-  test('waveform renders when fetching structure.json fails', async () => {
+  test('waveform renders when manifest.json is valid', async () => {
     mockAxios.get.mockImplementationOnce(() => {
       return Promise.resolve({
         status: 200,
@@ -118,7 +123,7 @@ describe('WaveformContainer component', () => {
       <WaveformContainer
         initStructure={initStructure}
         manifestURL="https://example.com/manifest.json"
-        streamDuration={1738945}
+        canvasIndex={0}
       />,
       { initialState }
     );

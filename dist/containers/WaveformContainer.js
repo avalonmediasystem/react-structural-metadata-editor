@@ -86,7 +86,6 @@ var WaveformContainer = /*#__PURE__*/function (_Component) {
       structureURL: _this.props.structureURL,
       waveformURL: _this.props.waveformURL,
       initStructure: _this.props.initStructure,
-      streamLength: _this.props.streamDuration,
       manifestURL: _this.props.manifestURL,
       canvasIndex: _this.props.canvasIndex,
       dataUri: null
@@ -117,13 +116,13 @@ var WaveformContainer = /*#__PURE__*/function (_Component) {
       var _initializePeaksInstance = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee() {
         var _this2 = this;
 
-        var _this$state, canvasIndex, manifestURL, waveformURL, initStructure, streamLength;
+        var _this$state, canvasIndex, manifestURL, waveformURL, initStructure;
 
         return _regenerator["default"].wrap(function _callee$(_context) {
           while (1) {
             switch (_context.prev = _context.next) {
               case 0:
-                _this$state = this.state, canvasIndex = _this$state.canvasIndex, manifestURL = _this$state.manifestURL, waveformURL = _this$state.waveformURL, initStructure = _this$state.initStructure, streamLength = _this$state.streamLength;
+                _this$state = this.state, canvasIndex = _this$state.canvasIndex, manifestURL = _this$state.manifestURL, waveformURL = _this$state.waveformURL, initStructure = _this$state.initStructure;
                 _context.prev = 1;
                 _context.next = 4;
                 return apiUtils.headRequest(waveformURL);
@@ -150,7 +149,7 @@ var WaveformContainer = /*#__PURE__*/function (_Component) {
                   if (err) console.error('TCL: WaveformContainer -> initializePeaksInstance -> Peaks.init ->', err);
                   _this2.peaks = peaks;
 
-                  _this2.props.fetchDataAndBuildPeaks(_this2.peaks, manifestURL, canvasIndex, initStructure, streamLength);
+                  _this2.props.fetchDataAndBuildPeaks(_this2.peaks, manifestURL, canvasIndex, initStructure);
                 });
 
               case 12:
@@ -197,7 +196,6 @@ var WaveformContainer = /*#__PURE__*/function (_Component) {
         className: "waveform-section",
         "data-testid": "waveform-container"
       }, /*#__PURE__*/_react["default"].createElement(_Waveform["default"], {
-        audioURL: this.props.audioURL,
         withCredentials: this.props.withCredentials,
         ref: {
           zoomViewRef: this.zoomView,
@@ -211,10 +209,8 @@ var WaveformContainer = /*#__PURE__*/function (_Component) {
 }(_react.Component);
 
 WaveformContainer.propTypes = {
-  structureURL: _propTypes["default"].string.isRequired,
+  manifestURL: _propTypes["default"].string.isRequired,
   waveformURL: _propTypes["default"].string.isRequired,
-  audioURL: _propTypes["default"].string.isRequired,
-  streamDuration: _propTypes["default"].number.isRequired,
   initStructure: _propTypes["default"].object.isRequired
 };
 

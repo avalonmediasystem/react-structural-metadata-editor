@@ -28,12 +28,13 @@ const Waveform = React.forwardRef((props, ref) => {
   const streamMediaStatus = useSelector(
     (state) => state.forms.streamInfo.streamMediaStatus
   );
+  const mediaInfo = useSelector((state) => state.manifest.mediaInfo);
   const readyPeaks = useSelector((state) => state.peaksInstance.readyPeaks);
   const peaksInstance = useSelector((state) => state.peaksInstance.peaks);
   const editingDisabled = useSelector((state) => state.forms.editingDisabled);
   const dispatch = useDispatch();
 
-  const [audioFile, setAudioFile] = React.useState(props.audioURL);
+  const [audioFile, setAudioFile] = React.useState(mediaInfo.src);
   const [volume, setVolume] = React.useState(100);
   const [peaksIsReady, setPeaksIsReady] = React.useState(readyPeaks);
 
@@ -57,6 +58,10 @@ const Waveform = React.forwardRef((props, ref) => {
       document.removeEventListener('keydown', handleKeyPress);
     };
   })
+
+  React.useEffect(() => {
+    setAudioFile(mediaInfo.src);
+  }, [mediaInfo]);
 
   React.useEffect(() => {
     setEditing(editingDisabled);

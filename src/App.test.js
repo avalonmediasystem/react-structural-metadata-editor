@@ -3,7 +3,7 @@ import { cleanup, wait, fireEvent } from 'react-testing-library';
 import 'jest-dom/extend-expect';
 import App from './App';
 import './App.css';
-import { renderWithRedux, testSmData } from './services/testing-helpers';
+import { renderWithRedux, testSmData, manifest } from './services/testing-helpers';
 import mockAxios from 'axios';
 import Peaks from 'peaks';
 
@@ -42,6 +42,13 @@ const baseState = {
   },
   peaksInstance: {
     peaks: peaksInst,
+  },
+  manifest: {
+    manifest: manifest,
+    mediaInfo: {
+      src: 'https://example.com/volleyball-for-boys/volleyball-for-boys.mp4',
+      duration: 662.037
+    }
   }
 };
 
@@ -68,8 +75,8 @@ const initStructure = {
 
 const props = {
   initStructure: initStructure,
-  streamDuration: 1738945,
   structureIsSaved: mockStructureIsSaved,
+  manifestURL: 'http://example.com/manifset.json'
 };
 
 afterEach(cleanup);

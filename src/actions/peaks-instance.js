@@ -12,7 +12,7 @@ import { configureAlert } from '../services/alert-status';
 // import Peaks from 'peaks.js';
 import WaveformDataUtils from '../services/WaveformDataUtils';
 import { getMediaInfo, parseStructureToJSON } from '../services/iiif-parser';
-import { fetchManifestSuccess } from './manfiest';
+import { fetchManifestSuccess, setMediaInfo } from './manifest';
 
 const waveformUtils = new WaveformDataUtils();
 const apiUtils = new APIUtils();
@@ -30,21 +30,23 @@ export function initializeSMDataPeaks(
   manifestURL,
   canvasIndex,
   initStructure,
-  duration
 ) {
   return async (dispatch, getState) => {
     let smData = [];
+    let duration = 0;
     if (typeof initStructure === 'string' && initStructure !== '') {
       smData = structuralMetadataUtils.addUUIds([JSON.parse(initStructure)]);
     } else if (!isEmpty(initStructure)) {
       smData = structuralMetadataUtils.addUUIds([initStructure]);
     }
     try {
-      const manifestRes = await apiUtils.getRequest(manifestURL);
+      const response = await apiUtils.getRequest(manifestURL);
 
-      if (!isEmpty(manifestRes.data)) {
-        const { src, duration } = getMediaInfo(manifestRes.data, canvasIndex);
-        smData = parseStructureToJSON(manifestRes.data, duration);
+      if (!isEmpty(response.data)) {
+        const mediaInfo = getMediaInfo(response.data, canvasIndex);
+        dispatch(setMediaInfo(mediaInfo.src, mediaInfo.duration));
+        smData = parseStructureToJSON(response.data, mediaInfo.duration);
+        duration = mediaInfo.duration;
       }
 
       if (smData.length > 0) {

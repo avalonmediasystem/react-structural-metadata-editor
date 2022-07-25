@@ -12,7 +12,7 @@ const smUtils = new StructuralMetadataUtils;
  * @param {Number} canvasIndex index of the current canvas
  * @returns { String, Number } { media src, media duration }
  */
-export function getMediaInfo(manifest, canvasIndex) {
+export function getMediaInfo(manifest, canvasIndex = 0) {
   let canvas;
   let mediaInfo = {};
   try {
@@ -150,7 +150,7 @@ export function parseStructureToJSON(manifest, duration) {
 
     // Add the root element to the JSON object
     structureJSON.push({
-      type: "root",
+      type: 'div',
       label: getLabelValue(root.label),
       items: children,
     });
@@ -160,7 +160,7 @@ export function parseStructureToJSON(manifest, duration) {
     structureJSON.push({
       label: manifestName,
       items: [],
-      type: 'root',
+      type: 'div',
     });
   }
   const structureWithIDs = smUtils.addUUIds(structureJSON);

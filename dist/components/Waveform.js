@@ -44,6 +44,9 @@ var Waveform = /*#__PURE__*/_react["default"].forwardRef(function (props, ref) {
   var streamMediaStatus = (0, _reactRedux.useSelector)(function (state) {
     return state.forms.streamInfo.streamMediaStatus;
   });
+  var mediaInfo = (0, _reactRedux.useSelector)(function (state) {
+    return state.manifest.mediaInfo;
+  });
   var readyPeaks = (0, _reactRedux.useSelector)(function (state) {
     return state.peaksInstance.readyPeaks;
   });
@@ -55,7 +58,7 @@ var Waveform = /*#__PURE__*/_react["default"].forwardRef(function (props, ref) {
   });
   var dispatch = (0, _reactRedux.useDispatch)();
 
-  var _React$useState = _react["default"].useState(props.audioURL),
+  var _React$useState = _react["default"].useState(mediaInfo.src),
       _React$useState2 = (0, _slicedToArray2["default"])(_React$useState, 2),
       audioFile = _React$useState2[0],
       setAudioFile = _React$useState2[1];
@@ -91,6 +94,10 @@ var Waveform = /*#__PURE__*/_react["default"].forwardRef(function (props, ref) {
       document.removeEventListener('keydown', handleKeyPress);
     };
   });
+
+  _react["default"].useEffect(function () {
+    setAudioFile(mediaInfo.src);
+  }, [mediaInfo]);
 
   _react["default"].useEffect(function () {
     setEditing(editingDisabled);

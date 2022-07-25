@@ -45,7 +45,7 @@ var _WaveformDataUtils = _interopRequireDefault(require("../services/WaveformDat
 
 var _iiifParser = require("../services/iiif-parser");
 
-var _manfiest = require("./manfiest");
+var _manifest = require("./manifest");
 
 function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
 
@@ -63,16 +63,17 @@ var structuralMetadataUtils = new _StructuralMetadataUtils["default"]();
  * @param {Object} options - peaks options
  */
 
-function initializeSMDataPeaks(peaks, manifestURL, canvasIndex, initStructure, duration) {
+function initializeSMDataPeaks(peaks, manifestURL, canvasIndex, initStructure) {
   return /*#__PURE__*/function () {
     var _ref = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee(dispatch, getState) {
-      var smData, manifestRes, _getMediaInfo, src, _duration, alert, status, _alert, segments, _getState, peaksInstance, dragged;
+      var smData, duration, response, mediaInfo, alert, status, _alert, segments, _getState, peaksInstance, dragged;
 
       return _regenerator["default"].wrap(function _callee$(_context) {
         while (1) {
           switch (_context.prev = _context.next) {
             case 0:
               smData = [];
+              duration = 0;
 
               if (typeof initStructure === 'string' && initStructure !== '') {
                 smData = structuralMetadataUtils.addUUIds([JSON.parse(initStructure)]);
@@ -80,16 +81,18 @@ function initializeSMDataPeaks(peaks, manifestURL, canvasIndex, initStructure, d
                 smData = structuralMetadataUtils.addUUIds([initStructure]);
               }
 
-              _context.prev = 2;
-              _context.next = 5;
+              _context.prev = 3;
+              _context.next = 6;
               return apiUtils.getRequest(manifestURL);
 
-            case 5:
-              manifestRes = _context.sent;
+            case 6:
+              response = _context.sent;
 
-              if (!(0, _lodash.isEmpty)(manifestRes.data)) {
-                _getMediaInfo = (0, _iiifParser.getMediaInfo)(manifestRes.data, canvasIndex), src = _getMediaInfo.src, _duration = _getMediaInfo.duration;
-                smData = (0, _iiifParser.parseStructureToJSON)(manifestRes.data, _duration);
+              if (!(0, _lodash.isEmpty)(response.data)) {
+                mediaInfo = (0, _iiifParser.getMediaInfo)(response.data, canvasIndex);
+                dispatch((0, _manifest.setMediaInfo)(mediaInfo.src, mediaInfo.duration));
+                smData = (0, _iiifParser.parseStructureToJSON)(response.data, mediaInfo.duration);
+                duration = mediaInfo.duration;
               }
 
               if (smData.length > 0) {
@@ -100,20 +103,20 @@ function initializeSMDataPeaks(peaks, manifestURL, canvasIndex, initStructure, d
                 dispatch((0, _forms.setAlert)(alert));
               }
 
-              dispatch((0, _manfiest.fetchManifestSuccess)());
-              _context.next = 18;
+              dispatch((0, _manifest.fetchManifestSuccess)());
+              _context.next = 19;
               break;
 
-            case 11:
-              _context.prev = 11;
-              _context.t0 = _context["catch"](2);
+            case 12:
+              _context.prev = 12;
+              _context.t0 = _context["catch"](3);
               console.log('TCL: Structure -> }catch -> error', _context.t0);
               status = _context.t0.response !== undefined ? _context.t0.response.status : -2;
               dispatch((0, _forms.handleStructureError)(1, status));
               _alert = (0, _alertStatus.configureAlert)(status);
               dispatch((0, _forms.setAlert)(_alert));
 
-            case 18:
+            case 19:
               // Mark the top element as 'root'
               structuralMetadataUtils.markRootElement(smData); // Initialize Redux state variable with structure
 
@@ -150,12 +153,12 @@ function initializeSMDataPeaks(peaks, manifestURL, canvasIndex, initStructure, d
                 }
               }
 
-            case 22:
+            case 23:
             case "end":
               return _context.stop();
           }
         }
-      }, _callee, null, [[2, 11]]);
+      }, _callee, null, [[3, 12]]);
     }));
 
     return function (_x, _x2) {

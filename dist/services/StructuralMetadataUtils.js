@@ -150,7 +150,7 @@ var StructuralMetadataUtils = /*#__PURE__*/function () {
      * Format the time of the timespans in the structured metadata fetched from the server,
      * so that they can be used in the validation logic and Peaks instance
      * @param {Array} allItems - array of all the items in structured metadata
-     * @param {Float} duration - end time of the media file in Milliseconds
+     * @param {Float} duration - end time of the media file in seconds
      */
 
   }, {
@@ -158,8 +158,6 @@ var StructuralMetadataUtils = /*#__PURE__*/function () {
     value: function buildSMUI(allItems, duration) {
       var _this2 = this;
 
-      // Convert file duration to seconds
-      var durationInSeconds = Math.round(duration / 10) / 100;
       var smDataIsValid = true; // Convert time to HH:mm:ss.ms format to use in validation logic
 
       var convertToSeconds = function convertToSeconds(time) {
@@ -195,17 +193,17 @@ var StructuralMetadataUtils = /*#__PURE__*/function () {
               item.begin = _this2.toHHmmss(beginTime);
               item.end = _this2.toHHmmss(endTime);
 
-              if (beginTime > endTime || beginTime > durationInSeconds) {
+              if (beginTime > endTime || beginTime > duration) {
                 item.valid = false;
                 smDataIsValid = false;
-              } else if (endTime > durationInSeconds) {
+              } else if (endTime > duration) {
                 item.valid = false;
                 smDataIsValid = false;
-                item.end = _this2.toHHmmss(durationInSeconds);
+                item.end = _this2.toHHmmss(duration);
               }
 
               if (endTime === 0) {
-                item.end = _this2.toHHmmss(durationInSeconds);
+                item.end = _this2.toHHmmss(duration);
               }
             }
 

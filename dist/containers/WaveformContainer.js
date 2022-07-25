@@ -87,6 +87,7 @@ var WaveformContainer = /*#__PURE__*/function (_Component) {
       waveformURL: _this.props.waveformURL,
       initStructure: _this.props.initStructure,
       streamLength: _this.props.streamDuration,
+      manifestURL: _this.props.manifestURL,
       dataUri: null
     });
     _this.zoomView = /*#__PURE__*/_react["default"].createRef();
@@ -115,13 +116,13 @@ var WaveformContainer = /*#__PURE__*/function (_Component) {
       var _initializePeaksInstance = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee() {
         var _this2 = this;
 
-        var _this$state, structureURL, waveformURL, initStructure, streamLength;
+        var _this$state, structureURL, manifestURL, waveformURL, initStructure, streamLength;
 
         return _regenerator["default"].wrap(function _callee$(_context) {
           while (1) {
             switch (_context.prev = _context.next) {
               case 0:
-                _this$state = this.state, structureURL = _this$state.structureURL, waveformURL = _this$state.waveformURL, initStructure = _this$state.initStructure, streamLength = _this$state.streamLength;
+                _this$state = this.state, structureURL = _this$state.structureURL, manifestURL = _this$state.manifestURL, waveformURL = _this$state.waveformURL, initStructure = _this$state.initStructure, streamLength = _this$state.streamLength;
                 _context.prev = 1;
                 _context.next = 4;
                 return apiUtils.headRequest(waveformURL);
@@ -148,7 +149,7 @@ var WaveformContainer = /*#__PURE__*/function (_Component) {
                   if (err) console.error('TCL: WaveformContainer -> initializePeaksInstance -> Peaks.init ->', err);
                   _this2.peaks = peaks;
 
-                  _this2.props.fetchDataAndBuildPeaks(_this2.peaks, structureURL, initStructure, streamLength);
+                  _this2.props.fetchDataAndBuildPeaks(_this2.peaks, structureURL, manifestURL, initStructure, streamLength);
                 });
 
               case 12:

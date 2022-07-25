@@ -113,7 +113,8 @@ App.propTypes = {
   streamDuration: _propTypes["default"].number.isRequired,
   initStructure: _propTypes["default"].object.isRequired,
   withCredentials: _propTypes["default"].bool,
-  structureIsSaved: _propTypes["default"].func
+  structureIsSaved: _propTypes["default"].func,
+  manifestURL: _propTypes["default"].string.isRequired
 };
 App.defaultProps = {
   withCredentials: false,

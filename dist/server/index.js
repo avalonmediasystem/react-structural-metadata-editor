@@ -71,6 +71,30 @@ app.get('/media.mp4', function (req, res) {
   res.header('Content-Type', 'video/mp4');
   res.sendFile(path.join(__dirname, 'assets', 'media.mp4'));
 });
+app.get('/lunchroom_manners/low/media.mp4', function (req, res) {
+  res.header('Content-Type', 'video/mp4');
+  res.sendFile(path.join(__dirname, 'assets/lunchroom_manners/low', 'lunchroom_manners_256kb.mp4'));
+});
+app.get('/lunchroom_manners/medium/media.mp4', function (req, res) {
+  res.header('Content-Type', 'video/mp4');
+  res.sendFile(path.join(__dirname, 'assets/lunchroom_manners/medium', 'lunchroom_manners_512kb.mp4'));
+});
+app.get('/lunchroom_manners/high/media.mp4', function (req, res) {
+  res.header('Content-Type', 'video/mp4');
+  res.sendFile(path.join(__dirname, 'assets/lunchroom_manners/high', 'lunchroom_manners_1024kb.mp4'));
+});
+app.get('/manifest.json', function (req, res) {
+  res.header('Content-Type', 'application/json');
+  var manifest;
+
+  try {
+    manifest = fs.readFileSync(path.join(__dirname, 'assets/lunchroom_manners', 'manifest.json'), 'utf-8');
+  } catch (err) {
+    console.error('Server -> Error fetching manifest -> ', err);
+  }
+
+  res.send(manifest);
+});
 app.post('/structure.json', function (req, res) {
   var newStructure = req.body.json;
   var cleanedStruct = cleanStructure(newStructure);

@@ -11,6 +11,8 @@ import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
 import { configureAlert } from '../services/alert-status';
 // import Peaks from 'peaks.js';
 import WaveformDataUtils from '../services/WaveformDataUtils';
+import { getMediaInfo, parseStructureToJSON } from '../services/iiif-parser';
+import { fetchManifestSuccess } from './manfiest';
 
 const waveformUtils = new WaveformDataUtils();
 const apiUtils = new APIUtils();
@@ -26,6 +28,7 @@ const structuralMetadataUtils = new StructuralMetadataUtils();
 export function initializeSMDataPeaks(
   peaks,
   structureURL,
+  manifestURL,
   initStructure,
   duration
 ) {
@@ -37,11 +40,14 @@ export function initializeSMDataPeaks(
       smData = structuralMetadataUtils.addUUIds([initStructure]);
     }
     try {
-      const response = await apiUtils.getRequest(structureURL);
+      const manifestRes = await apiUtils.getRequest(manifestURL);
 
-      if (!isEmpty(response.data)) {
-        smData = structuralMetadataUtils.addUUIds([response.data]);
+      if (!isEmpty(manifestRes.data)) {
+        const { src, duration } = getMediaInfo(manifestRes.data, 0);
+        smData = parseStructureToJSON(manifestRes.data, duration);
       }
+      dispatch(fetchManifestSuccess());
+
       // Update redux-store flag for structure file retrieval
       dispatch(retrieveStructureSuccess());
     } catch (error) {

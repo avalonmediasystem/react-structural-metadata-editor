@@ -73,11 +73,12 @@ App.propTypes = {
   initStructure: PropTypes.object.isRequired,
   withCredentials: PropTypes.bool,
   structureIsSaved: PropTypes.func,
+  manifestURL: PropTypes.string.isRequired
 };
 
 App.defaultProps = {
   withCredentials: false,
-  structureIsSaved: (val) => {},
+  structureIsSaved: (val) => { },
 };
 
 const mapDispatchToProps = {

@@ -5,8 +5,8 @@ export const Peaks = jest.fn((opts) => {
     seek: jest.fn((time) => {
       peaks.player._mediaElement.currentTime = time;
     }),
-    play: jest.fn(() => {}),
-    pause: jest.fn(() => {}),
+    play: jest.fn(() => { }),
+    pause: jest.fn(() => { }),
     getCurrentTime: jest.fn(() => {
       return peaks.player._mediaElement.currentTime;
     }),
@@ -81,9 +81,9 @@ export const Peaks = jest.fn((opts) => {
     ],
   };
   peaks.zoom = {
-    zoomIn: jest.fn(() => {}),
-    zoomOut: jest.fn(() => {}),
-  }
+    zoomIn: jest.fn(() => { }),
+    zoomOut: jest.fn(() => { }),
+  };
   return peaks;
 });
 
@@ -118,6 +118,7 @@ export const Segment = jest.fn((opts) => {
 export default {
   init: jest.fn((opts, callback) => {
     let peaks = Peaks(opts);
+    console.log(peaks != undefined);
     callback(null, peaks);
   }),
 };

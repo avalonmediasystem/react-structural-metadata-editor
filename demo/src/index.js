@@ -11,7 +11,6 @@ const props = {
     items: [],
   },
   structureURL: `${BASE_API_URL}/structure.json`,
-  waveformURL: `${BASE_API_URL}/waveform.json`,
   manifestURL: `${BASE_API_URL}/manifest.json`,
   canvasIndex: 0,
   structureIsSaved: (val) => { },

@@ -50,7 +50,7 @@ describe('ButtonSection component', () => {
         },
         peaksInstance: {
           peaks: peaksInst,
-          duration: 1738945.306,
+          duration: 1738.945,
         },
         structuralMetadata: { smData: testSmData },
       };

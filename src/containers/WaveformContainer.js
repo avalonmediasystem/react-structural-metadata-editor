@@ -1,15 +1,8 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-import APIUtils from '../api/Utils';
-import { connect } from 'react-redux';
-import { initializeSMDataPeaks, peaksReady } from '../actions/peaks-instance';
-import { setAlert } from '../actions/forms';
+import { useDispatch } from 'react-redux';
+import { initializePeaks } from '../actions/peaks-instance';
 import Waveform from '../components/Waveform';
-import { configureAlert } from '../services/alert-status';
-import { retrieveWaveformSuccess } from '../actions/forms';
-import Peaks from 'peaks.js';
-
-const apiUtils = new APIUtils();
 
 // Peaks options
 let peaksOptions = {
@@ -24,129 +17,51 @@ let peaksOptions = {
   timeLabelPrecision: 3,
 };
 
-class WaveformContainer extends Component {
-  constructor(props) {
-    super(props);
-    this.zoomView = React.createRef();
-    this.overView = React.createRef();
-    this.mediaPlayer = React.createRef();
-    this.peaks = null;
-  }
+const WaveformContainer = (props) => {
+  const zoomView = React.createRef();
+  const overView = React.createRef();
+  const mediaPlayer = React.createRef();
 
-  state = {
-    streamAlert: {},
-    structureURL: this.props.structureURL,
-    waveformURL: this.props.waveformURL,
-    initStructure: this.props.initStructure,
-    manifestURL: this.props.manifestURL,
-    canvasIndex: this.props.canvasIndex,
-    dataUri: null,
-  };
+  const [manifestURL, setManifestURL] = React.useState(props.manifestURL);
+  const [canvasIndex, setCanvasIndex] = React.useState(props.canvasIndex);
 
-  componentDidMount() {
+  const dispatch = useDispatch();
+
+  React.useEffect(() => {
     peaksOptions = {
       ...peaksOptions,
       containers: {
-        zoomview: this.zoomView.current,
-        overview: this.overView.current,
+        zoomview: zoomView.current,
+        overview: overView.current,
       },
-      mediaElement: this.mediaPlayer.current,
-      withCredentials: this.props.withCredentials,
+      mediaElement: mediaPlayer.current,
+      withCredentials: props.withCredentials,
     };
-    this.initializePeaksInstance();
-  }
 
-  async initializePeaksInstance() {
-    const { canvasIndex, manifestURL, waveformURL, initStructure } =
-      this.state;
-    try {
-      // Check whether the waveform.json exists in the server
-      await apiUtils.headRequest(waveformURL);
+    dispatch(initializePeaks(
+      peaksOptions,
+      manifestURL,
+      canvasIndex,
+      props.initStructure));
+  }, []);
 
-      // Set waveform URI
-      peaksOptions.dataUri = {
-        json: waveformURL,
-      };
-
-      // Update redux-store flag for waveform file retrieval
-      this.props.retrieveWaveformSuccess();
-    } catch (error) {
-      // Enable the flash message alert
-      this.handleError(error);
-    }
-
-    // Initialize Peaks intance with the given options
-    Peaks.init(peaksOptions, (err, peaks) => {
-      if (err)
-        console.error(
-          'TCL: WaveformContainer -> initializePeaksInstance -> Peaks.init ->',
-          err
-        );
-      this.peaks = peaks;
-
-      this.props.fetchDataAndBuildPeaks(
-        this.peaks,
-        manifestURL,
-        canvasIndex,
-        initStructure,
-      );
-    });
-  }
-
-  handleError(error) {
-    console.log('TCL: WaveformContainer -> handleError -> error', error);
-    let status = null;
-    const { waveformURL } = this.state;
-
-    // Pull status code out of error response/request
-    if (error.response !== undefined) {
-      status = error.response.status;
-      if (status == 404) {
-        peaksOptions.dataUri = {
-          json: `${waveformURL}?empty=true`,
-        };
-        status = -7; // for persistent missing waveform data alert
-      }
-    } else if (error.request !== undefined) {
-      status = -3;
-    }
-
-    const alert = configureAlert(status);
-    this.props.setAlert(alert);
-  }
-
-  render() {
-    return (
-      <section className="waveform-section" data-testid="waveform-container">
-        <Waveform
-          withCredentials={this.props.withCredentials}
-          ref={{
-            zoomViewRef: this.zoomView,
-            overViewRef: this.overView,
-            mediaPlayerRef: this.mediaPlayer,
-          }}
-        />{' '}
-      </section>
-    );
-  }
-}
+  return (
+    <section className="waveform-section" data-testid="waveform-container">
+      <Waveform
+        withCredentials={props.withCredentials}
+        ref={{
+          zoomViewRef: zoomView,
+          overViewRef: overView,
+          mediaPlayerRef: mediaPlayer,
+        }}
+      />{' '}
+    </section>
+  );
+};
 
 WaveformContainer.propTypes = {
   manifestURL: PropTypes.string.isRequired,
-  waveformURL: PropTypes.string.isRequired,
   initStructure: PropTypes.object.isRequired,
 };
 
-const mapStateToProps = (state) => ({
-  smData: state.structuralMetadata.smData,
-  alert: state.forms.alert,
-});
-
-const mapDispatchToProps = {
-  fetchDataAndBuildPeaks: initializeSMDataPeaks,
-  peaksReady: peaksReady,
-  retrieveWaveformSuccess: retrieveWaveformSuccess,
-  setAlert: setAlert,
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(WaveformContainer);
+export default WaveformContainer;

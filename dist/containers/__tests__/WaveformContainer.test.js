@@ -25,6 +25,10 @@ const initialState = {
       duraion: 662.037,
       src: 'https://example.com/volleyball-for-boys/volleyball-for-boys.mp4'
     }
+  },
+  peaksInstance: {
+    peaks: peaksInst,
+    duration: 662.037
   }
 };
 
@@ -88,7 +92,6 @@ describe('WaveformContainer component', () => {
       <WaveformContainer
         manifestURL="https://example.com/manifest.json"
         structureURL="https://mockurl.edu/structure.json"
-        waveformURL="https://mockurl.edu/waveform.json"
         initStructure={initStructure}
       />,
       { initialState }

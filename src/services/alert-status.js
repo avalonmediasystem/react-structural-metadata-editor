@@ -1,12 +1,11 @@
 export const UNAUTHORIZED_ACCESS =
   "You're not authorized to access this resource.";
-export const MASTERFILE_NOT_FOUND = 'Requested data is not available.';
 export const SAVED_MASTERFILE_SUCCESS = 'Saved successfully.';
 export const NETWORK_ERROR = 'Network error. Please try again.';
 export const FETCH_STRUCTURED_DATA_ERROR =
-  'There was an error retrieving the structure information.';
+  'No structure information was found. Please check your Manifest.';
 export const WAVEFORM_INITIALIZE_ERROR =
-  'There was an error initializing the waveform.';
+  'There was an error initializing the waveform. Please check your Manifest.';
 export const PEAKSJS_REACHED_END_OF_FILE =
   'There is no space available to insert a new timespan.';
 export const STREAM_MEDIA_ERROR =
@@ -15,6 +14,7 @@ export const MISSING_WAVEFORM_ERROR =
   'Requested waveform data is not available.';
 export const INVALID_SEGMENTS_WARNING =
   'Please check start/end times of the marked invalid timespan(s).';
+export const FETCH_MANIFEST_ERROR = 'Requested IIIF Manifest was not found.';
 
 /**
  * Helper function which prepares a configuration object to feed the AlertContainer component
@@ -25,8 +25,8 @@ export function configureAlert(status = 0) {
 
   if (status === 401) {
     alertObj.message = UNAUTHORIZED_ACCESS;
-  } else if (status === 404) {
-    alertObj.message = MASTERFILE_NOT_FOUND;
+  } else if (status === 404 || status == -9) {
+    alertObj.message = FETCH_MANIFEST_ERROR;
   } else if (status >= 200 && status < 300) {
     alertObj.alertStyle = 'success';
     alertObj.message = SAVED_MASTERFILE_SUCCESS;

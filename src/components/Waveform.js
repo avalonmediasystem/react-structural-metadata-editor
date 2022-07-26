@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { Button, ButtonToolbar, Row, Col } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -7,7 +7,7 @@ import {
   faSearchMinus,
   faSearchPlus,
 } from '@fortawesome/free-solid-svg-icons';
-import { connect, useSelector, useDispatch } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { configureAlert } from '../services/alert-status';
 import {
   retrieveStreamMedia,

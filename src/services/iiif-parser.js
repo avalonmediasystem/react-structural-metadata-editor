@@ -1,7 +1,5 @@
 import { parseManifest } from "manifesto.js";
 import StructuralMetadataUtils from "./StructuralMetadataUtils";
-import uuidv1 from 'uuid';
-import { isEmpty } from "lodash";
 
 const smUtils = new StructuralMetadataUtils;
 
@@ -97,10 +95,11 @@ export function getWaveformInfo(manifest, canvasIndex) {
  * and edit structure
  * @param {Object} manifest current manifest
  * @param {Number} duration duration of the canvas in manifest
+ * @param {Object} initStructure initial structure by default from props
  * @returns {Array.<Object>} structureJSON - array of nested JSON 
  * objects with structure items parsed from the given manifest
  */
-export function parseStructureToJSON(manifest, duration) {
+export function parseStructureToJSON(manifest, initStructure, duration) {
   let structureJSON = [];
 
   let buildStructureItems = (items, children) => {
@@ -155,6 +154,15 @@ export function parseStructureToJSON(manifest, duration) {
       items: children,
     });
   }
+  else if (typeof initStructure === 'string' && initStructure !== '') {
+    structureJSON = smUtils.addUUIds([JSON.parse(initStructure)]);
+  }
+  // Use default initial structure when manifest doesn't
+  // have structures 
+  else if (initStructure != undefined &&
+    Object.keys(initStructure).length != 0) {
+    structureJSON = smUtils.addUUIds([initStructure]);
+  }
   // Create a dummy structure with manifest information
   else if (manifestName != undefined) {
     structureJSON.push({
@@ -165,22 +173,6 @@ export function parseStructureToJSON(manifest, duration) {
   }
   const structureWithIDs = smUtils.addUUIds(structureJSON);
   return structureWithIDs;
-}
-
-function validateTimes(start, end, duration) {
-  let isValid = true;
-  let endTime = end;
-  if (start > end || start > duration) {
-    isValid = false;
-  } else if (end > duration) {
-    isValid = false;
-    endTime = smUtils.toHHmmss(duration);
-  }
-  if (end === 0) {
-    isValid = false;
-    endTime = smUtils.toHHmmss(duration);
-  }
-  return { isValid, endTime };
 }
 
 /**

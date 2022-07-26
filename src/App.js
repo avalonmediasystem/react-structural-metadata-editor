@@ -11,26 +11,7 @@ import { resetReduxStore } from './actions';
 import { handleStructureError, removeAlert } from './actions/forms';
 import ErrorBoundary from './components/ErrorBoundary';
 
-// Font Awesome Imports
-// import { library } from '@fortawesome/fontawesome-svg-core';
-// import {
-//   faDotCircle,
-//   faExclamationTriangle,
-//   faMinusCircle,
-//   faPen,
-//   faSave,
-//   faTrash,
-// } from '@fortawesome/free-solid-svg-icons';
 import AlertContainer from './containers/AlertContainer';
-
-// library.add(
-//   faDotCircle,
-//   faMinusCircle,
-//   faPen,
-//   faSave,
-//   faTrash,
-//   faExclamationTriangle
-// );
 
 class App extends Component {
   constructor(props) {
@@ -44,10 +25,6 @@ class App extends Component {
     // Reset the redux-store
     this.props.resetStore();
   }
-
-  structureIsSaved = (value) => {
-    this.props.structureIsSaved(value);
-  };
 
   render() {
     return (
@@ -66,19 +43,18 @@ class App extends Component {
 }
 
 App.propTypes = {
-  structureURL: PropTypes.string.isRequired,
-  waveformURL: PropTypes.string.isRequired,
+  canvasIndex: PropTypes.number,
   initStructure: PropTypes.object.isRequired,
-  withCredentials: PropTypes.bool,
-  structureIsSaved: PropTypes.func,
   manifestURL: PropTypes.string.isRequired,
-  canvasIndes: PropTypes.number
+  structureURL: PropTypes.string.isRequired,
+  structureIsSaved: PropTypes.func,
+  withCredentials: PropTypes.bool
 };
 
 App.defaultProps = {
-  withCredentials: false,
+  canvasIndex: 0,
   structureIsSaved: (val) => { },
-  canvasIndex: 0
+  withCredentials: false,
 };
 
 const mapDispatchToProps = {

@@ -14,7 +14,7 @@ describe('alert-status service', () => {
     );
     expect(alertStatus.configureAlert(404)).toHaveProperty(
       'message',
-      alertStatus.MASTERFILE_NOT_FOUND
+      alertStatus.FETCH_MANIFEST_ERROR
     );
     expect(alertStatus.configureAlert(250)).toHaveProperty(
       'message',

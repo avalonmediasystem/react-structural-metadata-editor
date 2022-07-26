@@ -18,10 +18,6 @@ var _manifesto = require("manifesto.js");
 
 var _StructuralMetadataUtils = _interopRequireDefault(require("./StructuralMetadataUtils"));
 
-var _uuid = _interopRequireDefault(require("uuid"));
-
-var _lodash = require("lodash");
-
 var smUtils = new _StructuralMetadataUtils["default"]();
 /**
  * Fetch media information relavant to the current canvas
@@ -116,12 +112,13 @@ function getWaveformInfo(manifest, canvasIndex) {
  * and edit structure
  * @param {Object} manifest current manifest
  * @param {Number} duration duration of the canvas in manifest
+ * @param {Object} initStructure initial structure by default from props
  * @returns {Array.<Object>} structureJSON - array of nested JSON 
  * objects with structure items parsed from the given manifest
  */
 
 
-function parseStructureToJSON(manifest, duration) {
+function parseStructureToJSON(manifest, initStructure, duration) {
   var structureJSON = [];
 
   var buildStructureItems = function buildStructureItems(items, children) {
@@ -179,6 +176,12 @@ function parseStructureToJSON(manifest, duration) {
       label: getLabelValue(root.label),
       items: children
     });
+  } else if (typeof initStructure === 'string' && initStructure !== '') {
+    structureJSON = smUtils.addUUIds([JSON.parse(initStructure)]);
+  } // Use default initial structure when manifest doesn't
+  // have structures 
+  else if (initStructure != undefined && Object.keys(initStructure).length != 0) {
+    structureJSON = smUtils.addUUIds([initStructure]);
   } // Create a dummy structure with manifest information
   else if (manifestName != undefined) {
     structureJSON.push({
@@ -190,28 +193,6 @@ function parseStructureToJSON(manifest, duration) {
 
   var structureWithIDs = smUtils.addUUIds(structureJSON);
   return structureWithIDs;
-}
-
-function validateTimes(start, end, duration) {
-  var isValid = true;
-  var endTime = end;
-
-  if (start > end || start > duration) {
-    isValid = false;
-  } else if (end > duration) {
-    isValid = false;
-    endTime = smUtils.toHHmmss(duration);
-  }
-
-  if (end === 0) {
-    isValid = false;
-    endTime = smUtils.toHHmmss(duration);
-  }
-
-  return {
-    isValid: isValid,
-    endTime: endTime
-  };
 }
 /**
  * Retrieve the canvas URI with mediafragment of a given

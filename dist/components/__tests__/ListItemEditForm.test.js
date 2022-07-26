@@ -1,6 +1,6 @@
 import React from 'react';
 import Peaks from 'peaks';
-import { cleanup, wait, getByText, fireEvent } from 'react-testing-library';
+import { cleanup, fireEvent } from 'react-testing-library';
 import 'jest-dom/extend-expect';
 import { renderWithRedux, testSmData } from '../../services/testing-helpers';
 import ListItemEditForm from '../ListItemEditForm';

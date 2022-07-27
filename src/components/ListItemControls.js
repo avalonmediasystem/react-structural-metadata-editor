@@ -61,7 +61,8 @@ class ListItemControls extends Component {
     let deleteMessage = `Are you sure you'd like to delete <strong>${label}</strong>`;
 
     if (childrenCount > 0) {
-      deleteMessage += ` and it's <strong>${childrenCount}</strong> child items`;
+      const puralizedItem = childrenCount > 1 ? 'items' : 'item';
+      deleteMessage += ` and it's <strong>${childrenCount}</strong> child ${puralizedItem}`;
     }
     deleteMessage += `?`;
 

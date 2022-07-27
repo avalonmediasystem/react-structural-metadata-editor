@@ -4,8 +4,7 @@ import 'jest-dom/extend-expect';
 import { wrapInTestContext } from 'react-dnd-test-utils';
 import StructureOutputContainer from './containers/StructureOutputContainer';
 import ButtonSection from './components/ButtonSection';
-import { manifestWithStructure, renderWithRedux, testSmData } from './services/testing-helpers';
-import mockAxios from 'axios';
+import { renderWithRedux, testSmData } from './services/testing-helpers';
 import Peaks from 'peaks';
 
 // Set up a redux store for the tests

@@ -22,13 +22,9 @@ const baseState = {
   },
   forms: {
     streamInfo: {
-      streamMediaError: false,
-      streamMediaLoading: true,
       streamMediaStatus: null,
     },
     structureInfo: {
-      structureRetrieved: false,
-      structureError: null,
       structureSaved: true,
     },
   },

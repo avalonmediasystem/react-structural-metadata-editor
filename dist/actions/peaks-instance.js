@@ -149,7 +149,7 @@ function buildPeaksInstance(_x3, _x4, _x5, _x6, _x7, _x8) {
 
 function _buildPeaksInstance() {
   _buildPeaksInstance = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee2(waveformURL, peaksOptions, smData, duration, dispatch, getState) {
-    var status, alert, makePeaksCallback;
+    var status, alert;
     return _regenerator["default"].wrap(function _callee2$(_context2) {
       while (1) {
         switch (_context2.prev = _context2.next) {
@@ -192,11 +192,11 @@ function _buildPeaksInstance() {
             dispatch((0, _forms.setAlert)(alert));
 
           case 14:
-            makePeaksCallback = function makePeaksCallback(err, peaks) {
+            // Initialize Peaks intance with the given options
+            _peaks["default"].init(peaksOptions, function (err, peaks) {
               if (err) console.error('TCL: peaks-instance -> buildPeaksInstance() -> Peaks.init ->', err); // Create segments from structural metadata
 
-              var segments = waveformUtils.initSegments(smData, duration);
-              console.log(peaks); // Add segments to peaks instance
+              var segments = waveformUtils.initSegments(smData, duration); // Add segments to peaks instance
 
               segments.map(function (seg) {
                 return peaks.segments.add(seg);
@@ -223,12 +223,9 @@ function _buildPeaksInstance() {
                   dispatch(peaksReady(true));
                 }
               }
-            }; // Initialize Peaks intance with the given options
+            });
 
-
-            _peaks["default"].init(peaksOptions, makePeaksCallback);
-
-          case 16:
+          case 15:
           case "end":
             return _context2.stop();
         }

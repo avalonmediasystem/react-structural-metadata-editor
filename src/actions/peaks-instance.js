@@ -143,7 +143,8 @@ async function buildPeaksInstance(
     dispatch(setAlert(alert));
   }
 
-  let makePeaksCallback = (err, peaks) => {
+  // Initialize Peaks intance with the given options
+  Peaks.init(peaksOptions, (err, peaks) => {
     if (err)
       console.error(
         'TCL: peaks-instance -> buildPeaksInstance() -> Peaks.init ->',
@@ -153,7 +154,6 @@ async function buildPeaksInstance(
     // Create segments from structural metadata
     const segments = waveformUtils.initSegments(smData, duration);
 
-    console.log(peaks);
     // Add segments to peaks instance
     segments.map((seg) => peaks.segments.add(seg));
     dispatch(initPeaks(peaks, duration));
@@ -174,10 +174,7 @@ async function buildPeaksInstance(
         dispatch(peaksReady(true));
       }
     }
-  };
-
-  // Initialize Peaks intance with the given options
-  Peaks.init(peaksOptions, makePeaksCallback);
+  });
 }
 
 export function initPeaks(peaksInstance, duration) {

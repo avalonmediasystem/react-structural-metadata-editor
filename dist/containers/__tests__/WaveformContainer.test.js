@@ -4,15 +4,10 @@ import 'jest-dom/extend-expect';
 import WaveformContainer from '../WaveformContainer';
 import { manifest, renderWithRedux, testSmData } from '../../services/testing-helpers';
 import mockAxios from 'axios';
-import Peaks from 'peaks';
 
 // Mocking the external libraries used in the component execution
 jest.mock('rxjs');
-
-let peaksInst = null;
-Peaks.init({}, (err, peaks) => {
-  peaksInst = peaks;
-});
+jest.mock('peaks.js');
 
 // Setup Redux store for tests
 const initialState = {
@@ -26,10 +21,6 @@ const initialState = {
       src: 'https://example.com/volleyball-for-boys/volleyball-for-boys.mp4'
     }
   },
-  peaksInstance: {
-    peaks: peaksInst,
-    duration: 662.037
-  }
 };
 
 const initStructure = {
@@ -84,7 +75,8 @@ describe('WaveformContainer component', () => {
 
     mockAxios.get.mockImplementationOnce(() => {
       return Promise.resolve({
-        data: testSmData[0],
+        status: 200,
+        data: manifest,
       });
     });
 
@@ -104,7 +96,7 @@ describe('WaveformContainer component', () => {
     });
   });
 
-  test('waveform renders when manifest.json is valid', async () => {
+  test('waveform renders when manifest.json has waveform info', async () => {
     mockAxios.get.mockImplementationOnce(() => {
       return Promise.resolve({
         status: 200,
@@ -122,6 +114,7 @@ describe('WaveformContainer component', () => {
         },
       });
     });
+
     const { getByTestId } = renderWithRedux(
       <WaveformContainer
         initStructure={initStructure}

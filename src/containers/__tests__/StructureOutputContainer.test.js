@@ -25,6 +25,9 @@ const initialState = {
     smData: testSmData,
     smDataIsValid: true,
   },
+  manifest: {
+    manifestFetched: true
+  }
 };
 const mockStructureIsSaved = jest.fn();
 
@@ -48,7 +51,7 @@ describe('StructureOutputContainer component', () => {
     expect(getByTestId('structure-output-section')).toBeInTheDocument();
   });
 
-  test('shows structure list when fetching structure.json is successful', () => {
+  test('shows structure list when fetching manifest.json is successful', () => {
     const { getByTestId, queryByTestId } = renderWithRedux(
       <StructureOutputContext structureIsSaved={mockStructureIsSaved} />,
       { initialState }
@@ -58,5 +61,9 @@ describe('StructureOutputContainer component', () => {
     expect(getByTestId('structure-save-button')).toBeInTheDocument();
     // Alert is not present in the DOM
     expect(queryByTestId('alert-container')).not.toBeInTheDocument();
+  });
+
+  test('deleting timespan removes it from structure tree', () => {
+
   });
 });

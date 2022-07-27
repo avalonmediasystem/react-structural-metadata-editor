@@ -106,7 +106,6 @@ App.defaultProps = {
 };
 var mapDispatchToProps = {
   resetStore: _actions.resetReduxStore,
-  handleStructureError: _forms.handleStructureError,
   removeAlert: _forms.removeAlert
 };
 

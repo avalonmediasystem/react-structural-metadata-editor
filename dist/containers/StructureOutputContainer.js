@@ -40,13 +40,26 @@ function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && 
 var StructureOutputContainer = function StructureOutputContainer(props) {
   var smu = new _StructuralMetadataUtils["default"]();
   var apiUtils = new _Utils["default"]();
-  var structureURL = props.structureURL,
-      structureInfo = props.structureInfo,
-      structuralMetadata = props.structuralMetadata;
-  var structureSaved = structureInfo.structureSaved;
-  var smData = structuralMetadata.smData,
-      initSmData = structuralMetadata.initSmData,
-      smDataIsValid = structuralMetadata.smDataIsValid;
+  var dispatch = (0, _reactRedux.useDispatch)();
+
+  var _useSelector = (0, _reactRedux.useSelector)(function (state) {
+    return state.manifest;
+  }),
+      manifestFetched = _useSelector.manifestFetched;
+
+  var _useSelector2 = (0, _reactRedux.useSelector)(function (state) {
+    return state.structuralMetadata;
+  }),
+      smData = _useSelector2.smData,
+      initSmData = _useSelector2.initSmData,
+      smDataIsValid = _useSelector2.smDataIsValid;
+
+  var _useSelector3 = (0, _reactRedux.useSelector)(function (state) {
+    return state.forms;
+  }),
+      editingDisabled = _useSelector3.editingDisabled,
+      structureInfo = _useSelector3.structureInfo; // const { smData, initSmData, smDataIsValid } = structuralMetadata;
+
 
   var _useState = (0, _react.useState)(initSmData),
       _useState2 = (0, _slicedToArray2["default"])(_useState, 2),
@@ -58,11 +71,11 @@ var StructureOutputContainer = function StructureOutputContainer(props) {
   }, [initSmData]);
   (0, _react.useEffect)(function () {
     if (!smDataIsValid) {
-      props.setAlert((0, _alertStatus.configureAlert)(-8));
+      dispatch((0, _forms.setAlert)((0, _alertStatus.configureAlert)(-8)));
     }
   }, [smDataIsValid]);
   (0, _react.useEffect)(function () {
-    if (structureSaved) {
+    if (structureInfo.structureSaved) {
       props.structureIsSaved(true);
     } else {
       var cleanSmData = smu.filterObjectKey(smData, 'active');
@@ -73,13 +86,13 @@ var StructureOutputContainer = function StructureOutputContainer(props) {
         props.structureIsSaved(true);
       }
     }
-  }, [structureSaved]);
+  }, [structureInfo.structureSaved]);
 
   var handleSaveError = function handleSaveError(error) {
     console.log('TCL: handleSaveError -> error', error);
-    var status = error.response !== undefined ? error.response.status : error.request.status;
+    var status = -10;
     var alert = (0, _alertStatus.configureAlert)(status);
-    props.setAlert(alert);
+    dispatch((0, _forms.setAlert)(alert));
   };
 
   var handleSaveItClick = /*#__PURE__*/function () {
@@ -94,14 +107,14 @@ var StructureOutputContainer = function StructureOutputContainer(props) {
               };
               _context.prev = 1;
               _context.next = 4;
-              return apiUtils.postRequest(structureURL, postData);
+              return apiUtils.postRequest(props.structureURL, postData);
 
             case 4:
               response = _context.sent;
               status = response.status;
               alert = (0, _alertStatus.configureAlert)(status);
-              props.setAlert(alert);
-              props.postStructureSuccess(1);
+              dispatch((0, _forms.setAlert)(alert));
+              dispatch((0, _forms.updateStructureStatus)(1));
               _context.next = 14;
               break;
 
@@ -126,7 +139,7 @@ var StructureOutputContainer = function StructureOutputContainer(props) {
   return /*#__PURE__*/_react["default"].createElement("section", {
     className: "structure-section",
     "data-testid": "structure-output-section"
-  }, /*#__PURE__*/_react["default"].createElement("div", {
+  }, manifestFetched && smData != null && /*#__PURE__*/_react["default"].createElement("div", {
     "data-testid": "structure-output-list"
   }, /*#__PURE__*/_react["default"].createElement(_List["default"], {
     items: smData
@@ -137,24 +150,19 @@ var StructureOutputContainer = function StructureOutputContainer(props) {
     variant: "primary",
     onClick: handleSaveItClick,
     "data-testid": "structure-save-button",
-    disabled: props.editingDisabled
+    disabled: editingDisabled
   }, "Save Structure")))));
-};
+}; // const mapStateToProps = (state) => ({
+//   structuralMetadata: state.structuralMetadata,
+//   structureInfo: state.forms.structureInfo,
+//   editingDisabled: state.forms.editingDisabled,
+//   alert: state.forms.alert,
+// });
+// const mapDispatchToProps = {
+//   postStructureSuccess: updateStructureStatus,
+//   setAlert: setAlert,
+// };
 
-var mapStateToProps = function mapStateToProps(state) {
-  return {
-    structuralMetadata: state.structuralMetadata,
-    structureInfo: state.forms.structureInfo,
-    editingDisabled: state.forms.editingDisabled,
-    alert: state.forms.alert
-  };
-};
 
-var mapDispatchToProps = {
-  postStructureSuccess: _forms.updateStructureStatus,
-  setAlert: _forms.setAlert
-};
-
-var _default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(StructureOutputContainer);
-
+var _default = StructureOutputContainer;
 exports["default"] = _default;

@@ -25,7 +25,7 @@ describe('HeadingForm component', () => {
     });
 
     test('child options in dropdown menu', () => {
-      const { container, getByTestId } = renderWithRedux(<HeadingForm />, {
+      const { container } = renderWithRedux(<HeadingForm />, {
         initialState,
       });
       const el = container.querySelector('#headingChildOf');
@@ -36,7 +36,7 @@ describe('HeadingForm component', () => {
 
   describe('validates', () => {
     test('heading title', async () => {
-      const { container, getByLabelText, getByTestId, debug } = renderWithRedux(
+      const { container, getByLabelText, getByTestId } = renderWithRedux(
         <HeadingForm />,
         {
           initialState,

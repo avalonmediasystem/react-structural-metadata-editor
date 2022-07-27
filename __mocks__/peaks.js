@@ -53,6 +53,8 @@ export const Peaks = jest.fn((opts) => {
       }
     }),
     _peaks: peaks,
+    // segements are built in match with timespans from 'testSmData' 
+    // in ./testing-helpers.js file
     _segments: [
       new Segment({
         parent: peaks,
@@ -118,7 +120,7 @@ export const Segment = jest.fn((opts) => {
 export default {
   init: jest.fn((opts, callback) => {
     let peaks = Peaks(opts);
-    console.log(peaks != undefined);
     callback(null, peaks);
+    return peaks;
   }),
 };

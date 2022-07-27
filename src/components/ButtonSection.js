@@ -125,7 +125,7 @@ class ButtonSection extends Component {
 
     // Only return UI when both structure and waveform data exist
     return structureInfo.structureRetrieved ? (
-      <section>
+      <section className="button-section" data-testid="button-section">
         <Row data-testid="button-row">
           <Col sm="6">
             <Button

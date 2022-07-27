@@ -8,7 +8,7 @@ import { DragDropContextProvider } from 'react-dnd';
 import HTML5Backend from 'react-dnd-html5-backend';
 import { connect } from 'react-redux';
 import { resetReduxStore } from './actions';
-import { handleStructureError, removeAlert } from './actions/forms';
+import { removeAlert } from './actions/forms';
 import ErrorBoundary from './components/ErrorBoundary';
 
 import AlertContainer from './containers/AlertContainer';
@@ -59,7 +59,6 @@ App.defaultProps = {
 
 const mapDispatchToProps = {
   resetStore: resetReduxStore,
-  handleStructureError: handleStructureError,
   removeAlert: removeAlert,
 };
 

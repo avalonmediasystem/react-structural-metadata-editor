@@ -11,24 +11,9 @@ import {
   manifestWoStructure
 } from './services/testing-helpers';
 import mockAxios from 'axios';
-import Peaks from 'peaks';
 
+jest.mock('peaks.js');
 const mockStructureIsSaved = jest.fn();
-
-let peaksInst = null;
-const peaksOptions = {
-  container: null,
-  mediaElement: null,
-  dataUri: null,
-  dataUriDefaultFormat: 'json',
-  keyboard: true,
-  _zoomLevelIndex: 0,
-  _zoomLevels: [512, 1024, 2048, 4096],
-};
-
-Peaks.init(peaksOptions, (err, peaks) => {
-  peaksInst = peaks;
-});
 
 const baseState = {
   structuralMetadata: {
@@ -49,12 +34,14 @@ const baseState = {
   },
   manifest: {
     manifest: manifestWithStructure,
-    structure: testSmData,
     mediaInfo: {
       src: 'https://example.com/volleyball-for-boys/volleyball-for-boys.mp4',
       duration: 662.037
     },
     manifestFetched: true,
+  },
+  peaksInstance: {
+    readyPeaks: true
   }
 };
 
@@ -97,12 +84,12 @@ describe('App component', () => {
      */
     originalError = console.error;
     console.error = jest.fn();
-    // originalLogger = console.log;
-    // console.log = jest.fn();
+    originalLogger = console.log;
+    console.log = jest.fn();
   });
   afterEach(() => {
     console.error = originalError;
-    // console.log = originalLogger;
+    console.log = originalLogger;
     cleanup();
   });
 
@@ -122,10 +109,6 @@ describe('App component', () => {
           },
         ],
       },
-      peaksInstance: {
-        readyPeaks: true,
-        peaks: peaksInst,
-      },
     };
 
     app.rerenderWithRedux(<App {...props} />, updatedProps);
@@ -136,34 +119,34 @@ describe('App component', () => {
 
   describe('renders alerts', () => {
     describe('with valid manifest', () => {
-      // test('with empty waveform, shows a persistent alert', async () => {
-      //   mockAxios.get.mockImplementationOnce(() => {
-      //     return Promise.resolve({
-      //       status: 200,
-      //       data: manifest
-      //     });
-      //   });
-      //   mockAxios.head.mockImplementationOnce(() => {
-      //     return Promise.reject({
-      //       response: {
-      //         status: 404,
-      //       },
-      //     });
-      //   });
+      test('with empty waveform, shows a persistent alert', async () => {
+        mockAxios.get.mockImplementationOnce(() => {
+          return Promise.resolve({
+            status: 200,
+            data: manifest
+          });
+        });
+        mockAxios.head.mockImplementationOnce(() => {
+          return Promise.reject({
+            response: {
+              status: 404,
+            },
+          });
+        });
 
-      //   const app = renderWithRedux(<App {...props} />, { baseState });
-      //   await wait(() => {
-      //     expect(app.getByTestId('waveform-container')).toBeInTheDocument();
-      //     expect(mockAxios.get).toHaveBeenCalledTimes(1);
-      //     expect(mockAxios.head).toHaveBeenCalledTimes(1);
-      //     expect(
-      //       app.getByTestId('persistent-alert-container')
-      //     ).toBeInTheDocument();
-      //     expect(app.getByTestId('alert-message').innerHTML).toBe(
-      //       'Requested waveform data is not available.'
-      //     );
-      //   });
-      // }, 10000);
+        const app = renderWithRedux(<App {...props} />, { baseState });
+        await wait(() => {
+          expect(app.getByTestId('waveform-container')).toBeInTheDocument();
+          expect(mockAxios.get).toHaveBeenCalledTimes(1);
+          expect(mockAxios.head).toHaveBeenCalledTimes(1);
+          expect(
+            app.getByTestId('persistent-alert-container')
+          ).toBeInTheDocument();
+          expect(app.getByTestId('alert-message').innerHTML).toBe(
+            'Requested waveform data is not available.'
+          );
+        });
+      }, 10000);
 
       test('without waveform as a resource in manifest', async () => {
         mockAxios.get.mockImplementationOnce(() => {
@@ -249,86 +232,86 @@ describe('App component', () => {
         },
       },
     };
-    // describe('when saving structure is successful', () => {
-    //   let app, saveButton;
-    //   beforeEach(() => {
-    //     mockAxios.get.mockImplementationOnce(() => {
-    //       return Promise.resolve({
-    //         status: 200,
-    //         data: manifest
-    //       });
-    //     });
-    //     mockAxios.post.mockImplementationOnce(() => {
-    //       return Promise.resolve({
-    //         status: 200,
-    //       });
-    //     });
+    describe('when saving structure is successful', () => {
+      let app, saveButton;
+      beforeEach(() => {
+        mockAxios.get.mockImplementationOnce(() => {
+          return Promise.resolve({
+            status: 200,
+            data: manifest
+          });
+        });
+        mockAxios.post.mockImplementationOnce(() => {
+          return Promise.resolve({
+            status: 200,
+          });
+        });
 
-    //     app = renderWithRedux(<App {...props} />, { initialState });
-    //     saveButton = app.getByTestId('structure-save-button');
+        app = renderWithRedux(<App {...props} />, { initialState });
+        saveButton = app.getByTestId('structure-save-button');
 
-    //     fireEvent.click(saveButton);
-    //   });
+        fireEvent.click(saveButton);
+      });
 
-    //   test('shows a success alert', async () => {
-    //     expect(mockAxios.post).toHaveBeenCalledTimes(1);
+      test('shows a success alert', async () => {
+        expect(mockAxios.post).toHaveBeenCalledTimes(1);
 
-    //     await wait(() => {
-    //       expect(app.getByTestId('alert-container')).toBeInTheDocument();
-    //       expect(app.getByTestId('alert-message').innerHTML).toBe(
-    //         'Saved successfully.'
-    //       );
-    //     });
-    //   }, 10000);
+        await wait(() => {
+          expect(app.getByTestId('alert-container')).toBeInTheDocument();
+          expect(app.getByTestId('alert-message').innerHTML).toBe(
+            'Saved successfully.'
+          );
+        });
+      }, 10000);
 
-    //   test('closes the alert after 2000ms', async () => {
-    //     await wait(() => {
-    //       expect(app.getByTestId('alert-container')).toBeInTheDocument();
-    //     });
+      test('closes the alert after 2000ms', async () => {
+        await wait(() => {
+          expect(app.getByTestId('alert-container')).toBeInTheDocument();
+        });
 
-    //     setTimeout(() => {
-    //       expect(app.getByTestId('alert-container')).not.toBeInTheDocument();
-    //     }, 2000);
-    //   });
+        setTimeout(() => {
+          expect(app.getByTestId('alert-container')).not.toBeInTheDocument();
+        }, 2000);
+      });
 
-    //   test('alert closes when structure is edited again', async () => {
-    //     await wait(() => {
-    //       expect(app.getByTestId('alert-container')).toBeInTheDocument();
+      test('alert closes when structure is edited again', async () => {
+        await wait(() => {
+          expect(app.getByTestId('alert-container')).toBeInTheDocument();
 
-    //       fireEvent.click(app.queryAllByTestId('list-item-edit-btn')[0]);
-    //     });
+          fireEvent.click(app.queryAllByTestId('list-item-edit-btn')[0]);
+        });
 
-    //     expect(app.queryByTestId('alert-container')).not.toBeInTheDocument();
-    //   });
-    // });
+        expect(app.queryByTestId('alert-container')).not.toBeInTheDocument();
+      });
+    });
 
-    // test('when saving structure fails', async () => {
-    //   mockAxios.get.mockImplementationOnce(() => {
-    //     return Promise.resolve({
-    //       status: 200,
-    //       data: manifestWithStructure
-    //     });
-    //   });
-    //   mockAxios.post.mockImplementationOnce(() => {
-    //     return Promise.reject({
-    //       response: {
-    //         status: 404,
-    //       },
-    //     });
-    //   });
+    test('when saving structure fails', async () => {
+      mockAxios.get.mockImplementationOnce(() => {
+        return Promise.resolve({
+          status: 200,
+          data: manifest
+        });
+      });
+      mockAxios.post.mockImplementationOnce(() => {
+        return Promise.reject({
+          response: {
+            status: 404,
+          },
+        });
+      });
 
-    //   const app = renderWithRedux(<App {...props} />, { initialState });
-    //   fireEvent.click(app.getByTestId('structure-save-button'));
+      const app = renderWithRedux(<App {...props} />, { initialState });
+      fireEvent.click(app.getByTestId('structure-save-button'));
 
-    //   expect(mockAxios.post).toHaveBeenCalledTimes(1);
+      expect(mockAxios.post).toHaveBeenCalledTimes(1);
 
-    //   await wait(() => {
-    //     expect(app.getByTestId('alert-container')).toBeInTheDocument();
-    //     expect(app.getByTestId('alert-message').innerHTML).toBe(
-    //       'Failed to save structure successfully.'
-    //     );
-    //   });
-    // }, 10000);
+      await wait(() => {
+        expect(app.getByTestId('alert-container')).toBeInTheDocument();
+        expect(app.getByTestId('alert-message').innerHTML).toBe(
+          'Failed to save structure successfully.'
+        );
+      });
+    }, 10000);
 
     test('when structure has invalid timespans', async () => {
       mockAxios.get.mockImplementationOnce(() => {
@@ -524,46 +507,6 @@ describe('App component', () => {
           .toEqual('No structure information was found. Please check your Manifest.');
       });
     }, 10000);
-
-    // test('with rebuilt structure when new structure item is added', async () => {
-    //   mockAxios.get.mockImplementationOnce(() => {
-    //     return Promise.resolve({
-    //       status: 200,
-    //       data: manifestWithStructure
-    //     });
-    //   });
-    //   mockAxios.head.mockImplementationOnce(() => {
-    //     return Promise.resolve({
-    //       status: 200,
-    //       request: {
-    //         responseURL: 'https://example.com/lunchroom_manners/waveform.json',
-    //       },
-    //     });
-    //   });
-    //   const updatedProps = { ...props, canvasIndex: 1 };
-    //   const app = renderWithRedux(<App {...updatedProps} />, { baseState });
-
-    //   await wait(() => {
-    //     expect(app.getByTestId('structure-output-list')).toBeInTheDocument();
-    //     expect(app.getByTestId('add-timespan-button')).toBeInTheDocument();
-    //     expect(app.queryByTestId('structure-save-button')).toBeInTheDocument();
-
-    //     const addTimespanBtn = app.getByTestId('add-timespan-button');
-    //     fireEvent.click(addTimespanBtn);
-    //     // console.log(app.getByTestId('timespan-form'));
-    //     // Begin Time and End Time is already filled with default values
-    //     // expect(app.getByTestId('timespan-form-begintime').value).toBe(
-    //     //   '00:00:00.000'
-    //     // );
-    //     // expect(app.getByTestId('timespan-form-endtime').value).toBe(
-    //     //   '00:00:03.321'
-    //     // );
-
-
-    //     expect(app.queryAllByTestId('list-item').length).toBeGreaterThan(0);
-    //     expect(app.queryAllByTestId('heading-label')[0].innerHTML).toEqual('Volleyball for Boys');
-    //   });
-    // }, 10000);
   });
 
 });

@@ -18,7 +18,7 @@ describe('alert-status service', () => {
     );
     expect(alertStatus.configureAlert(250)).toHaveProperty(
       'message',
-      alertStatus.SAVED_MASTERFILE_SUCCESS
+      alertStatus.SAVE_STRUCTURE_SUCCESS
     );
     expect(alertStatus.configureAlert(-1)).toHaveProperty(
       'message',

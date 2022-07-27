@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { connect } from 'react-redux';
+import { connect, useDispatch, useSelector } from 'react-redux';
 import List from '../components/List';
 import { Button, Col, Row } from 'react-bootstrap';
 import APIUtils from '../api/Utils';
@@ -12,9 +12,11 @@ const StructureOutputContainer = (props) => {
   const smu = new StructuralMetadataUtils();
   const apiUtils = new APIUtils();
 
-  const { structureURL, structureInfo, structuralMetadata } = props;
-  const { structureSaved } = structureInfo;
-  const { smData, initSmData, smDataIsValid } = structuralMetadata;
+  const dispatch = useDispatch();
+  const { manifestFetched } = useSelector((state) => state.manifest);
+  const { smData, initSmData, smDataIsValid } = useSelector((state) => state.structuralMetadata);
+  const { editingDisabled, structureInfo } = useSelector((state) => state.forms);
+  // const { smData, initSmData, smDataIsValid } = structuralMetadata;
 
   const [stateInitStructure, setInitStructure] = useState(initSmData);
 
@@ -24,12 +26,12 @@ const StructureOutputContainer = (props) => {
 
   useEffect(() => {
     if (!smDataIsValid) {
-      props.setAlert(configureAlert(-8));
+      dispatch(setAlert(configureAlert(-8)));
     }
   }, [smDataIsValid]);
 
   useEffect(() => {
-    if (structureSaved) {
+    if (structureInfo.structureSaved) {
       props.structureIsSaved(true);
     } else {
       const cleanSmData = smu.filterObjectKey(smData, 'active');
@@ -39,27 +41,24 @@ const StructureOutputContainer = (props) => {
         props.structureIsSaved(true);
       }
     }
-  }, [structureSaved]);
+  }, [structureInfo.structureSaved]);
 
   const handleSaveError = (error) => {
     console.log('TCL: handleSaveError -> error', error);
-    let status =
-      error.response !== undefined
-        ? error.response.status
-        : error.request.status;
+    let status = -10;
     const alert = configureAlert(status);
-    props.setAlert(alert);
+    dispatch(setAlert(alert));
   };
 
   const handleSaveItClick = async () => {
     let postData = { json: smData[0] };
     try {
-      const response = await apiUtils.postRequest(structureURL, postData);
+      const response = await apiUtils.postRequest(props.structureURL, postData);
       const { status } = response;
       const alert = configureAlert(status);
-      props.setAlert(alert);
+      dispatch(setAlert(alert));
 
-      props.postStructureSuccess(1);
+      dispatch(updateStructureStatus(1));
     } catch (error) {
       handleSaveError(error);
     }
@@ -70,38 +69,38 @@ const StructureOutputContainer = (props) => {
       className="structure-section"
       data-testid="structure-output-section"
     >
-      <div data-testid="structure-output-list">
-        <List items={smData} />
-        <Row>
-          <Col xs={12} className="text-right">
-            <Button
-              variant="primary"
-              onClick={handleSaveItClick}
-              data-testid="structure-save-button"
-              disabled={props.editingDisabled}
-            >
-              Save Structure
-            </Button>
-          </Col>
-        </Row>
-      </div>
+      {manifestFetched && smData != null && (
+        <div data-testid="structure-output-list">
+          <List items={smData} />
+          <Row>
+            <Col xs={12} className="text-right">
+              <Button
+                variant="primary"
+                onClick={handleSaveItClick}
+                data-testid="structure-save-button"
+                disabled={editingDisabled}
+              >
+                Save Structure
+              </Button>
+            </Col>
+          </Row>
+        </div>
+      )
+      }
     </section>
   );
 };
 
-const mapStateToProps = (state) => ({
-  structuralMetadata: state.structuralMetadata,
-  structureInfo: state.forms.structureInfo,
-  editingDisabled: state.forms.editingDisabled,
-  alert: state.forms.alert,
-});
+// const mapStateToProps = (state) => ({
+//   structuralMetadata: state.structuralMetadata,
+//   structureInfo: state.forms.structureInfo,
+//   editingDisabled: state.forms.editingDisabled,
+//   alert: state.forms.alert,
+// });
 
-const mapDispatchToProps = {
-  postStructureSuccess: updateStructureStatus,
-  setAlert: setAlert,
-};
+// const mapDispatchToProps = {
+//   postStructureSuccess: updateStructureStatus,
+//   setAlert: setAlert,
+// };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(StructureOutputContainer);
+export default StructureOutputContainer;

@@ -5,9 +5,10 @@ import 'jest-dom/extend-expect';
 import { renderWithRedux, testSmData } from '../../services/testing-helpers';
 import ButtonSection from '../ButtonSection';
 
-afterEach(cleanup);
-
 describe('ButtonSection component', () => {
+  afterEach(() => {
+    cleanup();
+  });
   describe('does not render', () => {
     test('when structural or waveform data is not present', () => {
       const { queryByTestId } = renderWithRedux(<ButtonSection />);

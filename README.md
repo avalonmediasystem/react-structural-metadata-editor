@@ -47,7 +47,7 @@ All development should be done in the `/src` directory.
 
 The `/demo` directory contains the demo application entry point `index.html` file, and mocks a host application consuming the SME component.
 
-If you'd like to try out a new development feature before merging your code into `master`, create a new branch, ie: `my-new-feature`, and push your branch to `https://github.com/avalonmediasystem/react-structural-metadata-editor`. See the [Usage](#usage) section below on how to import from either `master` or your own feature branch.
+If you'd like to try out a new development feature before merging your code into `main`, create a new branch, ie: `my-new-feature`, and push your branch to `https://github.com/avalonmediasystem/react-structural-metadata-editor`. See the [Usage](#usage) section below on how to import from either `main` or your own feature branch.
 
 #### Commands
 
@@ -111,13 +111,13 @@ yarn transpile
 
 This will create a component package in the `/dist` folder which is ready to be imported by another application.
 
-This commands needs to be run and its output pushed to the remote branch, before making a pull request to merge the changes in your working branch to `master`.
+This commands needs to be run and its output pushed to the remote branch, before making a pull request to merge the changes in your working branch to `main`.
 
 #### Deploy to Heroku for Testing
 
 To enable testing and experimenting with the component, the source code is deployed in a demo site hosted with Heroku. It uses Heroku Git to deploy from the GitHub repo.
 
-After code changes have been made and they are merged into `master` branch, run the following commands from the terminal to deploy the latest code to the demo site;
+After code changes have been made and they are merged into `main` branch, run the following commands from the terminal to deploy the latest code to the demo site;
 
 1. Get the latest from remote to your local repo;
 
@@ -125,13 +125,13 @@ After code changes have been made and they are merged into `master` branch, run 
 git pull origin
 ```
 
-2. Checkout the `master` branch, where the latest reviewed code is available and it needs to be always deployed from this branch;
+2. Checkout the `main` branch, where the latest reviewed code is available and it needs to be always deployed from this branch;
 
 ```
-git checkout master
+git checkout main
 ```
 
-3. Create a `heroku` remote in your local repo for the app you wish to deploy to, here the app name is `structural-metadata-editor`. For this you need a Heroku account.
+3. Create a `heroku` remote in your local repo for the app you wish to deploy to, here the app name is `structural-metadata-editor`. For this step you need a Heroku account and [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli#install-the-heroku-cli) installed on your machine.
 
 ```
 heroku git:remote -a structural-metadata-editor
@@ -139,10 +139,10 @@ heroku git:remote -a structural-metadata-editor
 
 This will prompt to login to your Heroku account, once logged in it will link the `heroku` remote to your app. And then running `git remote -v` should show a `heroku` remote as _heroku https://git.heroku.com/structural-metadata-editor.git_.
 
-4. Push the `master` branch from your local repo to Heroku app's git repo;
+4. Push the `main` branch from your local repo to Heroku app's git repo's `main` branch;
 
 ```
-git push heroku master:main
+git push heroku main:main
 ```
 
 This will take some time while it builds and compiles the source code. And then it deploys the changes to https://structural-metadata-editor.herokuapp.com/.

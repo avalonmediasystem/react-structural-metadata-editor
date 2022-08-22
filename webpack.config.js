@@ -32,7 +32,6 @@ module.exports = {
   },
   plugins: [
     htmlWebpackPlugin,
-    new webpack.optimize.OccurrenceOrderPlugin(), // OccurrenceOrderPlugin is needed for webpack 1.x only
     new webpack.HotModuleReplacementPlugin(),
     new webpack.NoEmitOnErrorsPlugin(), // Use NoErrorsPlugin for webpack 1.x
   ],

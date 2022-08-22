@@ -81,10 +81,16 @@ var Waveform = /*#__PURE__*/_react["default"].forwardRef(function (props, ref) {
 
   _react["default"].useEffect(function () {
     setAudioFile(props.audioURL);
-    return function () {
+  }, []);
+
+  _react["default"].useEffect(function () {
+    // Add an event listener to keydown event
+    document.addEventListener('keydown', handleKeyPress); // Remove event listener when component is unmounting
+
+    return function cleanup() {
       document.removeEventListener('keydown', handleKeyPress);
     };
-  }, []);
+  });
 
   _react["default"].useEffect(function () {
     setEditing(editingDisabled);
@@ -103,13 +109,6 @@ var Waveform = /*#__PURE__*/_react["default"].forwardRef(function (props, ref) {
       dispatch((0, _forms.streamMediaSuccess)());
     }
   }, [readyPeaks]);
-
-  _react["default"].useEffect(function () {
-    if (peaksInstance !== null && peaksInstance !== void 0 && peaksInstance.player) {
-      // Add a listener to keydown event
-      document.addEventListener('keydown', handleKeyPress);
-    }
-  }, [peaksInstance]);
 
   _react["default"].useEffect(function () {
     if (streamMediaStatus) {

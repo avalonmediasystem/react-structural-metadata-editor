@@ -46,11 +46,17 @@ const Waveform = React.forwardRef((props, ref) => {
 
   React.useEffect(() => {
     setAudioFile(props.audioURL);
+  }, []);
 
-    return () => {
+  React.useEffect(() => {
+    // Add an event listener to keydown event
+    document.addEventListener('keydown', handleKeyPress);
+
+    // Remove event listener when component is unmounting
+    return function cleanup () {
       document.removeEventListener('keydown', handleKeyPress);
     };
-  }, []);
+  })
 
   React.useEffect(() => {
     setEditing(editingDisabled);
@@ -72,13 +78,6 @@ const Waveform = React.forwardRef((props, ref) => {
       dispatch(streamMediaSuccess());
     }
   }, [readyPeaks]);
-
-  React.useEffect(() => {
-    if(peaksInstance?.player) {
-      // Add a listener to keydown event
-      document.addEventListener('keydown', handleKeyPress);
-    }
-  }, [peaksInstance])
 
   React.useEffect(() => {
     if (streamMediaStatus) {

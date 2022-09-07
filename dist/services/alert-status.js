@@ -25,7 +25,7 @@ var MISSING_WAVEFORM_ERROR = 'Requested waveform data is not available.';
 exports.MISSING_WAVEFORM_ERROR = MISSING_WAVEFORM_ERROR;
 var INVALID_SEGMENTS_WARNING = 'Please check start/end times of the marked invalid timespan(s).';
 exports.INVALID_SEGMENTS_WARNING = INVALID_SEGMENTS_WARNING;
-var FETCH_MANIFEST_ERROR = 'Requested IIIF Manifest was not found.';
+var FETCH_MANIFEST_ERROR = 'Requested resources in IIIF Manifest were not found.';
 /**
  * Helper function which prepares a configuration object to feed the AlertContainer component
  * @param {number} status Code for response

@@ -80,6 +80,13 @@ var forms = function forms() {
         })
       });
 
+    case types.STREAM_MEDIA_LOADING:
+      return Object.assign({}, state, {
+        streamInfo: Object.assign({}, state.streamInfo, {
+          streamMediaLoading: action.flag === 0 ? false : true
+        })
+      });
+
     case types.UPDATE_STRUCTURE_STATUS:
       return Object.assign({}, state, {
         structureInfo: Object.assign({}, state.structureInfo, {

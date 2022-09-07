@@ -32,11 +32,15 @@ const Waveform = React.forwardRef((props, ref) => {
   const readyPeaks = useSelector((state) => state.peaksInstance.readyPeaks);
   const peaksInstance = useSelector((state) => state.peaksInstance.peaks);
   const editingDisabled = useSelector((state) => state.forms.editingDisabled);
+  const { streamMediaError, streamMediaLoading } = useSelector(
+    (state) => state.forms.streamInfo
+  );
   const dispatch = useDispatch();
 
   const [audioFile, setAudioFile] = React.useState(mediaInfo.src);
   const [volume, setVolume] = React.useState(100);
   const [peaksIsReady, setPeaksIsReady] = React.useState(readyPeaks);
+  const [stillLoading, setStillLoading] = React.useState();
 
   /* Ref to access changes in 'editingDisabled' state variable from 
   redux within the eventhandler for 'keydown' event */
@@ -58,6 +62,11 @@ const Waveform = React.forwardRef((props, ref) => {
       document.removeEventListener('keydown', handleKeyPress);
     };
   })
+
+  React.useEffect(() => {
+    let isLoading = (streamMediaLoading && !streamMediaError) || !readyPeaks;
+    setStillLoading(isLoading);
+  }, [streamMediaError, streamMediaLoading, readyPeaks])
 
   React.useEffect(() => {
     setAudioFile(mediaInfo.src);
@@ -120,11 +129,6 @@ const Waveform = React.forwardRef((props, ref) => {
     setVolume(volume);
   };
 
-  const { streamMediaError, streamMediaLoading } = useSelector(
-    (state) => state.forms.streamInfo
-  );
-  const stillLoading =
-    (streamMediaLoading && !streamMediaError) || !peaksIsReady;
   return (
     <React.Fragment>
       <div

@@ -50,6 +50,13 @@ var Waveform = /*#__PURE__*/_react["default"].forwardRef(function (props, ref) {
   var editingDisabled = (0, _reactRedux.useSelector)(function (state) {
     return state.forms.editingDisabled;
   });
+
+  var _useSelector = (0, _reactRedux.useSelector)(function (state) {
+    return state.forms.streamInfo;
+  }),
+      streamMediaError = _useSelector.streamMediaError,
+      streamMediaLoading = _useSelector.streamMediaLoading;
+
   var dispatch = (0, _reactRedux.useDispatch)();
 
   var _React$useState = _react["default"].useState(mediaInfo.src),
@@ -66,6 +73,11 @@ var Waveform = /*#__PURE__*/_react["default"].forwardRef(function (props, ref) {
       _React$useState6 = (0, _slicedToArray2["default"])(_React$useState5, 2),
       peaksIsReady = _React$useState6[0],
       setPeaksIsReady = _React$useState6[1];
+
+  var _React$useState7 = _react["default"].useState(),
+      _React$useState8 = (0, _slicedToArray2["default"])(_React$useState7, 2),
+      stillLoading = _React$useState8[0],
+      setStillLoading = _React$useState8[1];
   /* Ref to access changes in 'editingDisabled' state variable from 
   redux within the eventhandler for 'keydown' event */
 
@@ -88,6 +100,11 @@ var Waveform = /*#__PURE__*/_react["default"].forwardRef(function (props, ref) {
       document.removeEventListener('keydown', handleKeyPress);
     };
   });
+
+  _react["default"].useEffect(function () {
+    var isLoading = streamMediaLoading && !streamMediaError || !readyPeaks;
+    setStillLoading(isLoading);
+  }, [streamMediaError, streamMediaLoading, readyPeaks]);
 
   _react["default"].useEffect(function () {
     setAudioFile(mediaInfo.src);
@@ -147,13 +164,6 @@ var Waveform = /*#__PURE__*/_react["default"].forwardRef(function (props, ref) {
     setVolume(volume);
   };
 
-  var _useSelector = (0, _reactRedux.useSelector)(function (state) {
-    return state.forms.streamInfo;
-  }),
-      streamMediaError = _useSelector.streamMediaError,
-      streamMediaLoading = _useSelector.streamMediaLoading;
-
-  var stillLoading = streamMediaLoading && !streamMediaError || !peaksIsReady;
   return /*#__PURE__*/_react["default"].createElement(_react["default"].Fragment, null, /*#__PURE__*/_react["default"].createElement("div", {
     id: "waveform-container",
     tabIndex: "0",

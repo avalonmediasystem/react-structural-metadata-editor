@@ -129,7 +129,7 @@ describe('Waveform component', () => {
           },
           peaksInstance: {
             readyPeaks: true,
-            peaks: null
+            peaks: peaksInst,
           },
           manifest: {
             manifest: manifest,

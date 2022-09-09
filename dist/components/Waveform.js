@@ -111,6 +111,15 @@ var Waveform = /*#__PURE__*/_react["default"].forwardRef(function (props, ref) {
   }, [mediaInfo]);
 
   _react["default"].useEffect(function () {
+    // Add an event listener to keydown event
+    document.addEventListener('keydown', handleKeyPress); // Remove event listener when component is unmounting
+
+    return function cleanup() {
+      document.removeEventListener('keydown', handleKeyPress);
+    };
+  });
+
+  _react["default"].useEffect(function () {
     setEditing(editingDisabled);
   }, [editingDisabled]);
 

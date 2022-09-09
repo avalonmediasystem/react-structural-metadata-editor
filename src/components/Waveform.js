@@ -73,6 +73,16 @@ const Waveform = React.forwardRef((props, ref) => {
   }, [mediaInfo]);
 
   React.useEffect(() => {
+    // Add an event listener to keydown event
+    document.addEventListener('keydown', handleKeyPress);
+
+    // Remove event listener when component is unmounting
+    return function cleanup() {
+      document.removeEventListener('keydown', handleKeyPress);
+    }
+  });
+
+  React.useEffect(() => {
     setEditing(editingDisabled);
   }, [editingDisabled]);
 

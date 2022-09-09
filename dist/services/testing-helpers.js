@@ -455,20 +455,25 @@ var manifestWithStructure = {
   }],
   structures: [{
     type: 'Range',
-    behavior: 'no-nav',
-    id: 'http://example.com/sample-manifest/manifest/range/1',
-    label: {
-      en: ['Volleyball for Boys']
-    },
+    id: 'http://example.com/sample-manifest/manifest/range/0',
+    behavior: 'top',
+    label: null,
     items: [{
       type: 'Range',
-      id: 'http://example.com/sample-manifest/manifest/range/2',
+      id: 'http://example.com/sample-manifest/manifest/range/1',
       label: {
         en: ['Volleyball for Boys']
       },
       items: [{
-        type: 'Canvas',
-        id: 'http://example.com/sample-manifest/manifest/canvas/1#t=0,157'
+        type: 'Range',
+        id: 'http://example.com/sample-manifest/manifest/range/2',
+        label: {
+          en: ['Volleyball for Boys']
+        },
+        items: [{
+          type: 'Canvas',
+          id: 'http://example.com/sample-manifest/manifest/canvas/1#t=0,157'
+        }]
       }]
     }]
   }]

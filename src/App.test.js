@@ -210,7 +210,7 @@ describe('App component', () => {
           expect(mockAxios.head).toHaveBeenCalledTimes(0);
           expect(app.getByTestId('alert-container')).toBeInTheDocument();
           expect(app.getByTestId('alert-message').innerHTML).toBe(
-            'Requested IIIF Manifest was not found.'
+            'Requested resources in IIIF Manifest were not found.'
           );
         });
       }, 10000);

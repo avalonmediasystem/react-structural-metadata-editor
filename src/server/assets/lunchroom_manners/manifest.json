@@ -174,6 +174,7 @@
                 {
                   "id": "http://localhost:3001/manifests/lunchroom_manners/range/1-2",
                   "type": "Range",
+                  "behavior": "no-nav",
                   "label": {
                     "en": [
                       "After Washing Hands"

@@ -136,6 +136,12 @@ export function parseStructureToJSON(manifest, initStructure, duration) {
 
   if (manifest != undefined || manifest != null) {
     structures = manifest.structures != undefined ? manifest.structures : [];
+    // Ignore the top element, this gets injected in the manifest generation in Avalon.
+    // `iiif_manifest` gem keeps wrapping the structure with a root element with 
+    // behavior set to 'top' without a label every time structure
+    // is saved in SME.
+    const behavior = structures.length > 0 ? structures[0]?.behavior : '';
+    structures = behavior === 'top' ? structures[0].items : structures;
     manifestName = getLabelValue(manifest.label);
   }
 
@@ -199,7 +205,6 @@ export function getRangeCanvas(rangeId, manifest) {
  * Takes a uri with a media fragment that looks like #=120,134 and returns an object
  * with start/end in seconds and the duration in milliseconds
  * Reference: https://github.com/samvera-labs/iiif-react-media-player/blob/main/src/services/iiif-parser.js#L288-L303
- * @function IIIFParser#getMediaFragment
  * @param {string} uri - Uri value
  * @param {number} duration - duration of the current canvas
  * @return {Object} - Representing the media fragment ie. { start: 3287.0, end: 3590.0 }, or undefined

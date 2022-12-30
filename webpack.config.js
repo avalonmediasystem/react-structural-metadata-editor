@@ -28,6 +28,18 @@ module.exports = {
         test: /\.css$/,
         use: ['style-loader', 'css-loader'],
       },
+      {
+        test: /\.mp4$/,
+        use: [
+          {
+            loader: 'url-loader',
+            options: {
+              limit: 10000,
+              name: './demo/assets/media.mp4'
+            }
+          }
+        ],
+      },
     ],
   },
   plugins: [
@@ -41,6 +53,12 @@ module.exports = {
   devServer: {
     // contentBase: path.join(__dirname, 'public'),
     port: 3001,
+    proxy: {
+      '/.netlify/functions': {
+        target: 'http://localhost:3001',
+        router: () => 'http://localhost:9000',
+      },
+    }
   },
   devtool: 'source-map',
 };

@@ -10,7 +10,7 @@ const bodyParser = require('body-parser');
 const webpack = require('webpack');
 const webpackConfig = require('../../webpack.config');
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 5000;
 
 const app = express();
 

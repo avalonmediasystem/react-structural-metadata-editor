@@ -5,13 +5,14 @@
   "main": "dist/index.js",
   "scripts": {
     "clean": "rimraf dist",
-    "dev": "webpack --mode development && node api/index.js",
-    "dev:deploy": "webpack && node api/index.js",
+    "dev": "run-p start:**",
+    "start:app": "webpack-dev-server --mode development",
     "test": "jest --coverage --colors",
     "test:watch": "jest --watch",
     "transpile": "rimraf dist & babel src --out-dir dist --ignore src/**/*.spec.js,src/**/*.test.js --copy-files",
     "prepublishOnly": "npm run transpile",
-    "build:app": "rm -rf dist && webpack"
+    "build": "webpack --mode production",
+    "start:lambda": "netlify-lambda serve demo/src/foo-lambda"
   },
   "contributors": [
     "Adam Arling <aarling@gmail.com>",

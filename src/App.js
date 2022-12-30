@@ -10,8 +10,8 @@ import { connect } from 'react-redux';
 import { resetReduxStore } from './actions';
 import { removeAlert } from './actions/forms';
 import ErrorBoundary from './components/ErrorBoundary';
-
 import AlertContainer from './containers/AlertContainer';
+
 
 class App extends Component {
   constructor(props) {

@@ -75,36 +75,30 @@ function filtersrc(sources) {
 
 
 function getWaveformInfo(manifest, canvasIndex) {
-  var files = [];
+  var waveformFile = null;
+  var canvasRendering = [];
 
   try {
     var manifestParsed = (0, _manifesto.parseManifest)(manifest);
-    var manifestRendering = manifestParsed.getRenderings();
     var canvas = manifestParsed.getSequences()[0].getCanvasByIndex(canvasIndex);
-    var canvasRendering = canvas.__jsonld.rendering;
 
-    var buildFileInfo = function buildFileInfo(format, label, id) {
-      var name = getLabelValue(label);
+    if (canvas.__jsonld.rendering) {
+      canvasRendering = canvas.__jsonld.rendering;
 
-      if (format == 'application/json' && name == 'waveform.json') {
-        files.push(id);
+      if (canvasRendering.length > 0) {
+        var w = canvasRendering[0];
+        var name = getLabelValue(w.label);
+
+        if (w.format == 'application/json' && name == 'waveform.json') {
+          waveformFile = w.id;
+        }
       }
-    };
-
-    manifestRendering.map(function (r) {
-      buildFileInfo(r.getFormat(), r.getProperty('label'), r.id);
-    });
-
-    if (canvasRendering) {
-      canvasRendering.map(function (r) {
-        buildFileInfo(r.format, r.label, r.id);
-      });
     }
   } catch (err) {
     console.error(err);
   }
 
-  return files;
+  return waveformFile;
 }
 /**
  * Parse the structures within manifest into a nested JSON object

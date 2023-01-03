@@ -257,14 +257,6 @@ var manifest = {
   label: {
     en: ['Volley Ball for Boys']
   },
-  rendering: [{
-    id: 'https://example.com/volleyball-for-boys/waveform.json',
-    type: 'SpecificResource',
-    label: {
-      en: ['waveform.json']
-    },
-    format: 'application/json'
-  }],
   items: [{
     type: 'Canvas',
     id: 'http://example.com/volleyball-for-boys/manifest/canvas/1',
@@ -302,6 +294,14 @@ var manifest = {
         }
       }]
     }],
+    rendering: [{
+      id: 'https://example.com/volleyball-for-boys/waveform.json',
+      type: 'Dataset',
+      label: {
+        en: ['waveform.json']
+      },
+      format: 'application/json'
+    }],
     width: 1920,
     height: 1080,
     duration: 662.037
@@ -334,14 +334,6 @@ var manifestWoStructure = {
   label: {
     en: ['Beginning Responsibility: Lunchroom Manners']
   },
-  rendering: [{
-    id: 'https://example.com/lunchroom_manners/waveform.json',
-    type: 'SpecificResource',
-    label: {
-      en: ['waveform.json']
-    },
-    format: 'application/json'
-  }],
   items: [{
     type: 'Canvas',
     id: 'https://example.com/lunchroom-manners/manifest/canvas/1',
@@ -358,6 +350,14 @@ var manifestWoStructure = {
         body: [],
         target: 'https://example.com/manifest/canvas/1'
       }]
+    }],
+    rendering: [{
+      id: 'https://example.com/lunchroom_manners/waveform.json',
+      type: 'Dataset',
+      label: {
+        en: ['waveform.json']
+      },
+      format: 'application/json'
     }]
   }]
 };
@@ -446,7 +446,7 @@ var manifestWithStructure = {
     }],
     rendering: [{
       id: 'http://example.com/lunchroom-manners/waveform.json',
-      type: 'SpecificResource',
+      type: 'Dataset',
       label: {
         en: ['waveform.json']
       },

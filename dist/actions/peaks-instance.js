@@ -76,12 +76,11 @@ function initializePeaks(peaksOptions, manifestURL, canvasIndex, initStructure) 
               smData = [];
               duration = 0;
               mediaInfo = {};
-              waveformInfo = [];
-              _context.prev = 4;
-              _context.next = 7;
+              _context.prev = 3;
+              _context.next = 6;
               return apiUtils.getRequest(manifestURL);
 
-            case 7:
+            case 6:
               response = _context.sent;
 
               if (!(0, _lodash.isEmpty)(response.data)) {
@@ -108,19 +107,19 @@ function initializePeaks(peaksOptions, manifestURL, canvasIndex, initStructure) 
 
               structuralMetadataUtils.markRootElement(smData);
 
-              if (waveformInfo.length > 0) {
-                buildPeaksInstance(waveformInfo[0], peaksOptions, smData, duration, dispatch, getState);
+              if (waveformInfo != null) {
+                buildPeaksInstance(waveformInfo, peaksOptions, smData, duration, dispatch, getState);
               } else {
                 _alert = (0, _alertStatus.configureAlert)(-3);
                 dispatch((0, _forms.setAlert)(_alert));
               }
 
-              _context.next = 24;
+              _context.next = 23;
               break;
 
-            case 17:
-              _context.prev = 17;
-              _context.t0 = _context["catch"](4);
+            case 16:
+              _context.prev = 16;
+              _context.t0 = _context["catch"](3);
               console.log('TCL: peaks-instance -> initializePeaks() -> error', _context.t0); // Update manifest error in the redux store
 
               status = _context.t0.response !== undefined ? _context.t0.response.status : -9;
@@ -129,12 +128,12 @@ function initializePeaks(peaksOptions, manifestURL, canvasIndex, initStructure) 
               _alert2 = (0, _alertStatus.configureAlert)(status);
               dispatch((0, _forms.setAlert)(_alert2));
 
-            case 24:
+            case 23:
             case "end":
               return _context.stop();
           }
         }
-      }, _callee, null, [[4, 17]]);
+      }, _callee, null, [[3, 16]]);
     }));
 
     return function (_x, _x2) {

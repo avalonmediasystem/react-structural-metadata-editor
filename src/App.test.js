@@ -144,7 +144,7 @@ describe('App component', () => {
         });
       }, 10000);
 
-      test('without waveform as a resource in manifest', async () => {
+      test('without waveform as a resource in canvas', async () => {
         mockAxios.get.mockImplementationOnce(() => {
           return Promise.resolve({
             status: 200,
@@ -157,7 +157,7 @@ describe('App component', () => {
             manifestFetched: true,
             manifest: manifestWithStructure,
             mediaInfo: {
-              src: 'http://dlib.indiana.edu/iiif_av/volleyball/high/volleyball-for-boys.mp4',
+              src: 'http://example.com/volleyball/high/volleyball-for-boys.mp4',
               duration: 572.4,
             }
           },

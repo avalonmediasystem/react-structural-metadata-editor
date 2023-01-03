@@ -16,18 +16,6 @@
       "t": 180
     }
   },
-  "rendering": [
-    {
-      "id": "http://localhost:3001/waveform.json",
-      "type": "SpecificResource",
-      "label": {
-        "en": [
-          "waveform.json"
-        ]
-      },
-      "format": "application/json"
-    }
-  ],
   "items": [
     {
       "id": "http://localhost:3001/manifests/lunchroom_manners/canvas/1",
@@ -109,6 +97,18 @@
               "target": "/manifests/lunchroom_manners/canvas/1"
             }
           ]
+        }
+      ],
+      "rendering": [
+        {
+          "id": "http://localhost:3001/waveform.json",
+          "type": "Dataset",
+          "label": {
+            "en": [
+              "waveform.json"
+            ]
+          },
+          "format": "application/json"
         }
       ]
     }

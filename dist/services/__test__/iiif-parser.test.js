@@ -55,21 +55,12 @@ describe('iiif-parser', () => {
   describe('getWaveformInfo()', () => {
     test('when given manifest is invalid', () => {
       const waveform = iiifParser.getWaveformInfo(undefined, 0);
-      expect(waveform).toEqual([]);
+      expect(waveform).toEqual(null);
     });
 
-    describe('when given manifest has waveform', () => {
-      test('as a manifest resource', () => {
-        const waveform = iiifParser.getWaveformInfo(manifestWoStructure, 0);
-        expect(waveform.length).toEqual(1);
-        expect(waveform[0]).toEqual('https://example.com/lunchroom_manners/waveform.json');
-      });
-
-      test('as a canvas resource', () => {
-        const waveform = iiifParser.getWaveformInfo(manifestWithStructure, 1);
-        expect(waveform.length).toEqual(1);
-        expect(waveform[0]).toEqual('http://example.com/lunchroom-manners/waveform.json');
-      });
+    test('when given manifest has waveform', () => {
+      const waveform = iiifParser.getWaveformInfo(manifestWithStructure, 1);
+      expect(waveform).toEqual('http://example.com/lunchroom-manners/waveform.json');
     });
   });
 

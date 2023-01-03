@@ -47,7 +47,7 @@ export function initializePeaks(
     let smData = [];
     let duration = 0;
     let mediaInfo = {};
-    let waveformInfo = [];
+    let waveformInfo;
 
     try {
       const response = await apiUtils.getRequest(manifestURL);
@@ -78,9 +78,9 @@ export function initializePeaks(
       // Mark the top element as 'root'
       structuralMetadataUtils.markRootElement(smData);
 
-      if (waveformInfo.length > 0) {
+      if (waveformInfo != null) {
         buildPeaksInstance(
-          waveformInfo[0],
+          waveformInfo,
           peaksOptions,
           smData,
           duration,

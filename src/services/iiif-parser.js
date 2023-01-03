@@ -57,36 +57,29 @@ function filtersrc(sources) {
  * @returns List of files under `rendering` property in manifest
  */
 export function getWaveformInfo(manifest, canvasIndex) {
-  let files = [];
+  let waveformFile = null;
+  let canvasRendering = [];
 
   try {
     const manifestParsed = parseManifest(manifest);
-    let manifestRendering = manifestParsed.getRenderings();
 
     let canvas = manifestParsed.getSequences()[0]
       .getCanvasByIndex(canvasIndex);
-    let canvasRendering = canvas.__jsonld.rendering;
+    if(canvas.__jsonld.rendering) {
+      canvasRendering = canvas.__jsonld.rendering;
 
-    let buildFileInfo = (format, label, id) => {
-      const name = getLabelValue(label);
-      if (format == 'application/json' && name == 'waveform.json') {
-        files.push(id);
+      if (canvasRendering.length > 0) {
+        const w = canvasRendering[0];
+        const name = getLabelValue(w.label);
+        if (w.format == 'application/json' && name == 'waveform.json') {
+          waveformFile = w.id;
+        }
       }
-    };
-
-    manifestRendering.map((r) => {
-      buildFileInfo(r.getFormat(), r.getProperty('label'), r.id);
-    });
-
-    if (canvasRendering) {
-      canvasRendering.map((r) => {
-        buildFileInfo(r.format, r.label, r.id);
-      });
     }
   } catch (err) {
     console.error(err);
   }
-  return files;
+  return waveformFile;
 }
 
 /**

@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "/src/server/index.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "/demo/dist/**",
+      "use": "@vercel/static-build"
+    }
+  ],
+  "outputDirectory": "/demo/dist",
+  "rewrites": [{ "source": "/api/(.*)", "destination": "/src/server" }]
+}

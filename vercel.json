@@ -2,14 +2,20 @@
   "version": 2,
   "builds": [
     {
-      "src": "/src/server/index.js",
+      "src": "api/index.js",
       "use": "@vercel/node"
     },
     {
-      "src": "/demo/dist/**",
+      "src": "demo/dist/**",
       "use": "@vercel/static-build"
     }
   ],
-  "outputDirectory": "/demo/dist",
-  "rewrites": [{ "source": "/api/(.*)", "destination": "/src/server" }]
+  "outputDirectory": "demo/",
+  "buildCommand": "npm run build",
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "api/index.js"
+    }
+  ]
 }

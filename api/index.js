@@ -24,10 +24,10 @@ app.use(
 app.use(require('webpack-hot-middleware')(compiler));
 
 // When you navigate to the root page, use the built React components
-const staticFilepath = path.join(__dirname, './assets');
-const htmlFile = path.join(__dirname, '../../demo/src/index.html');
+const buildFiles = path.join(__dirname, '../demo/dist');
+const htmlFile = path.join(__dirname, '../demo/src/index.html');
 
-app.use(express.static(staticFilepath));
+app.use(express.static(buildFiles));
 
 // Middleware to extract incoming data for POST requests
 app.use(bodyParser.urlencoded({ extended: false }));

@@ -2,7 +2,7 @@ import React from 'react';
 import { render } from 'react-dom';
 import Root from '../../src';
 
-export const BASE_API_URL = '.netlify/functions';
+export const BASE_API_URL = '';
 
 const props = {
   initStructure: {

@@ -10,7 +10,7 @@ const bodyParser = require('body-parser');
 const webpack = require('webpack');
 const webpackConfig = require('../../webpack.config');
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3001;
 
 const app = express();
 
@@ -24,10 +24,10 @@ app.use(
 app.use(require('webpack-hot-middleware')(compiler));
 
 // When you navigate to the root page, use the built React components
-const buildPath = path.join(__dirname, '../../demo/dist');
+const staticFilepath = path.join(__dirname, './assets');
 const htmlFile = path.join(__dirname, '../../demo/src/index.html');
 
-app.use(express.static(buildPath));
+app.use(express.static(staticFilepath));
 
 // Middleware to extract incoming data for POST requests
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -117,6 +117,8 @@ app.post('/structure.json', (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server listening on ${PORT}`);
 });
+
+module.exports = app;
 
 /** Server utility functions */
 // Clean-up structure before saving to file

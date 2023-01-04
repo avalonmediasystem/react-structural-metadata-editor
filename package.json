@@ -11,7 +11,7 @@
     "test:watch": "jest --watch",
     "transpile": "rimraf dist & babel src --out-dir dist --ignore src/**/*.spec.js,src/**/*.test.js --copy-files",
     "prepublishOnly": "npm run transpile",
-    "build": "rm -rf dist && webpack"
+    "build:app": "rm -rf dist && webpack"
   },
   "contributors": [
     "Adam Arling <aarling@gmail.com>",

@@ -67,7 +67,7 @@ app.get('/waveform.json', (req, res) => {
 
 app.get('/media.mp4', (req, res) => {
   res.header('Content-Type', 'video/mp4');
-  res.sendFile(path.join(__dirname, 'assets', 'media.mp4'));
+  fs.createReadStream(path.join(__dirname, 'assets', 'media.mp4')).pipe(res);
 });
 
 app.get('/lunchroom_manners/low/media.mp4', (req, res) => {

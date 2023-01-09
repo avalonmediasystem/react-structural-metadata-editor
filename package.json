@@ -5,13 +5,12 @@
   "main": "dist/index.js",
   "scripts": {
     "clean": "rimraf dist",
-    "dev": "webpack --mode development && node api/index.js",
-    "dev:deploy": "webpack && node api/index.js",
+    "dev": "webpack serve --mode=development",
     "test": "jest --coverage --colors",
     "test:watch": "jest --watch",
     "transpile": "rimraf dist & babel src --out-dir dist --ignore src/**/*.spec.js,src/**/*.test.js --copy-files",
     "prepublishOnly": "npm run transpile",
-    "build:app": "rm -rf dist && webpack"
+    "demo:build": "webpack --mode=production"
   },
   "contributors": [
     "Adam Arling <aarling@gmail.com>",
@@ -31,6 +30,7 @@
     "@webpack-cli/serve": "^2.0.1",
     "babel-jest": "^24.7.1",
     "babel-loader": "^8.0.5",
+    "copy-webpack-plugin": "^11.0.0",
     "css-loader": "^2.1.1",
     "gh-pages": "^3.2.3",
     "html-webpack-plugin": "^5.5.0",

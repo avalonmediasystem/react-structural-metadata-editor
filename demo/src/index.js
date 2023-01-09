@@ -2,7 +2,11 @@ import React from 'react';
 import { render } from 'react-dom';
 import Root from '../../src';
 
-export const BASE_API_URL = '';
+console.log('env: ', process.env.NODE_ENV)
+const BASE_API_URL = 
+  process.env.NODE_ENV === 'production' 
+    ? 'https://react-structural-metadata-editor.netlify.app' 
+    : 'http://localhost:3001';
 
 const props = {
   initStructure: {

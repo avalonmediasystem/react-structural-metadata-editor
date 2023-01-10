@@ -2,8 +2,9 @@ import React from 'react';
 import { render } from 'react-dom';
 import Root from '../../src';
 
+const env = process.env.NODE_ENV;
 const BASE_API_URL = 
-  process.env.NODE_ENV === 'production' 
+  env === 'production' 
     ? 'https://react-structural-metadata-editor.netlify.app' 
     : 'http://localhost:3001';
 

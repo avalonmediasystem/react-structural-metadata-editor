@@ -9,7 +9,7 @@ const tooltip = (tip) => <Tooltip id="tooltip">{tip}</Tooltip>;
 const ListItemInlineEditControls = (props) => {
   return (
     <div className="edit-controls-wrapper" data-testid="inline-form-controls">
-      <OverlayTrigger placement="top" overlay={tooltip('Save')}>
+      <OverlayTrigger placement="bottom" overlay={tooltip('Save')}>
         <Button
           variant="link"
           disabled={!props.formIsValid}
@@ -19,7 +19,7 @@ const ListItemInlineEditControls = (props) => {
           <FontAwesomeIcon icon={faSave} />
         </Button>
       </OverlayTrigger>
-      <OverlayTrigger placement="top" overlay={tooltip('Cancel')}>
+      <OverlayTrigger placement="bottom" overlay={tooltip('Cancel')}>
         <Button
           variant="link"
           data-testid="inline-form-cancel-button"

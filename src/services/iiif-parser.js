@@ -162,7 +162,7 @@ export function parseStructureToJSON(manifest, initStructure, duration) {
     Object.keys(initStructure).length != 0) {
     structureJSON = smUtils.addUUIds([initStructure]);
   }
-  // Create a dummy structure with manifest information
+  // Create an empty structure with manifest information
   else if (manifestName != undefined) {
     structureJSON.push({
       label: manifestName,

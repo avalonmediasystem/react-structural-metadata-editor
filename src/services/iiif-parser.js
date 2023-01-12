@@ -127,7 +127,7 @@ export function parseStructureToJSON(manifest, initStructure, duration) {
   let manifestName;
   let structures = [];
 
-  if (manifest != undefined || manifest != null) {
+  if (manifest != undefined && manifest != null) {
     structures = manifest.structures != undefined ? manifest.structures : [];
     // Ignore the top element, this gets injected in the manifest generation in Avalon.
     // `iiif_manifest` gem keeps wrapping the structure with a root element with 

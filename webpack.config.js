@@ -55,10 +55,17 @@ module.exports = {
     proxy: {
       '/structure.json': {
         bypass: function(req, res) {
-          if(req.method == 'POST' || req.method == 'HEAD') {
+          if(req.method == 'POST') {
             res.send({ statusCode: 200, data: 'Success'})
           }
         },
+      },
+      '/waveform.json': {
+        bypass: function(req, res) {
+          if(req.method == 'HEAD') {
+            res.send({ statusCode: 200 })
+          }
+        }
       }
     }
   },

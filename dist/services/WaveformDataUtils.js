@@ -338,7 +338,7 @@ var WaveformDataUtils = /*#__PURE__*/function () {
 
       var _this$findWrapperSegm = this.findWrapperSegments(segment, peaksInstance),
           before = _this$findWrapperSegm.before,
-          after = _this$findWrapperSegm.after; // Check for margin of +/- 0.02 milliseconds to be considered
+          after = _this$findWrapperSegm.after; // Check for margin of +/- 0.02 seconds to be considered
 
 
       var isDuration = function isDuration(time) {
@@ -504,7 +504,7 @@ var WaveformDataUtils = /*#__PURE__*/function () {
 
       var _this$findWrapperSegm2 = this.findWrapperSegments(segment, peaksInstance),
           before = _this$findWrapperSegm2.before,
-          after = _this$findWrapperSegm2.after; // Check for margin of +/- 0.02 milliseconds to be considered
+          after = _this$findWrapperSegm2.after; // Check for margin of +/- 0.02 seconds to be considered
 
 
       var isDuration = function isDuration(time) {

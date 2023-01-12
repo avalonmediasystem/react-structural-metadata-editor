@@ -153,7 +153,7 @@ function parseStructureToJSON(manifest, initStructure, duration) {
   var manifestName;
   var structures = [];
 
-  if (manifest != undefined || manifest != null) {
+  if (manifest != undefined && manifest != null) {
     var _structures$;
 
     structures = manifest.structures != undefined ? manifest.structures : []; // Ignore the top element, this gets injected in the manifest generation in Avalon.
@@ -184,7 +184,7 @@ function parseStructureToJSON(manifest, initStructure, duration) {
   // have structures 
   else if (initStructure != undefined && Object.keys(initStructure).length != 0) {
     structureJSON = smUtils.addUUIds([initStructure]);
-  } // Create a dummy structure with manifest information
+  } // Create an empty structure with manifest information
   else if (manifestName != undefined) {
     structureJSON.push({
       label: manifestName,

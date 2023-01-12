@@ -58,8 +58,7 @@ var StructureOutputContainer = function StructureOutputContainer(props) {
     return state.forms;
   }),
       editingDisabled = _useSelector3.editingDisabled,
-      structureInfo = _useSelector3.structureInfo; // const { smData, initSmData, smDataIsValid } = structuralMetadata;
-
+      structureInfo = _useSelector3.structureInfo;
 
   var _useState = (0, _react.useState)(initSmData),
       _useState2 = (0, _slicedToArray2["default"])(_useState, 2),
@@ -152,17 +151,7 @@ var StructureOutputContainer = function StructureOutputContainer(props) {
     "data-testid": "structure-save-button",
     disabled: editingDisabled
   }, "Save Structure")))));
-}; // const mapStateToProps = (state) => ({
-//   structuralMetadata: state.structuralMetadata,
-//   structureInfo: state.forms.structureInfo,
-//   editingDisabled: state.forms.editingDisabled,
-//   alert: state.forms.alert,
-// });
-// const mapDispatchToProps = {
-//   postStructureSuccess: updateStructureStatus,
-//   setAlert: setAlert,
-// };
-
+};
 
 var _default = StructureOutputContainer;
 exports["default"] = _default;

@@ -16,7 +16,6 @@ const StructureOutputContainer = (props) => {
   const { manifestFetched } = useSelector((state) => state.manifest);
   const { smData, initSmData, smDataIsValid } = useSelector((state) => state.structuralMetadata);
   const { editingDisabled, structureInfo } = useSelector((state) => state.forms);
-  // const { smData, initSmData, smDataIsValid } = structuralMetadata;
 
   const [stateInitStructure, setInitStructure] = useState(initSmData);
 
@@ -90,17 +89,5 @@ const StructureOutputContainer = (props) => {
     </section>
   );
 };
-
-// const mapStateToProps = (state) => ({
-//   structuralMetadata: state.structuralMetadata,
-//   structureInfo: state.forms.structureInfo,
-//   editingDisabled: state.forms.editingDisabled,
-//   alert: state.forms.alert,
-// });
-
-// const mapDispatchToProps = {
-//   postStructureSuccess: updateStructureStatus,
-//   setAlert: setAlert,
-// };
 
 export default StructureOutputContainer;

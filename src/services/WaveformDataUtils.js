@@ -269,7 +269,7 @@ export default class WaveformDataUtils {
     // Segments before and after the current segment
     const { before, after } = this.findWrapperSegments(segment, peaksInstance);
 
-    // Check for margin of +/- 0.02 milliseconds to be considered
+    // Check for margin of +/- 0.02 seconds to be considered
     let isDuration = (time) => {
       return (
         time <= duration + 0.02 && time >= duration - 0.02

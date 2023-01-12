@@ -11,10 +11,9 @@ const props = {
     items: [],
   },
   structureURL: `${BASE_API_URL}/structure.json`,
-  waveformURL: `${BASE_API_URL}/waveform.json`,
-  audioURL: `${BASE_API_URL}/media.mp4`,
-  streamDuration: 572000,
-  structureIsSaved: (val) => {},
+  manifestURL: `${BASE_API_URL}/manifest.json`,
+  canvasIndex: 0,
+  structureIsSaved: (val) => { },
 };
 
 render(<Root {...props} />, document.getElementById('root'));

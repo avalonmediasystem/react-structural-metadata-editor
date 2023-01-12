@@ -3,19 +3,19 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.WAVEFORM_INITIALIZE_ERROR = exports.UNAUTHORIZED_ACCESS = exports.STREAM_MEDIA_ERROR = exports.SAVED_MASTERFILE_SUCCESS = exports.PEAKSJS_REACHED_END_OF_FILE = exports.NETWORK_ERROR = exports.MISSING_WAVEFORM_ERROR = exports.MASTERFILE_NOT_FOUND = exports.INVALID_SEGMENTS_WARNING = exports.FETCH_STRUCTURED_DATA_ERROR = void 0;
+exports.WAVEFORM_INITIALIZE_ERROR = exports.UNAUTHORIZED_ACCESS = exports.STREAM_MEDIA_ERROR = exports.SAVE_STRUCTURE_SUCCESS = exports.SAVE_STRUCTURE_FAIL = exports.PEAKSJS_REACHED_END_OF_FILE = exports.NETWORK_ERROR = exports.MISSING_WAVEFORM_ERROR = exports.INVALID_SEGMENTS_WARNING = exports.FETCH_STRUCTURED_DATA_ERROR = exports.FETCH_MANIFEST_ERROR = void 0;
 exports.configureAlert = configureAlert;
 var UNAUTHORIZED_ACCESS = "You're not authorized to access this resource.";
 exports.UNAUTHORIZED_ACCESS = UNAUTHORIZED_ACCESS;
-var MASTERFILE_NOT_FOUND = 'Requested data is not available.';
-exports.MASTERFILE_NOT_FOUND = MASTERFILE_NOT_FOUND;
-var SAVED_MASTERFILE_SUCCESS = 'Saved successfully.';
-exports.SAVED_MASTERFILE_SUCCESS = SAVED_MASTERFILE_SUCCESS;
+var SAVE_STRUCTURE_SUCCESS = 'Saved successfully.';
+exports.SAVE_STRUCTURE_SUCCESS = SAVE_STRUCTURE_SUCCESS;
+var SAVE_STRUCTURE_FAIL = 'Failed to save structure successfully.';
+exports.SAVE_STRUCTURE_FAIL = SAVE_STRUCTURE_FAIL;
 var NETWORK_ERROR = 'Network error. Please try again.';
 exports.NETWORK_ERROR = NETWORK_ERROR;
-var FETCH_STRUCTURED_DATA_ERROR = 'There was an error retrieving the structure information.';
+var FETCH_STRUCTURED_DATA_ERROR = 'No structure information was found. Please check your Manifest.';
 exports.FETCH_STRUCTURED_DATA_ERROR = FETCH_STRUCTURED_DATA_ERROR;
-var WAVEFORM_INITIALIZE_ERROR = 'There was an error initializing the waveform.';
+var WAVEFORM_INITIALIZE_ERROR = 'There was an error initializing the waveform. Please check your Manifest.';
 exports.WAVEFORM_INITIALIZE_ERROR = WAVEFORM_INITIALIZE_ERROR;
 var PEAKSJS_REACHED_END_OF_FILE = 'There is no space available to insert a new timespan.';
 exports.PEAKSJS_REACHED_END_OF_FILE = PEAKSJS_REACHED_END_OF_FILE;
@@ -24,12 +24,14 @@ exports.STREAM_MEDIA_ERROR = STREAM_MEDIA_ERROR;
 var MISSING_WAVEFORM_ERROR = 'Requested waveform data is not available.';
 exports.MISSING_WAVEFORM_ERROR = MISSING_WAVEFORM_ERROR;
 var INVALID_SEGMENTS_WARNING = 'Please check start/end times of the marked invalid timespan(s).';
+exports.INVALID_SEGMENTS_WARNING = INVALID_SEGMENTS_WARNING;
+var FETCH_MANIFEST_ERROR = 'Requested resources in IIIF Manifest were not found.';
 /**
  * Helper function which prepares a configuration object to feed the AlertContainer component
  * @param {number} status Code for response
  */
 
-exports.INVALID_SEGMENTS_WARNING = INVALID_SEGMENTS_WARNING;
+exports.FETCH_MANIFEST_ERROR = FETCH_MANIFEST_ERROR;
 
 function configureAlert() {
   var status = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
@@ -39,11 +41,9 @@ function configureAlert() {
 
   if (status === 401) {
     alertObj.message = UNAUTHORIZED_ACCESS;
-  } else if (status === 404) {
-    alertObj.message = MASTERFILE_NOT_FOUND;
   } else if (status >= 200 && status < 300) {
     alertObj.alertStyle = 'success';
-    alertObj.message = SAVED_MASTERFILE_SUCCESS;
+    alertObj.message = SAVE_STRUCTURE_SUCCESS;
     alertObj.delay = 2000;
     alertObj.type = 'SAVE_FEEDBACK';
   } else if (status === -2) {
@@ -61,6 +61,10 @@ function configureAlert() {
   } else if (status === -8) {
     alertObj.message = INVALID_SEGMENTS_WARNING;
     alertObj.alertStyle = 'warning';
+  } else if (status == 404 || status == -9) {
+    alertObj.message = FETCH_MANIFEST_ERROR;
+  } else if (status == -10) {
+    alertObj.message = SAVE_STRUCTURE_FAIL;
   } else {
     alertObj.message = NETWORK_ERROR;
   }

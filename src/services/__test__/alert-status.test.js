@@ -14,11 +14,11 @@ describe('alert-status service', () => {
     );
     expect(alertStatus.configureAlert(404)).toHaveProperty(
       'message',
-      alertStatus.MASTERFILE_NOT_FOUND
+      alertStatus.FETCH_MANIFEST_ERROR
     );
     expect(alertStatus.configureAlert(250)).toHaveProperty(
       'message',
-      alertStatus.SAVED_MASTERFILE_SUCCESS
+      alertStatus.SAVE_STRUCTURE_SUCCESS
     );
     expect(alertStatus.configureAlert(-1)).toHaveProperty(
       'message',

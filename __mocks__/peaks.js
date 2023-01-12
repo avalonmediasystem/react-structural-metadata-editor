@@ -5,8 +5,8 @@ export const Peaks = jest.fn((opts) => {
     seek: jest.fn((time) => {
       peaks.player._mediaElement.currentTime = time;
     }),
-    play: jest.fn(() => {}),
-    pause: jest.fn(() => {}),
+    play: jest.fn(() => { }),
+    pause: jest.fn(() => { }),
     getCurrentTime: jest.fn(() => {
       return peaks.player._mediaElement.currentTime;
     }),
@@ -53,6 +53,8 @@ export const Peaks = jest.fn((opts) => {
       }
     }),
     _peaks: peaks,
+    // segements are built in match with timespans from 'testSmData' 
+    // in ./testing-helpers.js file
     _segments: [
       new Segment({
         parent: peaks,
@@ -81,9 +83,9 @@ export const Peaks = jest.fn((opts) => {
     ],
   };
   peaks.zoom = {
-    zoomIn: jest.fn(() => {}),
-    zoomOut: jest.fn(() => {}),
-  }
+    zoomIn: jest.fn(() => { }),
+    zoomOut: jest.fn(() => { }),
+  };
   return peaks;
 });
 
@@ -119,5 +121,6 @@ export default {
   init: jest.fn((opts, callback) => {
     let peaks = Peaks(opts);
     callback(null, peaks);
+    return peaks;
   }),
 };

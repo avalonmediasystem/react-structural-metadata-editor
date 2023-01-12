@@ -2,22 +2,24 @@ import React from 'react';
 import { cleanup, wait } from 'react-testing-library';
 import 'jest-dom/extend-expect';
 import WaveformContainer from '../WaveformContainer';
-import { renderWithRedux, testSmData } from '../../services/testing-helpers';
+import { manifest, renderWithRedux, testSmData } from '../../services/testing-helpers';
 import mockAxios from 'axios';
-import Peaks from 'peaks';
 
 // Mocking the external libraries used in the component execution
 jest.mock('rxjs');
-
-let peaksInst = null;
-Peaks.init({}, (err, peaks) => {
-  peaksInst = peaks;
-});
+jest.mock('peaks.js');
 
 // Setup Redux store for tests
 const initialState = {
   structuralMetadata: {
     smData: testSmData,
+  },
+  manifest: {
+    manifest: manifest,
+    mediaInfo: {
+      duraion: 662.037,
+      src: 'https://example.com/volleyball-for-boys/volleyball-for-boys.mp4'
+    }
   },
 };
 
@@ -45,17 +47,20 @@ const initStructure = {
 afterEach(cleanup);
 
 describe('WaveformContainer component', () => {
-  let originalError;
+  let originalError, originalLogger;
   beforeEach(() => {
-    /** Mock console.error function with empty jest.fn().
-     *  This avoids multiple console.error outputs from within Peaks.init() function
+    /** Mock console.error and console.log functions with empty jest.fn().
+     *  This avoids multiple console outputs from within Peaks.init() function
      *  while the Waveform component (child of WaveformContainer) gets rendered.
      */
     originalError = console.error;
     console.error = jest.fn();
+    originalLogger = console.log;
+    console.log = jest.fn();
   });
   afterEach(() => {
     console.error = originalError;
+    console.log = originalLogger;
   });
 
   test('renders', async () => {
@@ -70,17 +75,16 @@ describe('WaveformContainer component', () => {
 
     mockAxios.get.mockImplementationOnce(() => {
       return Promise.resolve({
-        data: testSmData[0],
+        status: 200,
+        data: manifest,
       });
     });
 
     const { getByTestId } = renderWithRedux(
       <WaveformContainer
+        manifestURL="https://example.com/manifest.json"
         structureURL="https://mockurl.edu/structure.json"
-        waveformURL="https://mockurl.edu/waveform.json"
-        audioURL="https://mockurl.edu/media.mp4"
         initStructure={initStructure}
-        streamDuration={1738945}
       />,
       { initialState }
     );
@@ -92,29 +96,30 @@ describe('WaveformContainer component', () => {
     });
   });
 
-  test('waveform renders when fetching structure.json fails', async () => {
+  test('waveform renders when manifest.json has waveform info', async () => {
+    mockAxios.get.mockImplementationOnce(() => {
+      return Promise.resolve({
+        status: 200,
+        data: manifest,
+      });
+    });
     mockAxios.head.mockImplementationOnce(() => {
       return Promise.resolve({
         status: 200,
         request: {
-          responseURL: 'https://mockurl.edu/waveform.json',
+          responseURL: 'https://example.com/volleyball-for-boys/waveform.json',
         },
         headers: {
           'content-disposition': 'attachment; filename="waveform.json"',
         },
       });
     });
-    mockAxios.get.mockImplementationOnce(() => {
-      return Promise.reject({
-        error: 'Network Error',
-      });
-    });
 
     const { getByTestId } = renderWithRedux(
       <WaveformContainer
         initStructure={initStructure}
-        structureURL="https://mockurl.edu/structure.json"
-        streamDuration={1738945}
+        manifestURL="https://example.com/manifest.json"
+        canvasIndex={0}
       />,
       { initialState }
     );
@@ -122,7 +127,7 @@ describe('WaveformContainer component', () => {
     await wait(() => {
       expect(mockAxios.get).toHaveBeenCalledTimes(1);
       expect(mockAxios.get).toHaveBeenCalledWith(
-        'https://mockurl.edu/structure.json',
+        'https://example.com/manifest.json',
         { headers: { 'Content-Type': 'application/json' } }
       );
       expect(getByTestId('waveform-container')).toBeInTheDocument();

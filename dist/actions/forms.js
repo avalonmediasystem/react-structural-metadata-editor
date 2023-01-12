@@ -9,7 +9,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.removeAlert = exports.handleStructureError = exports.handleEditingTimespans = exports.clearExistingAlerts = void 0;
 exports.retrieveStreamMedia = retrieveStreamMedia;
-exports.updateStructureStatus = exports.streamMediaSuccess = exports.streamMediaError = exports.setAlert = exports.retrieveWaveformSuccess = exports.retrieveStructureSuccess = void 0;
+exports.updateStructureStatus = exports.streamMediaSuccess = exports.streamMediaError = exports.setStreamMediaLoading = exports.setAlert = exports.retrieveWaveformSuccess = exports.retrieveStructureSuccess = void 0;
 
 var types = _interopRequireWildcard(require("./types"));
 
@@ -150,6 +150,15 @@ var streamMediaSuccess = function streamMediaSuccess() {
 
 exports.streamMediaSuccess = streamMediaSuccess;
 
+var setStreamMediaLoading = function setStreamMediaLoading(flag) {
+  return {
+    type: types.STREAM_MEDIA_LOADING,
+    flag: flag
+  };
+};
+
+exports.setStreamMediaLoading = setStreamMediaLoading;
+
 function retrieveStreamMedia(audioFile, mediaPlayer) {
   var opts = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
   return function (dispatch, getState) {
@@ -172,6 +181,7 @@ function retrieveStreamMedia(audioFile, mediaPlayer) {
       }); // ERROR event is fired when fetching media stream is not successful
 
       hls.on(_hls["default"].Events.ERROR, function (event, data) {
+        dispatch(setStreamMediaLoading(1));
         var errorCode = null; // When there are errors in the HLS build this block catches it and flashes
         // the warning message for a split second. The ErrorType for these errors is
         // OTHER_ERROR. Issue in HLS.js: https://github.com/video-dev/hls.js/issues/2435
@@ -187,6 +197,8 @@ function retrieveStreamMedia(audioFile, mediaPlayer) {
           }
 
           dispatch(streamMediaError(errorCode));
+        } else {
+          dispatch(setStreamMediaLoading(0));
         }
       });
     }

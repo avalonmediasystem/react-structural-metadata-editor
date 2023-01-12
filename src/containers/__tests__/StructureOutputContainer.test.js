@@ -1,30 +1,39 @@
 import React from 'react';
-import { cleanup } from 'react-testing-library';
+import { cleanup, fireEvent } from 'react-testing-library';
 import 'jest-dom/extend-expect';
 import StructureOutputContainer from '../StructureOutputContainer';
 import { renderWithRedux, testSmData } from '../../services/testing-helpers';
 import { wrapInTestContext } from 'react-dnd-test-utils';
+import Peaks from 'peaks';
 
-const mockPeaks = jest.genMockFromModule('peaks.js');
-mockPeaks.init = jest.fn((options) => {
-  return {
-    options: options,
-  };
+// Set up a redux store for the tests
+const peaksOptions = {
+  container: null,
+  mediaElement: null,
+  dataUri: null,
+  dataUriDefaultFormat: 'json',
+  keyboard: true,
+  _zoomLevelIndex: 0,
+  _zoomLevels: [512, 1024, 2048, 4096],
+};
+
+let peaksInst = null;
+Peaks.init(peaksOptions, (err, peaks) => {
+  peaksInst = peaks;
 });
+
 
 // Set up Redux store for tests
 const initialState = {
-  forms: {
-    structureInfo: {
-      structureRetrieved: true,
-      structureStatus: null,
-    },
-    alerts: [],
-  },
   structuralMetadata: {
     smData: testSmData,
-    smDataIsValid: true,
   },
+  manifest: {
+    manifestFetched: true
+  },
+  peaksInstance: {
+    peaks: peaksInst
+  }
 };
 const mockStructureIsSaved = jest.fn();
 
@@ -48,7 +57,7 @@ describe('StructureOutputContainer component', () => {
     expect(getByTestId('structure-output-section')).toBeInTheDocument();
   });
 
-  test('shows structure list when fetching structure.json is successful', () => {
+  test('shows structure list when fetching manifest.json is successful', () => {
     const { getByTestId, queryByTestId } = renderWithRedux(
       <StructureOutputContext structureIsSaved={mockStructureIsSaved} />,
       { initialState }
@@ -58,5 +67,85 @@ describe('StructureOutputContainer component', () => {
     expect(getByTestId('structure-save-button')).toBeInTheDocument();
     // Alert is not present in the DOM
     expect(queryByTestId('alert-container')).not.toBeInTheDocument();
+  });
+
+  describe('displays updated structure tree after', () => {
+    test('deleting a timespan', () => {
+      const { getByTestId, queryAllByTestId } = renderWithRedux(
+        <StructureOutputContext structureIsSaved={mockStructureIsSaved} />,
+        { initialState }
+      );
+
+      expect(getByTestId('structure-output-list')).toBeInTheDocument();
+      let timespanToDelete = queryAllByTestId('list-item')[4];
+      expect(
+        timespanToDelete.children[0].innerHTML).toEqual(
+          ' Segment 1.2 (00:00:11.231 - 00:08:00.001)'
+        );
+      // Get the delete button from the list item controls
+      let deleteButton = timespanToDelete.children[1].children[2];
+      fireEvent.click(deleteButton);
+
+      expect(getByTestId('delete-confirmation-popup')).toBeInTheDocument();
+      expect(
+        getByTestId('delete-confirmation-message').innerHTML).toEqual(
+          'Are you sure you\'d like to delete <strong>Segment 1.2</strong>?'
+        );
+      // Confirm delete action
+      fireEvent.click(getByTestId('delete-confirmation-confirm-btn'));
+      expect(timespanToDelete).not.toBeInTheDocument();
+    });
+
+    test('deleting a heading without children', () => {
+      const { getByTestId, queryAllByTestId } = renderWithRedux(
+        <StructureOutputContext structureIsSaved={mockStructureIsSaved} />,
+        { initialState }
+      );
+
+      expect(getByTestId('structure-output-list')).toBeInTheDocument();
+      let headingToDelete = queryAllByTestId('list-item')[2];
+      expect(
+        headingToDelete.children[0].innerHTML).toEqual(
+          'Sub-Segment 1.1'
+        );
+      // Get the delete button from the list item controls
+      let deleteButton = headingToDelete.children[1].children[1];
+      fireEvent.click(deleteButton);
+
+      expect(getByTestId('delete-confirmation-popup')).toBeInTheDocument();
+      expect(
+        getByTestId('delete-confirmation-message').innerHTML).toEqual(
+          'Are you sure you\'d like to delete <strong>Sub-Segment 1.1</strong>?'
+        );
+      // Confirm delete action
+      fireEvent.click(getByTestId('delete-confirmation-confirm-btn'));
+      expect(headingToDelete).not.toBeInTheDocument();
+    });
+
+    test('deleting a heading with children', () => {
+      const { getByTestId, queryAllByTestId } = renderWithRedux(
+        <StructureOutputContext structureIsSaved={mockStructureIsSaved} />,
+        { initialState }
+      );
+
+      expect(getByTestId('structure-output-list')).toBeInTheDocument();
+      let headingToDelete = queryAllByTestId('list-item')[5];
+      expect(
+        headingToDelete.children[0].innerHTML).toEqual(
+          'Second segment'
+        );
+      // Get the delete button from the list item controls
+      let deleteButton = headingToDelete.children[1].children[1];
+      fireEvent.click(deleteButton);
+
+      expect(getByTestId('delete-confirmation-popup')).toBeInTheDocument();
+      expect(
+        getByTestId('delete-confirmation-message').innerHTML).toEqual(
+          'Are you sure you\'d like to delete <strong>Second segment</strong> and it\'s <strong>1</strong> child item?'
+        );
+      // Confirm delete action
+      fireEvent.click(getByTestId('delete-confirmation-confirm-btn'));
+      expect(headingToDelete).not.toBeInTheDocument();
+    });
   });
 });

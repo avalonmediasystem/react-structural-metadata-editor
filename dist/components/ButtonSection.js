@@ -184,7 +184,10 @@ var ButtonSection = /*#__PURE__*/function (_Component) {
           structureInfo = _this$props$forms.structureInfo,
           streamInfo = _this$props$forms.streamInfo; // Only return UI when both structure and waveform data exist
 
-      return structureInfo.structureRetrieved ? /*#__PURE__*/_react["default"].createElement("section", null, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Row, {
+      return structureInfo.structureRetrieved ? /*#__PURE__*/_react["default"].createElement("section", {
+        className: "button-section",
+        "data-testid": "button-section"
+      }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Row, {
         "data-testid": "button-row"
       }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Col, {
         sm: "6"

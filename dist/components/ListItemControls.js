@@ -96,7 +96,8 @@ var ListItemControls = /*#__PURE__*/function (_Component) {
       var deleteMessage = "Are you sure you'd like to delete <strong>".concat(label, "</strong>");
 
       if (childrenCount > 0) {
-        deleteMessage += " and it's <strong>".concat(childrenCount, "</strong> child items");
+        var puralizedItem = childrenCount > 1 ? 'items' : 'item';
+        deleteMessage += " and it's <strong>".concat(childrenCount, "</strong> child ").concat(puralizedItem);
       }
 
       deleteMessage += "?"; // Disable editing of other list items

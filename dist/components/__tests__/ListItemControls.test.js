@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, cleanup, render } from 'react-testing-library';
+import { fireEvent, cleanup } from 'react-testing-library';
 import 'jest-dom/extend-expect';
 import ListItemControls from '../ListItemControls';
 import { renderWithRedux } from '../../services/testing-helpers';

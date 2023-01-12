@@ -13,15 +13,11 @@ var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/cl
 
 var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
 
-var _assertThisInitialized2 = _interopRequireDefault(require("@babel/runtime/helpers/assertThisInitialized"));
-
 var _inherits2 = _interopRequireDefault(require("@babel/runtime/helpers/inherits"));
 
 var _possibleConstructorReturn2 = _interopRequireDefault(require("@babel/runtime/helpers/possibleConstructorReturn"));
 
 var _getPrototypeOf2 = _interopRequireDefault(require("@babel/runtime/helpers/getPrototypeOf"));
-
-var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/defineProperty"));
 
 var _react = _interopRequireWildcard(require("react"));
 
@@ -57,14 +53,6 @@ function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflec
 
 function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
 
-// library.add(
-//   faDotCircle,
-//   faMinusCircle,
-//   faPen,
-//   faSave,
-//   faTrash,
-//   faExclamationTriangle
-// );
 var App = /*#__PURE__*/function (_Component) {
   (0, _inherits2["default"])(App, _Component);
 
@@ -75,9 +63,6 @@ var App = /*#__PURE__*/function (_Component) {
 
     (0, _classCallCheck2["default"])(this, App);
     _this = _super.call(this, props);
-    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "structureIsSaved", function (value) {
-      _this.props.structureIsSaved(value);
-    });
     _this.state = {
       structureAlert: {}
     };
@@ -107,21 +92,20 @@ var App = /*#__PURE__*/function (_Component) {
 }(_react.Component);
 
 App.propTypes = {
-  structureURL: _propTypes["default"].string.isRequired,
-  waveformURL: _propTypes["default"].string.isRequired,
-  audioURL: _propTypes["default"].string.isRequired,
-  streamDuration: _propTypes["default"].number.isRequired,
+  canvasIndex: _propTypes["default"].number,
   initStructure: _propTypes["default"].object.isRequired,
-  withCredentials: _propTypes["default"].bool,
-  structureIsSaved: _propTypes["default"].func
+  manifestURL: _propTypes["default"].string.isRequired,
+  structureURL: _propTypes["default"].string.isRequired,
+  structureIsSaved: _propTypes["default"].func,
+  withCredentials: _propTypes["default"].bool
 };
 App.defaultProps = {
-  withCredentials: false,
-  structureIsSaved: function structureIsSaved(val) {}
+  canvasIndex: 0,
+  structureIsSaved: function structureIsSaved(val) {},
+  withCredentials: false
 };
 var mapDispatchToProps = {
   resetStore: _actions.resetReduxStore,
-  handleStructureError: _forms.handleStructureError,
   removeAlert: _forms.removeAlert
 };
 

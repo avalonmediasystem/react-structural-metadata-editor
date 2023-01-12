@@ -1,16 +1,30 @@
 import * as types from './types';
 import { isEmpty } from 'lodash';
+import Peaks from 'peaks.js';
+
 import APIUtils from '../api/Utils';
+import { configureAlert } from '../services/alert-status';
+import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
+import WaveformDataUtils from '../services/WaveformDataUtils';
+import {
+  getMediaInfo,
+  getWaveformInfo,
+  parseStructureToJSON
+} from '../services/iiif-parser';
+
 import { buildSMUI, saveInitialStructure } from './sm-data';
 import {
   retrieveStructureSuccess,
   handleStructureError,
   setAlert,
+  retrieveWaveformSuccess,
 } from './forms';
-import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
-import { configureAlert } from '../services/alert-status';
-// import Peaks from 'peaks.js';
-import WaveformDataUtils from '../services/WaveformDataUtils';
+import {
+  fetchManifestSuccess,
+  handleManifestError,
+  setManifest,
+  setMediaInfo
+} from './manifest';
 
 const waveformUtils = new WaveformDataUtils();
 const apiUtils = new APIUtils();
@@ -23,69 +37,144 @@ const structuralMetadataUtils = new StructuralMetadataUtils();
  * @param {JSON} initStructure - structure with root element when empty
  * @param {Object} options - peaks options
  */
-export function initializeSMDataPeaks(
-  peaks,
-  structureURL,
+export function initializePeaks(
+  peaksOptions,
+  manifestURL,
+  canvasIndex,
   initStructure,
-  duration
 ) {
   return async (dispatch, getState) => {
     let smData = [];
-    if (typeof initStructure === 'string' && initStructure !== '') {
-      smData = structuralMetadataUtils.addUUIds([JSON.parse(initStructure)]);
-    } else if (!isEmpty(initStructure)) {
-      smData = structuralMetadataUtils.addUUIds([initStructure]);
-    }
+    let duration = 0;
+    let mediaInfo = {};
+    let waveformInfo;
+
     try {
-      const response = await apiUtils.getRequest(structureURL);
+      const response = await apiUtils.getRequest(manifestURL);
 
       if (!isEmpty(response.data)) {
-        smData = structuralMetadataUtils.addUUIds([response.data]);
-      }
-      // Update redux-store flag for structure file retrieval
-      dispatch(retrieveStructureSuccess());
-    } catch (error) {
-      console.log('TCL: Structure -> }catch -> error', error);
+        mediaInfo = getMediaInfo(response.data, canvasIndex);
+        waveformInfo = getWaveformInfo(response.data, canvasIndex);
 
-      let status = error.response !== undefined ? error.response.status : -2;
-      dispatch(handleStructureError(1, status));
+        dispatch(setManifest(response.data));
+        dispatch(setMediaInfo(mediaInfo.src, mediaInfo.duration));
+        smData = parseStructureToJSON(response.data, initStructure, mediaInfo.duration);
+        duration = mediaInfo.duration;
+      }
+
+      if (smData.length > 0) {
+        dispatch(retrieveStructureSuccess());
+      } else {
+        dispatch(handleStructureError(1, -2));
+        let alert = configureAlert(-2);
+        dispatch(setAlert(alert));
+      }
+      dispatch(fetchManifestSuccess());
+
+      // Initialize Redux state variable with structure
+      dispatch(buildSMUI(smData, duration));
+      dispatch(saveInitialStructure(smData));
+
+      // Mark the top element as 'root'
+      structuralMetadataUtils.markRootElement(smData);
+
+      if (waveformInfo != null) {
+        buildPeaksInstance(
+          waveformInfo,
+          peaksOptions,
+          smData,
+          duration,
+          dispatch, getState);
+      } else {
+        let alert = configureAlert(-3);
+        dispatch(setAlert(alert));
+      }
+    } catch (error) {
+      console.log('TCL: peaks-instance -> initializePeaks() -> error', error);
+
+      // Update manifest error in the redux store
+      let status = error.response !== undefined ? error.response.status : -9;
+      dispatch(handleManifestError(1, status));
+
+      // Create an alert to be displayed in the UI
       let alert = configureAlert(status);
       dispatch(setAlert(alert));
     }
+  };
+}
 
-    // Mark the top element as 'root'
-    structuralMetadataUtils.markRootElement(smData);
+async function buildPeaksInstance(
+  waveformURL,
+  peaksOptions,
+  smData,
+  duration,
+  dispatch,
+  getState) {
+  try {
+    // Check whether the waveform.json exists in the server
+    await apiUtils.headRequest(waveformURL);
 
-    // Initialize Redux state variable with structure
-    dispatch(buildSMUI(smData, duration));
-    dispatch(saveInitialStructure(smData));
+    // Set waveform URI
+    peaksOptions.dataUri = {
+      json: waveformURL,
+    };
 
-    if (peaks) {
-      // Create segments from structural metadata
-      const segments = waveformUtils.initSegments(smData, duration);
+    // Update redux-store flag for waveform file retrieval
+    dispatch(retrieveWaveformSuccess());
+  } catch (error) {
+    // Enable the flash message alert
+    console.log('TCL: peaks-instance -> buildPeaksInstance() -> error', error);
+    let status = null;
 
-      // Add segments to peaks instance
-      segments.map((seg) => peaks.segments.add(seg));
-      dispatch(initPeaks(peaks, duration));
+    // Pull status code out of error response/request
+    if (error.response !== undefined) {
+      status = error.response.status;
+      if (status == 404) {
+        peaksOptions.dataUri = {
+          json: `${waveformURL}?empty=true`,
+        };
+        status = -7; // for persistent missing waveform data alert
+      }
+    } else if (error.request !== undefined) {
+      status = -3;
+    }
 
-      // Subscribe to Peaks events
-      const { peaksInstance } = getState();
-      if (!isEmpty(peaksInstance.events)) {
-        const { dragged } = peaksInstance.events;
-        // for segment editing using handles
-        if (dragged) {
-          dragged.subscribe((eProps) => {
-            // startTimeChanged = true -> handle at the start of the segment is being dragged
-            // startTimeChanged = flase -> handle at the end of the segment is being dragged
-            const [segment, startTimeChanged] = eProps;
-            dispatch(dragSegment(segment.id, startTimeChanged, 1));
-          });
-          // Mark peaks is ready
-          dispatch(peaksReady(true));
-        }
+    const alert = configureAlert(status);
+    dispatch(setAlert(alert));
+  }
+
+  // Initialize Peaks intance with the given options
+  Peaks.init(peaksOptions, (err, peaks) => {
+    if (err)
+      console.error(
+        'TCL: peaks-instance -> buildPeaksInstance() -> Peaks.init ->',
+        err
+      );
+
+    // Create segments from structural metadata
+    const segments = waveformUtils.initSegments(smData, duration);
+
+    // Add segments to peaks instance
+    segments.map((seg) => peaks.segments.add(seg));
+    dispatch(initPeaks(peaks, duration));
+
+    // Subscribe to Peaks events
+    const { peaksInstance } = getState();
+    if (!isEmpty(peaksInstance.events)) {
+      const { dragged } = peaksInstance.events;
+      // for segment editing using handles
+      if (dragged) {
+        dragged.subscribe((eProps) => {
+          // startTimeChanged = true -> handle at the start of the segment is being dragged
+          // startTimeChanged = flase -> handle at the end of the segment is being dragged
+          const [segment, startTimeChanged] = eProps;
+          dispatch(dragSegment(segment.id, startTimeChanged, 1));
+        });
+        // Mark peaks is ready
+        dispatch(peaksReady(true));
       }
     }
-  };
+  });
 }
 
 export function initPeaks(peaksInstance, duration) {

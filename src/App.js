@@ -8,29 +8,10 @@ import { DragDropContextProvider } from 'react-dnd';
 import HTML5Backend from 'react-dnd-html5-backend';
 import { connect } from 'react-redux';
 import { resetReduxStore } from './actions';
-import { handleStructureError, removeAlert } from './actions/forms';
+import { removeAlert } from './actions/forms';
 import ErrorBoundary from './components/ErrorBoundary';
 
-// Font Awesome Imports
-// import { library } from '@fortawesome/fontawesome-svg-core';
-// import {
-//   faDotCircle,
-//   faExclamationTriangle,
-//   faMinusCircle,
-//   faPen,
-//   faSave,
-//   faTrash,
-// } from '@fortawesome/free-solid-svg-icons';
 import AlertContainer from './containers/AlertContainer';
-
-// library.add(
-//   faDotCircle,
-//   faMinusCircle,
-//   faPen,
-//   faSave,
-//   faTrash,
-//   faExclamationTriangle
-// );
 
 class App extends Component {
   constructor(props) {
@@ -44,10 +25,6 @@ class App extends Component {
     // Reset the redux-store
     this.props.resetStore();
   }
-
-  structureIsSaved = (value) => {
-    this.props.structureIsSaved(value);
-  };
 
   render() {
     return (
@@ -66,23 +43,22 @@ class App extends Component {
 }
 
 App.propTypes = {
-  structureURL: PropTypes.string.isRequired,
-  waveformURL: PropTypes.string.isRequired,
-  audioURL: PropTypes.string.isRequired,
-  streamDuration: PropTypes.number.isRequired,
+  canvasIndex: PropTypes.number,
   initStructure: PropTypes.object.isRequired,
-  withCredentials: PropTypes.bool,
+  manifestURL: PropTypes.string.isRequired,
+  structureURL: PropTypes.string.isRequired,
   structureIsSaved: PropTypes.func,
+  withCredentials: PropTypes.bool
 };
 
 App.defaultProps = {
+  canvasIndex: 0,
+  structureIsSaved: (val) => { },
   withCredentials: false,
-  structureIsSaved: (val) => {},
 };
 
 const mapDispatchToProps = {
   resetStore: resetReduxStore,
-  handleStructureError: handleStructureError,
   removeAlert: removeAlert,
 };
 

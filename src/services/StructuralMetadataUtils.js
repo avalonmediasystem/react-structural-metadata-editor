@@ -63,12 +63,9 @@ export default class StructuralMetadataUtils {
    * Format the time of the timespans in the structured metadata fetched from the server,
    * so that they can be used in the validation logic and Peaks instance
    * @param {Array} allItems - array of all the items in structured metadata
-   * @param {Float} duration - end time of the media file in Milliseconds
+   * @param {Float} duration - end time of the media file in seconds
    */
   buildSMUI(allItems, duration) {
-    // Convert file duration to seconds
-    const durationInSeconds = Math.round(duration / 10) / 100;
-
     let smDataIsValid = true;
 
     // Convert time to HH:mm:ss.ms format to use in validation logic
@@ -102,16 +99,16 @@ export default class StructuralMetadataUtils {
           let endTime = convertToSeconds(end);
           item.begin = this.toHHmmss(beginTime);
           item.end = this.toHHmmss(endTime);
-          if (beginTime > endTime || beginTime > durationInSeconds) {
+          if (beginTime > endTime || beginTime > duration) {
             item.valid = false;
             smDataIsValid = false;
-          } else if (endTime > durationInSeconds) {
+          } else if (endTime > duration) {
             item.valid = false;
             smDataIsValid = false;
-            item.end = this.toHHmmss(durationInSeconds);
+            item.end = this.toHHmmss(duration);
           }
           if (endTime === 0) {
-            item.end = this.toHHmmss(durationInSeconds);
+            item.end = this.toHHmmss(duration);
           }
         }
         if (item.items) {

@@ -118,7 +118,7 @@ describe('StructuralMetadataUtils class', () => {
     describe('for valid items', () => {
       let structure = [];
       beforeEach(() => {
-        structure = smu.buildSMUI(testDataFromServer, 1738945);
+        structure = smu.buildSMUI(testDataFromServer, 1738.945);
       });
       test('when time is in hh:mm:ss (00:10:42) format', () => {
         const timespan = smu.findItem('123a-456b-789c-2d', structure[0]);
@@ -150,21 +150,21 @@ describe('StructuralMetadataUtils class', () => {
         expect(timespan.begin).toEqual('00:00:41.450');
         expect(timespan.valid).toBeTruthy();
       });
-      test('when end time exceeds (00:38:58.000) file duration (00:28:58.950)', () => {
+      test('when end time exceeds (00:38:58.000) file duration (00:28:58.945)', () => {
         const timespan = smu.findItem('123a-456b-789c-4d', structure[0]);
-        expect(timespan.end).toEqual('00:28:58.950');
+        expect(timespan.end).toEqual('00:28:58.945');
         expect(timespan.valid).toBeTruthy();
       });
       test('when end time is missing', () => {
         const timespan = smu.findItem('123a-456b-789c-5d', structure[0]);
-        expect(timespan.end).toEqual('00:28:58.950');
+        expect(timespan.end).toEqual('00:28:58.945');
         expect(timespan.valid).toBeTruthy();
       });
     });
 
     describe('for invalid items', () => {
       test('when begin > end', () => {
-        const structure = smu.buildSMUI(testInvalidData, 1738945);
+        const structure = smu.buildSMUI(testInvalidData, 1738.945);
         const timespan = smu.findItem('123a-456b-789c-5d', structure[0]);
         expect(timespan.valid).toBeFalsy();
       });

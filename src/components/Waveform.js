@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { Button, ButtonToolbar, Row, Col } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -7,7 +7,7 @@ import {
   faSearchMinus,
   faSearchPlus,
 } from '@fortawesome/free-solid-svg-icons';
-import { connect, useSelector, useDispatch } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { configureAlert } from '../services/alert-status';
 import {
   retrieveStreamMedia,
@@ -28,14 +28,19 @@ const Waveform = React.forwardRef((props, ref) => {
   const streamMediaStatus = useSelector(
     (state) => state.forms.streamInfo.streamMediaStatus
   );
+  const mediaInfo = useSelector((state) => state.manifest.mediaInfo);
   const readyPeaks = useSelector((state) => state.peaksInstance.readyPeaks);
   const peaksInstance = useSelector((state) => state.peaksInstance.peaks);
   const editingDisabled = useSelector((state) => state.forms.editingDisabled);
+  const { streamMediaError, streamMediaLoading } = useSelector(
+    (state) => state.forms.streamInfo
+  );
   const dispatch = useDispatch();
 
-  const [audioFile, setAudioFile] = React.useState(props.audioURL);
+  const [audioFile, setAudioFile] = React.useState(mediaInfo.src);
   const [volume, setVolume] = React.useState(100);
   const [peaksIsReady, setPeaksIsReady] = React.useState(readyPeaks);
+  const [stillLoading, setStillLoading] = React.useState();
 
   /* Ref to access changes in 'editingDisabled' state variable from 
   redux within the eventhandler for 'keydown' event */
@@ -57,6 +62,25 @@ const Waveform = React.forwardRef((props, ref) => {
       document.removeEventListener('keydown', handleKeyPress);
     };
   })
+
+  React.useEffect(() => {
+    let isLoading = (streamMediaLoading && !streamMediaError) || !readyPeaks;
+    setStillLoading(isLoading);
+  }, [streamMediaError, streamMediaLoading, readyPeaks])
+
+  React.useEffect(() => {
+    setAudioFile(mediaInfo.src);
+  }, [mediaInfo]);
+
+  React.useEffect(() => {
+    // Add an event listener to keydown event
+    document.addEventListener('keydown', handleKeyPress);
+
+    // Remove event listener when component is unmounting
+    return function cleanup() {
+      document.removeEventListener('keydown', handleKeyPress);
+    }
+  });
 
   React.useEffect(() => {
     setEditing(editingDisabled);
@@ -115,11 +139,6 @@ const Waveform = React.forwardRef((props, ref) => {
     setVolume(volume);
   };
 
-  const { streamMediaError, streamMediaLoading } = useSelector(
-    (state) => state.forms.streamInfo
-  );
-  const stillLoading =
-    (streamMediaLoading && !streamMediaError) || !peaksIsReady;
   return (
     <React.Fragment>
       <div

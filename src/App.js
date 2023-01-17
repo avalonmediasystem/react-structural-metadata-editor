@@ -44,7 +44,6 @@ class App extends Component {
 
 App.propTypes = {
   canvasIndex: PropTypes.number,
-  initStructure: PropTypes.object.isRequired,
   manifestURL: PropTypes.string.isRequired,
   structureURL: PropTypes.string.isRequired,
   structureIsSaved: PropTypes.func,

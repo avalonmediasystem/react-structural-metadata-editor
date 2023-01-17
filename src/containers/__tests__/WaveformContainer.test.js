@@ -23,27 +23,6 @@ const initialState = {
   },
 };
 
-const initStructure = {
-  type: 'root',
-  label: 'Ima Title',
-  id: '123a-456b-789c-0d',
-  items: [
-    {
-      type: 'div',
-      label: 'First segment',
-      id: '123a-456b-789c-1d',
-      items: [
-        {
-          type: 'div',
-          label: 'Sub-Segment 1.1',
-          id: '123a-456b-789c-2d',
-          items: [],
-        },
-      ],
-    },
-  ],
-};
-
 afterEach(cleanup);
 
 describe('WaveformContainer component', () => {
@@ -84,7 +63,6 @@ describe('WaveformContainer component', () => {
       <WaveformContainer
         manifestURL="https://example.com/manifest.json"
         structureURL="https://mockurl.edu/structure.json"
-        initStructure={initStructure}
       />,
       { initialState }
     );
@@ -117,7 +95,6 @@ describe('WaveformContainer component', () => {
 
     const { getByTestId } = renderWithRedux(
       <WaveformContainer
-        initStructure={initStructure}
         manifestURL="https://example.com/manifest.json"
         canvasIndex={0}
       />,

@@ -41,8 +41,7 @@ const WaveformContainer = (props) => {
     dispatch(initializePeaks(
       peaksOptions,
       manifestURL,
-      canvasIndex,
-      props.initStructure));
+      canvasIndex,));
   }, []);
 
   return (
@@ -61,7 +60,6 @@ const WaveformContainer = (props) => {
 
 WaveformContainer.propTypes = {
   manifestURL: PropTypes.string.isRequired,
-  initStructure: PropTypes.object.isRequired,
 };
 
 export default WaveformContainer;

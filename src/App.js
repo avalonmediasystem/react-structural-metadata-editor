@@ -10,8 +10,8 @@ import { connect } from 'react-redux';
 import { resetReduxStore } from './actions';
 import { removeAlert } from './actions/forms';
 import ErrorBoundary from './components/ErrorBoundary';
-
 import AlertContainer from './containers/AlertContainer';
+
 
 class App extends Component {
   constructor(props) {
@@ -48,13 +48,15 @@ App.propTypes = {
   manifestURL: PropTypes.string.isRequired,
   structureURL: PropTypes.string.isRequired,
   structureIsSaved: PropTypes.func,
-  withCredentials: PropTypes.bool
+  withCredentials: PropTypes.bool,
+  disableSave: PropTypes.bool,
 };
 
 App.defaultProps = {
   canvasIndex: 0,
   structureIsSaved: (val) => { },
   withCredentials: false,
+  disableSave: false,
 };
 
 const mapDispatchToProps = {

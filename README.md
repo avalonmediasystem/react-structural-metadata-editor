@@ -1,8 +1,10 @@
 # React Structural Metadata Editor
 
+[![Netlify Status](https://api.netlify.com/api/v1/badges/b9540760-f4e5-4a70-8377-ab3af307e2d8/deploy-status)](https://app.netlify.com/sites/react-structural-metadata-editor/deploys)
+
 A React component which displays structural metadata about an ingested audio/video file, and displays a visualized waveform to help navigating sections of the audio waveform. A user can add, edit and delete headers and timespans within the structural metadata, and save the record into a consuming application.
 
-See how this React component works on the [demo page](https://structural-metadata-editor.herokuapp.com/) hosted using [Heroku](https://www.heroku.com/). Please note that, sometimes this page takes time to load.
+See how this React component works on the [demo page](https://react-structural-metadata-editor.netlify.app/) hosted using [Netlify](https://www.netlify.com/).
 
 **Note**: We are not currently publishing this package to NPM, but rather consuming it directly via a Github repository URL address. See [Usage](#usage) notes below for more info and example code.
 
@@ -39,7 +41,7 @@ yarn install
 yarn dev
 ```
 
-Open up a browser and navigate to: http://localhost:3001/. Hot reloading via `webpack-hot-middleware` is enabled for the Node.js server implemented with Express.js, so you'll see live updates in the browser during development.
+Open up a browser and navigate to: http://localhost:3001/. Hot reloading via `webpack` is enabled, so you'll see live updates in the browser during development.
 
 ## Development
 
@@ -63,7 +65,7 @@ Cleans the output directory `dist`, ensuring a fresh copy of files when preparin
 yarn dev
 ```
 
-Starts the Node.js server with the built ReactJS components via webpack, in which you can view your work. Open up the browser and navigate to http://localhost:3001/, where the component is rendered with the content served by the Node.js server.
+Starts the webpack development server at http://localhost:3001 in which you can view your work.
 
 ```
 yarn test:watch
@@ -113,39 +115,9 @@ This will create a component package in the `/dist` folder which is ready to be 
 
 This commands needs to be run and its output pushed to the remote branch, before making a pull request to merge the changes in your working branch to `main`.
 
-#### Deploy to Heroku for Testing
+#### Deploy to Netlify
 
-To enable testing and experimenting with the component, the source code is deployed in a demo site hosted with Heroku. It uses Heroku Git to deploy from the GitHub repo.
-
-After code changes have been made and they are merged into `main` branch, run the following commands from the terminal to deploy the latest code to the demo site;
-
-1. Get the latest from remote to your local repo;
-
-```
-git pull origin
-```
-
-2. Checkout the `main` branch, where the latest reviewed code is available and it needs to be always deployed from this branch;
-
-```
-git checkout main
-```
-
-3. Create a `heroku` remote in your local repo for the app you wish to deploy to, here the app name is `structural-metadata-editor`. For this step you need a Heroku account and [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli#install-the-heroku-cli) installed on your machine.
-
-```
-heroku git:remote -a structural-metadata-editor
-```
-
-This will prompt to login to your Heroku account, once logged in it will link the `heroku` remote to your app. And then running `git remote -v` should show a `heroku` remote as _heroku https://git.heroku.com/structural-metadata-editor.git_.
-
-4. Push the `main` branch from your local repo to Heroku app's git repo's `main` branch;
-
-```
-git push heroku main:main
-```
-
-This will take some time while it builds and compiles the source code. And then it deploys the changes to https://structural-metadata-editor.herokuapp.com/.
+When new code changes are merged to the `main` branch, it automatically triggers a new deploy in Netlify. And the changes will be visible shortly on the demo website.
 
 ## Usage
 
@@ -186,6 +158,7 @@ A consuming application is expected to provide the following configuration `prop
 | `canvasIndex`   | number   | Index of the canvas relevant to the media resource in the Manifest. This has a default value of 0 in the component.                                                                                                                                                                                                                                                                                                                                                                                                       | Optional |
 | `withCredentials`  | boolean  | Value to pass through to [xhr.withCredentials](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/withCredentials) on the HLS stream request                                                                                                                                                                                                                                                                                           | Optional |
 | `structureIsSaved` | function | Function to keep track of the status of the structure changes in the editor                                                                                                                                                                                                                                                                                                                                                                         | Optional |
+| `disableSave` | boolean | Boolean flag to remove `Save Structure` functionality in the UI. Value of this flag defaults to `false`. When saving is disabled in the editor, 'Save Structure' button will not be displayed.                                                                                                                                                                                                                                                                                                                                                                         | Optional |
 
 #### Example usage
 

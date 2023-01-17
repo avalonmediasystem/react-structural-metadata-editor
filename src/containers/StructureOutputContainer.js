@@ -71,21 +71,23 @@ const StructureOutputContainer = (props) => {
       {manifestFetched && smData != null && (
         <div data-testid="structure-output-list">
           <List items={smData} />
-          <Row>
-            <Col xs={12} className="text-right">
-              <Button
-                variant="primary"
-                onClick={handleSaveItClick}
-                data-testid="structure-save-button"
-                disabled={editingDisabled}
-              >
-                Save Structure
-              </Button>
-            </Col>
-          </Row>
-        </div>
-      )
+          { !props.disableSave && (
+            <Row>
+              <Col xs={12} className="text-right">
+                <Button
+                  variant="primary"
+                  onClick={handleSaveItClick}
+                  data-testid="structure-save-button"
+                  disabled={props.editingDisabled}
+                >
+                  Save Structure
+                </Button>
+              </Col>
+            </Row>)
+          }
+        </div>)
       }
+      
     </section>
   );
 };

@@ -123,5 +123,16 @@ describe('iiif-parser', () => {
       expect(type).toEqual('div');
       expect(items.length).toBe(1); 
     });
+
+    test('returns corrrect structure in a multi-canvas manifest', () => {
+      const structureJSON = iiifParser.parseStructureToJSON(manifestWithStructure, {}, 660, 1);
+      expect(structureJSON.length).toEqual(1);
+
+      const { type, label, items } = structureJSON[0];
+      expect(label).toEqual('Lunchroom Manners');
+      expect(type).toEqual('div');
+      expect(items.length).toBe(1);
+      expect(items[0].label).toBe('Introduction');
+    })
   });
 }); 

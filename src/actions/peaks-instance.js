@@ -58,7 +58,7 @@ export function initializePeaks(
 
         dispatch(setManifest(response.data));
         dispatch(setMediaInfo(mediaInfo.src, mediaInfo.duration));
-        smData = parseStructureToJSON(response.data, initStructure, mediaInfo.duration);
+        smData = parseStructureToJSON(response.data, initStructure, mediaInfo.duration, canvasIndex);
         duration = mediaInfo.duration;
       }
 

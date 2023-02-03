@@ -5,7 +5,7 @@ var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefau
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.manifestWoStructure = exports.manifestWithStructure = exports.manifest = void 0;
+exports.manifestWoStructure = exports.manifestWithStructure = exports.manifestWithInvalidStruct = exports.manifest = void 0;
 exports.renderWithRedux = renderWithRedux;
 exports.testSmData = exports.testInvalidData = exports.testEmptyHeaderBefore = exports.testEmptyHeaderAfter = exports.testDataFromServer = void 0;
 
@@ -327,6 +327,65 @@ var manifest = {
   }]
 };
 exports.manifest = manifest;
+var manifestWithInvalidStruct = {
+  '@context': ['http://www.w3.org/ns/anno.jsonld', 'http://iiif.io/api/presentation/3/context.json'],
+  type: 'Manifest',
+  id: 'https://example.com/lunchroom-manners/manifest',
+  label: {
+    en: ['Beginning Responsibility: Lunchroom Manners']
+  },
+  items: [{
+    type: 'Canvas',
+    id: 'https://example.com/lunchroom-manners/manifest/canvas/1',
+    width: 480,
+    height: 360,
+    duration: 660,
+    items: [{
+      id: 'https://example.com/manifest/canvas/1/page',
+      type: 'AnnotationPage',
+      items: [{
+        id: 'https://example.com/manifest/canvas/1/page/annotation',
+        type: 'Annotation',
+        motivation: 'painting',
+        body: [],
+        target: 'https://example.com/manifest/canvas/1'
+      }]
+    }],
+    rendering: [{
+      id: 'https://example.com/lunchroom_manners/waveform.json',
+      type: 'Dataset',
+      label: {
+        en: ['waveform.json']
+      },
+      format: 'application/json'
+    }]
+  }],
+  structures: [{
+    type: 'Range',
+    id: 'http://example.com/lunchroom-manners/manifest/range/0',
+    behavior: 'top',
+    label: null,
+    items: [{
+      type: 'Range',
+      id: 'http://example.com/lunchroom-manners/manifest/range/1',
+      label: {
+        en: ['Lunchroom Manners']
+      },
+      items: [{
+        type: 'Range',
+        id: 'http://example.com/lunchroom-manners/manifest/range/2',
+        label: {
+          en: ['Manners']
+        },
+        items: [{
+          type: 'Canvas',
+          id: 'http://example.com/lunchroom-manners/manifest/canvas/1#t=234,157'
+        }]
+      }]
+    }]
+  }]
+};
+exports.manifestWithInvalidStruct = manifestWithInvalidStruct;
 var manifestWoStructure = {
   '@context': ['http://www.w3.org/ns/anno.jsonld', 'http://iiif.io/api/presentation/3/context.json'],
   type: 'Manifest',

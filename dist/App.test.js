@@ -8,7 +8,8 @@ import {
   manifest,
   renderWithRedux,
   testSmData,
-  manifestWoStructure
+  manifestWoStructure,
+  manifestWithInvalidStruct,
 } from './services/testing-helpers';
 import mockAxios from 'axios';
 
@@ -41,29 +42,7 @@ const baseState = {
   }
 };
 
-const initStructure = {
-  type: 'root',
-  label: 'Ima Title',
-  id: '123a-456b-789c-0d',
-  items: [
-    {
-      type: 'div',
-      label: 'First segment',
-      id: '123a-456b-789c-1d',
-      items: [
-        {
-          type: 'div',
-          label: 'Sub-Segment 1.1',
-          id: '123a-456b-789c-2d',
-          items: [],
-        },
-      ],
-    },
-  ],
-};
-
 const props = {
-  initStructure: initStructure,
   structureIsSaved: mockStructureIsSaved,
   canvasIndex: 0,
   manifestURL: 'https://example.com/manifest.json',
@@ -313,7 +292,7 @@ describe('App component', () => {
       mockAxios.get.mockImplementationOnce(() => {
         return Promise.resolve({
           status: 200,
-          data: manifestWoStructure
+          data: manifestWithInvalidStruct
         });
       });
       mockAxios.head.mockImplementationOnce(() => {
@@ -328,38 +307,14 @@ describe('App component', () => {
         ...initialState,
         manifest: {
           ...initialState.manifest,
-          manifest: manifestWoStructure
+          manifest: manifestWithInvalidStruct
         }
       };
-      const updatedProps = {
-        ...props,
-        initStructure: {
-          type: 'root',
-          label: 'Ima Title',
-          id: '123a-456b-789c-0d',
-          items: [
-            {
-              type: 'div',
-              label: 'First segment',
-              id: '123a-456b-789c-1d',
-              items: [
-                {
-                  type: 'span',
-                  label: 'Sub-Segment 1.1',
-                  id: '123a-456b-789c-2d',
-                  begin: '00:04:00.000',
-                  end: '00:03:00.30'
-                },
-              ],
-            },
-          ],
-        }
-      };
-      const app = renderWithRedux(<App {...updatedProps} />, { nextState });
+      const app = renderWithRedux(<App {...props} />, { nextState });
 
       await wait(() => {
         expect(app.queryAllByTestId('list-item').length).toBeGreaterThan(0);
-        expect(app.getAllByTestId('heading-label')[0].innerHTML).toEqual('Ima Title');
+        expect(app.getAllByTestId('heading-label')[0].innerHTML).toEqual('Lunchroom Manners');
         expect(app.getByTestId('alert-container')).toBeInTheDocument();
         expect(app.getByTestId('alert-message').innerHTML)
           .toEqual('Please check start/end times of the marked invalid timespan(s).');
@@ -400,7 +355,7 @@ describe('App component', () => {
       });
     }, 10000);
 
-    test('from initStructure when manifest\'s structures is empty', async () => {
+    test('from dummy computed structure when manifest\'s structures is empty', async () => {
       mockAxios.get.mockImplementationOnce(() => {
         return Promise.resolve({
           status: 200,
@@ -429,51 +384,12 @@ describe('App component', () => {
         expect(app.queryByTestId('structure-output-list')).toBeInTheDocument();
         expect(app.queryByTestId('structure-save-button')).toBeInTheDocument();
         expect(app.queryAllByTestId('list-item').length).toBeGreaterThan(0);
-        expect(app.getAllByTestId('heading-label')[0].innerHTML).toEqual('Ima Title');
-      });
-    });
-
-    test('from dummy computed structure when \
-      both manifest\'s structures & initiStructure is empty', async () => {
-      mockAxios.get.mockImplementationOnce(() => {
-        return Promise.resolve({
-          status: 200,
-          data: manifestWoStructure
-        });
-      });
-
-      const initialState = {
-        structuralMetadata: {
-          smData: testSmData,
-          smDataIsValid: true,
-        },
-        manifest: {
-          manfiest: manifestWoStructure,
-          mediaInfo: {
-            src: 'http://example.com/lunchroom-manners/high/lunchroom_manners_1024kb.mp4',
-            duration: 660
-          },
-          manifestFetched: true,
-          structure: null
-        }
-      };
-      const updatedProps = {
-        ...props,
-        initStructure: {}
-      };
-      const app = renderWithRedux(<App {...updatedProps} />, { initialState });
-
-      await wait(() => {
-        expect(app.queryByTestId('structure-output-list')).toBeInTheDocument();
-        expect(app.queryByTestId('structure-save-button')).toBeInTheDocument();
-        expect(app.queryAllByTestId('list-item').length).toBeGreaterThan(0);
         expect(app.getAllByTestId('heading-label')[0].innerHTML)
           .toEqual('Beginning Responsibility: Lunchroom Manners');
       });
     });
 
-    test('as empty with alert when both manifest in invalid \
-    & initiStructure is empty', async () => {
+    test('as empty with alert when manifest is invalid', async () => {
       mockAxios.get.mockImplementationOnce(() => {
         return Promise.resolve({
           status: 200,
@@ -491,11 +407,7 @@ describe('App component', () => {
           manifestFetched: false,
         }
       };
-      const updatedProps = {
-        ...props,
-        initStructure: {}
-      };
-      const app = renderWithRedux(<App {...updatedProps} />, { initialState });
+      const app = renderWithRedux(<App {...props} />, { initialState });
 
       await wait(() => {
         expect(app.queryAllByTestId('alert-container').length).toBeGreaterThan(0);
@@ -504,5 +416,4 @@ describe('App component', () => {
       });
     }, 10000);
   });
-
 });

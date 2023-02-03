@@ -65,31 +65,9 @@ describe('iiif-parser', () => {
   });
 
   describe('parseStructureToJSON()', () => {
-    test('returns [] when both manifest and initStructure are invalid', () => {
+    test('returns [] when manifest is invalid', () => {
       const structureJSON = iiifParser.parseStructureToJSON(undefined, {}, 0);
       expect(structureJSON).toEqual([]);
-    });
-
-    test('returns initStructure when manifest is invalid', () => {
-      const initStructure = {
-        label: 'Lunchroom manners',
-        type: 'div',
-        items: [
-          {
-            label: 'Darwin',
-            begin: '00:00:00.00',
-            end: '00:00:12.199',
-            type: 'span',
-          },
-        ],
-      };
-      const structureJSON = iiifParser.parseStructureToJSON(undefined, initStructure, 660);
-      expect(structureJSON.length).toEqual(1);
-
-      const { type, label, items } = structureJSON[0];
-      expect(type).toEqual('div');
-      expect(label).toEqual('Lunchroom manners');
-      expect(items.length).toEqual(1);
     });
 
     test('returns manifest\'s structure when manifest is valid', () => {

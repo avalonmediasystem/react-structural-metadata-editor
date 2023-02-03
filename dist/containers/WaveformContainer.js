@@ -66,7 +66,7 @@ var WaveformContainer = function WaveformContainer(props) {
       mediaElement: mediaPlayer.current,
       withCredentials: props.withCredentials
     });
-    dispatch((0, _peaksInstance.initializePeaks)(peaksOptions, manifestURL, canvasIndex, props.initStructure));
+    dispatch((0, _peaksInstance.initializePeaks)(peaksOptions, manifestURL, canvasIndex));
   }, []);
 
   return /*#__PURE__*/_react["default"].createElement("section", {
@@ -83,8 +83,7 @@ var WaveformContainer = function WaveformContainer(props) {
 };
 
 WaveformContainer.propTypes = {
-  manifestURL: _propTypes["default"].string.isRequired,
-  initStructure: _propTypes["default"].object.isRequired
+  manifestURL: _propTypes["default"].string.isRequired
 };
 var _default = WaveformContainer;
 exports["default"] = _default;

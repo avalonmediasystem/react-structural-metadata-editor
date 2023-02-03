@@ -88,11 +88,10 @@ export function getWaveformInfo(manifest, canvasIndex) {
  * and edit structure
  * @param {Object} manifest current manifest
  * @param {Number} duration duration of the canvas in manifest
- * @param {Object} initStructure initial structure by default from props
  * @returns {Array.<Object>} structureJSON - array of nested JSON 
  * objects with structure items parsed from the given manifest
  */
-export function parseStructureToJSON(manifest, initStructure, duration) {
+export function parseStructureToJSON(manifest, duration) {
   let structureJSON = [];
 
   let buildStructureItems = (items, children) => {
@@ -152,15 +151,6 @@ export function parseStructureToJSON(manifest, initStructure, duration) {
       label: getLabelValue(root.label),
       items: children,
     });
-  }
-  else if (typeof initStructure === 'string' && initStructure !== '') {
-    structureJSON = smUtils.addUUIds([JSON.parse(initStructure)]);
-  }
-  // Use default initial structure when manifest doesn't
-  // have structures 
-  else if (initStructure != undefined &&
-    Object.keys(initStructure).length != 0) {
-    structureJSON = smUtils.addUUIds([initStructure]);
   }
   // Create an empty structure with manifest information
   else if (manifestName != undefined) {

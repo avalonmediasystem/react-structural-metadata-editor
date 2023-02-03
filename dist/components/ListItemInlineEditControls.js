@@ -28,7 +28,7 @@ var ListItemInlineEditControls = function ListItemInlineEditControls(props) {
     className: "edit-controls-wrapper",
     "data-testid": "inline-form-controls"
   }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.OverlayTrigger, {
-    placement: "top",
+    placement: "bottom",
     overlay: tooltip('Save')
   }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Button, {
     variant: "link",
@@ -38,7 +38,7 @@ var ListItemInlineEditControls = function ListItemInlineEditControls(props) {
   }, /*#__PURE__*/_react["default"].createElement(_reactFontawesome.FontAwesomeIcon, {
     icon: _freeSolidSvgIcons.faSave
   }))), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.OverlayTrigger, {
-    placement: "top",
+    placement: "bottom",
     overlay: tooltip('Cancel')
   }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Button, {
     variant: "link",

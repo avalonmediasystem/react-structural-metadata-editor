@@ -106,12 +106,14 @@ function getWaveformInfo(manifest, canvasIndex) {
  * and edit structure
  * @param {Object} manifest current manifest
  * @param {Number} duration duration of the canvas in manifest
+ * @param {Number} canvasIndex current canvas index with default value of zero
  * @returns {Array.<Object>} structureJSON - array of nested JSON 
  * objects with structure items parsed from the given manifest
  */
 
 
 function parseStructureToJSON(manifest, duration) {
+  var canvasIndex = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
   var structureJSON = [];
 
   var buildStructureItems = function buildStructureItems(items, children) {
@@ -167,7 +169,7 @@ function parseStructureToJSON(manifest, duration) {
 
 
   if (structures.length > 0) {
-    var root = structures[0];
+    var root = structures[canvasIndex];
     var children = []; // Build the nested JSON object from structure
 
     buildStructureItems(root.items, children); // Add the root element to the JSON object

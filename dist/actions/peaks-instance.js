@@ -60,11 +60,10 @@ var structuralMetadataUtils = new _StructuralMetadataUtils["default"]();
  * Fetch structure.json and initialize Peaks
  * @param {Object} peaks - initialized peaks instance
  * @param {String} structureURL - URL of the structure.json
- * @param {JSON} initStructure - structure with root element when empty
  * @param {Object} options - peaks options
  */
 
-function initializePeaks(peaksOptions, manifestURL, canvasIndex, initStructure) {
+function initializePeaks(peaksOptions, manifestURL, canvasIndex) {
   return /*#__PURE__*/function () {
     var _ref = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee(dispatch, getState) {
       var smData, duration, mediaInfo, waveformInfo, response, alert, _alert, status, _alert2;
@@ -88,7 +87,7 @@ function initializePeaks(peaksOptions, manifestURL, canvasIndex, initStructure) 
                 waveformInfo = (0, _iiifParser.getWaveformInfo)(response.data, canvasIndex);
                 dispatch((0, _manifest.setManifest)(response.data));
                 dispatch((0, _manifest.setMediaInfo)(mediaInfo.src, mediaInfo.duration));
-                smData = (0, _iiifParser.parseStructureToJSON)(response.data, initStructure, mediaInfo.duration);
+                smData = (0, _iiifParser.parseStructureToJSON)(response.data, mediaInfo.duration);
                 duration = mediaInfo.duration;
               }
 

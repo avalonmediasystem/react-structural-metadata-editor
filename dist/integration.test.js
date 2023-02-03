@@ -44,7 +44,6 @@ const initialState = {
 };
 const mockStructureIsSaved = jest.fn();
 const props = {
-  initStructure: {},
   structureIsSaved: mockStructureIsSaved,
   canvasIndex: 0,
   manifestURL: 'https://example.com/manifest.json',

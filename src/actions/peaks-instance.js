@@ -34,14 +34,12 @@ const structuralMetadataUtils = new StructuralMetadataUtils();
  * Fetch structure.json and initialize Peaks
  * @param {Object} peaks - initialized peaks instance
  * @param {String} structureURL - URL of the structure.json
- * @param {JSON} initStructure - structure with root element when empty
  * @param {Object} options - peaks options
  */
 export function initializePeaks(
   peaksOptions,
   manifestURL,
   canvasIndex,
-  initStructure,
 ) {
   return async (dispatch, getState) => {
     let smData = [];
@@ -58,7 +56,7 @@ export function initializePeaks(
 
         dispatch(setManifest(response.data));
         dispatch(setMediaInfo(mediaInfo.src, mediaInfo.duration));
-        smData = parseStructureToJSON(response.data, initStructure, mediaInfo.duration, canvasIndex);
+        smData = parseStructureToJSON(response.data, mediaInfo.duration, canvasIndex);
         duration = mediaInfo.duration;
       }
 

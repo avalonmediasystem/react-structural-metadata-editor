@@ -87,7 +87,7 @@ function initializePeaks(peaksOptions, manifestURL, canvasIndex) {
                 waveformInfo = (0, _iiifParser.getWaveformInfo)(response.data, canvasIndex);
                 dispatch((0, _manifest.setManifest)(response.data));
                 dispatch((0, _manifest.setMediaInfo)(mediaInfo.src, mediaInfo.duration));
-                smData = (0, _iiifParser.parseStructureToJSON)(response.data, mediaInfo.duration);
+                smData = (0, _iiifParser.parseStructureToJSON)(response.data, mediaInfo.duration, canvasIndex);
                 duration = mediaInfo.duration;
               }
 

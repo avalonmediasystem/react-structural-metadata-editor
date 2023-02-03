@@ -66,12 +66,12 @@ describe('iiif-parser', () => {
 
   describe('parseStructureToJSON()', () => {
     test('returns [] when manifest is invalid', () => {
-      const structureJSON = iiifParser.parseStructureToJSON(undefined, {}, 0);
+      const structureJSON = iiifParser.parseStructureToJSON(undefined, 0);
       expect(structureJSON).toEqual([]);
     });
 
     test('returns manifest\'s structure when manifest is valid', () => {
-      const structureJSON = iiifParser.parseStructureToJSON(manifest, {}, 662.037);
+      const structureJSON = iiifParser.parseStructureToJSON(manifest, 662.037);
       expect(structureJSON.length).toEqual(1);
 
       const { type, label, items } = structureJSON[0];
@@ -83,7 +83,7 @@ describe('iiif-parser', () => {
     });
 
     test('builds root element from manifest\'s title when manifest doesn\'t have structures', () => {
-      const structureJSON = iiifParser.parseStructureToJSON(manifestWoStructure, {}, 660);
+      const structureJSON = iiifParser.parseStructureToJSON(manifestWoStructure, 660);
       expect(structureJSON.length).toEqual(1);
 
       const { type, label, items } = structureJSON[0];
@@ -93,7 +93,7 @@ describe('iiif-parser', () => {
     });
 
     test('omits root element with behavior: \'top\'', () => {
-      const structureJSON = iiifParser.parseStructureToJSON(manifestWithStructure, {}, 660);
+      const structureJSON = iiifParser.parseStructureToJSON(manifestWithStructure, 660);
       expect(structureJSON.length).toEqual(1);
 
       const { type, label, items } = structureJSON[0];
@@ -101,5 +101,16 @@ describe('iiif-parser', () => {
       expect(type).toEqual('div');
       expect(items.length).toBe(1); 
     });
+
+    test('returns corrrect structure in a multi-canvas manifest', () => {
+      const structureJSON = iiifParser.parseStructureToJSON(manifestWithStructure, 660, 1);
+      expect(structureJSON.length).toEqual(1);
+
+      const { type, label, items } = structureJSON[0];
+      expect(label).toEqual('Lunchroom Manners');
+      expect(type).toEqual('div');
+      expect(items.length).toBe(1);
+      expect(items[0].label).toBe('Introduction');
+    })
   });
 }); 

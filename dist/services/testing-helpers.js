@@ -534,6 +534,23 @@ var manifestWithStructure = {
           id: 'http://example.com/sample-manifest/manifest/canvas/1#t=0,157'
         }]
       }]
+    }, {
+      type: 'Range',
+      id: 'http://example.com/sample-manifest/manifest/range/3',
+      label: {
+        en: ['Lunchroom Manners']
+      },
+      items: [{
+        type: 'Range',
+        id: 'http://example.com/sample-manifest/manifest/range/4',
+        label: {
+          en: ['Introduction']
+        },
+        items: [{
+          type: 'Canvas',
+          id: 'http://example.com/sample-manifest/manifest/canvas/2#t=0,23'
+        }]
+      }]
     }]
   }]
 };

@@ -119,33 +119,37 @@ function parseStructureToJSON(manifest, duration) {
   var buildStructureItems = function buildStructureItems(items, children) {
     if (items.length > 0) {
       items.map(function (i) {
-        var childCanvases = getRangeCanvas(i.id, manifest);
-        var structItem = {};
+        var ranges = getRangeCanvas(i.id, manifest);
 
-        if (childCanvases.length > 0) {
-          var _getMediaFragment = getMediaFragment(childCanvases[0], duration),
-              start = _getMediaFragment.start,
-              end = _getMediaFragment.end;
+        if (ranges) {
+          var childCanvases = ranges.getCanvasIds();
+          var structItem = {};
 
-          structItem = {
-            label: getLabelValue(i.label),
-            type: "span",
-            begin: smUtils.toHHmmss(start),
-            end: smUtils.toHHmmss(end)
-          };
-          children.push(structItem);
-        } else {
-          structItem = {
-            label: getLabelValue(i.label),
-            type: "div",
-            items: []
-          };
+          if (childCanvases.length > 0) {
+            var _getMediaFragment = getMediaFragment(childCanvases[0], duration),
+                start = _getMediaFragment.start,
+                end = _getMediaFragment.end;
 
-          if (i.items) {
-            buildStructureItems(i.items, structItem.items);
+            structItem = {
+              label: getLabelValue(i.label),
+              type: "span",
+              begin: smUtils.toHHmmss(start),
+              end: smUtils.toHHmmss(end)
+            };
+            children.push(structItem);
+          } else {
+            structItem = {
+              label: getLabelValue(i.label),
+              type: "div",
+              items: []
+            };
+
+            if (i.items) {
+              buildStructureItems(i.items, structItem.items);
+            }
+
+            children.push(structItem);
           }
-
-          children.push(structItem);
         }
       });
     }
@@ -192,7 +196,7 @@ function parseStructureToJSON(manifest, duration) {
   return structureWithIDs;
 }
 /**
- * Retrieve the canvas URI with mediafragment of a given
+ * Retrieve the canvases with mediafragment of a given
  * range
  * @param {String} rangeId id of the range in ToC
  * @param {Object} manifest manifest with structure
@@ -205,7 +209,8 @@ function getRangeCanvas(rangeId, manifest) {
   var rangeCanvases = [];
 
   try {
-    rangeCanvases = (0, _manifesto.parseManifest)(manifest).getRangeById(rangeId).getCanvasIds();
+    rangeCanvases = (0, _manifesto.parseManifest)(manifest).getRangeById(rangeId);
+    console.log(rangeCanvases);
   } catch (e) {
     console.error('error fetching range canvases');
   }

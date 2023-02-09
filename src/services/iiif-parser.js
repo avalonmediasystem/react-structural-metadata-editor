@@ -98,27 +98,30 @@ export function parseStructureToJSON(manifest, duration, canvasIndex=0) {
   let buildStructureItems = (items, children) => {
     if (items.length > 0) {
       items.map((i) => {
-        const childCanvases = getRangeCanvas(i.id, manifest);
-        let structItem = {};
-        if (childCanvases.length > 0) {
-          const { start, end } = getMediaFragment(childCanvases[0], duration);
-          structItem = {
-            label: getLabelValue(i.label),
-            type: "span",
-            begin: smUtils.toHHmmss(start),
-            end: smUtils.toHHmmss(end),
-          };
-          children.push(structItem);
-        } else {
-          structItem = {
-            label: getLabelValue(i.label),
-            type: "div",
-            items: [],
-          };
-          if (i.items) {
-            buildStructureItems(i.items, structItem.items);
+        const ranges = getRangeCanvas(i.id, manifest);
+        if(ranges) {
+          const childCanvases = ranges.getCanvasIds();
+          let structItem = {};
+          if (childCanvases.length > 0) {
+            const { start, end } = getMediaFragment(childCanvases[0], duration);
+            structItem = {
+              label: getLabelValue(i.label),
+              type: "span",
+              begin: smUtils.toHHmmss(start),
+              end: smUtils.toHHmmss(end),
+            };
+            children.push(structItem);
+          } else {
+            structItem = {
+              label: getLabelValue(i.label),
+              type: "div",
+              items: [],
+            };
+            if (i.items) {
+              buildStructureItems(i.items, structItem.items);
+            }
+            children.push(structItem);
           }
-          children.push(structItem);
         }
       });
     }
@@ -166,7 +169,7 @@ export function parseStructureToJSON(manifest, duration, canvasIndex=0) {
 }
 
 /**
- * Retrieve the canvas URI with mediafragment of a given
+ * Retrieve the canvases with mediafragment of a given
  * range
  * @param {String} rangeId id of the range in ToC
  * @param {Object} manifest manifest with structure
@@ -177,8 +180,8 @@ export function getRangeCanvas(rangeId, manifest) {
   let rangeCanvases = [];
   try {
     rangeCanvases = parseManifest(manifest)
-      .getRangeById(rangeId)
-      .getCanvasIds();
+      .getRangeById(rangeId);
+    console.log(rangeCanvases)
   } catch (e) {
     console.error('error fetching range canvases');
   }

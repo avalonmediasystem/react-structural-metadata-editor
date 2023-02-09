@@ -98,9 +98,10 @@ export function parseStructureToJSON(manifest, duration, canvasIndex=0) {
   let buildStructureItems = (items, children) => {
     if (items.length > 0) {
       items.map((i) => {
-        const ranges = getRangeCanvas(i.id, manifest);
-        if(ranges) {
-          const childCanvases = ranges.getCanvasIds();
+        const range = parseManifest(manifest)
+                .getRangeById(i.id);
+        if(range) {
+          const childCanvases = range.getCanvasIds();
           let structItem = {};
           if (childCanvases.length > 0) {
             const { start, end } = getMediaFragment(childCanvases[0], duration);
@@ -166,26 +167,6 @@ export function parseStructureToJSON(manifest, duration, canvasIndex=0) {
   }
   const structureWithIDs = smUtils.addUUIds(structureJSON);
   return structureWithIDs;
-}
-
-/**
- * Retrieve the canvases with mediafragment of a given
- * range
- * @param {String} rangeId id of the range in ToC
- * @param {Object} manifest manifest with structure
- * @returns {Array} of canvas URI with mediafragment inside
- * the given range
- */
-export function getRangeCanvas(rangeId, manifest) {
-  let rangeCanvases = [];
-  try {
-    rangeCanvases = parseManifest(manifest)
-      .getRangeById(rangeId);
-    console.log(rangeCanvases)
-  } catch (e) {
-    console.error('error fetching range canvases');
-  }
-  return rangeCanvases;
 }
 
 /**

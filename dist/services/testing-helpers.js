@@ -5,7 +5,7 @@ var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefau
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.manifestWoStructure = exports.manifestWithStructure = exports.manifestWithInvalidStruct = exports.manifest = void 0;
+exports.manifestWoStructure = exports.manifestWoChoice = exports.manifestWithStructure = exports.manifestWithInvalidStruct = exports.manifest = void 0;
 exports.renderWithRedux = renderWithRedux;
 exports.testSmData = exports.testInvalidData = exports.testEmptyHeaderBefore = exports.testEmptyHeaderAfter = exports.testDataFromServer = void 0;
 
@@ -422,7 +422,7 @@ var manifestWoStructure = {
 };
 exports.manifestWoStructure = manifestWoStructure;
 var manifestWithStructure = {
-  ' @context': ['http://iiif.io/api/presentation/3/context.json'],
+  '@context': ['http://iiif.io/api/presentation/3/context.json'],
   type: 'Manifest',
   id: 'http://example.com/sample-manifest/manifest',
   label: {
@@ -520,9 +520,7 @@ var manifestWithStructure = {
     items: [{
       type: 'Range',
       id: 'http://example.com/sample-manifest/manifest/range/1',
-      label: {
-        en: ['Volleyball for Boys']
-      },
+      label: 'Volleyball for Boys',
       items: [{
         type: 'Range',
         id: 'http://example.com/sample-manifest/manifest/range/2',
@@ -555,3 +553,37 @@ var manifestWithStructure = {
   }]
 };
 exports.manifestWithStructure = manifestWithStructure;
+var manifestWoChoice = {
+  '@context': ['http://iiif.io/api/presentation/3/context.json'],
+  id: "http://example.com/sample-manifest/manifest.json",
+  type: 'Manifest',
+  label: {
+    en: ['Volley Ball for Boys']
+  },
+  items: [{
+    id: 'http://example.com/sample-manifest/manifest/canvas/1',
+    type: 'Canvas',
+    height: 1080,
+    width: 1920,
+    duration: 662.037,
+    items: [{
+      id: 'http://example.com/sample-manifest/canvas/1/page',
+      type: 'AnnotationPage',
+      items: [{
+        id: 'http://example.com/sample-manifest/canvas/1/page/annotation',
+        type: 'Annotation',
+        motivation: 'painting',
+        body: {
+          id: 'http://example.com/volleyball-for-boys/volleyball-for-boys.mp4',
+          type: 'Video',
+          format: 'video/mp4',
+          height: 1080,
+          width: 1920,
+          duration: 662.037
+        },
+        target: 'http://example.com/sample-manifest/canvas/1'
+      }]
+    }]
+  }]
+};
+exports.manifestWoChoice = manifestWoChoice;

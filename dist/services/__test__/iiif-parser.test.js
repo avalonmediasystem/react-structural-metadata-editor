@@ -1,5 +1,10 @@
 import * as iiifParser from '../iiif-parser';
-import { manifest, manifestWithStructure, manifestWoStructure } from '../testing-helpers';
+import { 
+  manifest,
+  manifestWithStructure,
+  manifestWoStructure,
+  manifestWoChoice
+} from '../testing-helpers';
 
 describe('iiif-parser', () => {
   let originalError, originalLogger;
@@ -42,6 +47,13 @@ describe('iiif-parser', () => {
             duration: 662.037
           }
         );
+      });
+      test('with one media source without a choice', () => {
+        const mediaInfo = iiifParser.getMediaInfo(manifestWoChoice, 0);
+        expect(mediaInfo).toEqual({
+          src: 'http://example.com/volleyball-for-boys/volleyball-for-boys.mp4',
+          duration: 662.037
+        })
       });
       test('without any media related information', () => {
         const mediaInfo = iiifParser.getMediaInfo(manifestWoStructure, 0);

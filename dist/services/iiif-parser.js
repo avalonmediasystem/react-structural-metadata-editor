@@ -8,7 +8,6 @@ Object.defineProperty(exports, "__esModule", {
 exports.getLabelValue = getLabelValue;
 exports.getMediaFragment = getMediaFragment;
 exports.getMediaInfo = getMediaInfo;
-exports.getRangeCanvas = getRangeCanvas;
 exports.getWaveformInfo = getWaveformInfo;
 exports.parseStructureToJSON = parseStructureToJSON;
 
@@ -119,10 +118,10 @@ function parseStructureToJSON(manifest, duration) {
   var buildStructureItems = function buildStructureItems(items, children) {
     if (items.length > 0) {
       items.map(function (i) {
-        var ranges = getRangeCanvas(i.id, manifest);
+        var range = (0, _manifesto.parseManifest)(manifest).getRangeById(i.id);
 
-        if (ranges) {
-          var childCanvases = ranges.getCanvasIds();
+        if (range) {
+          var childCanvases = range.getCanvasIds();
           var structItem = {};
 
           if (childCanvases.length > 0) {
@@ -194,28 +193,6 @@ function parseStructureToJSON(manifest, duration) {
 
   var structureWithIDs = smUtils.addUUIds(structureJSON);
   return structureWithIDs;
-}
-/**
- * Retrieve the canvases with mediafragment of a given
- * range
- * @param {String} rangeId id of the range in ToC
- * @param {Object} manifest manifest with structure
- * @returns {Array} of canvas URI with mediafragment inside
- * the given range
- */
-
-
-function getRangeCanvas(rangeId, manifest) {
-  var rangeCanvases = [];
-
-  try {
-    rangeCanvases = (0, _manifesto.parseManifest)(manifest).getRangeById(rangeId);
-    console.log(rangeCanvases);
-  } catch (e) {
-    console.error('error fetching range canvases');
-  }
-
-  return rangeCanvases;
 }
 /**
  * Takes a uri with a media fragment that looks like #=120,134 and returns an object

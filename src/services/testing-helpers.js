@@ -472,7 +472,7 @@ export const manifestWoStructure = {
 };
 
 export const manifestWithStructure = {
-  ' @context': [
+  '@context': [
     'http://iiif.io/api/presentation/3/context.json',
   ],
   type: 'Manifest',
@@ -594,7 +594,7 @@ export const manifestWithStructure = {
         {
           type: 'Range',
           id: 'http://example.com/sample-manifest/manifest/range/1',
-          label: { en: ['Volleyball for Boys'] },
+          label: 'Volleyball for Boys',
           items: [
             {
               type: 'Range',
@@ -631,3 +631,43 @@ export const manifestWithStructure = {
     }
   ]
 };
+
+export const manifestWoChoice = {
+  '@context': ['http://iiif.io/api/presentation/3/context.json'],
+  id: "http://example.com/sample-manifest/manifest.json",
+  type: 'Manifest',
+  label: {
+    en: [ 'Volley Ball for Boys' ]
+  },
+  items: [
+    {
+      id: 'http://example.com/sample-manifest/manifest/canvas/1',
+      type: 'Canvas',
+      height: 1080,
+      width: 1920,
+      duration: 662.037,
+      items: [
+        {
+          id: 'http://example.com/sample-manifest/canvas/1/page',
+          type: 'AnnotationPage',
+          items: [
+            {
+              id: 'http://example.com/sample-manifest/canvas/1/page/annotation',
+              type: 'Annotation',
+              motivation: 'painting',
+              body: {
+                id: 'http://example.com/volleyball-for-boys/volleyball-for-boys.mp4',
+                type: 'Video',
+                format: 'video/mp4',
+                height: 1080,
+                width: 1920,
+                duration: 662.037,
+              },
+              target: 'http://example.com/sample-manifest/canvas/1'
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

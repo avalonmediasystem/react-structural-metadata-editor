@@ -12,7 +12,7 @@ export const PEAKSJS_REACHED_END_OF_FILE =
 export const STREAM_MEDIA_ERROR =
   'There was an error retrieving the media stream.';
 export const MISSING_WAVEFORM_ERROR =
-  'Requested waveform data is not available.';
+  'Waveform data is not available (Using auto-generated dummy data instead).';
 export const INVALID_SEGMENTS_WARNING =
   'Please check start/end times of the marked invalid timespan(s).';
 export const FETCH_MANIFEST_ERROR = 'Requested resources in IIIF Manifest were not found.';

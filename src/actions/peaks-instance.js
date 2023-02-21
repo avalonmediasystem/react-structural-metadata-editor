@@ -6,6 +6,7 @@ import APIUtils from '../api/Utils';
 import { configureAlert } from '../services/alert-status';
 import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
 import WaveformDataUtils from '../services/WaveformDataUtils';
+import { createEmptyWaveform } from '../services/utils';
 import {
   getMediaInfo,
   getWaveformInfo,
@@ -77,16 +78,22 @@ export function initializePeaks(
       structuralMetadataUtils.markRootElement(smData);
 
       if (waveformInfo != null) {
-        buildPeaksInstance(
-          waveformInfo,
-          peaksOptions,
-          smData,
-          duration,
-          dispatch, getState);
+        let waveformOpts = await setWaveformInfo(waveformInfo, duration, dispatch);
+        peaksOptions = { ...peaksOptions, ...waveformOpts };
+      } else if (duration < 500) { // duration is less than 10 minutes
+        peaksOptions.webAudio = {
+          audioContext: new AudioContext(),
+          scale: 512,
+          multiChannel: false,
+        }
       } else {
-        let alert = configureAlert(-3);
+        peaksOptions.waveformData = {
+          json: createEmptyWaveform(duration)
+        }
+        let alert = configureAlert(-7);
         dispatch(setAlert(alert));
       }
+      buildPeaksInstance(peaksOptions, smData, duration, dispatch, getState);
     } catch (error) {
       console.log('TCL: peaks-instance -> initializePeaks() -> error', error);
 
@@ -101,46 +108,39 @@ export function initializePeaks(
   };
 }
 
-async function buildPeaksInstance(
-  waveformURL,
-  peaksOptions,
-  smData,
-  duration,
-  dispatch,
-  getState) {
+async function setWaveformInfo(waveformURL, duration, dispatch, status = null) {
+  let peaksWaveformOpt = {};
   try {
     // Check whether the waveform.json exists in the server
     await apiUtils.headRequest(waveformURL);
-
     // Set waveform URI
-    peaksOptions.dataUri = {
-      json: waveformURL,
-    };
-
+    peaksWaveformOpt = { dataUri: { json: waveformURL } };
     // Update redux-store flag for waveform file retrieval
     dispatch(retrieveWaveformSuccess());
   } catch (error) {
     // Enable the flash message alert
     console.log('TCL: peaks-instance -> buildPeaksInstance() -> error', error);
-    let status = null;
-
     // Pull status code out of error response/request
     if (error.response !== undefined) {
       status = error.response.status;
       if (status == 404) {
-        peaksOptions.dataUri = {
-          json: `${waveformURL}?empty=true`,
-        };
-        status = -7; // for persistent missing waveform data alert
+        setWaveformInfo(`${waveformURL}?empty=true`, duration, dispatch, -7)
       }
     } else if (error.request !== undefined) {
-      status = -3;
+      // Set dummy waveform data
+      peaksWaveformOpt = { waveformData: { json: createEmptyWaveform(duration) }}
+      status = -7;
     }
+  }
 
+  if(status != null) {
     const alert = configureAlert(status);
     dispatch(setAlert(alert));
   }
+  return peaksWaveformOpt;
+}
 
+async function buildPeaksInstance(peaksOptions, smData, duration, dispatch, getState) {
   // Initialize Peaks intance with the given options
   Peaks.init(peaksOptions, (err, peaks) => {
     if (err)
@@ -151,6 +151,11 @@ async function buildPeaksInstance(
 
     // Create segments from structural metadata
     const segments = waveformUtils.initSegments(smData, duration);
+
+    // const view = peaks.views.getView('zoomview');
+    // view.setAmplitudeScale(5.0);
+    // const oview = peaks.views.getView('overview');
+    // oview.setAmplitudeScale(6.0)
 
     // Add segments to peaks instance
     segments.map((seg) => peaks.segments.add(seg));

@@ -22,23 +22,28 @@ function AlertContainer(props) {
           message = alert.message,
           persistent = alert.persistent,
           id = alert.id;
-      var alertProps = {
-        variant: alertStyle,
-        'data-testid': "".concat(persistent ? 'persistent-' : '', "alert-container"),
-        key: id,
-        dismissible: persistent ? 'false' : 'true',
-        className: persistent ? '' : 'alert-dismissable'
-      };
 
       if (!persistent) {
-        alertProps.onClose = function () {
-          props.removeAlert(id);
-        };
+        alertList.push( /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Alert, {
+          key: id,
+          variant: alertStyle,
+          "data-testid": "alert-container",
+          onClose: function onClose() {
+            props.removeAlert(id);
+          },
+          dismissible: true
+        }, /*#__PURE__*/_react["default"].createElement("p", {
+          "data-testid": "alert-message"
+        }, message)));
+      } else {
+        alertList.push( /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Alert, {
+          key: id,
+          variant: alertStyle,
+          "data-testid": "persistent-alert-container"
+        }, /*#__PURE__*/_react["default"].createElement("p", {
+          "data-testid": "alert-message"
+        }, message)));
       }
-
-      alertList.push( /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Alert, alertProps, /*#__PURE__*/_react["default"].createElement("p", {
-        "data-testid": "alert-message"
-      }, message)));
     });
   }
 

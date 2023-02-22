@@ -80,7 +80,7 @@ export function initializePeaks(
       if (waveformInfo != null) {
         let waveformOpts = await setWaveformInfo(waveformInfo, duration, dispatch);
         peaksOptions = { ...peaksOptions, ...waveformOpts };
-      } else if (duration < 500) { // duration is less than 10 minutes
+      } else if (duration < 600) { // when duration is less than 10 minutes
         peaksOptions.webAudio = {
           audioContext: new AudioContext(),
           scale: 512,
@@ -119,7 +119,7 @@ async function setWaveformInfo(waveformURL, duration, dispatch, status = null) {
     dispatch(retrieveWaveformSuccess());
   } catch (error) {
     // Enable the flash message alert
-    console.log('TCL: peaks-instance -> buildPeaksInstance() -> error', error);
+    console.log('TCL: peaks-instance -> setWaveformInfo() -> error', error);
     // Pull status code out of error response/request
     if (error.response !== undefined) {
       status = error.response.status;
@@ -151,11 +151,6 @@ async function buildPeaksInstance(peaksOptions, smData, duration, dispatch, getS
 
     // Create segments from structural metadata
     const segments = waveformUtils.initSegments(smData, duration);
-
-    // const view = peaks.views.getView('zoomview');
-    // view.setAmplitudeScale(5.0);
-    // const oview = peaks.views.getView('overview');
-    // oview.setAmplitudeScale(6.0)
 
     // Add segments to peaks instance
     segments.map((seg) => peaks.segments.add(seg));

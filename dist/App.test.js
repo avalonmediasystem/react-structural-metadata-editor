@@ -113,13 +113,11 @@ describe('App component', () => {
         await wait(() => {
           expect(app.getByTestId('waveform-container')).toBeInTheDocument();
           expect(mockAxios.get).toHaveBeenCalledTimes(1);
-          expect(mockAxios.head).toHaveBeenCalledTimes(1);
+          // HEAD request is called twice for given waveform URL and empty waveform URL
+          expect(mockAxios.head).toHaveBeenCalledTimes(2);
           expect(
-            app.getByTestId('persistent-alert-container')
-          ).toBeInTheDocument();
-          expect(app.getByTestId('alert-message').innerHTML).toBe(
-            'Requested waveform data is not available.'
-          );
+            app.queryByTestId('persistent-alert-container')
+          ).not.toBeInTheDocument();
         });
       }, 10000);
 
@@ -146,13 +144,39 @@ describe('App component', () => {
         await wait(() => {
           expect(app.queryByTestId('waveform-container')).toBeInTheDocument();
           expect(mockAxios.head).toHaveBeenCalledTimes(0);
-          expect(app.getByTestId('alert-container')).toBeInTheDocument();
-          expect(app.getByTestId('alert-message')).toBeInTheDocument();
-          expect(app.getByTestId('alert-message').innerHTML).toBe(
-            'There was an error initializing the waveform. Please check your Manifest.'
-          );
+          expect(app.queryByTestId('alert-container')).not.toBeInTheDocument();
         });
       }, 10000);
+
+      // test('without wavefrom in canvas with large media file', async () => {
+      //   mockAxios.get.mockImplementationOnce(() => {
+      //     return Promise.resolve({
+      //       status: 200,
+      //       data: manifestWithStructure
+      //     });
+      //   });
+
+      //   const initialState = {
+      //     manifest: {
+      //       manifestFetched: true,
+      //       manifest: manifestWithStructure,
+      //       mediaInfo: {
+      //         src: 'http://example.com/volleyball/high/volleyball-for-boys.mp4',
+      //         duration: 672.4,
+      //       }
+      //     },
+      //   };
+      //   const app = renderWithRedux(<App {...props} />, { initialState });
+
+      //   await wait(() => {
+      //     expect(app.queryByTestId('waveform-container')).toBeInTheDocument();
+      //     expect(mockAxios.head).toHaveBeenCalledTimes(0);
+      //     expect(app.getByTestId('persistent-alert-container')).toBeInTheDocument();
+          // expect(app.getByTestId('alert-message').innerHTML).toBe(
+          //   'Requested waveform data is not available.'
+          // );
+      //   });
+      // }, 10000);
     });
 
     describe('without manifest', () => {

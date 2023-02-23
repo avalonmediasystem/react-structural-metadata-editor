@@ -91,19 +91,23 @@ var App = /*#__PURE__*/function (_Component) {
   return App;
 }(_react.Component);
 
-App.propTypes = {
-  canvasIndex: _propTypes["default"].number,
-  manifestURL: _propTypes["default"].string.isRequired,
-  structureURL: _propTypes["default"].string.isRequired,
-  structureIsSaved: _propTypes["default"].func,
-  withCredentials: _propTypes["default"].bool,
-  disableSave: _propTypes["default"].bool
-};
 App.defaultProps = {
   canvasIndex: 0,
   structureIsSaved: function structureIsSaved(val) {},
   withCredentials: false,
   disableSave: false
+};
+App.propTypes = {
+  canvasIndex: _propTypes["default"].number,
+  manifestURL: _propTypes["default"].string.isRequired,
+  structureURL: function structureURL(props, propName, componentName) {
+    if (props['disableSave'] == false) {
+      return new Error('Please provide a value for `structureURL` prop');
+    }
+  },
+  structureIsSaved: _propTypes["default"].func,
+  withCredentials: _propTypes["default"].bool,
+  disableSave: _propTypes["default"].bool
 };
 var mapDispatchToProps = {
   resetStore: _actions.resetReduxStore,

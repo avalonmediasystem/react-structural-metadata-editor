@@ -124,7 +124,8 @@ async function setWaveformInfo(waveformURL, duration, dispatch, status = null) {
     if (error.response !== undefined) {
       status = error.response.status;
       if (status == 404) {
-        setWaveformInfo(`${waveformURL}?empty=true`, duration, dispatch, -7)
+        peaksWaveformOpt = { dataUri: { json: `${waveformURL}?empty=true` } };
+        status = -7;
       }
     } else if (error.request !== undefined) {
       // Set dummy waveform data

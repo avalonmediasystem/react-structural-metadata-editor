@@ -42,20 +42,25 @@ class App extends Component {
   }
 }
 
-App.propTypes = {
-  canvasIndex: PropTypes.number,
-  manifestURL: PropTypes.string.isRequired,
-  structureURL: PropTypes.string.isRequired,
-  structureIsSaved: PropTypes.func,
-  withCredentials: PropTypes.bool,
-  disableSave: PropTypes.bool,
-};
 
 App.defaultProps = {
   canvasIndex: 0,
   structureIsSaved: (val) => { },
   withCredentials: false,
   disableSave: false,
+};
+
+App.propTypes = {
+  canvasIndex: PropTypes.number,
+  manifestURL: PropTypes.string.isRequired,
+  structureURL: function(props, propName, componentName) {
+    if(props['disableSave'] == false) {
+      return new Error('Please provide a value for `structureURL` prop')
+    }
+  },
+  structureIsSaved: PropTypes.func,
+  withCredentials: PropTypes.bool,
+  disableSave: PropTypes.bool,
 };
 
 const mapDispatchToProps = {

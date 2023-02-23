@@ -216,7 +216,12 @@ function _setWaveformInfo() {
               status = _context2.t0.response.status;
 
               if (status == 404) {
-                setWaveformInfo("".concat(waveformURL, "?empty=true"), duration, dispatch, -7);
+                peaksWaveformOpt = {
+                  dataUri: {
+                    json: "".concat(waveformURL, "?empty=true")
+                  }
+                };
+                status = -7;
               }
             } else if (_context2.t0.request !== undefined) {
               // Set dummy waveform data

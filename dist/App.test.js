@@ -94,38 +94,74 @@ describe('App component', () => {
 
   describe('renders alerts', () => {
     describe('with valid manifest', () => {
-      test('with empty waveform, shows a persistent alert', async () => {
-        mockAxios.get.mockImplementationOnce(() => {
-          return Promise.resolve({
-            status: 200,
-            data: manifest
+      describe('without waveform information', () => {
+        test('for media file with duration > 10 mins, shows a persistent alert', async () => {
+          mockAxios.get.mockImplementationOnce(() => {
+            return Promise.resolve({
+              status: 200,
+              data: manifest
+            });
           });
-        });
-        mockAxios.head.mockImplementationOnce(() => {
-          return Promise.reject({
-            response: {
-              status: 404,
+          mockAxios.head.mockImplementationOnce(() => {
+            return Promise.reject({
+              response: {
+                status: 404,
+              },
+            });
+          });
+  
+          const app = renderWithRedux(<App {...props} />, { baseState });
+          await wait(() => {
+            expect(app.getByTestId('waveform-container')).toBeInTheDocument();
+            expect(mockAxios.get).toHaveBeenCalledTimes(1);
+            expect(mockAxios.head).toHaveBeenCalledTimes(1);
+            expect(
+              app.queryByTestId('persistent-alert-container')
+            ).toBeInTheDocument();
+            expect(app.getByTestId('alert-message').innerHTML).toBe('No available waveform data.');
+          });
+        }, 10000);
+  
+        test('for media file with duration < 10 mins', async () => {
+          mockAxios.get.mockImplementationOnce(() => {
+            return Promise.resolve({
+              status: 200,
+              data: manifestWithStructure
+            });
+          });
+  
+          const initialState = {
+            manifest: {
+              manifestFetched: true,
+              manifest: manifestWithStructure,
+              mediaInfo: {
+                src: 'http://example.com/volleyball/high/volleyball-for-boys.mp4',
+                duration: 572.4,
+              }
             },
+          };
+          const app = renderWithRedux(<App {...props} />, { initialState });
+  
+          await wait(() => {
+            expect(app.queryByTestId('waveform-container')).toBeInTheDocument();
+            expect(mockAxios.head).toHaveBeenCalledTimes(0);
+            expect(app.queryByTestId('alert-container')).not.toBeInTheDocument();
           });
-        });
-
-        const app = renderWithRedux(<App {...props} />, { baseState });
-        await wait(() => {
-          expect(app.getByTestId('waveform-container')).toBeInTheDocument();
-          expect(mockAxios.get).toHaveBeenCalledTimes(1);
-          // HEAD request is called twice for given waveform URL and empty waveform URL
-          expect(mockAxios.head).toHaveBeenCalledTimes(2);
-          expect(
-            app.queryByTestId('persistent-alert-container')
-          ).not.toBeInTheDocument();
-        });
-      }, 10000);
-
-      test('without waveform as a resource in canvas', async () => {
+        }, 10000);
+      });
+      test('with waveform information', async () => {
         mockAxios.get.mockImplementationOnce(() => {
           return Promise.resolve({
             status: 200,
             data: manifestWithStructure
+          });
+        });
+        mockAxios.head.mockImplementationOnce(() => {
+          return Promise.resolve({
+            status: 200,
+            request: {
+              responseURL: 'http://example.com/lunchroom-manners/waveform.json',
+            },
           });
         });
 
@@ -139,44 +175,19 @@ describe('App component', () => {
             }
           },
         };
-        const app = renderWithRedux(<App {...props} />, { initialState });
+        const propsRevised = {
+          ...props,
+          canvasIndex: 1,
+
+        }
+        const app = renderWithRedux(<App { ...propsRevised } />, { initialState });
 
         await wait(() => {
           expect(app.queryByTestId('waveform-container')).toBeInTheDocument();
-          expect(mockAxios.head).toHaveBeenCalledTimes(0);
+          expect(mockAxios.head).toHaveBeenCalledTimes(1);
           expect(app.queryByTestId('alert-container')).not.toBeInTheDocument();
         });
       }, 10000);
-
-      // test('without wavefrom in canvas with large media file', async () => {
-      //   mockAxios.get.mockImplementationOnce(() => {
-      //     return Promise.resolve({
-      //       status: 200,
-      //       data: manifestWithStructure
-      //     });
-      //   });
-
-      //   const initialState = {
-      //     manifest: {
-      //       manifestFetched: true,
-      //       manifest: manifestWithStructure,
-      //       mediaInfo: {
-      //         src: 'http://example.com/volleyball/high/volleyball-for-boys.mp4',
-      //         duration: 672.4,
-      //       }
-      //     },
-      //   };
-      //   const app = renderWithRedux(<App {...props} />, { initialState });
-
-      //   await wait(() => {
-      //     expect(app.queryByTestId('waveform-container')).toBeInTheDocument();
-      //     expect(mockAxios.head).toHaveBeenCalledTimes(0);
-      //     expect(app.getByTestId('persistent-alert-container')).toBeInTheDocument();
-          // expect(app.getByTestId('alert-message').innerHTML).toBe(
-          //   'Requested waveform data is not available.'
-          // );
-      //   });
-      // }, 10000);
     });
 
     describe('without manifest', () => {

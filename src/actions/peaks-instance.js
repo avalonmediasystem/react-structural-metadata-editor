@@ -78,8 +78,7 @@ export function initializePeaks(
       structuralMetadataUtils.markRootElement(smData);
 
       if (waveformInfo != null) {
-        let waveformOpts = await setWaveformInfo(waveformInfo, duration, dispatch);
-        peaksOptions = { ...peaksOptions, ...waveformOpts };
+        peaksOptions = await setWaveformInfo(waveformInfo, duration, peaksOptions, dispatch);
       } else if (duration < 600) { // when duration is less than 10 minutes
         peaksOptions.webAudio = {
           audioContext: new AudioContext(),
@@ -108,13 +107,12 @@ export function initializePeaks(
   };
 }
 
-async function setWaveformInfo(waveformURL, duration, dispatch, status = null) {
-  let peaksWaveformOpt = {};
+async function setWaveformInfo(waveformURL, duration, peaksOptions, dispatch, status = null) {
   try {
     // Check whether the waveform.json exists in the server
     await apiUtils.headRequest(waveformURL);
     // Set waveform URI
-    peaksWaveformOpt = { dataUri: { json: waveformURL } };
+    peaksOptions.dataUri = { json: waveformURL };
     // Update redux-store flag for waveform file retrieval
     dispatch(retrieveWaveformSuccess());
   } catch (error) {
@@ -124,12 +122,12 @@ async function setWaveformInfo(waveformURL, duration, dispatch, status = null) {
     if (error.response !== undefined) {
       status = error.response.status;
       if (status == 404) {
-        peaksWaveformOpt = { dataUri: { json: `${waveformURL}?empty=true` } };
+        peaksOptions.dataUri = { json: `${waveformURL}?empty=true` };
         status = -7;
       }
     } else if (error.request !== undefined) {
       // Set dummy waveform data
-      peaksWaveformOpt = { waveformData: { json: createEmptyWaveform(duration) }}
+      peaksOptions.waveformData = { json: createEmptyWaveform(duration) };
       status = -7;
     }
   }
@@ -138,7 +136,7 @@ async function setWaveformInfo(waveformURL, duration, dispatch, status = null) {
     const alert = configureAlert(status);
     dispatch(setAlert(alert));
   }
-  return peaksWaveformOpt;
+  return peaksOptions;
 }
 
 async function buildPeaksInstance(peaksOptions, smData, duration, dispatch, getState) {

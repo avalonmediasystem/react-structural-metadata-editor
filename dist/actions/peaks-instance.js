@@ -41,6 +41,8 @@ var _StructuralMetadataUtils = _interopRequireDefault(require("../services/Struc
 
 var _WaveformDataUtils = _interopRequireDefault(require("../services/WaveformDataUtils"));
 
+var _utils = require("../services/utils");
+
 var _iiifParser = require("../services/iiif-parser");
 
 var _smData = require("./sm-data");
@@ -106,18 +108,42 @@ function initializePeaks(peaksOptions, manifestURL, canvasIndex) {
 
               structuralMetadataUtils.markRootElement(smData);
 
-              if (waveformInfo != null) {
-                buildPeaksInstance(waveformInfo, peaksOptions, smData, duration, dispatch, getState);
+              if (!(waveformInfo != null)) {
+                _context.next = 19;
+                break;
+              }
+
+              _context.next = 16;
+              return setWaveformInfo(waveformInfo, duration, peaksOptions, dispatch);
+
+            case 16:
+              peaksOptions = _context.sent;
+              _context.next = 20;
+              break;
+
+            case 19:
+              if (duration < 600) {
+                // when duration is less than 10 minutes
+                peaksOptions.webAudio = {
+                  audioContext: new AudioContext(),
+                  scale: 512,
+                  multiChannel: false
+                };
               } else {
-                _alert = (0, _alertStatus.configureAlert)(-3);
+                peaksOptions.waveformData = {
+                  json: (0, _utils.createEmptyWaveform)(duration)
+                };
+                _alert = (0, _alertStatus.configureAlert)(-7);
                 dispatch((0, _forms.setAlert)(_alert));
               }
 
-              _context.next = 23;
+            case 20:
+              buildPeaksInstance(peaksOptions, smData, duration, dispatch, getState);
+              _context.next = 30;
               break;
 
-            case 16:
-              _context.prev = 16;
+            case 23:
+              _context.prev = 23;
               _context.t0 = _context["catch"](3);
               console.log('TCL: peaks-instance -> initializePeaks() -> error', _context.t0); // Update manifest error in the redux store
 
@@ -127,12 +153,12 @@ function initializePeaks(peaksOptions, manifestURL, canvasIndex) {
               _alert2 = (0, _alertStatus.configureAlert)(status);
               dispatch((0, _forms.setAlert)(_alert2));
 
-            case 23:
+            case 30:
             case "end":
               return _context.stop();
           }
         }
-      }, _callee, null, [[3, 16]]);
+      }, _callee, null, [[3, 23]]);
     }));
 
     return function (_x, _x2) {
@@ -141,37 +167,39 @@ function initializePeaks(peaksOptions, manifestURL, canvasIndex) {
   }();
 }
 
-function buildPeaksInstance(_x3, _x4, _x5, _x6, _x7, _x8) {
-  return _buildPeaksInstance.apply(this, arguments);
+function setWaveformInfo(_x3, _x4, _x5, _x6) {
+  return _setWaveformInfo.apply(this, arguments);
 }
 
-function _buildPeaksInstance() {
-  _buildPeaksInstance = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee2(waveformURL, peaksOptions, smData, duration, dispatch, getState) {
-    var status, alert;
+function _setWaveformInfo() {
+  _setWaveformInfo = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee2(waveformURL, duration, peaksOptions, dispatch) {
+    var status,
+        alert,
+        _args2 = arguments;
     return _regenerator["default"].wrap(function _callee2$(_context2) {
       while (1) {
         switch (_context2.prev = _context2.next) {
           case 0:
-            _context2.prev = 0;
-            _context2.next = 3;
+            status = _args2.length > 4 && _args2[4] !== undefined ? _args2[4] : null;
+            _context2.prev = 1;
+            _context2.next = 4;
             return apiUtils.headRequest(waveformURL);
 
-          case 3:
+          case 4:
             // Set waveform URI
             peaksOptions.dataUri = {
               json: waveformURL
             }; // Update redux-store flag for waveform file retrieval
 
             dispatch((0, _forms.retrieveWaveformSuccess)());
-            _context2.next = 14;
+            _context2.next = 12;
             break;
 
-          case 7:
-            _context2.prev = 7;
-            _context2.t0 = _context2["catch"](0);
+          case 8:
+            _context2.prev = 8;
+            _context2.t0 = _context2["catch"](1);
             // Enable the flash message alert
-            console.log('TCL: peaks-instance -> buildPeaksInstance() -> error', _context2.t0);
-            status = null; // Pull status code out of error response/request
+            console.log('TCL: peaks-instance -> setWaveformInfo() -> error', _context2.t0); // Pull status code out of error response/request
 
             if (_context2.t0.response !== undefined) {
               status = _context2.t0.response.status;
@@ -180,16 +208,44 @@ function _buildPeaksInstance() {
                 peaksOptions.dataUri = {
                   json: "".concat(waveformURL, "?empty=true")
                 };
-                status = -7; // for persistent missing waveform data alert
+                status = -7;
               }
             } else if (_context2.t0.request !== undefined) {
-              status = -3;
+              // Set dummy waveform data
+              peaksOptions.waveformData = {
+                json: (0, _utils.createEmptyWaveform)(duration)
+              };
+              status = -7;
             }
 
-            alert = (0, _alertStatus.configureAlert)(status);
-            dispatch((0, _forms.setAlert)(alert));
+          case 12:
+            if (status != null) {
+              alert = (0, _alertStatus.configureAlert)(status);
+              dispatch((0, _forms.setAlert)(alert));
+            }
+
+            return _context2.abrupt("return", peaksOptions);
 
           case 14:
+          case "end":
+            return _context2.stop();
+        }
+      }
+    }, _callee2, null, [[1, 8]]);
+  }));
+  return _setWaveformInfo.apply(this, arguments);
+}
+
+function buildPeaksInstance(_x7, _x8, _x9, _x10, _x11) {
+  return _buildPeaksInstance.apply(this, arguments);
+}
+
+function _buildPeaksInstance() {
+  _buildPeaksInstance = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee3(peaksOptions, smData, duration, dispatch, getState) {
+    return _regenerator["default"].wrap(function _callee3$(_context3) {
+      while (1) {
+        switch (_context3.prev = _context3.next) {
+          case 0:
             // Initialize Peaks intance with the given options
             _peaks["default"].init(peaksOptions, function (err, peaks) {
               if (err) console.error('TCL: peaks-instance -> buildPeaksInstance() -> Peaks.init ->', err); // Create segments from structural metadata
@@ -223,12 +279,12 @@ function _buildPeaksInstance() {
               }
             });
 
-          case 15:
+          case 1:
           case "end":
-            return _context2.stop();
+            return _context3.stop();
         }
       }
-    }, _callee2, null, [[0, 7]]);
+    }, _callee3);
   }));
   return _buildPeaksInstance.apply(this, arguments);
 }

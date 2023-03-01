@@ -574,9 +574,9 @@ var manifestWoChoice = {
         type: 'Annotation',
         motivation: 'painting',
         body: {
-          id: 'http://example.com/volleyball-for-boys/volleyball-for-boys.mp4',
+          id: 'http://example.com/volleyball-for-boys/volleyball-for-boys.m3u8',
           type: 'Video',
-          format: 'video/mp4',
+          format: 'application/x-x-mpegURL',
           height: 1080,
           width: 1920,
           duration: 662.037

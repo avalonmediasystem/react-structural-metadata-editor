@@ -17,6 +17,8 @@ var _manifesto = require("manifesto.js");
 
 var _StructuralMetadataUtils = _interopRequireDefault(require("./StructuralMetadataUtils"));
 
+var _utils = require("./utils");
+
 var smUtils = new _StructuralMetadataUtils["default"]();
 /**
  * Fetch media information relavant to the current canvas
@@ -34,7 +36,9 @@ function getMediaInfo(manifest) {
   try {
     canvas = (0, _manifesto.parseManifest)(manifest).getSequences()[0].getCanvases()[canvasIndex];
     var sources = canvas.getContent()[0].getBody();
-    mediaInfo.src = filtersrc(sources);
+    var src = filtersrc(sources);
+    mediaInfo.isStream = (0, _utils.getMimetype)(src) === 'application/x-mpegURL' ? true : false;
+    mediaInfo.src = src;
     mediaInfo.duration = canvas.getDuration();
   } catch (err) {
     console.error(err);

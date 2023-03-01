@@ -7,6 +7,7 @@ const initialState = {
   mediaInfo: {
     src: '',
     duration: 0,
+    isStream: false,
   }
 };
 
@@ -26,7 +27,8 @@ const manifest = (state = initialState, action) => {
         ...state, mediaInfo: {
           ...state.mediaInfo,
           src: action.src,
-          duration: action.duration
+          duration: action.duration,
+          isStream: action.isStream
         }
       };
 

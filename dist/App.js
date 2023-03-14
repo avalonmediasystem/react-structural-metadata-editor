@@ -100,8 +100,8 @@ App.defaultProps = {
 App.propTypes = {
   canvasIndex: _propTypes["default"].number,
   manifestURL: _propTypes["default"].string.isRequired,
-  structureURL: function structureURL(props) {
-    if (props['disableSave'] == false) {
+  structureURL: function structureURL(props, propName) {
+    if (props['disableSave'] == false && props[propName] == undefined) {
       return new Error('Please provide a value for `structureURL` prop');
     }
   },

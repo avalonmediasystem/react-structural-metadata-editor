@@ -25,7 +25,7 @@ var MISSING_WAVEFORM_ERROR = 'No available waveform data.';
 exports.MISSING_WAVEFORM_ERROR = MISSING_WAVEFORM_ERROR;
 var INVALID_SEGMENTS_WARNING = 'Please check start/end times of the marked invalid timespan(s).';
 exports.INVALID_SEGMENTS_WARNING = INVALID_SEGMENTS_WARNING;
-var FETCH_MANIFEST_ERROR = 'Requested resources in IIIF Manifest were not found.';
+var FETCH_MANIFEST_ERROR = 'Error fetching IIIF manifest.';
 /**
  * Helper function which prepares a configuration object to feed the AlertContainer component
  * @param {number} status Code for response
@@ -61,7 +61,7 @@ function configureAlert() {
   } else if (status === -8) {
     alertObj.message = INVALID_SEGMENTS_WARNING;
     alertObj.alertStyle = 'warning';
-  } else if (status == 404 || status == -9) {
+  } else if (status == 404 || status == 500 || status == -9) {
     alertObj.message = FETCH_MANIFEST_ERROR;
   } else if (status == -10) {
     alertObj.message = SAVE_STRUCTURE_FAIL;

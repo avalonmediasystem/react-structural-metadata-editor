@@ -49,7 +49,7 @@ const App = (props) => {
             manifestURL={manifestUrl}
             canvasIndex={0}
             structureIsSaved={(val) => {}}
-            disableSave={props.env === 'prod' ? true : false }
+            disableSave={props.disableSave}
             key={manifestUrl}
           />
       }

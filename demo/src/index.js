@@ -3,6 +3,7 @@ import { render } from 'react-dom';
 import config from '../config';
 import App from './app';
 
+console.log(config.env)
 const props = {
   structureURL: `${config.url}/structure.json`,
   manifestURL: `${config.url}/${config.env}/manifest.json`,

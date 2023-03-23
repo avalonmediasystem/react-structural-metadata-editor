@@ -6,7 +6,7 @@ import APIUtils from '../api/Utils';
 import { configureAlert } from '../services/alert-status';
 import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
 import WaveformDataUtils from '../services/WaveformDataUtils';
-import { createEmptyWaveform } from '../services/utils';
+import { setWaveformOptions } from '../services/utils';
 import {
   getMediaInfo,
   getWaveformInfo,
@@ -56,7 +56,7 @@ export function initializePeaks(
         waveformInfo = getWaveformInfo(response.data, canvasIndex);
 
         dispatch(setManifest(response.data));
-        dispatch(setMediaInfo(mediaInfo.src, mediaInfo.duration));
+        dispatch(setMediaInfo(mediaInfo.src, mediaInfo.duration, mediaInfo.isStream));
         smData = parseStructureToJSON(response.data, mediaInfo.duration, canvasIndex);
         duration = mediaInfo.duration;
       }
@@ -78,36 +78,29 @@ export function initializePeaks(
       structuralMetadataUtils.markRootElement(smData);
 
       if (waveformInfo != null) {
-        peaksOptions = await setWaveformInfo(waveformInfo, duration, peaksOptions, dispatch);
-      } else if (duration < 600) { // when duration is less than 10 minutes
-        peaksOptions.webAudio = {
-          audioContext: new AudioContext(),
-          scale: 512,
-          multiChannel: false,
+        peaksOptions = await setWaveformInfo(waveformInfo, mediaInfo, peaksOptions, dispatch);
+      } 
+      else {
+        const { opts, alertStatus } = await setWaveformOptions(mediaInfo, peaksOptions);
+        peaksOptions = opts;
+        if(alertStatus != null) {
+          let alert = configureAlert(alertStatus);
+          dispatch(setAlert(alert));
         }
-      } else {
-        peaksOptions.waveformData = {
-          json: createEmptyWaveform(duration)
-        }
-        let alert = configureAlert(-7);
-        dispatch(setAlert(alert));
       }
       buildPeaksInstance(peaksOptions, smData, duration, dispatch, getState);
     } catch (error) {
       console.log('TCL: peaks-instance -> initializePeaks() -> error', error);
-
       // Update manifest error in the redux store
       let status = error.response !== undefined ? error.response.status : -9;
       dispatch(handleManifestError(1, status));
-
-      // Create an alert to be displayed in the UI
       let alert = configureAlert(status);
       dispatch(setAlert(alert));
     }
   };
 }
 
-async function setWaveformInfo(waveformURL, duration, peaksOptions, dispatch, status = null) {
+async function setWaveformInfo(waveformURL, mediaInfo, peaksOptions, dispatch, status = null) {
   try {
     // Check whether the waveform.json exists in the server
     await apiUtils.headRequest(waveformURL);
@@ -126,9 +119,10 @@ async function setWaveformInfo(waveformURL, duration, peaksOptions, dispatch, st
         status = -7;
       }
     } else if (error.request !== undefined) {
-      // Set dummy waveform data
-      peaksOptions.waveformData = { json: createEmptyWaveform(duration) };
-      status = -7;
+      // Set waveform data option
+      const { opts, alertStatus } = await setWaveformOptions(mediaInfo, peaksOptions);
+      peaksOptions = opts;
+      status = alertStatus;
     }
   }
 

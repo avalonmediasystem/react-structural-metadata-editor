@@ -91,7 +91,7 @@ const Waveform = React.forwardRef((props, ref) => {
 
     const mimeType = getMimetype(audioFile);
     // When given a .m3u8 playlist, use HLS to stream media
-    if (readyPeaks && mimeType == 'application/x-mpegURL') {
+    if (readyPeaks && mediaInfo.isStream) {
       dispatch(
         retrieveStreamMedia(audioFile, ref.mediaPlayerRef.current, {
           withCredentials: props.withCredentials,
@@ -111,6 +111,7 @@ const Waveform = React.forwardRef((props, ref) => {
   }, [streamMediaStatus]);
 
   const handleKeyPress = (event) => {
+    if (event.target.nodeName == 'INPUT') return;    
     // When structure is not being edited play/pause audio when spacebar is pressed
     if (event.keyCode == 32 && !editingRef.current) {
       event.preventDefault();

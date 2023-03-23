@@ -4,19 +4,6 @@ import { useDispatch } from 'react-redux';
 import { initializePeaks } from '../actions/peaks-instance';
 import Waveform from '../components/Waveform';
 
-// Peaks options
-let peaksOptions = {
-  mediaElement: null,
-  dataUri: null,
-  dataUriDefaultFormat: 'json',
-  keyboard: true,
-  pointMarkerColor: '#006eb0',
-  showPlayheadTime: true,
-  zoomWaveformColor: 'rgba(117, 117, 117, 1)',
-  overviewWaveformColor: 'rgba(117, 117, 117, 1)',
-  timeLabelPrecision: 3,
-};
-
 const WaveformContainer = (props) => {
   const zoomView = React.createRef();
   const overView = React.createRef();
@@ -28,8 +15,13 @@ const WaveformContainer = (props) => {
   const dispatch = useDispatch();
 
   React.useEffect(() => {
-    peaksOptions = {
-      ...peaksOptions,
+    let peaksOptions = {
+      keyboard: true,
+      pointMarkerColor: '#006eb0',
+      showPlayheadTime: true,
+      zoomWaveformColor: 'rgba(117, 117, 117, 1)',
+      overviewWaveformColor: 'rgba(117, 117, 117, 1)',
+      timeLabelPrecision: 3,
       containers: {
         zoomview: zoomView.current,
         overview: overView.current,

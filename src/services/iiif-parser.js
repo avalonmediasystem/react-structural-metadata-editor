@@ -1,5 +1,6 @@
 import { parseManifest } from "manifesto.js";
 import StructuralMetadataUtils from "./StructuralMetadataUtils";
+import { getMimetype } from "./utils";
 
 const smUtils = new StructuralMetadataUtils;
 
@@ -18,7 +19,9 @@ export function getMediaInfo(manifest, canvasIndex = 0) {
       .getSequences()[0]
       .getCanvases()[canvasIndex];
     const sources = canvas.getContent()[0].getBody();
-    mediaInfo.src = filtersrc(sources);
+    let src = filtersrc(sources);
+    mediaInfo.isStream = getMimetype(src) === 'application/x-mpegURL' ? true : false;
+    mediaInfo.src = src;
     mediaInfo.duration = canvas.getDuration();
   } catch (err) {
     console.error(err);

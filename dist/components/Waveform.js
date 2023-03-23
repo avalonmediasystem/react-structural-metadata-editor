@@ -127,7 +127,7 @@ var Waveform = /*#__PURE__*/_react["default"].forwardRef(function (props, ref) {
     setPeaksIsReady(readyPeaks);
     var mimeType = (0, _utils.getMimetype)(audioFile); // When given a .m3u8 playlist, use HLS to stream media
 
-    if (readyPeaks && mimeType == 'application/x-mpegURL') {
+    if (readyPeaks && mediaInfo.isStream) {
       dispatch((0, _forms.retrieveStreamMedia)(audioFile, ref.mediaPlayerRef.current, {
         withCredentials: props.withCredentials
       }));
@@ -145,7 +145,8 @@ var Waveform = /*#__PURE__*/_react["default"].forwardRef(function (props, ref) {
   }, [streamMediaStatus]);
 
   var handleKeyPress = function handleKeyPress(event) {
-    // When structure is not being edited play/pause audio when spacebar is pressed
+    if (event.target.nodeName == 'INPUT') return; // When structure is not being edited play/pause audio when spacebar is pressed
+
     if (event.keyCode == 32 && !editingRef.current) {
       event.preventDefault();
       ref.mediaPlayerRef.current.paused ? playAudio() : pauseAudio();

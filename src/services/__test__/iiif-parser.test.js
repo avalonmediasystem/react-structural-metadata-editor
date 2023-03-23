@@ -36,7 +36,8 @@ describe('iiif-parser', () => {
         const mediaInfo = iiifParser.getMediaInfo(manifestWithStructure, 0);
         expect(mediaInfo).toEqual({
           src: 'http://example.com/volleyball-for-boys/volleyball-for-boys.mp4',
-          duration: 662.037
+          duration: 662.037,
+          isStream: false,
         });
       });
       test('without media choice \'auto\', selects first', () => {
@@ -44,15 +45,17 @@ describe('iiif-parser', () => {
         expect(mediaInfo).toEqual(
           {
             src: 'https://example.com/volleyball-for-boys/volleyball-for-boys.mp4',
-            duration: 662.037
+            duration: 662.037,
+            isStream: false,
           }
         );
       });
       test('with one media source without a choice', () => {
         const mediaInfo = iiifParser.getMediaInfo(manifestWoChoice, 0);
         expect(mediaInfo).toEqual({
-          src: 'http://example.com/volleyball-for-boys/volleyball-for-boys.mp4',
-          duration: 662.037
+          src: 'http://example.com/volleyball-for-boys/volleyball-for-boys.m3u8',
+          duration: 662.037,
+          isStream: true,
         })
       });
       test('without any media related information', () => {

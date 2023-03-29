@@ -193,7 +193,7 @@ var TimespanInlineForm = /*#__PURE__*/function (_Component) {
           beginTime = _this$state2.beginTime,
           endTime = _this$state2.endTime;
       var titleValid = (0, _formHelper.isTitleValid)(this.state.timespanTitle);
-      var timesValidResponse = (0, _formHelper.validTimespans)(beginTime, endTime, this.allSpans, this.props.peaksInstance.peaks);
+      var timesValidResponse = (0, _formHelper.validTimespans)(beginTime, endTime, this.props.peaksInstance.duration, this.allSpans);
       return titleValid && timesValidResponse.valid;
     }
   }, {

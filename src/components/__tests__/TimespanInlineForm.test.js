@@ -33,6 +33,7 @@ const initialState = {
     peaks: peaksInst,
     segment: null,
     startTimeChanged: null,
+    duration: 1738.945,
   },
 };
 
@@ -147,6 +148,7 @@ describe('TimespanInlineForm component', () => {
         peaks: peaksInst,
         segment: null,
         startTimeChanged: null,
+        duration: 1738.945,
       },
     };
 
@@ -252,6 +254,7 @@ describe('TimespanInlineForm component', () => {
           segment: segment,
           isDragging: true,
           startTimeChanged: true,
+          duration: 1738.945,
         },
       };
       timespanInlineForm.rerenderWithRedux(

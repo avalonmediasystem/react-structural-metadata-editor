@@ -234,7 +234,7 @@ var TimespanForm = /*#__PURE__*/function (_Component) {
           beginTime = _this$state4.beginTime,
           endTime = _this$state4.endTime,
           allSpans = _this$state4.allSpans;
-      return (0, _formHelper.validTimespans)(beginTime, endTime, allSpans, this.props.peaksInstance.peaks);
+      return (0, _formHelper.validTimespans)(beginTime, endTime, this.props.peaksInstance.duration, allSpans);
     }
   }, {
     key: "render",

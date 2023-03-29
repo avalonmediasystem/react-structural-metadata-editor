@@ -77,6 +77,15 @@ export function initializePeaks(
       // Mark the top element as 'root'
       structuralMetadataUtils.markRootElement(smData);
 
+      // Make waveform more zoomed-in for shorter media and less for larger media 
+      if(duration < 31) {
+        peaksOptions.zoomLevels = [170, 256, 512];
+      } else if (duration > 31 && duration < 60) {
+        peaksOptions.zoomLevels = [512, 1024];
+      } else {
+        peaksOptions.zoomLevels = [512, 1024, 2048, 4096];
+      }
+
       if (waveformInfo != null) {
         peaksOptions = await setWaveformInfo(waveformInfo, mediaInfo, peaksOptions, dispatch);
       } 

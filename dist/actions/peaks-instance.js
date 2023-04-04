@@ -106,26 +106,34 @@ function initializePeaks(peaksOptions, manifestURL, canvasIndex) {
               dispatch((0, _smData.buildSMUI)(smData, duration));
               dispatch((0, _smData.saveInitialStructure)(smData)); // Mark the top element as 'root'
 
-              structuralMetadataUtils.markRootElement(smData);
+              structuralMetadataUtils.markRootElement(smData); // Make waveform more zoomed-in for shorter media and less for larger media 
+
+              if (duration < 31) {
+                peaksOptions.zoomLevels = [170, 256, 512];
+              } else if (duration > 31 && duration < 60) {
+                peaksOptions.zoomLevels = [512, 1024];
+              } else {
+                peaksOptions.zoomLevels = [512, 1024, 2048, 4096];
+              }
 
               if (!(waveformInfo != null)) {
-                _context.next = 19;
+                _context.next = 20;
                 break;
               }
 
-              _context.next = 16;
+              _context.next = 17;
               return setWaveformInfo(waveformInfo, mediaInfo, peaksOptions, dispatch);
 
-            case 16:
+            case 17:
               peaksOptions = _context.sent;
-              _context.next = 26;
+              _context.next = 27;
               break;
 
-            case 19:
-              _context.next = 21;
+            case 20:
+              _context.next = 22;
               return (0, _utils.setWaveformOptions)(mediaInfo, peaksOptions);
 
-            case 21:
+            case 22:
               _yield$setWaveformOpt = _context.sent;
               opts = _yield$setWaveformOpt.opts;
               alertStatus = _yield$setWaveformOpt.alertStatus;
@@ -136,13 +144,13 @@ function initializePeaks(peaksOptions, manifestURL, canvasIndex) {
                 dispatch((0, _forms.setAlert)(_alert));
               }
 
-            case 26:
+            case 27:
               buildPeaksInstance(peaksOptions, smData, duration, dispatch, getState);
-              _context.next = 36;
+              _context.next = 37;
               break;
 
-            case 29:
-              _context.prev = 29;
+            case 30:
+              _context.prev = 30;
               _context.t0 = _context["catch"](3);
               console.log('TCL: peaks-instance -> initializePeaks() -> error', _context.t0); // Update manifest error in the redux store
 
@@ -151,12 +159,12 @@ function initializePeaks(peaksOptions, manifestURL, canvasIndex) {
               _alert2 = (0, _alertStatus.configureAlert)(status);
               dispatch((0, _forms.setAlert)(_alert2));
 
-            case 36:
+            case 37:
             case "end":
               return _context.stop();
           }
         }
-      }, _callee, null, [[3, 29]]);
+      }, _callee, null, [[3, 30]]);
     }));
 
     return function (_x, _x2) {

@@ -222,8 +222,8 @@ class TimespanForm extends Component {
     return validTimespans(
       beginTime,
       endTime,
-      allSpans,
-      this.props.peaksInstance.peaks
+      this.props.peaksInstance.duration,
+      allSpans
     );
   }
 

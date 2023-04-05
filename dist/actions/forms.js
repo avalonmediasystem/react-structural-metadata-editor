@@ -197,6 +197,9 @@ function retrieveStreamMedia(audioFile, mediaPlayer) {
           }
 
           dispatch(streamMediaError(errorCode));
+        } else if (data.levelRetry) {
+          // Check if HLS.js is still trying to fetch stream
+          dispatch(setStreamMediaLoading(1));
         } else {
           dispatch(setStreamMediaLoading(0));
         }

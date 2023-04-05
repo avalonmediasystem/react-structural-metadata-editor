@@ -27,8 +27,6 @@ var _Slider = _interopRequireDefault(require("./Slider"));
 
 var _LoadingSpinner = _interopRequireDefault(require("../services/LoadingSpinner"));
 
-var _utils = require("../services/utils");
-
 // Content of aria-label for UI components
 var waveformLabel = "Two interactive waveforms, plotted one after the other using data from a masterfile in a back-end server.\nThere are time-based visual sections plotted in these 2 waveforms representing each timespan in the structure below.";
 var zoomViewLabel = "A detailed portion of the waveform data, the level of details shown can be changed with zoom in/out buttons in the waveform toolbar";
@@ -124,16 +122,12 @@ var Waveform = /*#__PURE__*/_react["default"].forwardRef(function (props, ref) {
   }, [editingDisabled]);
 
   _react["default"].useEffect(function () {
-    setPeaksIsReady(readyPeaks);
-    var mimeType = (0, _utils.getMimetype)(audioFile); // When given a .m3u8 playlist, use HLS to stream media
+    setPeaksIsReady(readyPeaks); // When given a .m3u8 playlist, use HLS to stream media
 
     if (readyPeaks && mediaInfo.isStream) {
       dispatch((0, _forms.retrieveStreamMedia)(audioFile, ref.mediaPlayerRef.current, {
         withCredentials: props.withCredentials
       }));
-    } else {
-      // Given a audio/video file, the HTML player handles the playback
-      dispatch((0, _forms.streamMediaSuccess)());
     }
   }, [readyPeaks]);
 
@@ -151,6 +145,10 @@ var Waveform = /*#__PURE__*/_react["default"].forwardRef(function (props, ref) {
       event.preventDefault();
       ref.mediaPlayerRef.current.paused ? playAudio() : pauseAudio();
     }
+  };
+
+  var handleCanplay = function handleCanplay() {
+    dispatch((0, _forms.streamMediaSuccess)());
   };
 
   var zoomIn = function zoomIn() {
@@ -200,7 +198,8 @@ var Waveform = /*#__PURE__*/_react["default"].forwardRef(function (props, ref) {
     hidden: true,
     controls: "controls",
     "data-testid": "waveform-media",
-    src: audioFile
+    src: audioFile,
+    onCanPlay: handleCanplay
   }, "Your browser does not support the audio element."), !streamMediaLoading && !streamMediaError && /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Row, {
     "data-testid": "waveform-toolbar"
   }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Col, {

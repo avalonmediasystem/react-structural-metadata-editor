@@ -165,10 +165,10 @@ async function buildPeaksInstance(peaksOptions, smData, duration, dispatch, getS
       // for segment editing using handles
       if (dragged) {
         dragged.subscribe((eProps) => {
-          // startTimeChanged = true -> handle at the start of the segment is being dragged
-          // startTimeChanged = flase -> handle at the end of the segment is being dragged
-          const [segment, startTimeChanged] = eProps;
-          dispatch(dragSegment(segment.id, startTimeChanged, 1));
+          // startMarker = true -> handle at the start of the segment is being dragged
+          // startMarker = flase -> handle at the end of the segment is being dragged
+          const { segment, startMarker } = eProps;
+          dispatch(dragSegment(segment.id, startMarker, 1));
         });
         // Mark peaks is ready
         dispatch(peaksReady(true));

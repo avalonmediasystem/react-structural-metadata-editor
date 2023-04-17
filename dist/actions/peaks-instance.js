@@ -23,8 +23,6 @@ exports.updateSegment = updateSegment;
 
 var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
 
-var _slicedToArray2 = _interopRequireDefault(require("@babel/runtime/helpers/slicedToArray"));
-
 var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
 
 var types = _interopRequireWildcard(require("./types"));
@@ -291,13 +289,11 @@ function _buildPeaksInstance() {
 
                 if (dragged) {
                   dragged.subscribe(function (eProps) {
-                    // startTimeChanged = true -> handle at the start of the segment is being dragged
-                    // startTimeChanged = flase -> handle at the end of the segment is being dragged
-                    var _eProps = (0, _slicedToArray2["default"])(eProps, 2),
-                        segment = _eProps[0],
-                        startTimeChanged = _eProps[1];
-
-                    dispatch(dragSegment(segment.id, startTimeChanged, 1));
+                    // startMarker = true -> handle at the start of the segment is being dragged
+                    // startMarker = flase -> handle at the end of the segment is being dragged
+                    var segment = eProps.segment,
+                        startMarker = eProps.startMarker;
+                    dispatch(dragSegment(segment.id, startMarker, 1));
                   }); // Mark peaks is ready
 
                   dispatch(peaksReady(true));

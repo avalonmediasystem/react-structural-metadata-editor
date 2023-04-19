@@ -43,7 +43,6 @@
     "react-testing-library": "^7.0.0",
     "rimraf": "^2.6.3",
     "style-loader": "^0.23.1",
-    "waveform-data": "^4.3.0",
     "webpack": "^5.74.0",
     "webpack-cli": "^5.0.1",
     "webpack-dev-server": "^4.9.2",
@@ -71,7 +70,8 @@
     "redux": "^4.0.0",
     "redux-thunk": "^2.3.0",
     "rxjs": "^6.4.0",
-    "uuid": "^3.3.2"
+    "uuid": "^3.3.2",
+    "waveform-data": "^4.3.0"
   },
   "resolutions": {
     "braces": "2.3.2",

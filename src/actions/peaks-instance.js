@@ -154,24 +154,26 @@ async function buildPeaksInstance(peaksOptions, smData, duration, dispatch, getS
     // Create segments from structural metadata
     const segments = waveformUtils.initSegments(smData, duration);
 
-    // Add segments to peaks instance
-    segments.map((seg) => peaks.segments.add(seg));
-    dispatch(initPeaks(peaks, duration));
-
-    // Subscribe to Peaks events
-    const { peaksInstance } = getState();
-    if (!isEmpty(peaksInstance.events)) {
-      const { dragged } = peaksInstance.events;
-      // for segment editing using handles
-      if (dragged) {
-        dragged.subscribe((eProps) => {
-          // startMarker = true -> handle at the start of the segment is being dragged
-          // startMarker = flase -> handle at the end of the segment is being dragged
-          const { segment, startMarker } = eProps;
-          dispatch(dragSegment(segment.id, startMarker, 1));
-        });
-        // Mark peaks is ready
-        dispatch(peaksReady(true));
+    if (peaks) {
+      // Add segments to peaks instance
+      segments.map((seg) => peaks.segments.add(seg));
+      dispatch(initPeaks(peaks, duration));
+  
+      // Subscribe to Peaks events
+      const { peaksInstance } = getState();
+      if (!isEmpty(peaksInstance.events)) {
+        const { dragged } = peaksInstance.events;
+        // for segment editing using handles
+        if (dragged) {
+          dragged.subscribe((eProps) => {
+            // startMarker = true -> handle at the start of the segment is being dragged
+            // startMarker = flase -> handle at the end of the segment is being dragged
+            const { segment, startMarker } = eProps;
+            dispatch(dragSegment(segment.id, startMarker, 1));
+          });
+          // Mark peaks is ready
+          dispatch(peaksReady(true));
+        }
       }
     }
   });

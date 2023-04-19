@@ -274,29 +274,32 @@ function _buildPeaksInstance() {
             _peaks["default"].init(peaksOptions, function (err, peaks) {
               if (err) console.error('TCL: peaks-instance -> buildPeaksInstance() -> Peaks.init ->', err); // Create segments from structural metadata
 
-              var segments = waveformUtils.initSegments(smData, duration); // Add segments to peaks instance
+              var segments = waveformUtils.initSegments(smData, duration);
 
-              segments.map(function (seg) {
-                return peaks.segments.add(seg);
-              });
-              dispatch(initPeaks(peaks, duration)); // Subscribe to Peaks events
+              if (peaks) {
+                // Add segments to peaks instance
+                segments.map(function (seg) {
+                  return peaks.segments.add(seg);
+                });
+                dispatch(initPeaks(peaks, duration)); // Subscribe to Peaks events
 
-              var _getState = getState(),
-                  peaksInstance = _getState.peaksInstance;
+                var _getState = getState(),
+                    peaksInstance = _getState.peaksInstance;
 
-              if (!(0, _lodash.isEmpty)(peaksInstance.events)) {
-                var dragged = peaksInstance.events.dragged; // for segment editing using handles
+                if (!(0, _lodash.isEmpty)(peaksInstance.events)) {
+                  var dragged = peaksInstance.events.dragged; // for segment editing using handles
 
-                if (dragged) {
-                  dragged.subscribe(function (eProps) {
-                    // startMarker = true -> handle at the start of the segment is being dragged
-                    // startMarker = flase -> handle at the end of the segment is being dragged
-                    var segment = eProps.segment,
-                        startMarker = eProps.startMarker;
-                    dispatch(dragSegment(segment.id, startMarker, 1));
-                  }); // Mark peaks is ready
+                  if (dragged) {
+                    dragged.subscribe(function (eProps) {
+                      // startMarker = true -> handle at the start of the segment is being dragged
+                      // startMarker = flase -> handle at the end of the segment is being dragged
+                      var segment = eProps.segment,
+                          startMarker = eProps.startMarker;
+                      dispatch(dragSegment(segment.id, startMarker, 1));
+                    }); // Mark peaks is ready
 
-                  dispatch(peaksReady(true));
+                    dispatch(peaksReady(true));
+                  }
                 }
               }
             });

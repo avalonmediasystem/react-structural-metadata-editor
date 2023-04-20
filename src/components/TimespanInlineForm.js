@@ -162,8 +162,8 @@ class TimespanInlineForm extends Component {
     const timesValidResponse = validTimespans(
       beginTime,
       endTime,
-      this.allSpans,
-      this.props.peaksInstance.peaks
+      this.props.peaksInstance.duration,
+      this.allSpans
     );
 
     return titleValid && timesValidResponse.valid;

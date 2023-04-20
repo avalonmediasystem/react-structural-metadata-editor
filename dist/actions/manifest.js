@@ -81,11 +81,12 @@ var fetchManifestSuccess = function fetchManifestSuccess() {
 
 exports.fetchManifestSuccess = fetchManifestSuccess;
 
-var setMediaInfo = function setMediaInfo(src, duration) {
+var setMediaInfo = function setMediaInfo(src, duration, isStream) {
   return {
     type: types.SET_MANIFEST_MEDIAINFO,
     src: src,
-    duration: duration
+    duration: duration,
+    isStream: isStream
   };
 };
 

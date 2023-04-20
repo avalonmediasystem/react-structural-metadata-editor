@@ -16,7 +16,6 @@ import {
 } from '../actions/forms';
 import VolumeSlider from './Slider';
 import LoadingSpinner from '../services/LoadingSpinner';
-import { getMimetype } from '../services/utils';
 
 // Content of aria-label for UI components
 const waveformLabel = `Two interactive waveforms, plotted one after the other using data from a masterfile in a back-end server.
@@ -89,17 +88,13 @@ const Waveform = React.forwardRef((props, ref) => {
   React.useEffect(() => {
     setPeaksIsReady(readyPeaks);
 
-    const mimeType = getMimetype(audioFile);
     // When given a .m3u8 playlist, use HLS to stream media
-    if (readyPeaks && mimeType == 'application/x-mpegURL') {
+    if (readyPeaks && mediaInfo.isStream) {
       dispatch(
         retrieveStreamMedia(audioFile, ref.mediaPlayerRef.current, {
           withCredentials: props.withCredentials,
         })
       );
-    } else {
-      // Given a audio/video file, the HTML player handles the playback
-      dispatch(streamMediaSuccess());
     }
   }, [readyPeaks]);
 
@@ -111,12 +106,17 @@ const Waveform = React.forwardRef((props, ref) => {
   }, [streamMediaStatus]);
 
   const handleKeyPress = (event) => {
+    if (event.target.nodeName == 'INPUT') return;    
     // When structure is not being edited play/pause audio when spacebar is pressed
     if (event.keyCode == 32 && !editingRef.current) {
       event.preventDefault();
       ref.mediaPlayerRef.current.paused ? playAudio() : pauseAudio();
     }
   };
+
+  const handleCanplay = () => {
+    dispatch(streamMediaSuccess());
+  } 
 
   const zoomIn = () => {
     peaksInstance.zoom.zoomIn();
@@ -173,6 +173,7 @@ const Waveform = React.forwardRef((props, ref) => {
         controls="controls"
         data-testid="waveform-media"
         src={audioFile}
+        onCanPlay={handleCanplay}
       >
         Your browser does not support the audio element.
       </audio>

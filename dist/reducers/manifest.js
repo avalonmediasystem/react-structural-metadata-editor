@@ -27,7 +27,8 @@ var initialState = {
   manifestFetched: false,
   mediaInfo: {
     src: '',
-    duration: 0
+    duration: 0,
+    isStream: false
   }
 };
 
@@ -55,7 +56,8 @@ var manifest = function manifest() {
       return _objectSpread(_objectSpread({}, state), {}, {
         mediaInfo: _objectSpread(_objectSpread({}, state.mediaInfo), {}, {
           src: action.src,
-          duration: action.duration
+          duration: action.duration,
+          isStream: action.isStream
         })
       });
 

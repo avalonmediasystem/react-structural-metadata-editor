@@ -1,7 +1,7 @@
 import React from 'react';
 import { render } from 'react-dom';
 import config from '../config';
-import Root from '../../src';
+import App from './app';
 
 const props = {
   structureURL: `${config.url}/structure.json`,
@@ -11,4 +11,4 @@ const props = {
   disableSave: config.env === 'prod' ? true : false
 };
 
-render(<Root { ...props } />, document.getElementById('root'));
+render(<App {...props} />, document.getElementById('root'));

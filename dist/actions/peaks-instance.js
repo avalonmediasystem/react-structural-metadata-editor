@@ -23,8 +23,6 @@ exports.updateSegment = updateSegment;
 
 var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
 
-var _slicedToArray2 = _interopRequireDefault(require("@babel/runtime/helpers/slicedToArray"));
-
 var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
 
 var types = _interopRequireWildcard(require("./types"));
@@ -68,7 +66,7 @@ var structuralMetadataUtils = new _StructuralMetadataUtils["default"]();
 function initializePeaks(peaksOptions, manifestURL, canvasIndex) {
   return /*#__PURE__*/function () {
     var _ref = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee(dispatch, getState) {
-      var smData, duration, mediaInfo, waveformInfo, response, alert, _alert, status, _alert2;
+      var smData, duration, mediaInfo, waveformInfo, response, alert, _yield$setWaveformOpt, opts, alertStatus, _alert, status, _alert2;
 
       return _regenerator["default"].wrap(function _callee$(_context) {
         while (1) {
@@ -88,7 +86,7 @@ function initializePeaks(peaksOptions, manifestURL, canvasIndex) {
                 mediaInfo = (0, _iiifParser.getMediaInfo)(response.data, canvasIndex);
                 waveformInfo = (0, _iiifParser.getWaveformInfo)(response.data, canvasIndex);
                 dispatch((0, _manifest.setManifest)(response.data));
-                dispatch((0, _manifest.setMediaInfo)(mediaInfo.src, mediaInfo.duration));
+                dispatch((0, _manifest.setMediaInfo)(mediaInfo.src, mediaInfo.duration, mediaInfo.isStream));
                 smData = (0, _iiifParser.parseStructureToJSON)(response.data, mediaInfo.duration, canvasIndex);
                 duration = mediaInfo.duration;
               }
@@ -106,59 +104,65 @@ function initializePeaks(peaksOptions, manifestURL, canvasIndex) {
               dispatch((0, _smData.buildSMUI)(smData, duration));
               dispatch((0, _smData.saveInitialStructure)(smData)); // Mark the top element as 'root'
 
-              structuralMetadataUtils.markRootElement(smData);
+              structuralMetadataUtils.markRootElement(smData); // Make waveform more zoomed-in for shorter media and less for larger media 
+
+              if (duration < 31) {
+                peaksOptions.zoomLevels = [170, 256, 512];
+              } else if (duration > 31 && duration < 60) {
+                peaksOptions.zoomLevels = [512, 1024];
+              } else {
+                peaksOptions.zoomLevels = [512, 1024, 2048, 4096];
+              }
 
               if (!(waveformInfo != null)) {
-                _context.next = 19;
+                _context.next = 20;
                 break;
               }
 
-              _context.next = 16;
-              return setWaveformInfo(waveformInfo, duration, peaksOptions, dispatch);
+              _context.next = 17;
+              return setWaveformInfo(waveformInfo, mediaInfo, peaksOptions, dispatch);
 
-            case 16:
+            case 17:
               peaksOptions = _context.sent;
-              _context.next = 20;
+              _context.next = 27;
               break;
 
-            case 19:
-              if (duration < 600) {
-                // when duration is less than 10 minutes
-                peaksOptions.webAudio = {
-                  audioContext: new AudioContext(),
-                  scale: 512,
-                  multiChannel: false
-                };
-              } else {
-                peaksOptions.waveformData = {
-                  json: (0, _utils.createEmptyWaveform)(duration)
-                };
-                _alert = (0, _alertStatus.configureAlert)(-7);
+            case 20:
+              _context.next = 22;
+              return (0, _utils.setWaveformOptions)(mediaInfo, peaksOptions);
+
+            case 22:
+              _yield$setWaveformOpt = _context.sent;
+              opts = _yield$setWaveformOpt.opts;
+              alertStatus = _yield$setWaveformOpt.alertStatus;
+              peaksOptions = opts;
+
+              if (alertStatus != null) {
+                _alert = (0, _alertStatus.configureAlert)(alertStatus);
                 dispatch((0, _forms.setAlert)(_alert));
               }
 
-            case 20:
+            case 27:
               buildPeaksInstance(peaksOptions, smData, duration, dispatch, getState);
-              _context.next = 30;
+              _context.next = 37;
               break;
 
-            case 23:
-              _context.prev = 23;
+            case 30:
+              _context.prev = 30;
               _context.t0 = _context["catch"](3);
               console.log('TCL: peaks-instance -> initializePeaks() -> error', _context.t0); // Update manifest error in the redux store
 
               status = _context.t0.response !== undefined ? _context.t0.response.status : -9;
-              dispatch((0, _manifest.handleManifestError)(1, status)); // Create an alert to be displayed in the UI
-
+              dispatch((0, _manifest.handleManifestError)(1, status));
               _alert2 = (0, _alertStatus.configureAlert)(status);
               dispatch((0, _forms.setAlert)(_alert2));
 
-            case 30:
+            case 37:
             case "end":
               return _context.stop();
           }
         }
-      }, _callee, null, [[3, 23]]);
+      }, _callee, null, [[3, 30]]);
     }));
 
     return function (_x, _x2) {
@@ -172,10 +176,14 @@ function setWaveformInfo(_x3, _x4, _x5, _x6) {
 }
 
 function _setWaveformInfo() {
-  _setWaveformInfo = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee2(waveformURL, duration, peaksOptions, dispatch) {
+  _setWaveformInfo = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee2(waveformURL, mediaInfo, peaksOptions, dispatch) {
     var status,
+        _yield$setWaveformOpt2,
+        opts,
+        alertStatus,
         alert,
         _args2 = arguments;
+
     return _regenerator["default"].wrap(function _callee2$(_context2) {
       while (1) {
         switch (_context2.prev = _context2.next) {
@@ -192,7 +200,7 @@ function _setWaveformInfo() {
             }; // Update redux-store flag for waveform file retrieval
 
             dispatch((0, _forms.retrieveWaveformSuccess)());
-            _context2.next = 12;
+            _context2.next = 24;
             break;
 
           case 8:
@@ -201,24 +209,40 @@ function _setWaveformInfo() {
             // Enable the flash message alert
             console.log('TCL: peaks-instance -> setWaveformInfo() -> error', _context2.t0); // Pull status code out of error response/request
 
-            if (_context2.t0.response !== undefined) {
-              status = _context2.t0.response.status;
+            if (!(_context2.t0.response !== undefined)) {
+              _context2.next = 16;
+              break;
+            }
 
-              if (status == 404) {
-                peaksOptions.dataUri = {
-                  json: "".concat(waveformURL, "?empty=true")
-                };
-                status = -7;
-              }
-            } else if (_context2.t0.request !== undefined) {
-              // Set dummy waveform data
-              peaksOptions.waveformData = {
-                json: (0, _utils.createEmptyWaveform)(duration)
+            status = _context2.t0.response.status;
+
+            if (status == 404) {
+              peaksOptions.dataUri = {
+                json: "".concat(waveformURL, "?empty=true")
               };
               status = -7;
             }
 
-          case 12:
+            _context2.next = 24;
+            break;
+
+          case 16:
+            if (!(_context2.t0.request !== undefined)) {
+              _context2.next = 24;
+              break;
+            }
+
+            _context2.next = 19;
+            return (0, _utils.setWaveformOptions)(mediaInfo, peaksOptions);
+
+          case 19:
+            _yield$setWaveformOpt2 = _context2.sent;
+            opts = _yield$setWaveformOpt2.opts;
+            alertStatus = _yield$setWaveformOpt2.alertStatus;
+            peaksOptions = opts;
+            status = alertStatus;
+
+          case 24:
             if (status != null) {
               alert = (0, _alertStatus.configureAlert)(status);
               dispatch((0, _forms.setAlert)(alert));
@@ -226,7 +250,7 @@ function _setWaveformInfo() {
 
             return _context2.abrupt("return", peaksOptions);
 
-          case 14:
+          case 26:
           case "end":
             return _context2.stop();
         }
@@ -265,13 +289,11 @@ function _buildPeaksInstance() {
 
                 if (dragged) {
                   dragged.subscribe(function (eProps) {
-                    // startTimeChanged = true -> handle at the start of the segment is being dragged
-                    // startTimeChanged = flase -> handle at the end of the segment is being dragged
-                    var _eProps = (0, _slicedToArray2["default"])(eProps, 2),
-                        segment = _eProps[0],
-                        startTimeChanged = _eProps[1];
-
-                    dispatch(dragSegment(segment.id, startTimeChanged, 1));
+                    // startMarker = true -> handle at the start of the segment is being dragged
+                    // startMarker = flase -> handle at the end of the segment is being dragged
+                    var segment = eProps.segment,
+                        startMarker = eProps.startMarker;
+                    dispatch(dragSegment(segment.id, startMarker, 1));
                   }); // Mark peaks is ready
 
                   dispatch(peaksReady(true));

@@ -45,8 +45,9 @@ export const fetchManifestSuccess = () => ({
  * @param {String} src - media file URI
  * @param {Number} duration - duration of the media file
  */
-export const setMediaInfo = (src, duration) => ({
+export const setMediaInfo = (src, duration, isStream) => ({
   type: types.SET_MANIFEST_MEDIAINFO,
   src,
   duration,
+  isStream,
 });

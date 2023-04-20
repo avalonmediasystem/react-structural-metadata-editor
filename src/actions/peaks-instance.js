@@ -6,7 +6,7 @@ import APIUtils from '../api/Utils';
 import { configureAlert } from '../services/alert-status';
 import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
 import WaveformDataUtils from '../services/WaveformDataUtils';
-import { createEmptyWaveform } from '../services/utils';
+import { setWaveformOptions } from '../services/utils';
 import {
   getMediaInfo,
   getWaveformInfo,
@@ -56,7 +56,7 @@ export function initializePeaks(
         waveformInfo = getWaveformInfo(response.data, canvasIndex);
 
         dispatch(setManifest(response.data));
-        dispatch(setMediaInfo(mediaInfo.src, mediaInfo.duration));
+        dispatch(setMediaInfo(mediaInfo.src, mediaInfo.duration, mediaInfo.isStream));
         smData = parseStructureToJSON(response.data, mediaInfo.duration, canvasIndex);
         duration = mediaInfo.duration;
       }
@@ -77,37 +77,39 @@ export function initializePeaks(
       // Mark the top element as 'root'
       structuralMetadataUtils.markRootElement(smData);
 
-      if (waveformInfo != null) {
-        peaksOptions = await setWaveformInfo(waveformInfo, duration, peaksOptions, dispatch);
-      } else if (duration < 600) { // when duration is less than 10 minutes
-        peaksOptions.webAudio = {
-          audioContext: new AudioContext(),
-          scale: 512,
-          multiChannel: false,
-        }
+      // Make waveform more zoomed-in for shorter media and less for larger media 
+      if(duration < 31) {
+        peaksOptions.zoomLevels = [170, 256, 512];
+      } else if (duration > 31 && duration < 60) {
+        peaksOptions.zoomLevels = [512, 1024];
       } else {
-        peaksOptions.waveformData = {
-          json: createEmptyWaveform(duration)
+        peaksOptions.zoomLevels = [512, 1024, 2048, 4096];
+      }
+
+      if (waveformInfo != null) {
+        peaksOptions = await setWaveformInfo(waveformInfo, mediaInfo, peaksOptions, dispatch);
+      } 
+      else {
+        const { opts, alertStatus } = await setWaveformOptions(mediaInfo, peaksOptions);
+        peaksOptions = opts;
+        if(alertStatus != null) {
+          let alert = configureAlert(alertStatus);
+          dispatch(setAlert(alert));
         }
-        let alert = configureAlert(-7);
-        dispatch(setAlert(alert));
       }
       buildPeaksInstance(peaksOptions, smData, duration, dispatch, getState);
     } catch (error) {
       console.log('TCL: peaks-instance -> initializePeaks() -> error', error);
-
       // Update manifest error in the redux store
       let status = error.response !== undefined ? error.response.status : -9;
       dispatch(handleManifestError(1, status));
-
-      // Create an alert to be displayed in the UI
       let alert = configureAlert(status);
       dispatch(setAlert(alert));
     }
   };
 }
 
-async function setWaveformInfo(waveformURL, duration, peaksOptions, dispatch, status = null) {
+async function setWaveformInfo(waveformURL, mediaInfo, peaksOptions, dispatch, status = null) {
   try {
     // Check whether the waveform.json exists in the server
     await apiUtils.headRequest(waveformURL);
@@ -126,9 +128,10 @@ async function setWaveformInfo(waveformURL, duration, peaksOptions, dispatch, st
         status = -7;
       }
     } else if (error.request !== undefined) {
-      // Set dummy waveform data
-      peaksOptions.waveformData = { json: createEmptyWaveform(duration) };
-      status = -7;
+      // Set waveform data option
+      const { opts, alertStatus } = await setWaveformOptions(mediaInfo, peaksOptions);
+      peaksOptions = opts;
+      status = alertStatus;
     }
   }
 
@@ -162,10 +165,10 @@ async function buildPeaksInstance(peaksOptions, smData, duration, dispatch, getS
       // for segment editing using handles
       if (dragged) {
         dragged.subscribe((eProps) => {
-          // startTimeChanged = true -> handle at the start of the segment is being dragged
-          // startTimeChanged = flase -> handle at the end of the segment is being dragged
-          const [segment, startTimeChanged] = eProps;
-          dispatch(dragSegment(segment.id, startTimeChanged, 1));
+          // startMarker = true -> handle at the start of the segment is being dragged
+          // startMarker = flase -> handle at the end of the segment is being dragged
+          const { segment, startMarker } = eProps;
+          dispatch(dragSegment(segment.id, startMarker, 1));
         });
         // Mark peaks is ready
         dispatch(peaksReady(true));

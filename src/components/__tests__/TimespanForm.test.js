@@ -36,6 +36,7 @@ const initialState = {
       editable: true,
       color: '#FBB040',
     },
+    duration: 1738.945,
   },
 };
 

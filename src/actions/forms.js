@@ -114,7 +114,7 @@ export function retrieveStreamMedia(audioFile, mediaPlayer, opts = {}) {
 
       // ERROR event is fired when fetching media stream is not successful
       hls.on(Hls.Events.ERROR, function (event, data) {
-        dispatch(setStreamMediaLoading(1))
+        dispatch(setStreamMediaLoading(1));
         let errorCode = null;
         // When there are errors in the HLS build this block catches it and flashes
         // the warning message for a split second. The ErrorType for these errors is
@@ -131,6 +131,9 @@ export function retrieveStreamMedia(audioFile, mediaPlayer, opts = {}) {
             errorCode = -6;
           }
           dispatch(streamMediaError(errorCode));
+        } else if(data.levelRetry) {
+          // Check if HLS.js is still trying to fetch stream
+          dispatch(setStreamMediaLoading(1));
         } else {
           dispatch(setStreamMediaLoading(0));
         }

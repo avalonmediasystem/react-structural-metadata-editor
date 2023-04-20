@@ -112,20 +112,17 @@ function isTitleValid(title) {
  * Validates that the begin and end time span values are valid separately, and together
  * in the region which they will create.
  *
- * This function also preps handy feedback messages we might want to display to the user
+ * This function also preps handy feedback messages we might want to display to the user * 
+ * @param {Number} beginTime 
+ * @param {Number} endTime 
+ * @param {Number} duration duration saved in central state
+ * @param {Array} allSpans list of all timespans in peaks
+ * @returns {Object} { valid: <Boolean>, message: <String> }
  */
 
 
-function validTimespans(beginTime, endTime, allSpans, peaksInstance) {
-  var duration;
-
-  if (peaksInstance !== undefined) {
-    if (peaksInstance.player !== undefined) {
-      duration = waveformDataUtils.roundOff(peaksInstance.player.getDuration());
-    }
-  } // Valid formats?
-
-
+function validTimespans(beginTime, endTime, duration, allSpans) {
+  // Valid formats?
   if (!validTimeFormat(beginTime)) {
     return {
       valid: false,

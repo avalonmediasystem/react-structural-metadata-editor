@@ -43,7 +43,7 @@
     "react-testing-library": "^7.0.0",
     "rimraf": "^2.6.3",
     "style-loader": "^0.23.1",
-    "webpack": "^5.74.0",
+    "webpack": "^5.76.0",
     "webpack-cli": "^5.0.1",
     "webpack-dev-server": "^4.9.2",
     "webpack-hot-middleware": "^2.25.1"

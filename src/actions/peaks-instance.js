@@ -4,108 +4,61 @@ import Peaks from 'peaks.js';
 
 import APIUtils from '../api/Utils';
 import { configureAlert } from '../services/alert-status';
-import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
 import WaveformDataUtils from '../services/WaveformDataUtils';
 import { setWaveformOptions } from '../services/utils';
+import { getWaveformInfo } from '../services/iiif-parser';
 import {
-  getMediaInfo,
-  getWaveformInfo,
-  parseStructureToJSON
-} from '../services/iiif-parser';
-
-import { buildSMUI, saveInitialStructure } from './sm-data';
-import {
-  retrieveStructureSuccess,
-  handleStructureError,
   setAlert,
   retrieveWaveformSuccess,
 } from './forms';
-import {
-  fetchManifestSuccess,
-  handleManifestError,
-  setManifest,
-  setMediaInfo
-} from './manifest';
 
 const waveformUtils = new WaveformDataUtils();
 const apiUtils = new APIUtils();
-const structuralMetadataUtils = new StructuralMetadataUtils();
 
 /**
- * Fetch structure.json and initialize Peaks
- * @param {Object} peaks - initialized peaks instance
- * @param {String} structureURL - URL of the structure.json
+ * Initialize Peaks instance
  * @param {Object} options - peaks options
+ * @param {Array} smData - array of structures from the manifest
+ * @param {Number} canvasIndex - index of the current canvas
  */
 export function initializePeaks(
   peaksOptions,
-  manifestURL,
+  smData,
   canvasIndex,
 ) {
   return async (dispatch, getState) => {
-    let smData = [];
     let duration = 0;
     let mediaInfo = {};
     let waveformInfo;
 
-    try {
-      const response = await apiUtils.getRequest(manifestURL);
+    const { manifest } = getState();
+    duration = manifest.mediaInfo.duration;
 
-      if (!isEmpty(response.data)) {
-        mediaInfo = getMediaInfo(response.data, canvasIndex);
-        waveformInfo = getWaveformInfo(response.data, canvasIndex);
+    if(manifest) {
+      waveformInfo = getWaveformInfo(manifest.manifest, canvasIndex);
+    }
 
-        dispatch(setManifest(response.data));
-        dispatch(setMediaInfo(mediaInfo.src, mediaInfo.duration, mediaInfo.isStream));
-        smData = parseStructureToJSON(response.data, mediaInfo.duration, canvasIndex);
-        duration = mediaInfo.duration;
-      }
+    // Make waveform more zoomed-in for shorter media and less for larger media
+    if(duration < 31) {
+      peaksOptions.zoomLevels = [170, 256, 512];
+    } else if (duration > 31 && duration < 60) {
+      peaksOptions.zoomLevels = [512, 1024];
+    } else {
+      peaksOptions.zoomLevels = [512, 1024, 2048, 4096];
+    }
 
-      if (smData.length > 0) {
-        dispatch(retrieveStructureSuccess());
-      } else {
-        dispatch(handleStructureError(1, -2));
-        let alert = configureAlert(-2);
+    if (waveformInfo != null) {
+      peaksOptions = await setWaveformInfo(waveformInfo, mediaInfo, peaksOptions, dispatch);
+    } 
+    else {
+      const { opts, alertStatus } = await setWaveformOptions(mediaInfo, peaksOptions);
+      peaksOptions = opts;
+      if(alertStatus != null) {
+        let alert = configureAlert(alertStatus);
         dispatch(setAlert(alert));
       }
-      dispatch(fetchManifestSuccess());
-
-      // Initialize Redux state variable with structure
-      dispatch(buildSMUI(smData, duration));
-      dispatch(saveInitialStructure(smData));
-
-      // Mark the top element as 'root'
-      structuralMetadataUtils.markRootElement(smData);
-
-      // Make waveform more zoomed-in for shorter media and less for larger media 
-      if(duration < 31) {
-        peaksOptions.zoomLevels = [170, 256, 512];
-      } else if (duration > 31 && duration < 60) {
-        peaksOptions.zoomLevels = [512, 1024];
-      } else {
-        peaksOptions.zoomLevels = [512, 1024, 2048, 4096];
-      }
-
-      if (waveformInfo != null) {
-        peaksOptions = await setWaveformInfo(waveformInfo, mediaInfo, peaksOptions, dispatch);
-      } 
-      else {
-        const { opts, alertStatus } = await setWaveformOptions(mediaInfo, peaksOptions);
-        peaksOptions = opts;
-        if(alertStatus != null) {
-          let alert = configureAlert(alertStatus);
-          dispatch(setAlert(alert));
-        }
-      }
-      buildPeaksInstance(peaksOptions, smData, duration, dispatch, getState);
-    } catch (error) {
-      console.log('TCL: peaks-instance -> initializePeaks() -> error', error);
-      // Update manifest error in the redux store
-      let status = error.response !== undefined ? error.response.status : -9;
-      dispatch(handleManifestError(1, status));
-      let alert = configureAlert(status);
-      dispatch(setAlert(alert));
     }
+    buildPeaksInstance(peaksOptions, smData, duration, dispatch, getState);
   };
 }
 

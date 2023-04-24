@@ -6119,10 +6119,10 @@ path-type@^4.0.0:
   resolved "https://registry.yarnpkg.com/path-type/-/path-type-4.0.0.tgz#84ed01c0a7ba380afe09d90a8c180dcd9d03043b"
   integrity sha512-gDKb8aZMDeD/tZWs9P6+q0J9Mwkdl6xMV8TjnGP3qJVJ06bdMgkbBlLU8IdfOsIsFz2BW1rNVT3XuNEl8zPAvw==
 
-peaks.js@^2.1.0:
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/peaks.js/-/peaks.js-2.1.0.tgz#d494c1752e13c0d9a1064d5ec5f408640eec032b"
-  integrity sha512-oWsqrHckPv9w1yXIciX81kVXPZSFifGhETmR1bLFbV7KlqPRCYvLVaTpHc6Nl+Ogps0BMRvCnrQLEYCWBKA0uA==
+peaks.js@2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/peaks.js/-/peaks.js-2.0.0.tgz#46d361045d448e185a49db5e40dfa8b40f2f0ff4"
+  integrity sha512-pVlKGkNsxo/Y4rqdJr5vr/klYDxQkAdRzNeARHuxG/WEldUQMkE3kamXfNCSQ9a2j1h3NvHtuRGK8YplERA06w==
   dependencies:
     eventemitter3 "~4.0.7"
 

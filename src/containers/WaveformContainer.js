@@ -60,7 +60,7 @@ const WaveformContainer = (props) => {
         smData,
         props.canvasIndex,));
     }
-  }, [streamMediaLoading, smData]);
+  }, [streamMediaLoading]);
 
   return (
     <section className="waveform-section" data-testid="waveform-container">

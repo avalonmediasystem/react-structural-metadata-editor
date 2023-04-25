@@ -7,8 +7,6 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports["default"] = void 0;
 
-var _slicedToArray2 = _interopRequireDefault(require("@babel/runtime/helpers/slicedToArray"));
-
 var _react = _interopRequireDefault(require("react"));
 
 var _propTypes = _interopRequireDefault(require("prop-types"));
@@ -16,6 +14,10 @@ var _propTypes = _interopRequireDefault(require("prop-types"));
 var _reactRedux = require("react-redux");
 
 var _peaksInstance = require("../actions/peaks-instance");
+
+var _manifest = require("../actions/manifest");
+
+var _forms = require("../actions/forms");
 
 var _Waveform = _interopRequireDefault(require("../components/Waveform"));
 
@@ -26,35 +28,57 @@ var WaveformContainer = function WaveformContainer(props) {
 
   var mediaPlayer = /*#__PURE__*/_react["default"].createRef();
 
-  var _React$useState = _react["default"].useState(props.manifestURL),
-      _React$useState2 = (0, _slicedToArray2["default"])(_React$useState, 2),
-      manifestURL = _React$useState2[0],
-      setManifestURL = _React$useState2[1];
+  var _useSelector = (0, _reactRedux.useSelector)(function (state) {
+    return state.forms.streamInfo;
+  }),
+      streamMediaLoading = _useSelector.streamMediaLoading;
 
-  var _React$useState3 = _react["default"].useState(props.canvasIndex),
-      _React$useState4 = (0, _slicedToArray2["default"])(_React$useState3, 2),
-      canvasIndex = _React$useState4[0],
-      setCanvasIndex = _React$useState4[1];
-
+  var mediaInfo = (0, _reactRedux.useSelector)(function (state) {
+    return state.manifest.mediaInfo;
+  });
+  var smData = (0, _reactRedux.useSelector)(function (state) {
+    return state.structuralMetadata.smData;
+  });
   var dispatch = (0, _reactRedux.useDispatch)();
+
+  _react["default"].useEffect(function () {
+    if (props.manifestURL) {
+      dispatch((0, _manifest.initManifest)(props.manifestURL, props.canvasIndex));
+    }
+  }, []);
+
+  _react["default"].useEffect(function () {
+    // When given a .m3u8 playlist, use HLS to stream media
+    if (mediaInfo.isStream) {
+      dispatch((0, _forms.retrieveStreamMedia)(mediaInfo.src, mediaPlayer.current, {
+        withCredentials: props.withCredentials
+      }));
+    }
+  }, [mediaInfo]);
 
   _react["default"].useEffect(function () {
     var peaksOptions = {
       keyboard: true,
       pointMarkerColor: '#006eb0',
       showPlayheadTime: true,
-      zoomWaveformColor: 'rgba(117, 117, 117, 1)',
-      overviewWaveformColor: 'rgba(117, 117, 117, 1)',
       timeLabelPrecision: 3,
-      containers: {
-        zoomview: zoomView.current,
-        overview: overView.current
+      zoomview: {
+        container: zoomView.current,
+        waveformColor: 'rgba(117, 117, 117, 1)'
+      },
+      overview: {
+        container: overView.current,
+        waveformColor: 'rgba(117, 117, 117, 1)'
       },
       mediaElement: mediaPlayer.current,
-      withCredentials: props.withCredentials
+      withCredentials: props.withCredentials,
+      player: null
     };
-    dispatch((0, _peaksInstance.initializePeaks)(peaksOptions, manifestURL, canvasIndex));
-  }, []);
+
+    if (!streamMediaLoading && smData != []) {
+      dispatch((0, _peaksInstance.initializePeaks)(peaksOptions, smData, props.canvasIndex));
+    }
+  }, [streamMediaLoading]);
 
   return /*#__PURE__*/_react["default"].createElement("section", {
     className: "waveform-section",

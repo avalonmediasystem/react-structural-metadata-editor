@@ -319,14 +319,6 @@ export const manifest = {
           ],
         },
       ],
-      rendering: [
-        {
-          id: 'https://example.com/volleyball-for-boys/waveform.json',
-          type: 'Dataset',
-          label: { en: ['waveform.json'] },
-          format: 'application/json',
-        }
-      ],
       width: 1920,
       height: 1080,
       duration: 662.037,
@@ -381,7 +373,7 @@ export const manifestWithInvalidStruct = {
               id: 'https://example.com/manifest/canvas/1/page/annotation',
               type: 'Annotation',
               motivation: 'painting',
-              body: [],
+              body: {},
               target: 'https://example.com/manifest/canvas/1',
             },
           ],

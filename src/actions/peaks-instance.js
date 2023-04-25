@@ -32,9 +32,10 @@ export function initializePeaks(
     let waveformInfo;
 
     const { manifest } = getState();
-    duration = manifest.mediaInfo.duration;
 
     if(manifest) {
+      mediaInfo = manifest.mediaInfo;
+      duration = mediaInfo.duration;
       waveformInfo = getWaveformInfo(manifest.manifest, canvasIndex);
     }
 

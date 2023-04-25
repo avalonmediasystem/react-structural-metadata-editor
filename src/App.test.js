@@ -12,6 +12,9 @@ import {
   manifestWithInvalidStruct,
 } from './services/testing-helpers';
 import mockAxios from 'axios';
+import { AudioContext } from 'standardized-audio-context-mock';
+
+global.AudioContext = AudioContext;
 
 jest.mock('peaks.js');
 const mockStructureIsSaved = jest.fn();
@@ -24,10 +27,12 @@ const baseState = {
   forms: {
     streamInfo: {
       streamMediaStatus: null,
+      streamMediaLoading: false,
     },
     structureInfo: {
       structureSaved: true,
     },
+    alerts: [],
   },
   manifest: {
     manifest: manifestWithStructure,
@@ -95,26 +100,27 @@ describe('App component', () => {
   describe('renders alerts', () => {
     describe('with valid manifest', () => {
       describe('without waveform information', () => {
-        test('for media file with duration > 10 mins, shows a persistent alert', async () => {
+        test('for media file with duration > 5 mins, shows a persistent alert', async () => {
           mockAxios.get.mockImplementationOnce(() => {
             return Promise.resolve({
               status: 200,
               data: manifest
             });
           });
-          mockAxios.head.mockImplementationOnce(() => {
-            return Promise.reject({
-              response: {
-                status: 404,
-              },
-            });
-          });
   
-          const app = renderWithRedux(<App {...props} />, { baseState });
+          const initialState = {
+            ...baseState,
+            forms: {
+              ...baseState.forms,
+              streamInfo: {
+                streamMediaLoading: false,
+              },
+            }
+          }
+          const app = renderWithRedux(<App {...props} />, { initialState });
           await wait(() => {
             expect(app.getByTestId('waveform-container')).toBeInTheDocument();
             expect(mockAxios.get).toHaveBeenCalledTimes(1);
-            expect(mockAxios.head).toHaveBeenCalledTimes(1);
             expect(
               app.queryByTestId('persistent-alert-container')
             ).toBeInTheDocument();
@@ -122,7 +128,7 @@ describe('App component', () => {
           });
         }, 10000);
   
-        test('for media file with duration < 10 mins', async () => {
+        test('for media file with duration < 5 mins', async () => {
           mockAxios.get.mockImplementationOnce(() => {
             return Promise.resolve({
               status: 200,
@@ -136,7 +142,19 @@ describe('App component', () => {
               manifest: manifestWithStructure,
               mediaInfo: {
                 src: 'http://example.com/volleyball/high/volleyball-for-boys.mp4',
-                duration: 572.4,
+                duration: 200.04,
+              }
+            },
+            structuralMetadata: {
+              smData: testSmData,
+              smDataIsValid: true,
+            },
+            forms: {
+              streamInfo: {
+                streamMediaLoading: false,
+              },
+              structureInfo: {
+                structureRetrieved: true,
               }
             },
           };
@@ -174,6 +192,18 @@ describe('App component', () => {
               duration: 572.4,
             }
           },
+          structuralMetadata: {
+            smData: testSmData,
+            smDataIsValid: true,
+          },
+          forms: {
+            streamInfo: {
+              streamMediaLoading: false,
+            },
+            structureInfo: {
+              structureRetrieved: true,
+            }
+          },
         };
         const propsRevised = {
           ...props,
@@ -184,7 +214,7 @@ describe('App component', () => {
 
         await wait(() => {
           expect(app.queryByTestId('waveform-container')).toBeInTheDocument();
-          expect(mockAxios.head).toHaveBeenCalledTimes(1);
+          expect(mockAxios.head).toHaveBeenCalled();
           expect(app.queryByTestId('alert-container')).not.toBeInTheDocument();
         });
       }, 10000);
@@ -232,23 +262,24 @@ describe('App component', () => {
   });
 
   describe('renders structure related alerts', () => {
-    const initialState = {
-      manifest: {
-        manifestFetched: true,
-        manifest: manifestWithStructure,
-        mediaInfo: {
-          src: 'http://example.com/volleyball-for-boys/high/volleyball-for-boys.mp4',
-          duration: 662.037,
-        },
-      },
-    };
     describe('when saving structure is successful', () => {
       let app, saveButton;
+      let initialState = {};
       beforeEach(() => {
+        initialState = {
+          manifest: {
+            manifestFetched: true,
+            manifest: manifestWithStructure,
+            mediaInfo: {
+              src: 'http://example.com/volleyball-for-boys/high/volleyball-for-boys.mp4',
+              duration: 662.037,
+            },
+          },
+        };
         mockAxios.get.mockImplementationOnce(() => {
           return Promise.resolve({
             status: 200,
-            data: manifest
+            data: manifestWithStructure
           });
         });
         mockAxios.post.mockImplementationOnce(() => {
@@ -299,7 +330,7 @@ describe('App component', () => {
       mockAxios.get.mockImplementationOnce(() => {
         return Promise.resolve({
           status: 200,
-          data: manifest
+          data: manifestWithStructure
         });
       });
       mockAxios.post.mockImplementationOnce(() => {
@@ -309,6 +340,16 @@ describe('App component', () => {
           },
         });
       });
+      const initialState = {
+        manifest: {
+          manifestFetched: true,
+          manifest: manifestWithStructure,
+          mediaInfo: {
+            src: 'http://example.com/volleyball-for-boys/high/volleyball-for-boys.mp4',
+            duration: 662.037,
+          },
+        },
+      };
 
       const app = renderWithRedux(<App {...props} />, { initialState });
       fireEvent.click(app.getByTestId('structure-save-button'));
@@ -338,14 +379,17 @@ describe('App component', () => {
           },
         });
       });
-      const nextState = {
-        ...initialState,
+      const initialState = {
         manifest: {
-          ...initialState.manifest,
-          manifest: manifestWithInvalidStruct
-        }
+          manifestFetched: true,
+          manifest: manifestWithInvalidStruct,
+          mediaInfo: {
+            src: 'http://example.com/volleyball-for-boys/high/volleyball-for-boys.mp4',
+            duration: 662.037,
+          },
+        },
       };
-      const app = renderWithRedux(<App {...props} />, { nextState });
+      const app = renderWithRedux(<App {...props} />, { initialState });
 
       await wait(() => {
         expect(app.queryAllByTestId('list-item').length).toBeGreaterThan(0);

@@ -1,12 +1,61 @@
 import * as types from './types';
 import { isEmpty } from 'lodash';
-import { handleStructureError, setAlert } from './forms';
 import APIUtils from '../api/Utils';
+import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
+
 import { configureAlert } from '../services/alert-status';
-import { buildSMUI } from './sm-data';
+import { buildSMUI, saveInitialStructure } from './sm-data';
 import { getMediaInfo, parseStructureToJSON } from '../services/iiif-parser';
+import {
+  retrieveStructureSuccess,
+  handleStructureError,
+  setAlert,
+} from './forms';
 
 const apiUtils = new APIUtils();
+const structuralMetadataUtils = new StructuralMetadataUtils();
+
+export const initManifest = ( manifestURL, canvasIndex ) => {
+  return async (dispatch, getState) => {
+    let smData = [];
+    let duration = 0;
+    let mediaInfo = {};
+    try {
+      const response = await apiUtils.getRequest(manifestURL);
+      if (!isEmpty(response.data)) {
+        mediaInfo = getMediaInfo(response.data, canvasIndex);
+  
+        dispatch(setManifest(response.data));
+        dispatch(setMediaInfo(mediaInfo.src, mediaInfo.duration, mediaInfo.isStream));
+        smData = parseStructureToJSON(response.data, mediaInfo.duration, canvasIndex);
+        duration = mediaInfo.duration;
+      }
+  
+      if (smData.length > 0) {
+        dispatch(retrieveStructureSuccess());
+      } else {
+        dispatch(handleStructureError(1, -2));
+        let alert = configureAlert(-2);
+        dispatch(setAlert(alert));
+      }
+      dispatch(fetchManifestSuccess());
+  
+      // Initialize Redux state variable with structure
+      dispatch(buildSMUI(smData, duration));
+      dispatch(saveInitialStructure(smData));
+  
+      // Mark the top element as 'root'
+      structuralMetadataUtils.markRootElement(smData);
+    } catch (error) {
+      console.log('TCL: manifest -> initManifest() -> error', error);
+      // Update manifest error in the redux store
+      let status = error.response !== undefined ? error.response.status : -9;
+      dispatch(handleManifestError(1, status));
+      let alert = configureAlert(status);
+      dispatch(setAlert(alert));
+    }
+  }
+}
 
 /**
  * Set manifest content fetched from the given manifestURL

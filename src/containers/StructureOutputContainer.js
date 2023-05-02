@@ -43,7 +43,7 @@ const StructureOutputContainer = (props) => {
   }, [structureInfo.structureSaved]);
 
   const handleSaveError = (error) => {
-    console.log('TCL: handleSaveError -> error', error);
+    console.log('TCL: handleSaveError -> error -> ', error);
     let status = -10;
     const alert = configureAlert(status);
     dispatch(setAlert(alert));

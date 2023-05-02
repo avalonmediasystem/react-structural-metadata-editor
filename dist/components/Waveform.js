@@ -87,10 +87,6 @@ var Waveform = /*#__PURE__*/_react["default"].forwardRef(function (props, ref) {
   };
 
   _react["default"].useEffect(function () {
-    setAudioFile(props.audioURL);
-  }, []);
-
-  _react["default"].useEffect(function () {
     // Add an event listener to keydown event
     document.addEventListener('keydown', handleKeyPress); // Remove event listener when component is unmounting
 
@@ -105,7 +101,9 @@ var Waveform = /*#__PURE__*/_react["default"].forwardRef(function (props, ref) {
   }, [streamMediaError, streamMediaLoading, readyPeaks]);
 
   _react["default"].useEffect(function () {
-    setAudioFile(mediaInfo.src);
+    if (!mediaInfo.isStream) {
+      setAudioFile(mediaInfo.src);
+    }
   }, [mediaInfo]);
 
   _react["default"].useEffect(function () {
@@ -120,16 +118,6 @@ var Waveform = /*#__PURE__*/_react["default"].forwardRef(function (props, ref) {
   _react["default"].useEffect(function () {
     setEditing(editingDisabled);
   }, [editingDisabled]);
-
-  _react["default"].useEffect(function () {
-    setPeaksIsReady(readyPeaks); // When given a .m3u8 playlist, use HLS to stream media
-
-    if (readyPeaks && mediaInfo.isStream) {
-      dispatch((0, _forms.retrieveStreamMedia)(audioFile, ref.mediaPlayerRef.current, {
-        withCredentials: props.withCredentials
-      }));
-    }
-  }, [readyPeaks]);
 
   _react["default"].useEffect(function () {
     if (streamMediaStatus) {

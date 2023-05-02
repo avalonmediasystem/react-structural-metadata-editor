@@ -88,7 +88,7 @@ var StructureOutputContainer = function StructureOutputContainer(props) {
   }, [structureInfo.structureSaved]);
 
   var handleSaveError = function handleSaveError(error) {
-    console.log('TCL: handleSaveError -> error', error);
+    console.log('TCL: handleSaveError -> error -> ', error);
     var status = -10;
     var alert = (0, _alertStatus.configureAlert)(status);
     dispatch((0, _forms.setAlert)(alert));

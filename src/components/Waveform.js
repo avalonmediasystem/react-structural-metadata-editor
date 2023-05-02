@@ -10,7 +10,6 @@ import {
 import { useSelector, useDispatch } from 'react-redux';
 import { configureAlert } from '../services/alert-status';
 import {
-  retrieveStreamMedia,
   setAlert,
   streamMediaSuccess,
 } from '../actions/forms';
@@ -48,9 +47,6 @@ const Waveform = React.forwardRef((props, ref) => {
     editingRef.current = e;
   };
 
-  React.useEffect(() => {
-    setAudioFile(props.audioURL);
-  }, []);
 
   React.useEffect(() => {
     // Add an event listener to keydown event
@@ -68,7 +64,9 @@ const Waveform = React.forwardRef((props, ref) => {
   }, [streamMediaError, streamMediaLoading, readyPeaks])
 
   React.useEffect(() => {
-    setAudioFile(mediaInfo.src);
+    if(!mediaInfo.isStream) {
+      setAudioFile(mediaInfo.src);
+    }
   }, [mediaInfo]);
 
   React.useEffect(() => {
@@ -84,19 +82,6 @@ const Waveform = React.forwardRef((props, ref) => {
   React.useEffect(() => {
     setEditing(editingDisabled);
   }, [editingDisabled]);
-
-  React.useEffect(() => {
-    setPeaksIsReady(readyPeaks);
-
-    // When given a .m3u8 playlist, use HLS to stream media
-    if (readyPeaks && mediaInfo.isStream) {
-      dispatch(
-        retrieveStreamMedia(audioFile, ref.mediaPlayerRef.current, {
-          withCredentials: props.withCredentials,
-        })
-      );
-    }
-  }, [readyPeaks]);
 
   React.useEffect(() => {
     if (streamMediaStatus) {
@@ -116,7 +101,7 @@ const Waveform = React.forwardRef((props, ref) => {
 
   const handleCanplay = () => {
     dispatch(streamMediaSuccess());
-  } 
+  };
 
   const zoomIn = () => {
     peaksInstance.zoom.zoomIn();

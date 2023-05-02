@@ -83,10 +83,6 @@ const Waveform = React.forwardRef((props, ref) => {
     setEditing(editingDisabled);
   }, [editingDisabled]);
 
-  // React.useEffect(() => {
-  //   setPeaksIsReady(readyPeaks);
-  // }, [readyPeaks]);
-
   React.useEffect(() => {
     if (streamMediaStatus) {
       const alert = configureAlert(streamMediaStatus);

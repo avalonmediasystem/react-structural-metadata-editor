@@ -117,10 +117,7 @@ var Waveform = /*#__PURE__*/_react["default"].forwardRef(function (props, ref) {
 
   _react["default"].useEffect(function () {
     setEditing(editingDisabled);
-  }, [editingDisabled]); // React.useEffect(() => {
-  //   setPeaksIsReady(readyPeaks);
-  // }, [readyPeaks]);
-
+  }, [editingDisabled]);
 
   _react["default"].useEffect(function () {
     if (streamMediaStatus) {

@@ -379,7 +379,7 @@ export const manifestWithInvalidStruct = {
           ],
         },
       ],
-      rendering: [
+      seeAlso: [
         {
           id: 'https://example.com/lunchroom_manners/waveform.json',
           type: 'Dataset',
@@ -451,7 +451,7 @@ export const manifestWoStructure = {
           ],
         },
       ],
-      rendering: [
+      seeAlso: [
         {
           id: 'https://example.com/lunchroom_manners/waveform.json',
           type: 'Dataset',
@@ -566,7 +566,7 @@ export const manifestWithStructure = {
           ],
         },
       ],
-      rendering: [
+      seeAlso: [
         {
           id: 'http://example.com/lunchroom-manners/waveform.json',
           type: 'Dataset',

@@ -343,7 +343,7 @@ var manifestWithInvalidStruct = {
         target: 'https://example.com/manifest/canvas/1'
       }]
     }],
-    rendering: [{
+    seeAlso: [{
       id: 'https://example.com/lunchroom_manners/waveform.json',
       type: 'Dataset',
       label: {
@@ -402,7 +402,7 @@ var manifestWoStructure = {
         target: 'https://example.com/manifest/canvas/1'
       }]
     }],
-    rendering: [{
+    seeAlso: [{
       id: 'https://example.com/lunchroom_manners/waveform.json',
       type: 'Dataset',
       label: {
@@ -495,7 +495,7 @@ var manifestWithStructure = {
         target: 'http://example.com/sample-manifest/manifest/canvas/2'
       }]
     }],
-    rendering: [{
+    seeAlso: [{
       id: 'http://example.com/lunchroom-manners/waveform.json',
       type: 'Dataset',
       label: {

@@ -69,27 +69,27 @@ function filtersrc(sources) {
   }
 }
 /**
- * Retrieve the list of alternative representation files in manifest or canvas
- * level to make available to download
+ * Retrieve the waveform information listed under `seeAlso` property
+ * for each Canvas in the Manifest
  * @param {Object} manifest
  * @param {Number} canvasIndex
- * @returns List of files under `rendering` property in manifest
+ * @returns List of files under `seeAlso` property in a Canvas
  */
 
 
 function getWaveformInfo(manifest, canvasIndex) {
   var waveformFile = null;
-  var canvasRendering = [];
+  var fileInfo = [];
 
   try {
     var manifestParsed = (0, _manifesto.parseManifest)(manifest);
     var canvas = manifestParsed.getSequences()[0].getCanvasByIndex(canvasIndex);
 
-    if (canvas.__jsonld.rendering) {
-      canvasRendering = canvas.__jsonld.rendering;
+    if (canvas.__jsonld.seeAlso) {
+      fileInfo = canvas.__jsonld.seeAlso;
 
-      if (canvasRendering.length > 0) {
-        var w = canvasRendering[0];
+      if (fileInfo.length > 0) {
+        var w = fileInfo[0];
         var name = getLabelValue(w.label);
 
         if (w.format == 'application/json' && name == 'waveform.json') {

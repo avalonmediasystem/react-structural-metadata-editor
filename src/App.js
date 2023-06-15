@@ -30,11 +30,13 @@ class App extends Component {
     return (
       <DragDropContextProvider backend={HTML5Backend}>
         <div className="sme-container">
-          <WaveformContainer {...this.props} />
-          <ErrorBoundary>
-            <AlertContainer removeAlert={this.props.removeAlert} />
-            <ButtonSection />
-            <StructureOutputContainer {...this.props} />
+            <ErrorBoundary>
+              <div className="sticky">
+                <WaveformContainer {...this.props} />
+                  <AlertContainer removeAlert={this.props.removeAlert} />
+                  <ButtonSection />
+              </div>
+              <StructureOutputContainer {...this.props} />
           </ErrorBoundary>
         </div>
       </DragDropContextProvider>

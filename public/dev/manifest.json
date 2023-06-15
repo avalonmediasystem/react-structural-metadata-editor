@@ -99,7 +99,7 @@
           ]
         }
       ],
-      "rendering": [
+      "seeAlso": [
         {
           "id": "http://localhost:3001/waveform.json",
           "type": "Dataset",

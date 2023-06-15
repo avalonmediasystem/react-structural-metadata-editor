@@ -99,7 +99,7 @@
           ]
         }
       ],
-      "rendering": [
+      "seeAlso": [
         {
           "id": "https://react-structural-metadata-editor.netlify.app/waveform.json",
           "type": "Dataset",

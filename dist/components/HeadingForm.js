@@ -187,7 +187,7 @@ var HeadingForm = /*#__PURE__*/function (_Component) {
           offset: 5
         },
         lg: {
-          offset: 10
+          offset: 9
         }
       }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.ButtonToolbar, {
         className: "float-right"

@@ -45,7 +45,9 @@ describe('Waveform component', () => {
       manifest: manifest,
       mediaInfo: {
         src: 'https://example.com/volleyball-for-boys/volleyball-for-boys.mp4',
-        duration: 662.037
+        duration: 662.037,
+        isStream: false,
+        isVideo: true,
       }
     }
   };
@@ -64,14 +66,49 @@ describe('Waveform component', () => {
     );
   });
 
-  test('renders', () => {
-    expect(
-      waveform.container.querySelector('#waveform-container')
-    ).toBeInTheDocument();
-    expect(waveform.queryByTestId('waveform-toolbar')).toBeInTheDocument();
-  });
+  describe('renders successfully', () => {
+    test('with a video manifest', () => {
+      expect(
+        waveform.container.querySelector('#waveform-container')
+      ).toBeInTheDocument();
+      expect(waveform.queryByTestId('waveform-toolbar')).toBeInTheDocument();
+      expect(waveform.queryByTestId('waveform-audio-player')).not.toBeInTheDocument();
+      expect(waveform.queryByTestId('waveform-video-player')).toBeInTheDocument();
+    });
 
-  describe('when stream URL works', () => {
+    test('with an audio manifest', () => {
+      const nextState = {
+        ...initialState,
+        manifest: {
+          manifest: manifest,
+          mediaInfo: {
+            src: 'https://example.com/volleyball-for-boys/volleyball-for-boys.mp3',
+            duration: 662.037,
+            isStream: false,
+            isVideo: false,
+          }
+        }
+    };
+    waveform.rerenderWithRedux(
+      <Waveform
+        ref={{
+          zoomViewRef: zoomView,
+          overViewRef: overView,
+          mediaPlayerRef: mediaElement,
+        }}
+      />,
+      nextState
+    );
+      expect(
+        waveform.container.querySelector('#waveform-container')
+      ).toBeInTheDocument();
+      expect(waveform.queryByTestId('waveform-toolbar')).toBeInTheDocument();
+      expect(waveform.queryByTestId('waveform-video-player')).not.toBeInTheDocument();
+      expect(waveform.queryByTestId('waveform-audio-player')).toBeInTheDocument();
+    });
+  })
+
+  describe('when media URL works', () => {
     test('renders play/pause buttons in the toolbar and enabled', () => {
       expect(waveform.getByTestId('waveform-toolbar')).toBeInTheDocument();
       expect(waveform.getByTestId('waveform-play-button')).toBeEnabled();
@@ -159,7 +196,7 @@ describe('Waveform component', () => {
     });
   });
 
-  describe('when stream URL does not work', () => {
+  describe('when media URL does not work', () => {
     test('play/pause buttons are not dispalyed', () => {
       // Buttons are displayed intially
       expect(

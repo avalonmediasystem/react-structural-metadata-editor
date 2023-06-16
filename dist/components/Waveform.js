@@ -160,7 +160,13 @@ var Waveform = /*#__PURE__*/_react["default"].forwardRef(function (props, ref) {
     setVolume(volume);
   };
 
-  return /*#__PURE__*/_react["default"].createElement(_react["default"].Fragment, null, /*#__PURE__*/_react["default"].createElement("div", {
+  return /*#__PURE__*/_react["default"].createElement(_react["default"].Fragment, null, stillLoading && /*#__PURE__*/_react["default"].createElement("div", {
+    "data-testid": "loading-spinner"
+  }, /*#__PURE__*/_react["default"].createElement(_LoadingSpinner["default"], {
+    isLoading: stillLoading
+  })), /*#__PURE__*/_react["default"].createElement("div", {
+    className: "peaks-waveform mb-4 ".concat(mediaInfo.isVideo ? 'is-video' : '')
+  }, /*#__PURE__*/_react["default"].createElement("div", {
     id: "waveform-container",
     tabIndex: "0",
     "data-testid": "waveform",
@@ -177,19 +183,24 @@ var Waveform = /*#__PURE__*/_react["default"].forwardRef(function (props, ref) {
     tabIndex: "0",
     "data-testid": "overview-view",
     "aria-label": overViewLabel
-  })), stillLoading && /*#__PURE__*/_react["default"].createElement("div", {
-    "data-testid": "loading-spinner"
-  }, /*#__PURE__*/_react["default"].createElement(_LoadingSpinner["default"], {
-    isLoading: stillLoading
-  })), /*#__PURE__*/_react["default"].createElement("audio", {
+  })), /*#__PURE__*/_react["default"].createElement("div", {
+    className: "waveform-media ml-3"
+  }, mediaInfo.isVideo ? /*#__PURE__*/_react["default"].createElement("video", {
+    ref: ref.mediaPlayerRef,
+    controls: false,
+    "data-testid": "waveform-video-player",
+    src: audioFile,
+    onCanPlay: handleCanplay
+  }, "Your browser does not support the audio element.") : /*#__PURE__*/_react["default"].createElement("audio", {
     ref: ref.mediaPlayerRef,
     hidden: true,
     controls: "controls",
-    "data-testid": "waveform-media",
+    "data-testid": "waveform-audio-player",
     src: audioFile,
     onCanPlay: handleCanplay
-  }, "Your browser does not support the audio element."), !streamMediaLoading && !streamMediaError && /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Row, {
-    "data-testid": "waveform-toolbar"
+  }, "Your browser does not support the audio element."))), !streamMediaLoading && !streamMediaError && /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Row, {
+    "data-testid": "waveform-toolbar",
+    className: "waveform-toolbar"
   }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Col, {
     sm: 6,
     md: 6

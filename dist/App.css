@@ -14,6 +14,14 @@
   margin-bottom: 20px;
 }
 
+/* START - Structure Section */
+.structure-section {
+  position: fixed;
+  width: 95%;
+  overflow: scroll;
+  height: 26%;
+}
+
 .structure-list li {
   list-style: none;
 }
@@ -54,8 +62,9 @@
   margin: 0 5px;
   cursor: pointer;
 }
+/* END - Structure Section */
 
-/* Override Bootstrap CSS */
+/* START - Override Bootstrap CSS */
 .sme-container .alert {
   margin-top: 5px;
   margin-bottom: 5px;
@@ -68,26 +77,46 @@
 .sme-container .form-label {
   font-weight: bold;
 }
+/* END - Override Bootstrap CSS */
 
-/* Waveform */
+/* START - Waveform Section */
+.peaks-waveform.is-video {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  height: 360px  
+}
+
+#waveform-container {
+  flex: 2;
+}
+
+#zoomview-container {
+  margin-bottom: 1.5rem;
+}
+
 #waveform-container,
 #zoomview-container,
 #overview-container {
   box-shadow: 3px 3px 20px #919191;
-  margin: 0 0 24px 0;
   -moz-box-shadow: 3px 3px 20px #919191;
   -webkit-box-shadow: 3px 3px 20px #919191;
   line-height: 0;
-  margin-bottom: 15px;
 }
 
 #overview-container {
-  height: 85px;
+  height: 100px;
 }
 
 #zoomview-container {
-  height: 200px;
+  height: 235px;
 }
+
+.waveform-media {
+  flex: 1;
+}
+
+/* END - Waveform Section */
 
 /* Loading spinner from https://github.com/avalonmediasystem/avalon/blob/develop/app/assets/stylesheets/avalon/_loading-spinner.scss */
 /* Modified to block the background while loading */

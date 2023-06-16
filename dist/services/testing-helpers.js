@@ -567,7 +567,7 @@ var manifestWoChoice = {
         motivation: 'painting',
         body: {
           id: 'http://example.com/volleyball-for-boys/volleyball-for-boys.m3u8',
-          type: 'Video',
+          type: 'Sound',
           format: 'application/x-x-mpegURL',
           height: 1080,
           width: 1920,

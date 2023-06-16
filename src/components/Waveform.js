@@ -131,7 +131,7 @@ const Waveform = React.forwardRef((props, ref) => {
           <LoadingSpinner isLoading={stillLoading} />
         </div>
       )}
-      <div className="peaks-waveform mb-4">
+      <div className={`peaks-waveform mb-4 ${mediaInfo.isVideo ? 'is-video' : ''}`}>
         <div
           id="waveform-container"
           tabIndex="0"

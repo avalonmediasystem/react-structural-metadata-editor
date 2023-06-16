@@ -15,6 +15,13 @@
 }
 
 /* START - Structure Section */
+.structure-section {
+  position: fixed;
+  width: 95%;
+  overflow: scroll;
+  height: 26%;
+}
+
 .structure-list li {
   list-style: none;
 }
@@ -73,23 +80,15 @@
 /* END - Override Bootstrap CSS */
 
 /* START - Waveform Section */
-.waveform-section {
-  /* flex-direction: column;
-  height: 40vh;
-  width: 100vw; */
-}
-
-.peaks-waveform {
+.peaks-waveform.is-video {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  height: 360px
-  
+  height: 360px  
 }
+
 #waveform-container {
   flex: 2;
-  /* height: 100%; */
-  /* width: 50%; */
 }
 
 #zoomview-container {
@@ -117,9 +116,6 @@
   flex: 1;
 }
 
-.waveform-toolbar {
-  flex-basis: 100%;
-}
 /* END - Waveform Section */
 
 /* Loading spinner from https://github.com/avalonmediasystem/avalon/blob/develop/app/assets/stylesheets/avalon/_loading-spinner.scss */

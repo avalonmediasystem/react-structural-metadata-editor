@@ -18,7 +18,6 @@ export function getMediaInfo(manifest, canvasIndex = 0) {
     canvas = parseManifest(manifest)
       .getSequences()[0]
       .getCanvases()[canvasIndex];
-    console.log(canvas.getHeight())
     const sources = canvas.getContent()[0].getBody();
     const { src, type } = filtersrc(sources);
     mediaInfo.isStream = getMimetype(src) === 'application/x-mpegURL' ? true : false;

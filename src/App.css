@@ -73,27 +73,52 @@
 /* END - Override Bootstrap CSS */
 
 /* START - Waveform Section */
-.waveform-player-row {
+.waveform-section {
+  /* flex-direction: column;
+  height: 40vh;
+  width: 100vw; */
+}
+
+.peaks-waveform {
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
+  height: 360px
+  
+}
+#waveform-container {
+  flex: 2;
+  /* height: 100%; */
+  /* width: 50%; */
+}
+
+#zoomview-container {
+  margin-bottom: 1.5rem;
 }
 
 #waveform-container,
 #zoomview-container,
 #overview-container {
   box-shadow: 3px 3px 20px #919191;
-  margin: 0 0 24px 0;
   -moz-box-shadow: 3px 3px 20px #919191;
   -webkit-box-shadow: 3px 3px 20px #919191;
   line-height: 0;
-  margin-bottom: 15px;
 }
 
 #overview-container {
-  height: 85px;
+  height: 100px;
 }
 
 #zoomview-container {
-  height: 200px;
+  height: 235px;
+}
+
+.waveform-media {
+  flex: 1;
+}
+
+.waveform-toolbar {
+  flex-basis: 100%;
 }
 /* END - Waveform Section */
 

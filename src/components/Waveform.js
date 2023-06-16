@@ -126,66 +126,63 @@ const Waveform = React.forwardRef((props, ref) => {
 
   return (
     <React.Fragment>
-        <Row className="waveform-player-row">
-          <Col lg={mediaInfo.isVideo ? 9 : 12}>
-            <div
-              id="waveform-container"
-              tabIndex="0"
-              data-testid="waveform"
-              aria-label={waveformLabel}
-            >
-              <div
-                id="zoomview-container"
-                ref={ref.zoomViewRef}
-                tabIndex="0"
-                data-testid="zoomview-view"
-                aria-label={zoomViewLabel}
-              />
-              <div
-                id="overview-container"
-                ref={ref.overViewRef}
-                tabIndex="0"
-                data-testid="overview-view"
-                aria-label={overViewLabel}
-              />
-            </div>
-          </Col>
-            {mediaInfo.isVideo
-              ? (
-                <Col lg={3}>
-                  <video
-                    ref={ref.mediaPlayerRef}
-                    controls={false}
-                    data-testid="waveform-video-player"
-                    src={audioFile}
-                    onCanPlay={handleCanplay}
-                  >
-                    Your browser does not support the audio element.
-                  </video>
-                </Col>
-              )
-              : (
-                <audio
-                  ref={ref.mediaPlayerRef}
-                  hidden={true}
-                  controls="controls"
-                  data-testid="waveform-audio-player"
-                  src={audioFile}
-                  onCanPlay={handleCanplay}
-                >
-                  Your browser does not support the audio element.
-                </audio>
-              )
-            }
-        </Row>
       {stillLoading && (
         <div data-testid="loading-spinner">
           <LoadingSpinner isLoading={stillLoading} />
         </div>
       )}
-      
+      <div className="peaks-waveform mb-4">
+        <div
+          id="waveform-container"
+          tabIndex="0"
+          data-testid="waveform"
+          aria-label={waveformLabel}
+        >
+          <div
+            id="zoomview-container"
+            ref={ref.zoomViewRef}
+            tabIndex="0"
+            data-testid="zoomview-view"
+            aria-label={zoomViewLabel}
+          />
+          <div
+            id="overview-container"
+            ref={ref.overViewRef}
+            tabIndex="0"
+            data-testid="overview-view"
+            aria-label={overViewLabel}
+          />
+        </div>
+        <div className="waveform-media ml-3">
+          {mediaInfo.isVideo
+            ? (
+                <video
+                  ref={ref.mediaPlayerRef}
+                  controls={false}
+                  data-testid="waveform-video-player"
+                  src={audioFile}
+                  onCanPlay={handleCanplay}
+                >
+                  Your browser does not support the audio element.
+                </video>
+            )
+            : (
+              <audio
+                ref={ref.mediaPlayerRef}
+                hidden={true}
+                controls="controls"
+                data-testid="waveform-audio-player"
+                src={audioFile}
+                onCanPlay={handleCanplay}
+              >
+                Your browser does not support the audio element.
+              </audio>
+            )
+          }
+        </div>
+      </div>
       {!streamMediaLoading && !streamMediaError && (
-        <Row data-testid="waveform-toolbar">
+        <Row data-testid="waveform-toolbar" className="waveform-toolbar">
           <Col sm={6} md={6}>
             <VolumeSlider volume={volume} setVolume={adjustVolume} />
           </Col>

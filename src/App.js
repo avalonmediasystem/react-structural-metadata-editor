@@ -7,6 +7,7 @@ import StructureOutputContainer from './containers/StructureOutputContainer';
 import { DragDropContextProvider } from 'react-dnd';
 import HTML5Backend from 'react-dnd-html5-backend';
 import { connect } from 'react-redux';
+import { Col, Row } from 'react-bootstrap';
 import { resetReduxStore } from './actions';
 import { removeAlert } from './actions/forms';
 import ErrorBoundary from './components/ErrorBoundary';
@@ -30,12 +31,16 @@ class App extends Component {
     return (
       <DragDropContextProvider backend={HTML5Backend}>
         <div className="sme-container">
-            <WaveformContainer {...this.props} />
-            <ErrorBoundary>
-              <AlertContainer removeAlert={this.props.removeAlert} />
-              <ButtonSection />
-              <StructureOutputContainer {...this.props} />
-          </ErrorBoundary>
+            <Row className="mx-0">
+              <Col lg={12}><WaveformContainer {...this.props} /></Col>
+            </Row>
+            <Col lg={12}>
+              <ErrorBoundary>
+                <AlertContainer removeAlert={this.props.removeAlert} />
+                <ButtonSection />
+                <StructureOutputContainer {...this.props} />
+              </ErrorBoundary>
+            </Col>
         </div>
       </DragDropContextProvider>
     );

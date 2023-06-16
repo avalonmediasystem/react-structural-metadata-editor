@@ -80,15 +80,8 @@
 /* END - Override Bootstrap CSS */
 
 /* START - Waveform Section */
-.peaks-waveform.is-video {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  height: 360px  
-}
-
 #waveform-container {
-  flex: 2;
+  padding: 0;
 }
 
 #zoomview-container {
@@ -112,10 +105,46 @@
   height: 235px;
 }
 
-.waveform-media {
-  flex: 1;
+/* When the width is between 600px and 900px OR above 1100px - change the appearance of <div> */
+@media screen and (max-height: 768px) {
+  #overview-container {
+    height: 50px;
+  }
+  
+  #zoomview-container {
+    height: 110px;
+  }
 }
 
+@media screen and (max-height: 1400px) and (min-height: 768px) {
+  #overview-container {
+    height: 85px;
+  }
+  
+  #zoomview-container {
+    height: 200px;
+  }
+}
+
+/* When the width is above 1100px - change the height of waveform containers */
+@media screen and (min-height: 1401px) {
+  #overview-container {
+    height: 115px;
+  }
+  
+  #zoomview-container {
+    height: 265px;
+  }
+}
+
+.waveform-media > video {
+  width: 100%;
+}
+
+.waveform-toolbar {
+  width: 100%;
+  margin: 1rem 0;
+}
 /* END - Waveform Section */
 
 /* Loading spinner from https://github.com/avalonmediasystem/avalon/blob/develop/app/assets/stylesheets/avalon/_loading-spinner.scss */

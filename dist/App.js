@@ -37,6 +37,8 @@ var _reactDndHtml5Backend = _interopRequireDefault(require("react-dnd-html5-back
 
 var _reactRedux = require("react-redux");
 
+var _reactBootstrap = require("react-bootstrap");
+
 var _actions = require("./actions");
 
 var _forms = require("./actions/forms");
@@ -83,9 +85,15 @@ var App = /*#__PURE__*/function (_Component) {
         backend: _reactDndHtml5Backend["default"]
       }, /*#__PURE__*/_react["default"].createElement("div", {
         className: "sme-container"
-      }, /*#__PURE__*/_react["default"].createElement(_WaveformContainer["default"], this.props), /*#__PURE__*/_react["default"].createElement(_ErrorBoundary["default"], null, /*#__PURE__*/_react["default"].createElement(_AlertContainer["default"], {
+      }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Row, {
+        className: "mx-0"
+      }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Col, {
+        lg: 12
+      }, /*#__PURE__*/_react["default"].createElement(_WaveformContainer["default"], this.props))), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Col, {
+        lg: 12
+      }, /*#__PURE__*/_react["default"].createElement(_ErrorBoundary["default"], null, /*#__PURE__*/_react["default"].createElement(_AlertContainer["default"], {
         removeAlert: this.props.removeAlert
-      }), /*#__PURE__*/_react["default"].createElement(_ButtonSection["default"], null), /*#__PURE__*/_react["default"].createElement(_StructureOutputContainer["default"], this.props))));
+      }), /*#__PURE__*/_react["default"].createElement(_ButtonSection["default"], null), /*#__PURE__*/_react["default"].createElement(_StructureOutputContainer["default"], this.props)))));
     }
   }]);
   return App;

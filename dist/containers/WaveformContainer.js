@@ -13,6 +13,8 @@ var _propTypes = _interopRequireDefault(require("prop-types"));
 
 var _reactRedux = require("react-redux");
 
+var _reactBootstrap = require("react-bootstrap");
+
 var _peaksInstance = require("../actions/peaks-instance");
 
 var _manifest = require("../actions/manifest");
@@ -80,7 +82,7 @@ var WaveformContainer = function WaveformContainer(props) {
     }
   }, [streamMediaLoading]);
 
-  return /*#__PURE__*/_react["default"].createElement("section", {
+  return /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Row, {
     className: "waveform-section",
     "data-testid": "waveform-container"
   }, /*#__PURE__*/_react["default"].createElement(_Waveform["default"], {

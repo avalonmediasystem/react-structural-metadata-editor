@@ -164,9 +164,9 @@ var Waveform = /*#__PURE__*/_react["default"].forwardRef(function (props, ref) {
     "data-testid": "loading-spinner"
   }, /*#__PURE__*/_react["default"].createElement(_LoadingSpinner["default"], {
     isLoading: stillLoading
-  })), /*#__PURE__*/_react["default"].createElement("div", {
-    className: "peaks-waveform mb-4 ".concat(mediaInfo.isVideo ? 'is-video' : '')
-  }, /*#__PURE__*/_react["default"].createElement("div", {
+  })), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Col, {
+    lg: mediaInfo.isVideo ? 8 : 12,
+    sm: 7,
     id: "waveform-container",
     tabIndex: "0",
     "data-testid": "waveform",
@@ -183,8 +183,10 @@ var Waveform = /*#__PURE__*/_react["default"].forwardRef(function (props, ref) {
     tabIndex: "0",
     "data-testid": "overview-view",
     "aria-label": overViewLabel
-  })), /*#__PURE__*/_react["default"].createElement("div", {
-    className: "waveform-media ml-3"
+  })), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Col, {
+    lg: 4,
+    sm: 5,
+    className: "waveform-media"
   }, mediaInfo.isVideo ? /*#__PURE__*/_react["default"].createElement("video", {
     ref: ref.mediaPlayerRef,
     controls: false,
@@ -198,7 +200,7 @@ var Waveform = /*#__PURE__*/_react["default"].forwardRef(function (props, ref) {
     "data-testid": "waveform-audio-player",
     src: audioFile,
     onCanPlay: handleCanplay
-  }, "Your browser does not support the audio element."))), !streamMediaLoading && !streamMediaError && /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Row, {
+  }, "Your browser does not support the audio element.")), !streamMediaLoading && !streamMediaError && /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Row, {
     "data-testid": "waveform-toolbar",
     className: "waveform-toolbar"
   }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Col, {

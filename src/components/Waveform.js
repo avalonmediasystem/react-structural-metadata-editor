@@ -131,7 +131,7 @@ const Waveform = React.forwardRef((props, ref) => {
           <LoadingSpinner isLoading={stillLoading} />
         </div>
       )}
-      <Col lg={ mediaInfo.isVideo ? 8 : 12 } sm={7}
+      <Col lg={ mediaInfo.isVideo ? 8 : 12 } sm={8}
         id="waveform-container"
         tabIndex="0"
         data-testid="waveform"
@@ -152,7 +152,7 @@ const Waveform = React.forwardRef((props, ref) => {
           aria-label={overViewLabel}
         />
       </Col>
-      <Col lg={4} sm={5} className="waveform-media">
+      <Col lg={4} sm={4} className="waveform-media">
         {mediaInfo.isVideo
           ? (
               <video

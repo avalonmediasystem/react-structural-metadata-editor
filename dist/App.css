@@ -16,10 +16,15 @@
 
 /* START - Structure Section */
 .structure-section {
-  position: fixed;
-  width: 95%;
   overflow: scroll;
-  height: 26%;
+  height: 25vh;
+}
+
+/* When the width is smaller than 768px */
+@media screen and (max-width: 768px) {
+  .structure-section {
+    height: 20vh;
+  }
 }
 
 .structure-list li {
@@ -82,13 +87,13 @@
 /* START - Waveform Section */
 #waveform-container {
   padding: 0;
+  margin: auto;
 }
 
 #zoomview-container {
   margin-bottom: 1.5rem;
 }
 
-#waveform-container,
 #zoomview-container,
 #overview-container {
   box-shadow: 3px 3px 20px #919191;
@@ -105,46 +110,46 @@
   height: 235px;
 }
 
+.waveform-media > video {
+  width: 100%
+}
+
 /* When the width is between 600px and 900px OR above 1100px - change the appearance of <div> */
-@media screen and (max-height: 768px) {
+@media screen and (max-width: 768px) {
   #overview-container {
-    height: 50px;
+    height: 45px;
   }
   
   #zoomview-container {
-    height: 110px;
-  }
-}
-
-@media screen and (max-height: 1400px) and (min-height: 768px) {
-  #overview-container {
     height: 85px;
   }
-  
-  #zoomview-container {
-    height: 200px;
-  }
 }
 
-/* When the width is above 1100px - change the height of waveform containers */
-@media screen and (min-height: 1401px) {
+@media screen and (max-width: 991px) and (min-width: 769px) {
   #overview-container {
-    height: 115px;
+    height: 55px;
   }
   
   #zoomview-container {
-    height: 265px;
+    height: 100px;
   }
 }
 
-.waveform-media > video {
-  width: 100%;
+@media screen and (max-width: 1400px) and (min-width: 992px) {
+  #overview-container {
+    height: 60px;
+  }
+  
+  #zoomview-container {
+    height: 160px;
+  }
 }
 
 .waveform-toolbar {
   width: 100%;
   margin: 1rem 0;
 }
+
 /* END - Waveform Section */
 
 /* Loading spinner from https://github.com/avalonmediasystem/avalon/blob/develop/app/assets/stylesheets/avalon/_loading-spinner.scss */

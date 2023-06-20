@@ -15,8 +15,6 @@ const useStyles = makeStyles(() => ({
   root: {
     width: 200,
     paddingLeft: 12,
-    paddingTop: 5,
-    paddingBottom: 5,
     paddingRight: 25,
   },
 }));
@@ -71,7 +69,7 @@ export default function VolumeSlider(props) {
   return (
     <Paper className={classes.root}>
       <Row>
-        <Col xs={2} md={2} style={{ paddingRight: 0, paddingLeft: 5 }}>
+        <Col xs={2} md={2} style={{ paddingRight: 0, paddingLeft: 5, margin: 'auto' }}>
           <div onClick={onToggle} style={{ margin: 2, paddingRight: 15 }}>
             {props.volume === 0 ? (
               <VolumeOff

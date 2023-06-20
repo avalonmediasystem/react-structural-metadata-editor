@@ -166,7 +166,7 @@ var Waveform = /*#__PURE__*/_react["default"].forwardRef(function (props, ref) {
     isLoading: stillLoading
   })), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Col, {
     lg: mediaInfo.isVideo ? 8 : 12,
-    sm: 7,
+    sm: 8,
     id: "waveform-container",
     tabIndex: "0",
     "data-testid": "waveform",
@@ -185,7 +185,7 @@ var Waveform = /*#__PURE__*/_react["default"].forwardRef(function (props, ref) {
     "aria-label": overViewLabel
   })), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Col, {
     lg: 4,
-    sm: 5,
+    sm: 4,
     className: "waveform-media"
   }, mediaInfo.isVideo ? /*#__PURE__*/_react["default"].createElement("video", {
     ref: ref.mediaPlayerRef,

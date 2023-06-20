@@ -32,8 +32,6 @@ var useStyles = (0, _styles.makeStyles)(function () {
     root: {
       width: 200,
       paddingLeft: 12,
-      paddingTop: 5,
-      paddingBottom: 5,
       paddingRight: 25
     }
   };
@@ -101,7 +99,8 @@ function VolumeSlider(props) {
     md: 2,
     style: {
       paddingRight: 0,
-      paddingLeft: 5
+      paddingLeft: 5,
+      margin: 'auto'
     }
   }, /*#__PURE__*/_react["default"].createElement("div", {
     onClick: onToggle,

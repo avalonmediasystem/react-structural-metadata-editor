@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { connect, useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import List from '../components/List';
 import { Button, Col, Row } from 'react-bootstrap';
 import APIUtils from '../api/Utils';
@@ -72,20 +72,6 @@ const StructureOutputContainer = (props) => {
         {manifestFetched && smData != null && (
           <div data-testid="structure-output-list">
             <List items={smData} />
-            { !props.disableSave && (
-              <Row>
-                <Col xs={12} className="text-right">
-                  <Button
-                    variant="primary"
-                    onClick={handleSaveItClick}
-                    data-testid="structure-save-button"
-                    disabled={props.editingDisabled}
-                  >
-                    Save Structure
-                  </Button>
-                </Col>
-              </Row>)
-            }
           </div>)
         }
       </Col>

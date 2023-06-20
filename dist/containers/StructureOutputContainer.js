@@ -144,15 +144,7 @@ var StructureOutputContainer = function StructureOutputContainer(props) {
     "data-testid": "structure-output-list"
   }, /*#__PURE__*/_react["default"].createElement(_List["default"], {
     items: smData
-  }), !props.disableSave && /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Row, null, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Col, {
-    xs: 12,
-    className: "text-right"
-  }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Button, {
-    variant: "primary",
-    onClick: handleSaveItClick,
-    "data-testid": "structure-save-button",
-    disabled: props.editingDisabled
-  }, "Save Structure"))))));
+  }))));
 };
 
 var _default = StructureOutputContainer;

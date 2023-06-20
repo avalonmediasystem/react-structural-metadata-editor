@@ -18,17 +18,16 @@ const structuralMetadataUtils = new StructuralMetadataUtils();
 export const initManifest = ( manifestURL, canvasIndex ) => {
   return async (dispatch, getState) => {
     let smData = [];
-    let duration = 0;
-    let mediaInfo = {};
+    let mediaDuration = 0;
     try {
       const response = await apiUtils.getRequest(manifestURL);
       if (!isEmpty(response.data)) {
-        mediaInfo = getMediaInfo(response.data, canvasIndex);
+        const { src, duration, isStream, isVideo } = getMediaInfo(response.data, canvasIndex);
   
         dispatch(setManifest(response.data));
-        dispatch(setMediaInfo(mediaInfo.src, mediaInfo.duration, mediaInfo.isStream, mediaInfo.isVideo));
-        smData = parseStructureToJSON(response.data, mediaInfo.duration, canvasIndex);
-        duration = mediaInfo.duration;
+        dispatch(setMediaInfo(src, duration, isStream, isVideo ));
+        smData = parseStructureToJSON(response.data, duration, canvasIndex);
+        mediaDuration = duration;
       }
   
       if (smData.length > 0) {
@@ -41,7 +40,7 @@ export const initManifest = ( manifestURL, canvasIndex ) => {
       dispatch(fetchManifestSuccess());
   
       // Initialize Redux state variable with structure
-      dispatch(buildSMUI(smData, duration));
+      dispatch(buildSMUI(smData, mediaDuration));
       dispatch(saveInitialStructure(smData));
   
       // Mark the top element as 'root'
@@ -101,5 +100,5 @@ export const setMediaInfo = (src, duration, isStream, isVideo) => ({
   src,
   duration,
   isStream,
-  isVideo
+  isVideo,
 });

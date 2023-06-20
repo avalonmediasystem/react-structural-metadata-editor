@@ -73,7 +73,6 @@ describe('ButtonSection/StructureOutputContainer renders', () => {
     // Before making changes
     expect(app.getByTestId('structure-output-list')).toBeInTheDocument();
     expect(app.getByTestId('add-timespan-button')).toBeInTheDocument();
-    expect(app.queryByTestId('structure-save-button')).toBeInTheDocument();
 
     /* Start adding a new timespan */
     const addTimespanBtn = app.getByTestId('add-timespan-button');

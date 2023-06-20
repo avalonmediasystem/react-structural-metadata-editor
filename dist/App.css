@@ -14,9 +14,13 @@
   margin-bottom: 20px;
 }
 
+.structure-save {
+  width: 100%;
+}
+
 /* START - Structure Section */
 .structure-section {
-  overflow: scroll;
+  overflow-y: auto;
   height: 25vh;
 }
 
@@ -85,13 +89,19 @@
 /* END - Override Bootstrap CSS */
 
 /* START - Waveform Section */
+.waveform-section {
+  margin: auto;
+}
+
 #waveform-container {
   padding: 0;
   margin: auto;
+  background-color: white;
 }
 
 #zoomview-container {
   margin-bottom: 1.5rem;
+  background-color: white;
 }
 
 #zoomview-container,
@@ -103,18 +113,19 @@
 }
 
 #overview-container {
-  height: 100px;
+  height: 85px;
 }
 
 #zoomview-container {
-  height: 235px;
+  height: 200px;
 }
 
 .waveform-media > video {
-  width: 100%
+  width: 100%;
+  padding-right: 0;
 }
 
-/* When the width is between 600px and 900px OR above 1100px - change the appearance of <div> */
+/* When the width is less than 768px - small devices */
 @media screen and (max-width: 768px) {
   #overview-container {
     height: 45px;
@@ -125,6 +136,7 @@
   }
 }
 
+/* When the width is between 768px and 992px - medium device */
 @media screen and (max-width: 991px) and (min-width: 769px) {
   #overview-container {
     height: 55px;
@@ -135,6 +147,7 @@
   }
 }
 
+/* When the width is between 992px and 1400px - large devices */
 @media screen and (max-width: 1400px) and (min-width: 992px) {
   #overview-container {
     height: 60px;
@@ -145,9 +158,20 @@
   }
 }
 
+@media screen and (min-width: 1600px) {
+  #overview-container {
+    height: 85px;
+  }
+  
+  #zoomview-container {
+    height: 200px;
+  }
+}
+
 .waveform-toolbar {
   width: 100%;
   margin: 1rem 0;
+  padding: 0;
 }
 
 /* END - Waveform Section */

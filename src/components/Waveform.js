@@ -162,7 +162,7 @@ const Waveform = React.forwardRef((props, ref) => {
                 src={audioFile}
                 onCanPlay={handleCanplay}
               >
-                Your browser does not support the audio element.
+                Your browser does not support the video element.
               </video>
           )
           : (

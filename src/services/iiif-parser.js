@@ -19,9 +19,10 @@ export function getMediaInfo(manifest, canvasIndex = 0) {
       .getSequences()[0]
       .getCanvases()[canvasIndex];
     const sources = canvas.getContent()[0].getBody();
-    let src = filtersrc(sources);
+    const { src, type } = filtersrc(sources);
     mediaInfo.isStream = getMimetype(src) === 'application/x-mpegURL' ? true : false;
     mediaInfo.src = src;
+    mediaInfo.isVideo = type == 'video' ? true : false;
     mediaInfo.duration = canvas.getDuration();
   } catch (err) {
     console.error(err);
@@ -38,16 +39,18 @@ function filtersrc(sources) {
     throw 'Error fetching media files. Please check the Manifest.';
   }
   else if (sources.length == 1) {
-    return sources[0].id;
+    return { src: sources[0].id, type: sources[0].getType() };
   } else {
     let srcId = sources[0].id;
+    let srcType = sources[0].getType();
     sources.map((src) => {
       const srcQuality = src.getLabel()[0].value.toLowerCase();
       if (srcQuality == 'auto' || srcQuality == 'low') {
         srcId = src.id;
+        srcType = src.getType();
       }
     });
-    return srcId;
+    return { src: srcId, type: srcType };
   }
 }
 

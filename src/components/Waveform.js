@@ -126,7 +126,12 @@ const Waveform = React.forwardRef((props, ref) => {
 
   return (
     <React.Fragment>
-      <div
+      {stillLoading && (
+        <div data-testid="loading-spinner">
+          <LoadingSpinner isLoading={stillLoading} />
+        </div>
+      )}
+      <Col lg={ mediaInfo.isVideo ? 8 : 12 } sm={8}
         id="waveform-container"
         tabIndex="0"
         data-testid="waveform"
@@ -146,24 +151,36 @@ const Waveform = React.forwardRef((props, ref) => {
           data-testid="overview-view"
           aria-label={overViewLabel}
         />
-      </div>
-      {stillLoading && (
-        <div data-testid="loading-spinner">
-          <LoadingSpinner isLoading={stillLoading} />
-        </div>
-      )}
-      <audio
-        ref={ref.mediaPlayerRef}
-        hidden={true}
-        controls="controls"
-        data-testid="waveform-media"
-        src={audioFile}
-        onCanPlay={handleCanplay}
-      >
-        Your browser does not support the audio element.
-      </audio>
+      </Col>
+      <Col lg={4} sm={4} className="waveform-media">
+        {mediaInfo.isVideo
+          ? (
+              <video
+                ref={ref.mediaPlayerRef}
+                controls={false}
+                data-testid="waveform-video-player"
+                src={audioFile}
+                onCanPlay={handleCanplay}
+              >
+                Your browser does not support the video element.
+              </video>
+          )
+          : (
+            <audio
+              ref={ref.mediaPlayerRef}
+              hidden={true}
+              controls="controls"
+              data-testid="waveform-audio-player"
+              src={audioFile}
+              onCanPlay={handleCanplay}
+            >
+              Your browser does not support the audio element.
+            </audio>
+          )
+        }
+      </Col>
       {!streamMediaLoading && !streamMediaError && (
-        <Row data-testid="waveform-toolbar">
+        <Row data-testid="waveform-toolbar" className="waveform-toolbar">
           <Col sm={6} md={6}>
             <VolumeSlider volume={volume} setVolume={adjustVolume} />
           </Col>

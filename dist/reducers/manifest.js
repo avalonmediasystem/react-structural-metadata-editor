@@ -28,7 +28,8 @@ var initialState = {
   mediaInfo: {
     src: '',
     duration: 0,
-    isStream: false
+    isStream: false,
+    isVideo: false
   }
 };
 
@@ -57,7 +58,8 @@ var manifest = function manifest() {
         mediaInfo: _objectSpread(_objectSpread({}, state.mediaInfo), {}, {
           src: action.src,
           duration: action.duration,
-          isStream: action.isStream
+          isStream: action.isStream,
+          isVideo: action.isVideo
         })
       });
 

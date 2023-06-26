@@ -39,28 +39,27 @@ var structuralMetadataUtils = new _StructuralMetadataUtils["default"]();
 var initManifest = function initManifest(manifestURL, canvasIndex) {
   return /*#__PURE__*/function () {
     var _ref = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee(dispatch, getState) {
-      var smData, duration, mediaInfo, response, alert, status, _alert;
+      var smData, mediaDuration, response, _getMediaInfo, src, duration, isStream, isVideo, alert, status, _alert;
 
       return _regenerator["default"].wrap(function _callee$(_context) {
         while (1) {
           switch (_context.prev = _context.next) {
             case 0:
               smData = [];
-              duration = 0;
-              mediaInfo = {};
-              _context.prev = 3;
-              _context.next = 6;
+              mediaDuration = 0;
+              _context.prev = 2;
+              _context.next = 5;
               return apiUtils.getRequest(manifestURL);
 
-            case 6:
+            case 5:
               response = _context.sent;
 
               if (!(0, _lodash.isEmpty)(response.data)) {
-                mediaInfo = (0, _iiifParser.getMediaInfo)(response.data, canvasIndex);
+                _getMediaInfo = (0, _iiifParser.getMediaInfo)(response.data, canvasIndex), src = _getMediaInfo.src, duration = _getMediaInfo.duration, isStream = _getMediaInfo.isStream, isVideo = _getMediaInfo.isVideo;
                 dispatch(setManifest(response.data));
-                dispatch(setMediaInfo(mediaInfo.src, mediaInfo.duration, mediaInfo.isStream));
-                smData = (0, _iiifParser.parseStructureToJSON)(response.data, mediaInfo.duration, canvasIndex);
-                duration = mediaInfo.duration;
+                dispatch(setMediaInfo(src, duration, isStream, isVideo));
+                smData = (0, _iiifParser.parseStructureToJSON)(response.data, duration, canvasIndex);
+                mediaDuration = duration;
               }
 
               if (smData.length > 0) {
@@ -73,16 +72,16 @@ var initManifest = function initManifest(manifestURL, canvasIndex) {
 
               dispatch(fetchManifestSuccess()); // Initialize Redux state variable with structure
 
-              dispatch((0, _smData.buildSMUI)(smData, duration));
+              dispatch((0, _smData.buildSMUI)(smData, mediaDuration));
               dispatch((0, _smData.saveInitialStructure)(smData)); // Mark the top element as 'root'
 
               structuralMetadataUtils.markRootElement(smData);
-              _context.next = 22;
+              _context.next = 21;
               break;
 
-            case 15:
-              _context.prev = 15;
-              _context.t0 = _context["catch"](3);
+            case 14:
+              _context.prev = 14;
+              _context.t0 = _context["catch"](2);
               console.log('TCL: manifest -> initManifest() -> error', _context.t0); // Update manifest error in the redux store
 
               status = _context.t0.response !== undefined ? _context.t0.response.status : -9;
@@ -90,12 +89,12 @@ var initManifest = function initManifest(manifestURL, canvasIndex) {
               _alert = (0, _alertStatus.configureAlert)(status);
               dispatch((0, _forms.setAlert)(_alert));
 
-            case 22:
+            case 21:
             case "end":
               return _context.stop();
           }
         }
-      }, _callee, null, [[3, 15]]);
+      }, _callee, null, [[2, 14]]);
     }));
 
     return function (_x, _x2) {
@@ -154,17 +153,20 @@ var fetchManifestSuccess = function fetchManifestSuccess() {
  * the Redux store
  * @param {String} src - media file URI
  * @param {Number} duration - duration of the media file
+ * @param {Boolean} isStream - flag indicating media is an HLS stream
+ * @param {Boolena} isVideo
  */
 
 
 exports.fetchManifestSuccess = fetchManifestSuccess;
 
-var setMediaInfo = function setMediaInfo(src, duration, isStream) {
+var setMediaInfo = function setMediaInfo(src, duration, isStream, isVideo) {
   return {
     type: types.SET_MANIFEST_MEDIAINFO,
     src: src,
     duration: duration,
-    isStream: isStream
+    isStream: isStream,
+    isVideo: isVideo
   };
 };
 

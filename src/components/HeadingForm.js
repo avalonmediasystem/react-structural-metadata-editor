@@ -123,7 +123,7 @@ class HeadingForm extends Component {
         </Form.Group>
 
         <Row>
-          <Col sm={{ offset: 5 }} md={{ offset: 5 }} lg={{ offset: 10 }}>
+          <Col sm={{ offset: 5 }} md={{ offset: 5 }} lg={{ offset: 9 }}>
             <ButtonToolbar className="float-right">
               <Button
                 variant="outline-secondary"

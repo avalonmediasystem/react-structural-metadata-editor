@@ -64,7 +64,6 @@ describe('StructureOutputContainer component', () => {
     );
 
     expect(getByTestId('structure-output-list')).toBeInTheDocument();
-    expect(getByTestId('structure-save-button')).toBeInTheDocument();
     // Alert is not present in the DOM
     expect(queryByTestId('alert-container')).not.toBeInTheDocument();
   });

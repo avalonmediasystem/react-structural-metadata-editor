@@ -14,6 +14,23 @@
   margin-bottom: 20px;
 }
 
+.structure-save {
+  width: 100%;
+}
+
+/* START - Structure Section */
+.structure-section {
+  overflow-y: auto;
+  height: 25vh;
+}
+
+/* When the width is smaller than 768px */
+@media screen and (max-width: 768px) {
+  .structure-section {
+    height: 20vh;
+  }
+}
+
 .structure-list li {
   list-style: none;
 }
@@ -54,8 +71,9 @@
   margin: 0 5px;
   cursor: pointer;
 }
+/* END - Structure Section */
 
-/* Override Bootstrap CSS */
+/* START - Override Bootstrap CSS */
 .sme-container .alert {
   margin-top: 5px;
   margin-bottom: 5px;
@@ -68,17 +86,30 @@
 .sme-container .form-label {
   font-weight: bold;
 }
+/* END - Override Bootstrap CSS */
 
-/* Waveform */
-#waveform-container,
+/* START - Waveform Section */
+.waveform-section {
+  margin: auto;
+}
+
+#waveform-container {
+  padding: 0;
+  margin: auto;
+  background-color: white;
+}
+
+#zoomview-container {
+  margin-bottom: 1.5rem;
+  background-color: white;
+}
+
 #zoomview-container,
 #overview-container {
   box-shadow: 3px 3px 20px #919191;
-  margin: 0 0 24px 0;
   -moz-box-shadow: 3px 3px 20px #919191;
   -webkit-box-shadow: 3px 3px 20px #919191;
   line-height: 0;
-  margin-bottom: 15px;
 }
 
 #overview-container {
@@ -88,6 +119,62 @@
 #zoomview-container {
   height: 200px;
 }
+
+.waveform-media > video {
+  width: 100%;
+  padding-right: 0;
+}
+
+/* When the width is less than 768px - small devices */
+@media screen and (max-width: 768px) {
+  #overview-container {
+    height: 45px;
+  }
+  
+  #zoomview-container {
+    height: 85px;
+  }
+}
+
+/* When the width is between 768px and 992px - medium device */
+@media screen and (max-width: 991px) and (min-width: 769px) {
+  #overview-container {
+    height: 55px;
+  }
+  
+  #zoomview-container {
+    height: 100px;
+  }
+}
+
+/* When the width is between 992px and 1400px - large devices */
+@media screen and (max-width: 1400px) and (min-width: 992px) {
+  #overview-container {
+    height: 60px;
+  }
+  
+  #zoomview-container {
+    height: 160px;
+  }
+}
+
+@media screen and (min-width: 1600px) {
+  #overview-container {
+    height: 85px;
+  }
+  
+  #zoomview-container {
+    height: 200px;
+  }
+}
+
+.waveform-toolbar {
+  width: 100%;
+  margin: 1rem 0;
+  padding: 0;
+}
+
+/* END - Waveform Section */
 
 /* Loading spinner from https://github.com/avalonmediasystem/avalon/blob/develop/app/assets/stylesheets/avalon/_loading-spinner.scss */
 /* Modified to block the background while loading */

@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
+import { Row } from 'react-bootstrap';
 import { initializePeaks } from '../actions/peaks-instance';
 import { initManifest } from '../actions/manifest';
 import { retrieveStreamMedia } from '../actions/forms';
@@ -63,7 +64,7 @@ const WaveformContainer = (props) => {
   }, [streamMediaLoading]);
 
   return (
-    <section className="waveform-section" data-testid="waveform-container">
+    <Row className="waveform-section" data-testid="waveform-container">
       <Waveform
         withCredentials={props.withCredentials}
         ref={{
@@ -72,7 +73,7 @@ const WaveformContainer = (props) => {
           mediaPlayerRef: mediaPlayer,
         }}
       />{' '}
-    </section>
+    </Row>
   );
 };
 

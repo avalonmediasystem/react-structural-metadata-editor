@@ -193,7 +193,7 @@ var Waveform = /*#__PURE__*/_react["default"].forwardRef(function (props, ref) {
     "data-testid": "waveform-video-player",
     src: audioFile,
     onCanPlay: handleCanplay
-  }, "Your browser does not support the audio element.") : /*#__PURE__*/_react["default"].createElement("audio", {
+  }, "Your browser does not support the video element.") : /*#__PURE__*/_react["default"].createElement("audio", {
     ref: ref.mediaPlayerRef,
     hidden: true,
     controls: "controls",

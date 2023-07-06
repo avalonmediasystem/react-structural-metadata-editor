@@ -143,7 +143,8 @@ var StructureOutputContainer = function StructureOutputContainer(props) {
   }, manifestFetched && smData != null && /*#__PURE__*/_react["default"].createElement("div", {
     "data-testid": "structure-output-list"
   }, /*#__PURE__*/_react["default"].createElement(_List["default"], {
-    items: smData
+    items: smData,
+    key: Math.random()
   }))));
 };
 

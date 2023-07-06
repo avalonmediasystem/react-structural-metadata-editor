@@ -71,7 +71,7 @@ const StructureOutputContainer = (props) => {
       <Col lg={12}>
         {manifestFetched && smData != null && (
           <div data-testid="structure-output-list">
-            <List items={smData} />
+            <List items={smData} key={Math.random()} />
           </div>)
         }
       </Col>

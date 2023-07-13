@@ -68,24 +68,26 @@ const StructureOutputContainer = (props) => {
       className="structure-section"
       data-testid="structure-output-section"
     >
-      {manifestFetched && smData != null && (
-        <div data-testid="structure-output-list">
-          <List items={smData} />
-          { !props.disableSave && (
-            <Row>
-              <Col xs={12} className="text-right">
-                <Button
-                  variant="primary"
-                  onClick={handleSaveItClick}
-                  data-testid="structure-save-button"
-                  disabled={props.editingDisabled}
-                >
-                  Save Structure
-                </Button>
-              </Col>
-            </Row>)
-          }
-        </div>)
+      <Col lg={12} className="structure-lists">
+        { manifestFetched && smData != null && (
+          <div data-testid="structure-output-list">
+            <List items={smData} />
+          </div>)
+        }
+      </Col>
+      { !props.disableSave && (
+        <Row>
+          <Col md={{ span: 4, offset: 8 }} className="text-right pr-4 pt-2">
+            <Button
+              variant="primary"
+              onClick={handleSaveItClick}
+              data-testid="structure-save-button"
+              disabled={props.editingDisabled}
+            >
+              Save Structure
+            </Button>
+          </Col>
+        </Row>)
       }
       
     </section>

@@ -36,9 +36,14 @@ function getMediaInfo(manifest) {
   try {
     canvas = (0, _manifesto.parseManifest)(manifest).getSequences()[0].getCanvases()[canvasIndex];
     var sources = canvas.getContent()[0].getBody();
-    var src = filtersrc(sources);
+
+    var _filtersrc = filtersrc(sources),
+        src = _filtersrc.src,
+        type = _filtersrc.type;
+
     mediaInfo.isStream = (0, _utils.getMimetype)(src) === 'application/x-mpegURL' ? true : false;
     mediaInfo.src = src;
+    mediaInfo.isVideo = type === 'video' ? true : false;
     mediaInfo.duration = canvas.getDuration();
   } catch (err) {
     console.error(err);
@@ -55,41 +60,49 @@ function filtersrc(sources) {
   if (sources.length < 1) {
     throw 'Error fetching media files. Please check the Manifest.';
   } else if (sources.length == 1) {
-    return sources[0].id;
+    return {
+      src: sources[0].id,
+      type: sources[0].getType()
+    };
   } else {
     var srcId = sources[0].id;
+    var type = sources[0].getType();
     sources.map(function (src) {
       var srcQuality = src.getLabel()[0].value.toLowerCase();
 
       if (srcQuality == 'auto' || srcQuality == 'low') {
         srcId = src.id;
+        type = src.getType();
       }
     });
-    return srcId;
+    return {
+      src: srcId,
+      type: type
+    };
   }
 }
 /**
- * Retrieve the list of alternative representation files in manifest or canvas
- * level to make available to download
+ * Retrieve the waveform information listed under `seeAlso` property
+ * for each Canvas in the Manifest
  * @param {Object} manifest
  * @param {Number} canvasIndex
- * @returns List of files under `rendering` property in manifest
+ * @returns List of files under `seeAlso` property in a Canvas
  */
 
 
 function getWaveformInfo(manifest, canvasIndex) {
   var waveformFile = null;
-  var canvasRendering = [];
+  var fileInfo = [];
 
   try {
     var manifestParsed = (0, _manifesto.parseManifest)(manifest);
     var canvas = manifestParsed.getSequences()[0].getCanvasByIndex(canvasIndex);
 
-    if (canvas.__jsonld.rendering) {
-      canvasRendering = canvas.__jsonld.rendering;
+    if (canvas.__jsonld.seeAlso) {
+      fileInfo = canvas.__jsonld.seeAlso;
 
-      if (canvasRendering.length > 0) {
-        var w = canvasRendering[0];
+      if (fileInfo.length > 0) {
+        var w = fileInfo[0];
         var name = getLabelValue(w.label);
 
         if (w.format == 'application/json' && name == 'waveform.json') {

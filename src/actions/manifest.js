@@ -26,7 +26,7 @@ export const initManifest = ( manifestURL, canvasIndex ) => {
         mediaInfo = getMediaInfo(response.data, canvasIndex);
   
         dispatch(setManifest(response.data));
-        dispatch(setMediaInfo(mediaInfo.src, mediaInfo.duration, mediaInfo.isStream));
+        dispatch(setMediaInfo(mediaInfo.src, mediaInfo.duration, mediaInfo.isStream, mediaInfo.isVideo));
         smData = parseStructureToJSON(response.data, mediaInfo.duration, canvasIndex);
         duration = mediaInfo.duration;
       }
@@ -94,9 +94,10 @@ export const fetchManifestSuccess = () => ({
  * @param {String} src - media file URI
  * @param {Number} duration - duration of the media file
  */
-export const setMediaInfo = (src, duration, isStream) => ({
+export const setMediaInfo = (src, duration, isStream, isVideo) => ({
   type: types.SET_MANIFEST_MEDIAINFO,
   src,
   duration,
   isStream,
+  isVideo
 });

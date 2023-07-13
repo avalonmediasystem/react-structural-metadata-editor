@@ -58,7 +58,7 @@ var initManifest = function initManifest(manifestURL, canvasIndex) {
               if (!(0, _lodash.isEmpty)(response.data)) {
                 mediaInfo = (0, _iiifParser.getMediaInfo)(response.data, canvasIndex);
                 dispatch(setManifest(response.data));
-                dispatch(setMediaInfo(mediaInfo.src, mediaInfo.duration, mediaInfo.isStream));
+                dispatch(setMediaInfo(mediaInfo.src, mediaInfo.duration, mediaInfo.isStream, mediaInfo.isVideo));
                 smData = (0, _iiifParser.parseStructureToJSON)(response.data, mediaInfo.duration, canvasIndex);
                 duration = mediaInfo.duration;
               }
@@ -159,12 +159,13 @@ var fetchManifestSuccess = function fetchManifestSuccess() {
 
 exports.fetchManifestSuccess = fetchManifestSuccess;
 
-var setMediaInfo = function setMediaInfo(src, duration, isStream) {
+var setMediaInfo = function setMediaInfo(src, duration, isStream, isVideo) {
   return {
     type: types.SET_MANIFEST_MEDIAINFO,
     src: src,
     duration: duration,
-    isStream: isStream
+    isStream: isStream,
+    isVideo: isVideo
   };
 };
 

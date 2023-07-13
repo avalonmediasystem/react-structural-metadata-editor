@@ -138,19 +138,25 @@ var StructureOutputContainer = function StructureOutputContainer(props) {
   return /*#__PURE__*/_react["default"].createElement("section", {
     className: "structure-section",
     "data-testid": "structure-output-section"
+  }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Col, {
+    lg: 12,
+    className: "structure-lists"
   }, manifestFetched && smData != null && /*#__PURE__*/_react["default"].createElement("div", {
     "data-testid": "structure-output-list"
   }, /*#__PURE__*/_react["default"].createElement(_List["default"], {
     items: smData
-  }), !props.disableSave && /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Row, null, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Col, {
-    xs: 12,
-    className: "text-right"
+  }))), !props.disableSave && /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Row, null, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Col, {
+    md: {
+      span: 4,
+      offset: 8
+    },
+    className: "text-right pr-4 pt-2"
   }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Button, {
     variant: "primary",
     onClick: handleSaveItClick,
     "data-testid": "structure-save-button",
     disabled: props.editingDisabled
-  }, "Save Structure")))));
+  }, "Save Structure"))));
 };
 
 var _default = StructureOutputContainer;

@@ -343,7 +343,7 @@ var manifestWithInvalidStruct = {
         target: 'https://example.com/manifest/canvas/1'
       }]
     }],
-    rendering: [{
+    seeAlso: [{
       id: 'https://example.com/lunchroom_manners/waveform.json',
       type: 'Dataset',
       label: {
@@ -402,7 +402,7 @@ var manifestWoStructure = {
         target: 'https://example.com/manifest/canvas/1'
       }]
     }],
-    rendering: [{
+    seeAlso: [{
       id: 'https://example.com/lunchroom_manners/waveform.json',
       type: 'Dataset',
       label: {
@@ -495,7 +495,7 @@ var manifestWithStructure = {
         target: 'http://example.com/sample-manifest/manifest/canvas/2'
       }]
     }],
-    rendering: [{
+    seeAlso: [{
       id: 'http://example.com/lunchroom-manners/waveform.json',
       type: 'Dataset',
       label: {
@@ -567,7 +567,7 @@ var manifestWoChoice = {
         motivation: 'painting',
         body: {
           id: 'http://example.com/volleyball-for-boys/volleyball-for-boys.m3u8',
-          type: 'Video',
+          type: 'Sound',
           format: 'application/x-x-mpegURL',
           height: 1080,
           width: 1920,

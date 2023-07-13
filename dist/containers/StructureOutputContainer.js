@@ -146,8 +146,11 @@ var StructureOutputContainer = function StructureOutputContainer(props) {
   }, /*#__PURE__*/_react["default"].createElement(_List["default"], {
     items: smData
   }))), !props.disableSave && /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Row, null, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Col, {
-    xs: 12,
-    className: "text-right"
+    md: {
+      span: 4,
+      offset: 8
+    },
+    className: "text-right pr-4 pt-2"
   }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Button, {
     variant: "primary",
     onClick: handleSaveItClick,

@@ -126,7 +126,7 @@ const Waveform = React.forwardRef((props, ref) => {
 
   return (
     <React.Fragment>
-      <Row>
+      <Row className="waveform-row">
       <Col lg={mediaInfo.isVideo ? 8 : 12} sm={8}>
         <div
           id="waveform-container"
@@ -173,7 +173,7 @@ const Waveform = React.forwardRef((props, ref) => {
               ref={ref.mediaPlayerRef}
               hidden={true}
               controls="controls"
-              data-testid="waveform-media"
+              data-testid="waveform-audio-player"
               src={audioFile}
               onCanPlay={handleCanplay}
             >

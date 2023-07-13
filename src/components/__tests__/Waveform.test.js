@@ -44,34 +44,40 @@ describe('Waveform component', () => {
     manifest: {
       manifest: manifest,
       mediaInfo: {
-        src: 'https://example.com/volleyball-for-boys/volleyball-for-boys.mp4',
-        duration: 662.037
+        src: 'https://example.com/volleyball-for-boys/volleyball-for-boys.mp3',
+        duration: 662.037,
+        isStream: false,
+        isVideo: false,
       }
     }
   };
 
-  beforeEach(() => {
-    mediaElement = React.createRef();
-    waveform = renderWithRedux(
-      <Waveform
-        ref={{
-          zoomViewRef: zoomView,
-          overViewRef: overView,
-          mediaPlayerRef: mediaElement,
-        }}
-      />,
-      { initialState }
-    );
-  });
+  describe('with a working media URL', () => {
+    beforeEach(() => {
+      mediaElement = React.createRef();
+      waveform = renderWithRedux(
+        <Waveform
+          ref={{
+            zoomViewRef: zoomView,
+            overViewRef: overView,
+            mediaPlayerRef: mediaElement,
+          }}
+        />,
+        { initialState }
+      );
+    });
 
-  test('renders', () => {
-    expect(
-      waveform.container.querySelector('#waveform-container')
-    ).toBeInTheDocument();
-    expect(waveform.queryByTestId('waveform-toolbar')).toBeInTheDocument();
-  });
+    test('renders successfully', () => {
+      expect(waveform.queryByTestId('waveform')).toBeInTheDocument();
+      expect(waveform.queryByTestId('waveform-toolbar')).toBeInTheDocument();
+    });
 
-  describe('when stream URL works', () => {
+    test('does not render video with audio manifest', () => {
+      expect(waveform.queryByTestId('waveform')).toBeInTheDocument();
+      expect(waveform.queryByTestId('waveform-audio-player')).toBeInTheDocument();
+      expect(waveform.queryByTestId('waveform-video-player')).not.toBeInTheDocument();
+    })
+  
     test('renders play/pause buttons in the toolbar and enabled', () => {
       expect(waveform.getByTestId('waveform-toolbar')).toBeInTheDocument();
       expect(waveform.getByTestId('waveform-play-button')).toBeEnabled();
@@ -107,7 +113,7 @@ describe('Waveform component', () => {
     test('error alert is not displayed', () => {
       expect(waveform.queryByTestId('alert-container')).not.toBeInTheDocument();
     });
-
+  
     describe('when spacebar is pressed', () => {
       test('while editing an item', () => {
         fireEvent.keyDown(waveform.getByTestId('waveform-toolbar'), {
@@ -134,8 +140,10 @@ describe('Waveform component', () => {
           manifest: {
             manifest: manifest,
             mediaInfo: {
-              src: 'https://example.com/volleyball-for-boys/volleyball-for-boys.mp4',
-              duration: 662.037
+              src: 'https://example.com/volleyball-for-boys/volleyball-for-boys.mp3',
+              duration: 662.037,
+              isStream: false,
+              isVideo: false,
             }
           }
         };
@@ -159,8 +167,21 @@ describe('Waveform component', () => {
     });
   });
 
-  describe('when stream URL does not work', () => {
-    test('play/pause buttons are not dispalyed', () => {
+  describe('with a broken media URL', () => {
+    beforeEach(() => {
+      mediaElement = React.createRef();
+      waveform = renderWithRedux(
+        <Waveform
+          ref={{
+            zoomViewRef: zoomView,
+            overViewRef: overView,
+            mediaPlayerRef: mediaElement,
+          }}
+        />,
+        { initialState }
+      );
+    });
+    test('does not render play/pause buttons', () => {
       // Buttons are displayed intially
       expect(
         waveform.queryByTestId('waveform-play-button')
@@ -169,6 +190,7 @@ describe('Waveform component', () => {
         waveform.queryByTestId('waveform-pause-button')
       ).toBeInTheDocument();
 
+      // Re-render with broken status
       const nextState = {
         forms: {
           streamInfo: {
@@ -184,7 +206,9 @@ describe('Waveform component', () => {
           manifest: manifest,
           mediaInfo: {
             src: 'https://example.com/volleyball-for-boys/volleyball-for-boys.mp4',
-            duration: 662.037
+            duration: 662.037,
+            isStream: false,
+            isVideo: false,
           }
         }
       };
@@ -207,4 +231,37 @@ describe('Waveform component', () => {
       ).not.toBeInTheDocument();
     });
   });
+
+  describe('with a video manifest', () => {
+    beforeEach(() => {
+      const stateWithVideo = {
+        ...initialState,
+        manifest: {
+          ...initialState.manifest,
+          mediaInfo: {
+            src: 'https://example.com/volleyball-for-boys/volleyball-for-boys.mp4',
+            duration: 662.037,
+            isStream: false,
+            isVideo: true
+          }
+        }
+      }
+      mediaElement = React.createRef();
+      waveform = renderWithRedux(
+        <Waveform
+          ref={{
+            zoomViewRef: zoomView,
+            overViewRef: overView,
+            mediaPlayerRef: mediaElement,
+          }}
+        />,
+        { initialState: stateWithVideo }
+      );
+    });
+    test('renders video element', () => {
+      expect(waveform.queryByTestId('waveform')).toBeInTheDocument();
+      expect(waveform.queryByTestId('waveform-video-player')).toBeInTheDocument();
+      expect(waveform.queryByTestId('waveform-audio-player')).not.toBeInTheDocument();
+    })
+  })
 });

@@ -8,7 +8,7 @@ const props = {
   manifestURL: `${config.url}/${config.env}/manifest.json`,
   canvasIndex: 0,
   structureIsSaved: (val) => { },
-  disableSave: false
+  disableSave: true
 };
 
 render(<App {...props} />, document.getElementById('root'));

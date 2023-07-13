@@ -85,6 +85,10 @@
 /* END - Override Bootstrap CSS */
 
 /* START - Waveform section */
+.waveform-row {
+  align-items: center;
+}
+
 #waveform-container,
 #zoomview-container,
 #overview-container {
@@ -121,6 +125,7 @@
   margin: 1rem 0;
   padding: 0;
 }
+
 /* When the width is less than 768px - small devices */
 @media screen and (max-width: 768px) {
   #overview-container {

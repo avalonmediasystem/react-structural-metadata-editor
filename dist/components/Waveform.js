@@ -160,7 +160,9 @@ var Waveform = /*#__PURE__*/_react["default"].forwardRef(function (props, ref) {
     setVolume(volume);
   };
 
-  return /*#__PURE__*/_react["default"].createElement(_react["default"].Fragment, null, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Row, null, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Col, {
+  return /*#__PURE__*/_react["default"].createElement(_react["default"].Fragment, null, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Row, {
+    className: "waveform-row"
+  }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Col, {
     lg: mediaInfo.isVideo ? 8 : 12,
     sm: 8
   }, /*#__PURE__*/_react["default"].createElement("div", {
@@ -198,7 +200,7 @@ var Waveform = /*#__PURE__*/_react["default"].forwardRef(function (props, ref) {
     ref: ref.mediaPlayerRef,
     hidden: true,
     controls: "controls",
-    "data-testid": "waveform-media",
+    "data-testid": "waveform-audio-player",
     src: audioFile,
     onCanPlay: handleCanplay
   }, "Your browser does not support the audio element."))), !streamMediaLoading && !streamMediaError && /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Row, {

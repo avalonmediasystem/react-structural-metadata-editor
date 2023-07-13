@@ -77,7 +77,7 @@ const StructureOutputContainer = (props) => {
       </Col>
       { !props.disableSave && (
         <Row>
-          <Col xs={12} className="text-right">
+          <Col md={{ span: 4, offset: 8 }} className="text-right pr-4 pt-2">
             <Button
               variant="primary"
               onClick={handleSaveItClick}

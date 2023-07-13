@@ -14,6 +14,19 @@
   margin-bottom: 20px;
 }
 
+/* START - Structure Section */
+.structure-section > .structure-lists {
+  overflow-y: auto;
+  height: 25vh;
+}
+
+/* When the width is smaller than 768px */
+@media screen and (max-width: 768px) {
+  .structure-section {
+    height: 20vh;
+  }
+}
+
 .structure-list li {
   list-style: none;
 }
@@ -54,8 +67,9 @@
   margin: 0 5px;
   cursor: pointer;
 }
+/* END - Structure Section */
 
-/* Override Bootstrap CSS */
+/* START - Override Bootstrap CSS */
 .sme-container .alert {
   margin-top: 5px;
   margin-bottom: 5px;
@@ -68,8 +82,9 @@
 .sme-container .form-label {
   font-weight: bold;
 }
+/* END - Override Bootstrap CSS */
 
-/* Waveform */
+/* START - Waveform section */
 #waveform-container,
 #zoomview-container,
 #overview-container {
@@ -81,6 +96,10 @@
   margin-bottom: 15px;
 }
 
+#waveform-container {
+  margin: auto;
+}
+
 #overview-container {
   height: 85px;
 }
@@ -88,6 +107,63 @@
 #zoomview-container {
   height: 200px;
 }
+
+.waveform-section {
+  margin: auto;
+}
+.waveform-media > video {
+  width: 100%;
+  padding-right: 0;
+}
+
+.waveform-toolbar {
+  width: 100%;
+  margin: 1rem 0;
+  padding: 0;
+}
+/* When the width is less than 768px - small devices */
+@media screen and (max-width: 768px) {
+  #overview-container {
+    height: 45px;
+  }
+
+  #zoomview-container {
+    height: 85px;
+  }
+}
+
+/* When the width is between 768px and 992px - medium device */
+@media screen and (max-width: 991px) and (min-width: 769px) {
+  #overview-container {
+    height: 55px;
+  }
+
+  #zoomview-container {
+    height: 100px;
+  }
+}
+
+/* When the width is between 992px and 1400px - large devices */
+@media screen and (max-width: 1400px) and (min-width: 992px) {
+  #overview-container {
+    height: 60px;
+  }
+
+  #zoomview-container {
+    height: 160px;
+  }
+}
+
+@media screen and (min-width: 1600px) {
+  #overview-container {
+    height: 85px;
+  }
+
+  #zoomview-container {
+    height: 200px;
+  }
+}
+/* END - Waveform section */
 
 /* Loading spinner from https://github.com/avalonmediasystem/avalon/blob/develop/app/assets/stylesheets/avalon/_loading-spinner.scss */
 /* Modified to block the background while loading */

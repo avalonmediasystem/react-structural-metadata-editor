@@ -38,6 +38,7 @@ describe('iiif-parser', () => {
           src: 'http://example.com/volleyball-for-boys/volleyball-for-boys.mp4',
           duration: 662.037,
           isStream: false,
+          isVideo: true,
         });
       });
       test('without media choice \'auto\', selects first', () => {
@@ -47,6 +48,7 @@ describe('iiif-parser', () => {
             src: 'https://example.com/volleyball-for-boys/volleyball-for-boys.mp4',
             duration: 662.037,
             isStream: false,
+            isVideo: true,
           }
         );
       });
@@ -56,14 +58,17 @@ describe('iiif-parser', () => {
           src: 'http://example.com/volleyball-for-boys/volleyball-for-boys.m3u8',
           duration: 662.037,
           isStream: true,
+          isVideo: false,
         })
       });
+
       test('without any media related information', () => {
         const mediaInfo = iiifParser.getMediaInfo(manifestWoStructure, 0);
         expect(mediaInfo).toEqual({
           error: 'Error fetching media files. Please check the Manifest.',
         });
       });
+      
     });
   });
 

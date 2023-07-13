@@ -126,42 +126,63 @@ const Waveform = React.forwardRef((props, ref) => {
 
   return (
     <React.Fragment>
-      <div
-        id="waveform-container"
-        tabIndex="0"
-        data-testid="waveform"
-        aria-label={waveformLabel}
-      >
+      <Row>
+      <Col lg={mediaInfo.isVideo ? 8 : 12} sm={8}>
         <div
-          id="zoomview-container"
-          ref={ref.zoomViewRef}
+          id="waveform-container"
           tabIndex="0"
-          data-testid="zoomview-view"
-          aria-label={zoomViewLabel}
-        />
-        <div
-          id="overview-container"
-          ref={ref.overViewRef}
-          tabIndex="0"
-          data-testid="overview-view"
-          aria-label={overViewLabel}
-        />
-      </div>
+          data-testid="waveform"
+          aria-label={waveformLabel}
+        >
+          <div
+            id="zoomview-container"
+            ref={ref.zoomViewRef}
+            tabIndex="0"
+            data-testid="zoomview-view"
+            aria-label={zoomViewLabel}
+          />
+          <div
+            id="overview-container"
+            ref={ref.overViewRef}
+            tabIndex="0"
+            data-testid="overview-view"
+            aria-label={overViewLabel}
+          />
+        </div>
+      </Col>
       {stillLoading && (
         <div data-testid="loading-spinner">
           <LoadingSpinner isLoading={stillLoading} />
         </div>
       )}
-      <audio
-        ref={ref.mediaPlayerRef}
-        hidden={true}
-        controls="controls"
-        data-testid="waveform-media"
-        src={audioFile}
-        onCanPlay={handleCanplay}
-      >
-        Your browser does not support the audio element.
-      </audio>
+      <Col lg={4} sm={4} className="waveform-media">
+        { mediaInfo.isVideo
+          ? (
+            <video
+                ref={ref.mediaPlayerRef}
+                controls={false}
+                data-testid="waveform-video-player"
+                src={audioFile}
+                onCanPlay={handleCanplay}
+              >
+                Your browser does not support the video element.
+              </video>
+          )
+          : (
+            <audio
+              ref={ref.mediaPlayerRef}
+              hidden={true}
+              controls="controls"
+              data-testid="waveform-media"
+              src={audioFile}
+              onCanPlay={handleCanplay}
+            >
+              Your browser does not support the audio element.
+            </audio>
+          )
+        }
+      </Col>
+      </Row>
       {!streamMediaLoading && !streamMediaError && (
         <Row data-testid="waveform-toolbar">
           <Col sm={6} md={6}>

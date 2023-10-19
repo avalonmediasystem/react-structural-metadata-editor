@@ -49,7 +49,7 @@ export const initManifest = ( manifestURL, canvasIndex ) => {
     } catch (error) {
       console.log('TCL: manifest -> initManifest() -> error', error);
       // Update manifest error in the redux store
-      let status = error.response !== undefined ? error.response.status : -9;
+      let status = -9;
       dispatch(handleManifestError(1, status));
       let alert = configureAlert(status);
       dispatch(setAlert(alert));

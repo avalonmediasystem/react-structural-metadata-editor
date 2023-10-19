@@ -224,7 +224,7 @@ describe('App component', () => {
       test('shows an error message', async () => {
         mockAxios.get.mockImplementationOnce(() => {
           return Promise.reject({
-            response: { status: 404, }
+            response: { status: -9, }
           });
         });
         mockAxios.head.mockImplementationOnce(() => {
@@ -244,7 +244,7 @@ describe('App component', () => {
               src: '',
               duration: 0
             },
-            manifestError: 404,
+            manifestError: -9,
             manifestFetched: false,
           }
         };

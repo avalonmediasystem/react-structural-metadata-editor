@@ -12,7 +12,7 @@ describe('alert-status service', () => {
       'message',
       alertStatus.UNAUTHORIZED_ACCESS
     );
-    expect(alertStatus.configureAlert(404)).toHaveProperty(
+    expect(alertStatus.configureAlert(-9)).toHaveProperty(
       'message',
       alertStatus.FETCH_MANIFEST_ERROR
     );

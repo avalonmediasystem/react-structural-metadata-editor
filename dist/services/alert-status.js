@@ -61,7 +61,7 @@ function configureAlert() {
   } else if (status === -8) {
     alertObj.message = INVALID_SEGMENTS_WARNING;
     alertObj.alertStyle = 'warning';
-  } else if (status == 404 || status == 500 || status == -9) {
+  } else if (status == -9) {
     alertObj.message = FETCH_MANIFEST_ERROR;
   } else if (status == -10) {
     alertObj.message = SAVE_STRUCTURE_FAIL;

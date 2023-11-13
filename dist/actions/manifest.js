@@ -85,7 +85,7 @@ var initManifest = function initManifest(manifestURL, canvasIndex) {
               _context.t0 = _context["catch"](3);
               console.log('TCL: manifest -> initManifest() -> error', _context.t0); // Update manifest error in the redux store
 
-              status = _context.t0.response !== undefined ? _context.t0.response.status : -9;
+              status = -9;
               dispatch(handleManifestError(1, status));
               _alert = (0, _alertStatus.configureAlert)(status);
               dispatch((0, _forms.setAlert)(_alert));

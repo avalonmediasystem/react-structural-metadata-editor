@@ -181,22 +181,21 @@ function retrieveStreamMedia(audioFile, mediaPlayer) {
       }); // ERROR event is fired when fetching media stream is not successful
 
       hls.on(_hls["default"].Events.ERROR, function (event, data) {
-        dispatch(setStreamMediaLoading(1));
-        var errorCode = null; // When there are errors in the HLS build this block catches it and flashes
+        var _data$frag, _data$response;
+
+        dispatch(setStreamMediaLoading(1)); // When there are errors in the HLS build this block catches it and flashes
         // the warning message for a split second. The ErrorType for these errors is
         // OTHER_ERROR. Issue in HLS.js: https://github.com/video-dev/hls.js/issues/2435
 
-        if (data.fatal && data.type !== _hls["default"].ErrorTypes.OTHER_ERROR) {
+        if (data.type === _hls["default"].ErrorTypes.NETWORK_ERROR && ((_data$frag = data.frag) === null || _data$frag === void 0 ? void 0 : _data$frag.type) === "subtitle" && ((_data$response = data.response) === null || _data$response === void 0 ? void 0 : _data$response.code) === 404) {
+          // When captions fragment fetching fails set streamMediaLoading=true
+          // and exit event handler
+          dispatch(streamMediaSuccess(0));
+          hls.off(_hls["default"].Events.ERROR);
+          return;
+        } else if (data.fatal && data.type !== _hls["default"].ErrorTypes.OTHER_ERROR) {
           console.log('TCL: forms action -> retrieveStreamMedia -> error', data);
-
-          if (data.response !== undefined) {
-            var status = data.response.code;
-            status === 0 ? errorCode = -6 : errorCode = status;
-          } else {
-            errorCode = -6;
-          }
-
-          dispatch(streamMediaError(errorCode));
+          dispatch(streamMediaError(-6));
         } else if (data.levelRetry) {
           // Check if HLS.js is still trying to fetch stream
           dispatch(setStreamMediaLoading(1));

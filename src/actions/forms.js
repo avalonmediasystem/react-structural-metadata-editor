@@ -118,7 +118,7 @@ export function retrieveStreamMedia(audioFile, mediaPlayer, opts = {}) {
         // When there are errors in the HLS build this block catches it and flashes
         // the warning message for a split second. The ErrorType for these errors is
         // OTHER_ERROR. Issue in HLS.js: https://github.com/video-dev/hls.js/issues/2435
-        if(data.type === Hls.ErrorTypes.NETWORK_ERROR && 
+        if(data.type === Hls.ErrorTypes.NETWORK_ERROR &&
             (data.frag?.type === "subtitle" && data.response?.code === 404)) {
           // When captions fragment fetching fails set streamMediaLoading=true
           // and exit event handler
@@ -130,6 +130,7 @@ export function retrieveStreamMedia(audioFile, mediaPlayer, opts = {}) {
             'TCL: forms action -> retrieveStreamMedia -> error',
             data
           );
+          hls.off(Hls.Events.ERROR);
           dispatch(streamMediaError(-6));
         } else if(data.levelRetry) {
           // Check if HLS.js is still trying to fetch stream

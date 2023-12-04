@@ -108,7 +108,14 @@ export function retrieveStreamMedia(audioFile, mediaPlayer, opts = {}) {
         hls.loadSource(audioFile);
         // BUFFER_CREATED event is fired when fetching the media stream is successful
         hls.on(Hls.Events.BUFFER_CREATED, function () {
-          dispatch(streamMediaSuccess());
+          hls.on(Hls.Events.BUFFER_APPENDED, function () {
+            /**
+             * Set stream status as successful once BUFFER_APPENDED event is fired in HLS.
+             * This starts the Peaks initialization, in which the presence of the player
+             * is required.
+             */
+            dispatch(streamMediaSuccess());
+          });
         });
       });
 

@@ -176,7 +176,14 @@ function retrieveStreamMedia(audioFile, mediaPlayer) {
         hls.loadSource(audioFile); // BUFFER_CREATED event is fired when fetching the media stream is successful
 
         hls.on(_hls["default"].Events.BUFFER_CREATED, function () {
-          dispatch(streamMediaSuccess());
+          hls.on(_hls["default"].Events.BUFFER_APPENDED, function () {
+            /**
+             * Set stream status as successful once BUFFER_APPENDED event is fired in HLS.
+             * This starts the Peaks initialization, in which the presence of the player
+             * is required.
+             */
+            dispatch(streamMediaSuccess());
+          });
         });
       }); // ERROR event is fired when fetching media stream is not successful
 
@@ -195,6 +202,7 @@ function retrieveStreamMedia(audioFile, mediaPlayer) {
           return;
         } else if (data.fatal && data.type !== _hls["default"].ErrorTypes.OTHER_ERROR) {
           console.log('TCL: forms action -> retrieveStreamMedia -> error', data);
+          hls.off(_hls["default"].Events.ERROR);
           dispatch(streamMediaError(-6));
         } else if (data.levelRetry) {
           // Check if HLS.js is still trying to fetch stream

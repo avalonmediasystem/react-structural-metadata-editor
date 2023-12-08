@@ -15,6 +15,7 @@ var _reactBootstrap = require("react-bootstrap");
 
 function AlertContainer(props) {
   var alertList = [];
+  var alertMessage = [];
 
   if (props.alerts && props.alerts.length != 0) {
     props.alerts.map(function (alert) {
@@ -23,26 +24,30 @@ function AlertContainer(props) {
           persistent = alert.persistent,
           id = alert.id;
 
-      if (!persistent) {
-        alertList.push( /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Alert, {
-          key: id,
-          variant: alertStyle,
-          "data-testid": "alert-container",
-          onClose: function onClose() {
-            props.removeAlert(id);
-          },
-          dismissible: true
-        }, /*#__PURE__*/_react["default"].createElement("p", {
-          "data-testid": "alert-message"
-        }, message)));
-      } else {
-        alertList.push( /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Alert, {
-          key: id,
-          variant: alertStyle,
-          "data-testid": "persistent-alert-container"
-        }, /*#__PURE__*/_react["default"].createElement("p", {
-          "data-testid": "alert-message"
-        }, message)));
+      if (!alertMessage.includes(message)) {
+        alertMessage.push(message);
+
+        if (!persistent) {
+          alertList.push( /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Alert, {
+            key: id,
+            variant: alertStyle,
+            "data-testid": "alert-container",
+            onClose: function onClose() {
+              props.removeAlert(id);
+            },
+            dismissible: true
+          }, /*#__PURE__*/_react["default"].createElement("p", {
+            "data-testid": "alert-message"
+          }, message)));
+        } else {
+          alertList.push( /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Alert, {
+            key: id,
+            variant: alertStyle,
+            "data-testid": "persistent-alert-container"
+          }, /*#__PURE__*/_react["default"].createElement("p", {
+            "data-testid": "alert-message"
+          }, message)));
+        }
       }
     });
   }

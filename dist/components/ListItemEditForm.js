@@ -106,7 +106,9 @@ var ListItemEditForm = /*#__PURE__*/function (_Component) {
       isInitializing: true
     };
     return _this;
-  }
+  } // Toggle isTyping flag on and off from events in TimespanInlinForm
+  // Toggle isInitializing flag on and off from events in TimespanInlinForm
+
 
   (0, _createClass2["default"])(ListItemEditForm, [{
     key: "addUpdatedValues",

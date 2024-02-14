@@ -232,7 +232,8 @@ var ButtonSection = /*#__PURE__*/function (_Component) {
       }
 
       return null;
-    }
+    } // Delete if a temporary segment exists
+
   }]);
   return ButtonSection;
 }(_react.Component);

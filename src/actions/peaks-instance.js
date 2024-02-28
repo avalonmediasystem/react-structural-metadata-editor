@@ -10,6 +10,9 @@ import { getWaveformInfo } from '../services/iiif-parser';
 import {
   setAlert,
   retrieveWaveformSuccess,
+  streamMediaSuccess,
+  setStreamMediaLoading,
+  handleEditingTimespans,
 } from './forms';
 
 const waveformUtils = new WaveformDataUtils();
@@ -50,8 +53,7 @@ export function initializePeaks(
 
     if (waveformInfo != null) {
       peaksOptions = await setWaveformInfo(waveformInfo, mediaInfo, peaksOptions, dispatch);
-    }
-    else {
+    } else {
       const { opts, alertStatus } = await setWaveformOptions(mediaInfo, peaksOptions);
       peaksOptions = opts;
       if (alertStatus != null) {
@@ -97,13 +99,25 @@ async function setWaveformInfo(waveformURL, mediaInfo, peaksOptions, dispatch, s
 }
 
 async function buildPeaksInstance(peaksOptions, smData, duration, dispatch, getState) {
+  const { manifest } = getState();
   // Initialize Peaks intance with the given options
   Peaks.init(peaksOptions, (err, peaks) => {
-    if (err)
+    if (err) {
+      // When media is empty stop the loading of the component
+      if (manifest.mediaInfo.src === undefined) {
+        dispatch(streamMediaSuccess());
+        dispatch(setStreamMediaLoading(0));
+        // Mark peaks is ready
+        dispatch(peaksReady(true));
+        dispatch(handleEditingTimespans(1));
+        let alert = configureAlert(-11);
+        dispatch(setAlert(alert));
+      }
       console.error(
         'TCL: peaks-instance -> buildPeaksInstance() -> Peaks.init ->',
         err
       );
+    }
 
     // Create segments from structural metadata
     const segments = waveformUtils.initSegments(smData, duration);

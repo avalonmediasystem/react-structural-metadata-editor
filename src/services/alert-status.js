@@ -16,7 +16,7 @@ export const MISSING_WAVEFORM_ERROR =
 export const INVALID_SEGMENTS_WARNING =
   'Please check start/end times of the marked invalid timespan(s).';
 export const FETCH_MANIFEST_ERROR = 'Error fetching IIIF manifest.';
-export const NO_MEDIA_MESSAGE = 'No available media stream. Please check back later.';
+export const NO_MEDIA_MESSAGE = 'No available media. Editing structure is disabled.';
 
 /**
  * Helper function which prepares a configuration object to feed the AlertContainer component

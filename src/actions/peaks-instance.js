@@ -11,8 +11,8 @@ import {
   setAlert,
   retrieveWaveformSuccess,
   streamMediaSuccess,
-  setStreamMediaLoading,
   handleEditingTimespans,
+  setStreamMediaError,
 } from './forms';
 
 const waveformUtils = new WaveformDataUtils();
@@ -106,8 +106,8 @@ async function buildPeaksInstance(peaksOptions, smData, duration, dispatch, getS
       // When media is empty stop the loading of the component
       if (manifest.mediaInfo.src === undefined) {
         dispatch(streamMediaSuccess());
-        dispatch(setStreamMediaLoading(0));
-        // Mark peaks is ready
+        dispatch(setStreamMediaError(-11));
+        // Mark peaks as ready to unblock the UI
         dispatch(peaksReady(true));
         dispatch(handleEditingTimespans(1));
         let alert = configureAlert(-11);

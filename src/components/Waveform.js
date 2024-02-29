@@ -54,9 +54,9 @@ const Waveform = React.forwardRef((props, ref) => {
   }, []);
 
   React.useEffect(() => {
-    let isLoading = (streamMediaLoading && !streamMediaError) || !readyPeaks;
+    let isLoading = streamMediaLoading || !readyPeaks;
     setStillLoading(isLoading);
-  }, [streamMediaError, streamMediaLoading, readyPeaks]);
+  }, [streamMediaLoading, readyPeaks]);
 
   // React.useEffect(() => {
   //   dispatch(setStreamMediaLoading(1));
@@ -117,6 +117,7 @@ const Waveform = React.forwardRef((props, ref) => {
         <Col lg={mediaInfo.isVideo ? 8 : 12} sm={8}>
           <div
             id="waveform-container"
+            className={streamMediaError ? "disabled" : ""}
             tabIndex="0"
             data-testid="waveform"
             aria-label={waveformLabel}
@@ -182,7 +183,6 @@ const Waveform = React.forwardRef((props, ref) => {
                 aria-label="Play"
                 onClick={playAudio}
                 data-testid="waveform-play-button"
-                disabled={streamMediaError || streamMediaLoading}
                 className="mr-1"
               >
                 <FontAwesomeIcon icon={faPlay} />
@@ -192,7 +192,6 @@ const Waveform = React.forwardRef((props, ref) => {
                 aria-label="Pause"
                 onClick={pauseAudio}
                 data-testid="waveform-pause-button"
-                disabled={streamMediaError || streamMediaLoading}
                 className="mr-1"
               >
                 <FontAwesomeIcon icon={faPause} />

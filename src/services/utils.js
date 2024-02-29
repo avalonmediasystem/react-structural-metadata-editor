@@ -165,7 +165,7 @@ function getResourceItems(annotations, duration) {
   let resources = [];
   if (!annotations || annotations.length === 0) {
     return {
-      error: 'No resources found in Manifest',
+      error: 'No resources found in Canvas',
       resources,
       duration
     };
@@ -196,7 +196,7 @@ function getResourceItems(annotations, duration) {
   }
   // No resources
   else {
-    return { resources, error: 'No resources found', duration };
+    return { resources, error: 'No resources found in Canvas', duration };
   }
   return { resources, duration, error: '' };
 }

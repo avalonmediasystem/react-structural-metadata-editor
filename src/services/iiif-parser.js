@@ -73,6 +73,7 @@ export function getWaveformInfo(manifest, canvasIndex) {
   let waveformFile = null;
   let fileInfo = [];
 
+  if (!manifest) return null;
   try {
     const manifestParsed = parseManifest(manifest);
     let canvas = manifestParsed.getSequences()[0]
@@ -107,6 +108,7 @@ export function getWaveformInfo(manifest, canvasIndex) {
 export function parseStructureToJSON(manifest, duration, canvasIndex = 0) {
   let structureJSON = [];
 
+  if (!manifest) return [];
   let buildStructureItems = (items, children) => {
     if (items.length > 0) {
       items.map((i) => {

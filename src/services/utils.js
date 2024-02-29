@@ -101,8 +101,9 @@ const createEmptyWaveform = (duration) => {
 export const setWaveformOptions = async (mediaInfo, peaksOptions) => {
   const { duration, src, isStream } = mediaInfo;
   let alertStatus = null;
+  console.log(duration, src, isStream);
   // for non-streaming shorter media files
-  if (duration < 300 && !isStream) {
+  if (duration < 300 && isStream === false) {
     const wdJSON = await generateWaveformData(src);
     peaksOptions.waveformData = { json: wdJSON };
   } else {

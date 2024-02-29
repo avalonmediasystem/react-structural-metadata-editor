@@ -112,40 +112,59 @@ async function buildPeaksInstance(peaksOptions, smData, duration, dispatch, getS
         dispatch(handleEditingTimespans(1));
         let alert = configureAlert(-11);
         dispatch(setAlert(alert));
-      }
-      console.error(
-        'TCL: peaks-instance -> buildPeaksInstance() -> Peaks.init ->',
-        err
-      );
-    }
-
-    // Create segments from structural metadata
-    const segments = waveformUtils.initSegments(smData, duration);
-
-    if (peaks) {
-      // Add segments to peaks instance
-      segments.map((seg) => peaks.segments.add(seg));
-      dispatch(initPeaks(peaks, duration));
-
-      // Subscribe to Peaks events
-      const { peaksInstance } = getState();
-      if (!isEmpty(peaksInstance.events)) {
-        const { dragged } = peaksInstance.events;
-        // for segment editing using handles
-        if (dragged) {
-          dragged.subscribe((eProps) => {
-            // startMarker = true -> handle at the start of the segment is being dragged
-            // startMarker = flase -> handle at the end of the segment is being dragged
-            const { segment, startMarker } = eProps;
-            dispatch(dragSegment(segment.id, startMarker, 1));
+      } else if (err.code === 4) {
+        /* 
+          Re-try once after failing due to media error. This corrects the flaky behavior
+          seen in Chrome, when trying to fetch the blob for stream media in Peaks.js
+        */
+        setTimeout(() => {
+          Peaks.init(peaksOptions, (err, peaks) => {
+            if (err) {
+              handlePeaksError(err);
+            }
+            handlePeaksSuccess(peaks, smData, duration, dispatch, getState);
           });
-          // Mark peaks is ready
-          dispatch(peaksReady(true));
-        }
+        }, 500);
       }
     }
+    handlePeaksSuccess(peaks, smData, duration, dispatch, getState);
   });
 }
+
+const handlePeaksError = (err) => {
+  console.error(
+    'TCL: peaks-instance -> buildPeaksInstance() -> Peaks.init ->',
+    err
+  );
+};
+
+const handlePeaksSuccess = (peaks, smData, duration, dispatch, getState) => {
+  // Create segments from structural metadata
+  const segments = waveformUtils.initSegments(smData, duration);
+
+  if (peaks) {
+    // Add segments to peaks instance
+    segments.map((seg) => peaks.segments.add(seg));
+    dispatch(initPeaks(peaks, duration));
+
+    // Subscribe to Peaks events
+    const { peaksInstance } = getState();
+    if (!isEmpty(peaksInstance.events)) {
+      const { dragged } = peaksInstance.events;
+      // for segment editing using handles
+      if (dragged) {
+        dragged.subscribe((eProps) => {
+          // startMarker = true -> handle at the start of the segment is being dragged
+          // startMarker = flase -> handle at the end of the segment is being dragged
+          const { segment, startMarker } = eProps;
+          dispatch(dragSegment(segment.id, startMarker, 1));
+        });
+        // Mark peaks is ready
+        dispatch(peaksReady(true));
+      }
+    }
+  }
+};
 
 export function initPeaks(peaksInstance, duration) {
   return {

@@ -73,7 +73,9 @@ export function getWaveformInfo(manifest, canvasIndex) {
   let waveformFile = null;
   let fileInfo = [];
 
-  if (!manifest) return null;
+  if (manifest === null) {
+    return null;
+  }
   try {
     const manifestParsed = parseManifest(manifest);
     let canvas = manifestParsed.getSequences()[0]

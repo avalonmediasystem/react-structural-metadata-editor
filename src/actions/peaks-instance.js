@@ -6,7 +6,6 @@ import APIUtils from '../api/Utils';
 import { configureAlert } from '../services/alert-status';
 import WaveformDataUtils from '../services/WaveformDataUtils';
 import { setWaveformOptions } from '../services/utils';
-import { getWaveformInfo } from '../services/iiif-parser';
 import {
   setAlert,
   retrieveWaveformSuccess,
@@ -22,25 +21,14 @@ const apiUtils = new APIUtils();
  * Initialize Peaks instance
  * @param {Object} options - peaks options
  * @param {Array} smData - array of structures from the manifest
- * @param {Number} canvasIndex - index of the current canvas
  */
-export function initializePeaks(
-  peaksOptions,
-  smData,
-  canvasIndex,
-) {
+export function initializePeaks(peaksOptions, smData) {
   return async (dispatch, getState) => {
     let duration = 0;
-    let mediaInfo = {};
-    let waveformInfo;
 
     const { manifest } = getState();
-
-    if (manifest) {
-      mediaInfo = manifest.mediaInfo;
-      duration = mediaInfo.duration;
-      waveformInfo = getWaveformInfo(manifest.manifest, canvasIndex);
-    }
+    const { mediaInfo, waveformInfo } = manifest;
+    duration = mediaInfo.duration;
 
     // Make waveform more zoomed-in for shorter media and less for larger media
     if (duration < 31) {

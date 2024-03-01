@@ -14,6 +14,8 @@ const WaveformContainer = (props) => {
   const { streamMediaLoading } = useSelector((state) => state.forms.streamInfo);
   const mediaInfo = useSelector((state) => state.manifest.mediaInfo);
   const readyPeaks = useSelector((state) => state.peaksInstance.readyPeaks);
+  const manifest = useSelector((state) => state.manifest.manifest);
+
   const smData = useSelector((state) => state.structuralMetadata.smData);
 
   const dispatch = useDispatch();
@@ -24,17 +26,18 @@ const WaveformContainer = (props) => {
     }
   }, []);
 
-
   React.useEffect(() => {
-    // When given a .m3u8 playlist, use HLS to stream media
-    if (mediaInfo.isStream) {
-      dispatch(
-        retrieveStreamMedia(mediaInfo.src, mediaPlayer.current, {
-          withCredentials: props.withCredentials,
-        })
-      );
+    if (manifest != null) {
+      // When given a .m3u8 playlist, use HLS to stream media
+      if (mediaInfo.isStream) {
+        dispatch(
+          retrieveStreamMedia(mediaInfo.src, mediaPlayer.current, {
+            withCredentials: props.withCredentials,
+          })
+        );
+      }
     }
-  }, [mediaInfo]);
+  }, [manifest, mediaInfo]);
 
   React.useEffect(() => {
     let peaksOptions = {
@@ -55,23 +58,24 @@ const WaveformContainer = (props) => {
       player: null,
     };
     if (!streamMediaLoading && smData != [] && !readyPeaks) {
-      dispatch(initializePeaks(
-        peaksOptions,
-        smData,
-        props.canvasIndex,));
+      dispatch(initializePeaks(peaksOptions, smData));
     }
   }, [streamMediaLoading]);
 
+
   return (
     <section className="waveform-section" data-testid="waveform-container">
-      <Waveform
-        withCredentials={props.withCredentials}
-        ref={{
-          zoomViewRef: zoomView,
-          overViewRef: overView,
-          mediaPlayerRef: mediaPlayer,
-        }}
-      />{' '}
+      {mediaInfo && manifest && (
+        <Waveform
+          withCredentials={props.withCredentials}
+          ref={{
+            zoomViewRef: zoomView,
+            overViewRef: overView,
+            mediaPlayerRef: mediaPlayer,
+          }}
+        />
+      )}
+      {' '}
     </section>
   );
 };

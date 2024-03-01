@@ -9,7 +9,8 @@ const initialState = {
     duration: 0,
     isStream: false,
     isVideo: false,
-  }
+  },
+  waveformInfo: null,
 };
 
 const manifest = (state = initialState, action) => {
@@ -32,6 +33,12 @@ const manifest = (state = initialState, action) => {
           isStream: action.isStream,
           isVideo: action.isVideo,
         }
+      };
+
+    case types.SET_CANVAS_WAVEFORMINFO:
+      return {
+        ...state,
+        waveformInfo: action.waveformUrl
       };
 
     default:

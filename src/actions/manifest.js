@@ -27,10 +27,11 @@ export const initManifest = (manifestURL, canvasIndex) => {
         mediaInfo = getMediaInfo(response.data, canvasIndex);
         waveformInfo = getWaveformInfo(response.data, canvasIndex);
 
-        dispatch(setWaveformInfo(waveformInfo));
-
+        // Set manifest info in state
         dispatch(setManifest(response.data));
+        dispatch(setWaveformInfo(waveformInfo));
         dispatch(setMediaInfo(mediaInfo.src, mediaInfo.duration, mediaInfo.isStream, mediaInfo.isVideo));
+
         smData = parseStructureToJSON(response.data, mediaInfo.duration, canvasIndex);
         duration = mediaInfo.duration;
       }

@@ -97,22 +97,12 @@ async function buildPeaksInstance(peaksOptions, smData, duration, dispatch, getS
         dispatch(setStreamMediaError(-11));
         // Mark peaks as ready to unblock the UI
         dispatch(peaksReady(true));
+        // Set editing to disabled to block structure editing
         dispatch(handleEditingTimespans(1));
+        // Setup editing disabled alert
         let alert = configureAlert(-11);
         dispatch(setAlert(alert));
-      } else if (err.code === 4) {
-        /* 
-          Re-try once after failing due to media error. This corrects the flaky behavior
-          seen in Chrome, when trying to fetch the blob for stream media in Peaks.js
-        */
-        setTimeout(() => {
-          Peaks.init(peaksOptions, (err, peaks) => {
-            if (err) {
-              handlePeaksError(err);
-            }
-            handlePeaksSuccess(peaks, smData, duration, dispatch, getState);
-          });
-        }, 500);
+        handlePeaksError(err);
       }
     }
     handlePeaksSuccess(peaks, smData, duration, dispatch, getState);

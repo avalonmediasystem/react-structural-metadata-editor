@@ -65,17 +65,14 @@ const WaveformContainer = (props) => {
 
   return (
     <section className="waveform-section" data-testid="waveform-container">
-      {mediaInfo && manifest && (
-        <Waveform
-          withCredentials={props.withCredentials}
-          ref={{
-            zoomViewRef: zoomView,
-            overViewRef: overView,
-            mediaPlayerRef: mediaPlayer,
-          }}
-        />
-      )}
-      {' '}
+      <Waveform
+        withCredentials={props.withCredentials}
+        ref={{
+          zoomViewRef: zoomView,
+          overViewRef: overView,
+          mediaPlayerRef: mediaPlayer,
+        }}
+      />{' '}
     </section>
   );
 };

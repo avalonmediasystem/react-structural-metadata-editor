@@ -183,6 +183,7 @@ const Waveform = React.forwardRef((props, ref) => {
                 aria-label="Play"
                 onClick={playAudio}
                 data-testid="waveform-play-button"
+                disabled={streamMediaError || streamMediaLoading}
                 className="mr-1"
               >
                 <FontAwesomeIcon icon={faPlay} />
@@ -192,6 +193,7 @@ const Waveform = React.forwardRef((props, ref) => {
                 aria-label="Pause"
                 onClick={pauseAudio}
                 data-testid="waveform-pause-button"
+                disabled={streamMediaError || streamMediaLoading}
                 className="mr-1"
               >
                 <FontAwesomeIcon icon={faPause} />

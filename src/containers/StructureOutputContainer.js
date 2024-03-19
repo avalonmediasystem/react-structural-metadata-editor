@@ -15,7 +15,7 @@ const StructureOutputContainer = (props) => {
   const dispatch = useDispatch();
   const { manifestFetched } = useSelector((state) => state.manifest);
   const { smData, initSmData, smDataIsValid } = useSelector((state) => state.structuralMetadata);
-  const { editingDisabled, structureInfo } = useSelector((state) => state.forms);
+  const { structureInfo, editingDisabled } = useSelector((state) => state.forms);
 
   const [stateInitStructure, setInitStructure] = useState(initSmData);
 
@@ -69,27 +69,27 @@ const StructureOutputContainer = (props) => {
       data-testid="structure-output-section"
     >
       <Col lg={12} className="structure-lists">
-        { manifestFetched && smData != null && (
+        {manifestFetched && smData != null && (
           <div data-testid="structure-output-list">
             <List items={smData} />
           </div>)
         }
       </Col>
-      { !props.disableSave && (
+      {!props.disableSave && (
         <Row>
           <Col md={{ span: 4, offset: 8 }} className="text-right pr-4 pt-2">
             <Button
               variant="primary"
               onClick={handleSaveItClick}
               data-testid="structure-save-button"
-              disabled={props.editingDisabled}
+              disabled={editingDisabled}
             >
               Save Structure
             </Button>
           </Col>
         </Row>)
       }
-      
+
     </section>
   );
 };

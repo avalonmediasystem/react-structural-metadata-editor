@@ -42,7 +42,6 @@ const Waveform = React.forwardRef((props, ref) => {
     editingRef.current = e;
   };
 
-
   React.useEffect(() => {
     // Add an event listener to keydown event
     document.addEventListener('keydown', handleKeyPress);

@@ -11,14 +11,14 @@ export const handleEditingTimespans =
     code,
     valid = true // assumes structure data is valid by default
   ) =>
-  (dispatch) => {
-    dispatch({ type: types.IS_EDITING_TIMESPAN, code });
-    // Remove dismissible alerts when a CRUD action has been initiated
-    // given editing is starting (code = 1) and structure is validated.
-    if (code == 1 && valid) {
-      dispatch(clearExistingAlerts());
-    }
-  };
+    (dispatch) => {
+      dispatch({ type: types.IS_EDITING_TIMESPAN, code });
+      // Remove dismissible alerts when a CRUD action has been initiated
+      // given editing is starting (code = 1) and structure is validated.
+      if (code == 1 && valid) {
+        dispatch(clearExistingAlerts());
+      }
+    };
 
 export const setAlert = (alert) => (dispatch) => {
   const id = uuidv1();
@@ -89,7 +89,7 @@ export const streamMediaSuccess = () => ({
 export const setStreamMediaLoading = (flag) => ({
   type: types.STREAM_MEDIA_LOADING,
   flag,
-})
+});
 
 export function retrieveStreamMedia(audioFile, mediaPlayer, opts = {}) {
   return (dispatch, getState) => {
@@ -98,6 +98,16 @@ export function retrieveStreamMedia(audioFile, mediaPlayer, opts = {}) {
         xhrSetup: function (xhr) {
           xhr.withCredentials = opts.withCredentials;
         },
+        /*
+          Sometimes captions/subtitles in Avalon fails to render and this makes
+          HLS streaming to break resulting in a indefinite blocking loading spinner.
+          Therefore, disable captions/subtitles rendering in HLS.js setup.
+        */
+        subtitleTrackController: null,
+        enableWebVTT: false,
+        enableIMSC1: false,
+        enableCEA708Captions: false,
+        renderTextTracksNatively: false
       };
       const hls = new Hls(config);
 
@@ -108,7 +118,7 @@ export function retrieveStreamMedia(audioFile, mediaPlayer, opts = {}) {
         hls.loadSource(audioFile);
         // BUFFER_CREATED event is fired when fetching the media stream is successful
         hls.on(Hls.Events.BUFFER_CREATED, function () {
-          hls.on(Hls.Events.BUFFER_APPENDED, function () {
+          hls.once(Hls.Events.BUFFER_APPENDED, function () {
             /**
              * Set stream status as successful once BUFFER_APPENDED event is fired in HLS.
              * This starts the Peaks initialization, in which the presence of the player
@@ -121,29 +131,31 @@ export function retrieveStreamMedia(audioFile, mediaPlayer, opts = {}) {
 
       // ERROR event is fired when fetching media stream is not successful
       hls.on(Hls.Events.ERROR, function (event, data) {
-        dispatch(setStreamMediaLoading(1));
         // When there are errors in the HLS build this block catches it and flashes
         // the warning message for a split second. The ErrorType for these errors is
         // OTHER_ERROR. Issue in HLS.js: https://github.com/video-dev/hls.js/issues/2435
-        if(data.type === Hls.ErrorTypes.NETWORK_ERROR &&
-            (data.frag?.type === "subtitle" && data.response?.code === 404)) {
-          // When captions fragment fetching fails set streamMediaLoading=true
-          // and exit event handler
-          dispatch(streamMediaSuccess(0));
-          hls.off(Hls.Events.ERROR);
-          return;
-        } else if (data.fatal && data.type !== Hls.ErrorTypes.OTHER_ERROR) {
-          console.log(
-            'TCL: forms action -> retrieveStreamMedia -> error',
-            data
-          );
-          hls.off(Hls.Events.ERROR);
-          dispatch(streamMediaError(-6));
-        } else if(data.levelRetry) {
-          // Check if HLS.js is still trying to fetch stream
+        if (data.fatal) {
           dispatch(setStreamMediaLoading(1));
-        } else {
-          dispatch(setStreamMediaLoading(0));
+          if (data.type !== Hls.ErrorTypes.OTHER_ERROR) {
+            switch (data.type) {
+              case Hls.ErrorTypes.MEDIA_ERROR:
+                console.log(
+                  'TCL: forms action -> retrieveStreamMedia -> HLS::MEDIA_ERROR',
+                  data
+                );
+                hls.recoverMediaError();
+                dispatch(setStreamMediaLoading(0));
+                break;
+              default:
+                // cannot recover
+                hls.off(Hls.Events.ERROR);
+                dispatch(setStreamMediaLoading(0));
+                break;
+            }
+          } else {
+            hls.off(Hls.Events.ERROR);
+            dispatch(setStreamMediaLoading(0));
+          }
         }
       });
     }

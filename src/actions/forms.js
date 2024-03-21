@@ -140,11 +140,11 @@ export function retrieveStreamMedia(audioFile, mediaPlayer, opts = {}) {
             switch (data.type) {
               case Hls.ErrorTypes.MEDIA_ERROR:
                 console.log(
-                  'TCL: forms action -> retrieveStreamMedia -> HLS::MEDIA_ERROR',
+                  'TCL: forms action -> retrieveStreamMedia -> HLS:MEDIA_ERROR trying to recover:',
                   data
                 );
                 hls.recoverMediaError();
-                dispatch(setStreamMediaLoading(0));
+                dispatch(setStreamMediaLoading(1));
                 break;
               default:
                 // cannot recover

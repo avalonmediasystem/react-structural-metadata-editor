@@ -33,14 +33,14 @@ export function initializePeaks(
 
     const { manifest } = getState();
 
-    if(manifest) {
+    if (manifest) {
       mediaInfo = manifest.mediaInfo;
       duration = mediaInfo.duration;
       waveformInfo = getWaveformInfo(manifest.manifest, canvasIndex);
     }
 
     // Make waveform more zoomed-in for shorter media and less for larger media
-    if(duration < 31) {
+    if (duration < 31) {
       peaksOptions.zoomLevels = [170, 256, 512];
     } else if (duration > 31 && duration < 60) {
       peaksOptions.zoomLevels = [512, 1024];
@@ -50,11 +50,11 @@ export function initializePeaks(
 
     if (waveformInfo != null) {
       peaksOptions = await setWaveformInfo(waveformInfo, mediaInfo, peaksOptions, dispatch);
-    } 
+    }
     else {
       const { opts, alertStatus } = await setWaveformOptions(mediaInfo, peaksOptions);
       peaksOptions = opts;
-      if(alertStatus != null) {
+      if (alertStatus != null) {
         let alert = configureAlert(alertStatus);
         dispatch(setAlert(alert));
       }
@@ -89,7 +89,7 @@ async function setWaveformInfo(waveformURL, mediaInfo, peaksOptions, dispatch, s
     }
   }
 
-  if(status != null) {
+  if (status != null) {
     const alert = configureAlert(status);
     dispatch(setAlert(alert));
   }
@@ -112,7 +112,7 @@ async function buildPeaksInstance(peaksOptions, smData, duration, dispatch, getS
       // Add segments to peaks instance
       segments.map((seg) => peaks.segments.add(seg));
       dispatch(initPeaks(peaks, duration));
-  
+
       // Subscribe to Peaks events
       const { peaksInstance } = getState();
       if (!isEmpty(peaksInstance.events)) {

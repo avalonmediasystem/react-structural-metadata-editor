@@ -847,28 +847,32 @@ export default class StructuralMetadataUtils {
    * @param {Number} secTime - time in seconds
    */
   toHHmmss(secTime) {
-    let sec_num = this.roundOff(secTime);
-    let hours = Math.floor(sec_num / 3600);
-    let minutes = Math.floor((sec_num % 3600) / 60);
-    let seconds = sec_num - minutes * 60 - hours * 3600;
+    if (secTime != undefined) {
+      let sec_num = this.roundOff(secTime);
+      let hours = Math.floor(sec_num / 3600);
+      let minutes = Math.floor((sec_num % 3600) / 60);
+      let seconds = sec_num - minutes * 60 - hours * 3600;
 
-    let hourStr = hours < 10 ? `0${hours}` : `${hours}`;
-    let minStr = minutes < 10 ? `0${minutes}` : `${minutes}`;
-    let secStr = seconds.toFixed(3);
-    secStr = seconds < 10 ? `0${secStr}` : `${secStr}`;
+      let hourStr = hours < 10 ? `0${hours}` : `${hours}`;
+      let minStr = minutes < 10 ? `0${minutes}` : `${minutes}`;
+      let secStr = seconds.toFixed(3);
+      secStr = seconds < 10 ? `0${secStr}` : `${secStr}`;
 
-    return `${hourStr}:${minStr}:${secStr}`;
+      return `${hourStr}:${minStr}:${secStr}`;
+    }
   }
 
   roundOff(value) {
-    var valueString = '';
-    var [intVal, decVal] = value.toString().split('.');
-    if (!decVal) {
-      valueString = intVal;
-    } else {
-      valueString = intVal + '.' + decVal.substring(0, 3);
+    if (value != undefined) {
+      var valueString = '';
+      var [intVal, decVal] = value.toString().split('.');
+      if (!decVal) {
+        valueString = intVal;
+      } else {
+        valueString = intVal + '.' + decVal.substring(0, 3);
+      }
+      return parseFloat(valueString);
     }
-    return parseFloat(valueString);
   }
 
   /**

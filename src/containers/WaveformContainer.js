@@ -13,13 +13,13 @@ const WaveformContainer = (props) => {
 
   const { streamMediaLoading } = useSelector((state) => state.forms.streamInfo);
   const mediaInfo = useSelector((state) => state.manifest.mediaInfo);
-
+  const readyPeaks = useSelector((state) => state.peaksInstance.readyPeaks);
   const smData = useSelector((state) => state.structuralMetadata.smData);
 
   const dispatch = useDispatch();
 
   React.useEffect(() => {
-    if(props.manifestURL) {
+    if (props.manifestURL) {
       dispatch(initManifest(props.manifestURL, props.canvasIndex));
     }
   }, []);
@@ -54,7 +54,7 @@ const WaveformContainer = (props) => {
       withCredentials: props.withCredentials,
       player: null,
     };
-    if(!streamMediaLoading && smData != []) {
+    if (!streamMediaLoading && smData != [] && !readyPeaks) {
       dispatch(initializePeaks(
         peaksOptions,
         smData,

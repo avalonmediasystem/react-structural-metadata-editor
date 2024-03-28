@@ -58,7 +58,9 @@ const Waveform = React.forwardRef((props, ref) => {
   }, [streamMediaLoading, readyPeaks]);
 
   React.useEffect(() => {
-    if (!mediaInfo.isStream) {
+    if (mediaInfo.src === undefined) {
+      dispatch(setStreamMediaLoading(0));
+    } else if (!mediaInfo.isStream) {
       setAudioFile(mediaInfo.src);
     }
   }, [mediaInfo]);

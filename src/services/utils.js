@@ -98,7 +98,7 @@ const createEmptyWaveform = (duration) => {
  * @param {Object} peaksOptions existign options for Peaks instantiation
  * @returns {Object}
  */
-export const setWaveformOptions = async (mediaInfo, peaksOptions) => {
+export const buildWaveformOpt = async (mediaInfo, peaksOptions) => {
   const { duration, src, isStream } = mediaInfo;
   let alertStatus = null;
   // for non-streaming shorter media files

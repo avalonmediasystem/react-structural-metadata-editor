@@ -25,7 +25,6 @@ export function getMediaInfo(manifest, canvasIndex = 0) {
       return { src: undefined, duration: 0, isStream: false, isVideo: false, error };
     } else {
       const { src, type } = filtersrc(resources);
-      console.log(type);
       mediaInfo.isStream = getMimetype(src) === 'application/x-mpegURL' ? true : false;
       mediaInfo.src = src;
       mediaInfo.isVideo = type.toLowerCase() === 'video' ? true : false;

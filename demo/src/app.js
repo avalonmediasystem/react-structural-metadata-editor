@@ -1,11 +1,12 @@
 import React from 'react';
-import { FormControl, InputGroup, Card, Button, Container } from 'react-bootstrap';
+import { FormControl, InputGroup, Card, Button, Container, Modal } from 'react-bootstrap';
 import Root from '../../src';
 import './app.css';
 
 const App = (props) => {
   const [manifestUrl, setManifestUrl] = React.useState(props.manifestURL);
   const [userUrl, setUserUrl] = React.useState(props.manifestURL);
+  const [show, setShow] = React.useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -15,6 +16,15 @@ const App = (props) => {
   const handleChange = (e) => {
     setManifestUrl();
     setUserUrl(e.target.value);
+  };
+
+  const handleClose = () => {
+    setShow(false);
+  };
+
+  const handleShow = e => {
+    e.preventDefault();
+    setShow(true);
   };
 
   return (
@@ -42,17 +52,47 @@ const App = (props) => {
           </InputGroup.Append>
         </InputGroup>
       </Card>
-      {(!manifestUrl)
+      <div className="ReactButtonContainer">
+        <button
+          className="btn btn-primary btn-struct btn-edit mr-1"
+          onClick={handleShow}
+        >
+          Edit Structure
+        </button>
+
+        <Modal
+          show={show}
+          animation={false}
+          onHide={handleClose}
+          backdrop="static"
+          className="sme-modal-wrapper"
+          dialogClassName="modal-wrapper-body">
+          <Modal.Header closeButton>
+            <Modal.Title>Edit Structure</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <Root
+              structurURL={props.structurURL}
+              manifestURL={manifestUrl}
+              canvasIndex={0}
+              structureIsSaved={(val) => { }}
+              disableSave={props.disableSave}
+              key={manifestUrl}
+            />
+          </Modal.Body>
+        </Modal>
+      </div>
+      {/* {(!manifestUrl)
         ? <div className="loading-app"><div></div><div></div><div></div></div>
         : <Root
           structurURL={props.structurURL}
           manifestURL={manifestUrl}
-          canvasIndex={props.canvasIndex}
+          canvasIndex={0}
           structureIsSaved={(val) => { }}
           disableSave={props.disableSave}
           key={manifestUrl}
         />
-      }
+      } */}
     </Container>
   );
 };

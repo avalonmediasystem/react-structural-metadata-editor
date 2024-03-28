@@ -5,7 +5,7 @@ import Peaks from 'peaks.js';
 import APIUtils from '../api/Utils';
 import { configureAlert } from '../services/alert-status';
 import WaveformDataUtils from '../services/WaveformDataUtils';
-import { setWaveformOptions } from '../services/utils';
+import { buildWaveformOpt } from '../services/utils';
 import {
   setAlert,
   retrieveWaveformSuccess,
@@ -42,7 +42,7 @@ export function initializePeaks(peaksOptions, smData) {
     if (waveformInfo != null) {
       peaksOptions = await setWaveformInfo(waveformInfo, mediaInfo, peaksOptions, dispatch);
     } else {
-      const { opts, alertStatus } = await setWaveformOptions(mediaInfo, peaksOptions);
+      const { opts, alertStatus } = await buildWaveformOpt(mediaInfo, peaksOptions);
       peaksOptions = opts;
       if (alertStatus != null) {
         let alert = configureAlert(alertStatus);
@@ -73,7 +73,7 @@ async function setWaveformInfo(waveformURL, mediaInfo, peaksOptions, dispatch, s
       }
     } else if (error.request !== undefined) {
       // Set waveform data option
-      const { opts, alertStatus } = await setWaveformOptions(mediaInfo, peaksOptions);
+      const { opts, alertStatus } = await buildWaveformOpt(mediaInfo, peaksOptions);
       peaksOptions = opts;
       status = alertStatus;
     }

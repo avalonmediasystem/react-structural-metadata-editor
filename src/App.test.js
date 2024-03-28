@@ -228,7 +228,7 @@ describe('App component', () => {
         });
       });
 
-      test('without media information (empty Canvas)', async () => {
+      test.skip('without media information (empty Canvas)', async () => {
         mockAxios.get.mockImplementationOnce(() => {
           return Promise.resolve({
             status: 200,

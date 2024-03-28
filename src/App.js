@@ -12,7 +12,6 @@ import { removeAlert } from './actions/forms';
 import ErrorBoundary from './components/ErrorBoundary';
 import AlertContainer from './containers/AlertContainer';
 
-
 class App extends Component {
   constructor(props) {
     super(props);
@@ -20,6 +19,7 @@ class App extends Component {
       structureAlert: {},
     };
   }
+
   // Lifecycle method fired before unmounting the React component
   componentWillUnmount() {
     // Reset the redux-store
@@ -42,7 +42,6 @@ class App extends Component {
   }
 }
 
-
 App.defaultProps = {
   canvasIndex: 0,
   structureIsSaved: (val) => { },
@@ -53,9 +52,9 @@ App.defaultProps = {
 App.propTypes = {
   canvasIndex: PropTypes.number,
   manifestURL: PropTypes.string.isRequired,
-  structureURL: function(props, propName) {
-    if(props['disableSave'] == false && props[propName] == undefined) {
-      return new Error('Please provide a value for `structureURL` prop')
+  structureURL: function (props, propName) {
+    if (props['disableSave'] == false && props[propName] == undefined) {
+      return new Error('Please provide a value for `structureURL` prop');
     }
   },
   structureIsSaved: PropTypes.func,
@@ -65,7 +64,7 @@ App.propTypes = {
 
 const mapDispatchToProps = {
   resetStore: resetReduxStore,
-  removeAlert: removeAlert,
+  removeAlert: removeAlert
 };
 
 export default connect(null, mapDispatchToProps)(App);

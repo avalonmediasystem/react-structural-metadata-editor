@@ -1,4 +1,5 @@
 import WaveformData from 'waveform-data';
+import { parseManifest, Annotation, AnnotationPage } from 'manifesto.js';
 
 const MimeTyeps = {
   mp4: 'video/mp4',
@@ -58,7 +59,7 @@ const generateWaveformData = async (src) => {
       return waveform.toJSON();
     });
   return waveformJSON;
-}
+};
 
 /**
  * Create a dummy waveform dataset for the duration of the media file
@@ -75,7 +76,7 @@ const createEmptyWaveform = (duration) => {
   const samplesPerPixel = 512; // lowest default zoom level
   const waveformLength = 2 * Math.ceil(((sampleRate * duration) / samplesPerPixel) / 2);
   let waveformData = [];
-  for(let i = 0; i < waveformLength; i++) {
+  for (let i = 0; i < waveformLength; i++) {
     let dataPoints = [Math.random() * ((minPeak - maxPeak) + minPeak), Math.random() * ((maxPeak - minPeak) + maxPeak)];
     waveformData.push(Math.min(...dataPoints));
     waveformData.push(Math.max(...dataPoints));
@@ -86,10 +87,10 @@ const createEmptyWaveform = (duration) => {
     length: waveformLength,
     samples_per_pixel: samplesPerPixel,
     data: waveformData,
-  }
+  };
   let waveformJSON = WaveformData.create(waveform_json).toJSON();
   return waveformJSON;
-}
+};
 
 /**
  * Set relevant waveform data options for Peaks instance creation
@@ -97,19 +98,164 @@ const createEmptyWaveform = (duration) => {
  * @param {Object} peaksOptions existign options for Peaks instantiation
  * @returns {Object}
  */
-export const setWaveformOptions = async (mediaInfo, peaksOptions) => {
+export const buildWaveformOpt = async (mediaInfo, peaksOptions) => {
   const { duration, src, isStream } = mediaInfo;
   let alertStatus = null;
   // for non-streaming shorter media files
-  if (duration < 300 && !isStream) {
+  if (duration < 300 && isStream === false && src?.length > 0) {
     const wdJSON = await generateWaveformData(src);
     peaksOptions.waveformData = { json: wdJSON };
   } else {
     peaksOptions.waveformData = {
       json: createEmptyWaveform(duration)
-    }
+    };
     alertStatus = -7;
   }
   return { opts: peaksOptions, alertStatus };
+};
+
+/* 
+  IIIF Manifest parsing code adapted from Ramp: 
+  https://github.com/samvera-labs/ramp/blob/main/src/services/iiif-parser.js
+*/
+export function readAnnotations({ manifest, canvasIndex, key, motivation }) {
+  const { annotations, duration } = getAnnotations({
+    manifest,
+    canvasIndex,
+    key,
+    motivation
+  });
+  return getResourceItems(annotations, duration);
 }
 
+/**
+ * Extract list of Annotations from `annotations`/`items`
+ * under the canvas with the given motivation
+ * @param {Object} obj
+ * @param {Object} obj.manifest IIIF manifest
+ * @param {Number} obj.canvasIndex curent canvas's index
+ * @param {String} obj.key property key to pick
+ * @param {String} obj.motivation
+ * @returns {Array} array of AnnotationPage
+ */
+function getAnnotations({ manifest, canvasIndex, key, motivation }) {
+  let annotations = [];
+  // When annotations are at canvas level
+  try {
+    const annotationPage = parseManifest(manifest).getSequences()[0]
+      .getCanvases()[canvasIndex];
+    const duration = Number(annotationPage.getDuration()) || 0.0;
+    if (annotationPage) {
+      annotations = parseAnnotations(annotationPage.__jsonld[key], motivation);
+    }
+    return { annotations, duration };
+  } catch (error) {
+    throw error;
+  }
+}
+
+/**
+ * Parse a list of annotations or a single annotation to extract details of a
+ * given a Canvas. Assumes the annotation type as either painting or supplementing
+ * @param {Array} annotations list of painting/supplementing annotations to be parsed
+ * @param {Number} duration Canvas duration
+ * @returns {Object} containing source, canvas targets
+ */
+function getResourceItems(annotations, duration) {
+  let resources = [];
+  if (!annotations || annotations.length === 0) {
+    return {
+      error: 'No resources found in Canvas',
+      resources,
+      duration
+    };
+  }
+  // Multiple resource files on a single canvas
+  else if (annotations.length > 1) {
+    annotations.map((a, index) => {
+      const source = getResourceInfo(a.getBody()[0]);
+      /**
+       * TODO::
+       * Is this pattern safe if only one of `source.length` or `track.length` is > 0?
+       * For example, if `source.length` > 0 is true and `track.length` > 0 is false,
+       * then sources and tracks would end up with different numbers of entries.
+       * Is that okay or would that mess things up?
+       * Maybe this is an impossible edge case that doesn't need to be worried about?
+       */
+      (source.length > 0 && source[0].src) && resources.push(source[0]);
+    });
+  }
+  // Multiple Choices avalibale
+  else if (annotations[0].getBody()?.length > 0) {
+    const annoQuals = annotations[0].getBody();
+    annoQuals.map((a) => {
+      const source = getResourceInfo(a);
+      // Check if the parsed sources has a resource URL
+      (source.length > 0 && source[0].src) && resources.push(source[0]);
+    });
+  }
+  // No resources
+  else {
+    return { resources, error: 'No resources found in Canvas', duration };
+  }
+  return { resources, duration, error: '' };
+}
+
+
+/**
+ * Parse source and track information related to media
+ * resources in a Canvas
+ * @param {Object} item AnnotationBody object from Canvas
+ * @returns parsed source and track information
+ */
+function getResourceInfo(item) {
+  let source = [];
+  let label = undefined;
+  if (item.getLabel().length === 1) {
+    label = item.getLabel().getValue();
+  } else if (item.getLabel().length > 1) {
+    // If there are multiple labels, assume the first one
+    // is the one intended for default display
+    label = getLabelValue(item.getLabel()[0]._value);
+  }
+  let s = {
+    src: item.id,
+    key: item.id,
+    type: item.getProperty('format'),
+    kind: item.getProperty('type'),
+    label: label || 'auto',
+    value: item.getProperty('value') ? item.getProperty('value') : '',
+  };
+  source.push(s);
+  return source;
+}
+
+/**
+ * Parse json objects in the manifest into Annotations
+ * @param {Array<Object>} annotations array of json objects from manifest
+ * @param {String} motivation of the resources need to be parsed
+ * @returns {Array<Object>} Array of Annotations
+ */
+export function parseAnnotations(annotations, motivation) {
+  let content = [];
+  if (!annotations) return content;
+  // should be contained in an AnnotationPage
+  let annotationPage = null;
+  if (annotations.length) {
+    annotationPage = new AnnotationPage(annotations[0], {});
+  }
+  if (!annotationPage) {
+    return content;
+  }
+  let items = annotationPage.getItems();
+  if (items === undefined) return content;
+  for (let i = 0; i < items.length; i++) {
+    let a = items[i];
+    let annotation = new Annotation(a, {});
+    let annoMotivation = annotation.getMotivation();
+    if (annoMotivation == motivation) {
+      content.push(annotation);
+    }
+  }
+  return content;
+}

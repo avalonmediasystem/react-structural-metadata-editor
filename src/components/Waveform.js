@@ -9,6 +9,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { useSelector, useDispatch } from 'react-redux';
 import {
+  setStreamMediaLoading,
   streamMediaSuccess,
 } from '../actions/forms';
 import VolumeSlider from './Slider';
@@ -32,7 +33,6 @@ const Waveform = React.forwardRef((props, ref) => {
 
   const [audioFile, setAudioFile] = React.useState(mediaInfo.src);
   const [volume, setVolume] = React.useState(100);
-  const [peaksIsReady, setPeaksIsReady] = React.useState(readyPeaks);
   const [stillLoading, setStillLoading] = React.useState();
 
   /* Ref to access changes in 'editingDisabled' state variable from 
@@ -42,37 +42,28 @@ const Waveform = React.forwardRef((props, ref) => {
     editingRef.current = e;
   };
 
-
   React.useEffect(() => {
     // Add an event listener to keydown event
     document.addEventListener('keydown', handleKeyPress);
 
     // Remove event listener when component is unmounting
-    return function cleanup() {
+    return () => {
       document.removeEventListener('keydown', handleKeyPress);
     };
-  });
+  }, []);
 
   React.useEffect(() => {
-    let isLoading = (streamMediaLoading && !streamMediaError) || !readyPeaks;
+    let isLoading = streamMediaLoading || !readyPeaks;
     setStillLoading(isLoading);
-  }, [streamMediaError, streamMediaLoading, readyPeaks]);
+  }, [streamMediaLoading, readyPeaks]);
 
   React.useEffect(() => {
-    if (!mediaInfo.isStream) {
+    if (mediaInfo.src === undefined) {
+      dispatch(setStreamMediaLoading(0));
+    } else if (!mediaInfo.isStream) {
       setAudioFile(mediaInfo.src);
     }
   }, [mediaInfo]);
-
-  React.useEffect(() => {
-    // Add an event listener to keydown event
-    document.addEventListener('keydown', handleKeyPress);
-
-    // Remove event listener when component is unmounting
-    return function cleanup() {
-      document.removeEventListener('keydown', handleKeyPress);
-    };
-  });
 
   React.useEffect(() => {
     setEditing(editingDisabled);
@@ -118,6 +109,7 @@ const Waveform = React.forwardRef((props, ref) => {
         <Col lg={mediaInfo.isVideo ? 8 : 12} sm={8}>
           <div
             id="waveform-container"
+            className={streamMediaError ? "disabled" : ""}
             tabIndex="0"
             data-testid="waveform"
             aria-label={waveformLabel}

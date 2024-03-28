@@ -77,7 +77,7 @@ export const handleStructureError = (flag, status) => ({
  * of retries and still cannot load the stream media
  * @param {Integer} code - choose from; 1(true -> failed) | 0(false -> success)
  */
-export const streamMediaError = (code) => ({
+export const setStreamMediaError = (code) => ({
   type: types.STREAM_MEDIA_ERROR,
   payload: code,
 });
@@ -111,6 +111,7 @@ export function retrieveStreamMedia(audioFile, mediaPlayer, opts = {}) {
       };
       const hls = new Hls(config);
 
+      const { state } = getState();
       // Bind media player
       hls.attachMedia(mediaPlayer);
       // MEDIA_ATTACHED event is fired by hls object once MediaSource is ready
@@ -120,11 +121,16 @@ export function retrieveStreamMedia(audioFile, mediaPlayer, opts = {}) {
         hls.on(Hls.Events.BUFFER_CREATED, function () {
           hls.once(Hls.Events.BUFFER_APPENDED, function () {
             /**
-             * Set stream status as successful once BUFFER_APPENDED event is fired in HLS.
+             * Only set stream status as successful once BUFFER_APPENDED event is fired in HLS,
+             * if state is not undefined. With the modal use in Avalon for SME, the component can
+             * be unmounted by closing the modal before the async API requests and HLS buffer 
+             * gets appended. And this makes the Redux state incosistent  when the SME modal is
+             * opened next time making the re-initializing of Peaks.js to fail.
+             * 
              * This starts the Peaks initialization, in which the presence of the player
              * is required.
              */
-            dispatch(streamMediaSuccess());
+            if (state != undefined) { dispatch(streamMediaSuccess()); }
           });
         });
       });

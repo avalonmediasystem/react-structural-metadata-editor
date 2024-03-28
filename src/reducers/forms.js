@@ -65,7 +65,7 @@ const forms = (state = initialState, action) => {
         streamInfo: Object.assign({}, state.streamInfo, {
           streamMediaLoading: action.flag === 0 ? false : true,
         })
-      })
+      });
 
     case types.UPDATE_STRUCTURE_STATUS:
       return Object.assign({}, state, {

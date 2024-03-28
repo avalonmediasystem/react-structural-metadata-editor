@@ -417,7 +417,7 @@ export const manifestWithInvalidStruct = {
       ]
     }
   ]
-}
+};
 
 export const manifestWoStructure = {
   '@context': [
@@ -629,7 +629,7 @@ export const manifestWoChoice = {
   id: "http://example.com/sample-manifest/manifest.json",
   type: 'Manifest',
   label: {
-    en: [ 'Volley Ball for Boys' ]
+    en: ['Volley Ball for Boys']
   },
   items: [
     {
@@ -662,4 +662,63 @@ export const manifestWoChoice = {
       ]
     }
   ]
-}
+};
+
+export const manifestWEmptyCanvas = {
+  '@context': ['http://iiif.io/api/presentation/3/context.json'],
+  id: "http://example.com/empty-canvas-manifest/manifest.json",
+  type: 'Manifest',
+  label: {
+    en: ['Empty Canvas Manifest']
+  },
+  items: [
+    {
+      id: 'http://example.com/empty-canvas-manifest/manifest/canvas/1',
+      type: 'Canvas',
+      height: 1080,
+      width: 1920,
+      items: [
+        {
+          id: 'http://example.com/empty-canvas-manifest/canvas/1/page',
+          type: 'AnnotationPage'
+        }
+      ],
+      seeAlso: [
+        {
+          id: 'https://example.com/empty-canvas-manifest/waveform.json',
+          type: 'Dataset',
+          label: { en: ['waveform.json'] },
+          format: 'application/json',
+        }
+      ],
+      placeholderCanvas: {
+        type: "Canvas",
+        id: "https://example.com/empty-canvas-manifest/canvas/1/placeholder",
+        items: [
+          {
+            type: "AnnotationPage",
+            id: "https://example.com/empty-canvas-manifest/canvas/1/placeholder/annotation_page/1",
+            items: [
+              {
+                type: "Annotation",
+                motivation: "painting",
+                body: {
+                  id: null,
+                  type: "Text",
+                  format: "text/plain",
+                  label: {
+                    none: [
+                      "This item is still processing. Please check back later."
+                    ]
+                  }
+                },
+                id: "https://example.com/empty-canvas-manifest/canvas/1/placeholder/annotation_page/1",
+                target: "https://example.com/empty-canvas-manifest/canvas/1/placeholder"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+};

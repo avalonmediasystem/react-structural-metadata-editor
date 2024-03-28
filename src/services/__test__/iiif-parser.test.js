@@ -1,5 +1,5 @@
 import * as iiifParser from '../iiif-parser';
-import { 
+import {
   manifest,
   manifestWithStructure,
   manifestWoStructure,
@@ -59,16 +59,20 @@ describe('iiif-parser', () => {
           duration: 662.037,
           isStream: true,
           isVideo: false,
-        })
+        });
       });
 
       test('without any media related information', () => {
         const mediaInfo = iiifParser.getMediaInfo(manifestWoStructure, 0);
         expect(mediaInfo).toEqual({
-          error: 'Error fetching media files. Please check the Manifest.',
+          error: 'No resources found in Canvas',
+          duration: 0,
+          isStream: false,
+          isVideo: false,
+          src: undefined
         });
       });
-      
+
     });
   });
 
@@ -119,7 +123,7 @@ describe('iiif-parser', () => {
       const { type, label, items } = structureJSON[0];
       expect(label).toEqual('Volleyball for Boys');
       expect(type).toEqual('div');
-      expect(items.length).toBe(1); 
+      expect(items.length).toBe(1);
     });
 
     test('returns corrrect structure in a multi-canvas manifest', () => {
@@ -131,6 +135,6 @@ describe('iiif-parser', () => {
       expect(type).toEqual('div');
       expect(items.length).toBe(1);
       expect(items[0].label).toBe('Introduction');
-    })
+    });
   });
 }); 

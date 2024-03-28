@@ -5,11 +5,13 @@ import Peaks from 'peaks.js';
 import APIUtils from '../api/Utils';
 import { configureAlert } from '../services/alert-status';
 import WaveformDataUtils from '../services/WaveformDataUtils';
-import { setWaveformOptions } from '../services/utils';
-import { getWaveformInfo } from '../services/iiif-parser';
+import { buildWaveformOpt } from '../services/utils';
 import {
   setAlert,
   retrieveWaveformSuccess,
+  streamMediaSuccess,
+  handleEditingTimespans,
+  setStreamMediaError,
 } from './forms';
 
 const waveformUtils = new WaveformDataUtils();
@@ -19,25 +21,14 @@ const apiUtils = new APIUtils();
  * Initialize Peaks instance
  * @param {Object} options - peaks options
  * @param {Array} smData - array of structures from the manifest
- * @param {Number} canvasIndex - index of the current canvas
  */
-export function initializePeaks(
-  peaksOptions,
-  smData,
-  canvasIndex,
-) {
+export function initializePeaks(peaksOptions, smData) {
   return async (dispatch, getState) => {
     let duration = 0;
-    let mediaInfo = {};
-    let waveformInfo;
 
     const { manifest } = getState();
-
-    if (manifest) {
-      mediaInfo = manifest.mediaInfo;
-      duration = mediaInfo.duration;
-      waveformInfo = getWaveformInfo(manifest.manifest, canvasIndex);
-    }
+    const { mediaInfo, waveformInfo } = manifest;
+    duration = mediaInfo.duration;
 
     // Make waveform more zoomed-in for shorter media and less for larger media
     if (duration < 31) {
@@ -50,9 +41,8 @@ export function initializePeaks(
 
     if (waveformInfo != null) {
       peaksOptions = await setWaveformInfo(waveformInfo, mediaInfo, peaksOptions, dispatch);
-    }
-    else {
-      const { opts, alertStatus } = await setWaveformOptions(mediaInfo, peaksOptions);
+    } else {
+      const { opts, alertStatus } = await buildWaveformOpt(mediaInfo, peaksOptions);
       peaksOptions = opts;
       if (alertStatus != null) {
         let alert = configureAlert(alertStatus);
@@ -83,7 +73,7 @@ async function setWaveformInfo(waveformURL, mediaInfo, peaksOptions, dispatch, s
       }
     } else if (error.request !== undefined) {
       // Set waveform data option
-      const { opts, alertStatus } = await setWaveformOptions(mediaInfo, peaksOptions);
+      const { opts, alertStatus } = await buildWaveformOpt(mediaInfo, peaksOptions);
       peaksOptions = opts;
       status = alertStatus;
     }
@@ -97,41 +87,62 @@ async function setWaveformInfo(waveformURL, mediaInfo, peaksOptions, dispatch, s
 }
 
 async function buildPeaksInstance(peaksOptions, smData, duration, dispatch, getState) {
+  const { manifest } = getState();
   // Initialize Peaks intance with the given options
   Peaks.init(peaksOptions, (err, peaks) => {
-    if (err)
-      console.error(
-        'TCL: peaks-instance -> buildPeaksInstance() -> Peaks.init ->',
-        err
-      );
-
-    // Create segments from structural metadata
-    const segments = waveformUtils.initSegments(smData, duration);
-
-    if (peaks) {
-      // Add segments to peaks instance
-      segments.map((seg) => peaks.segments.add(seg));
-      dispatch(initPeaks(peaks, duration));
-
-      // Subscribe to Peaks events
-      const { peaksInstance } = getState();
-      if (!isEmpty(peaksInstance.events)) {
-        const { dragged } = peaksInstance.events;
-        // for segment editing using handles
-        if (dragged) {
-          dragged.subscribe((eProps) => {
-            // startMarker = true -> handle at the start of the segment is being dragged
-            // startMarker = flase -> handle at the end of the segment is being dragged
-            const { segment, startMarker } = eProps;
-            dispatch(dragSegment(segment.id, startMarker, 1));
-          });
-          // Mark peaks is ready
-          dispatch(peaksReady(true));
-        }
+    if (err) {
+      // When media is empty stop the loading of the component
+      if (manifest.mediaInfo.src === undefined) {
+        dispatch(streamMediaSuccess());
+        dispatch(setStreamMediaError(-11));
+        // Mark peaks as ready to unblock the UI
+        dispatch(peaksReady(true));
+        // Set editing to disabled to block structure editing
+        dispatch(handleEditingTimespans(1));
+        // Setup editing disabled alert
+        let alert = configureAlert(-11);
+        dispatch(setAlert(alert));
+        handlePeaksError(err);
       }
     }
+    handlePeaksSuccess(peaks, smData, duration, dispatch, getState);
   });
 }
+
+const handlePeaksError = (err) => {
+  console.error(
+    'TCL: peaks-instance -> buildPeaksInstance() -> Peaks.init ->',
+    err
+  );
+};
+
+const handlePeaksSuccess = (peaks, smData, duration, dispatch, getState) => {
+  // Create segments from structural metadata
+  const segments = waveformUtils.initSegments(smData, duration);
+
+  if (peaks) {
+    // Add segments to peaks instance
+    segments.map((seg) => peaks.segments.add(seg));
+    dispatch(initPeaks(peaks, duration));
+
+    // Subscribe to Peaks events
+    const { peaksInstance } = getState();
+    if (!isEmpty(peaksInstance.events)) {
+      const { dragged } = peaksInstance.events;
+      // for segment editing using handles
+      if (dragged) {
+        dragged.subscribe((eProps) => {
+          // startMarker = true -> handle at the start of the segment is being dragged
+          // startMarker = flase -> handle at the end of the segment is being dragged
+          const { segment, startMarker } = eProps;
+          dispatch(dragSegment(segment.id, startMarker, 1));
+        });
+        // Mark peaks is ready
+        dispatch(peaksReady(true));
+      }
+    }
+  }
+};
 
 export function initPeaks(peaksInstance, duration) {
   return {

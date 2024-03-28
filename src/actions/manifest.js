@@ -5,7 +5,7 @@ import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
 
 import { configureAlert } from '../services/alert-status';
 import { buildSMUI, saveInitialStructure } from './sm-data';
-import { getMediaInfo, parseStructureToJSON } from '../services/iiif-parser';
+import { getMediaInfo, getWaveformInfo, parseStructureToJSON } from '../services/iiif-parser';
 import {
   retrieveStructureSuccess,
   handleStructureError,
@@ -15,22 +15,27 @@ import {
 const apiUtils = new APIUtils();
 const structuralMetadataUtils = new StructuralMetadataUtils();
 
-export const initManifest = ( manifestURL, canvasIndex ) => {
+export const initManifest = (manifestURL, canvasIndex) => {
   return async (dispatch, getState) => {
     let smData = [];
     let duration = 0;
     let mediaInfo = {};
+    let waveformInfo = '';
     try {
       const response = await apiUtils.getRequest(manifestURL);
       if (!isEmpty(response.data)) {
         mediaInfo = getMediaInfo(response.data, canvasIndex);
-  
+        waveformInfo = getWaveformInfo(response.data, canvasIndex);
+
+        // Set manifest info in state
         dispatch(setManifest(response.data));
+        dispatch(setWaveformInfo(waveformInfo));
         dispatch(setMediaInfo(mediaInfo.src, mediaInfo.duration, mediaInfo.isStream, mediaInfo.isVideo));
+
         smData = parseStructureToJSON(response.data, mediaInfo.duration, canvasIndex);
         duration = mediaInfo.duration;
       }
-  
+
       if (smData.length > 0) {
         dispatch(retrieveStructureSuccess());
       } else {
@@ -39,11 +44,11 @@ export const initManifest = ( manifestURL, canvasIndex ) => {
         dispatch(setAlert(alert));
       }
       dispatch(fetchManifestSuccess());
-  
+
       // Initialize Redux state variable with structure
       dispatch(buildSMUI(smData, duration));
       dispatch(saveInitialStructure(smData));
-  
+
       // Mark the top element as 'root'
       structuralMetadataUtils.markRootElement(smData);
     } catch (error) {
@@ -54,8 +59,8 @@ export const initManifest = ( manifestURL, canvasIndex ) => {
       let alert = configureAlert(status);
       dispatch(setAlert(alert));
     }
-  }
-}
+  };
+};
 
 /**
  * Set manifest content fetched from the given manifestURL
@@ -100,4 +105,14 @@ export const setMediaInfo = (src, duration, isStream, isVideo) => ({
   duration,
   isStream,
   isVideo
+});
+
+/**
+ * Set waveform file URL in the Redux store
+ * @param {String} waveformUrl - URL of the waveform in Canvas
+ * @returns 
+ */
+export const setWaveformInfo = (waveformUrl) => ({
+  type: types.SET_CANVAS_WAVEFORMINFO,
+  waveformUrl,
 });

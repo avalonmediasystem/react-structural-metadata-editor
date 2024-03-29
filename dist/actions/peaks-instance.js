@@ -39,8 +39,6 @@ var _WaveformDataUtils = _interopRequireDefault(require("../services/WaveformDat
 
 var _utils = require("../services/utils");
 
-var _iiifParser = require("../services/iiif-parser");
-
 var _forms = require("./forms");
 
 function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
@@ -53,28 +51,21 @@ var apiUtils = new _Utils["default"]();
  * Initialize Peaks instance
  * @param {Object} options - peaks options
  * @param {Array} smData - array of structures from the manifest
- * @param {Number} canvasIndex - index of the current canvas
  */
 
-function initializePeaks(peaksOptions, smData, canvasIndex) {
+function initializePeaks(peaksOptions, smData) {
   return /*#__PURE__*/function () {
     var _ref = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee(dispatch, getState) {
-      var duration, mediaInfo, waveformInfo, _getState, manifest, _yield$setWaveformOpt, opts, alertStatus, alert;
+      var duration, _getState, manifest, mediaInfo, waveformInfo, _yield$buildWaveformO, opts, alertStatus, alert;
 
       return _regenerator["default"].wrap(function _callee$(_context) {
         while (1) {
           switch (_context.prev = _context.next) {
             case 0:
               duration = 0;
-              mediaInfo = {};
               _getState = getState(), manifest = _getState.manifest;
-
-              if (manifest) {
-                mediaInfo = manifest.mediaInfo;
-                duration = mediaInfo.duration;
-                waveformInfo = (0, _iiifParser.getWaveformInfo)(manifest.manifest, canvasIndex);
-              } // Make waveform more zoomed-in for shorter media and less for larger media
-
+              mediaInfo = manifest.mediaInfo, waveformInfo = manifest.waveformInfo;
+              duration = mediaInfo.duration; // Make waveform more zoomed-in for shorter media and less for larger media
 
               if (duration < 31) {
                 peaksOptions.zoomLevels = [170, 256, 512];
@@ -99,12 +90,12 @@ function initializePeaks(peaksOptions, smData, canvasIndex) {
 
             case 11:
               _context.next = 13;
-              return (0, _utils.setWaveformOptions)(mediaInfo, peaksOptions);
+              return (0, _utils.buildWaveformOpt)(mediaInfo, peaksOptions);
 
             case 13:
-              _yield$setWaveformOpt = _context.sent;
-              opts = _yield$setWaveformOpt.opts;
-              alertStatus = _yield$setWaveformOpt.alertStatus;
+              _yield$buildWaveformO = _context.sent;
+              opts = _yield$buildWaveformO.opts;
+              alertStatus = _yield$buildWaveformO.alertStatus;
               peaksOptions = opts;
 
               if (alertStatus != null) {
@@ -136,7 +127,7 @@ function setWaveformInfo(_x3, _x4, _x5, _x6) {
 function _setWaveformInfo() {
   _setWaveformInfo = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee2(waveformURL, mediaInfo, peaksOptions, dispatch) {
     var status,
-        _yield$setWaveformOpt2,
+        _yield$buildWaveformO2,
         opts,
         alertStatus,
         alert,
@@ -191,12 +182,12 @@ function _setWaveformInfo() {
             }
 
             _context2.next = 19;
-            return (0, _utils.setWaveformOptions)(mediaInfo, peaksOptions);
+            return (0, _utils.buildWaveformOpt)(mediaInfo, peaksOptions);
 
           case 19:
-            _yield$setWaveformOpt2 = _context2.sent;
-            opts = _yield$setWaveformOpt2.opts;
-            alertStatus = _yield$setWaveformOpt2.alertStatus;
+            _yield$buildWaveformO2 = _context2.sent;
+            opts = _yield$buildWaveformO2.opts;
+            alertStatus = _yield$buildWaveformO2.alertStatus;
             peaksOptions = opts;
             status = alertStatus;
 
@@ -224,45 +215,35 @@ function buildPeaksInstance(_x7, _x8, _x9, _x10, _x11) {
 
 function _buildPeaksInstance() {
   _buildPeaksInstance = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee3(peaksOptions, smData, duration, dispatch, getState) {
+    var _getState3, manifest;
+
     return _regenerator["default"].wrap(function _callee3$(_context3) {
       while (1) {
         switch (_context3.prev = _context3.next) {
           case 0:
-            // Initialize Peaks intance with the given options
+            _getState3 = getState(), manifest = _getState3.manifest; // Initialize Peaks intance with the given options
+
             _peaks["default"].init(peaksOptions, function (err, peaks) {
-              if (err) console.error('TCL: peaks-instance -> buildPeaksInstance() -> Peaks.init ->', err); // Create segments from structural metadata
+              if (err) {
+                // When media is empty stop the loading of the component
+                if (manifest.mediaInfo.src === undefined) {
+                  dispatch((0, _forms.streamMediaSuccess)());
+                  dispatch((0, _forms.setStreamMediaError)(-11)); // Mark peaks as ready to unblock the UI
 
-              var segments = waveformUtils.initSegments(smData, duration);
+                  dispatch(peaksReady(true)); // Set editing to disabled to block structure editing
 
-              if (peaks) {
-                // Add segments to peaks instance
-                segments.map(function (seg) {
-                  return peaks.segments.add(seg);
-                });
-                dispatch(initPeaks(peaks, duration)); // Subscribe to Peaks events
+                  dispatch((0, _forms.handleEditingTimespans)(1)); // Setup editing disabled alert
 
-                var _getState2 = getState(),
-                    peaksInstance = _getState2.peaksInstance;
-
-                if (!(0, _lodash.isEmpty)(peaksInstance.events)) {
-                  var dragged = peaksInstance.events.dragged; // for segment editing using handles
-
-                  if (dragged) {
-                    dragged.subscribe(function (eProps) {
-                      // startMarker = true -> handle at the start of the segment is being dragged
-                      // startMarker = flase -> handle at the end of the segment is being dragged
-                      var segment = eProps.segment,
-                          startMarker = eProps.startMarker;
-                      dispatch(dragSegment(segment.id, startMarker, 1));
-                    }); // Mark peaks is ready
-
-                    dispatch(peaksReady(true));
-                  }
+                  var alert = (0, _alertStatus.configureAlert)(-11);
+                  dispatch((0, _forms.setAlert)(alert));
+                  handlePeaksError(err);
                 }
               }
+
+              handlePeaksSuccess(peaks, smData, duration, dispatch, getState);
             });
 
-          case 1:
+          case 2:
           case "end":
             return _context3.stop();
         }
@@ -271,6 +252,42 @@ function _buildPeaksInstance() {
   }));
   return _buildPeaksInstance.apply(this, arguments);
 }
+
+var handlePeaksError = function handlePeaksError(err) {
+  console.error('TCL: peaks-instance -> buildPeaksInstance() -> Peaks.init ->', err);
+};
+
+var handlePeaksSuccess = function handlePeaksSuccess(peaks, smData, duration, dispatch, getState) {
+  // Create segments from structural metadata
+  var segments = waveformUtils.initSegments(smData, duration);
+
+  if (peaks) {
+    // Add segments to peaks instance
+    segments.map(function (seg) {
+      return peaks.segments.add(seg);
+    });
+    dispatch(initPeaks(peaks, duration)); // Subscribe to Peaks events
+
+    var _getState2 = getState(),
+        peaksInstance = _getState2.peaksInstance;
+
+    if (!(0, _lodash.isEmpty)(peaksInstance.events)) {
+      var dragged = peaksInstance.events.dragged; // for segment editing using handles
+
+      if (dragged) {
+        dragged.subscribe(function (eProps) {
+          // startMarker = true -> handle at the start of the segment is being dragged
+          // startMarker = flase -> handle at the end of the segment is being dragged
+          var segment = eProps.segment,
+              startMarker = eProps.startMarker;
+          dispatch(dragSegment(segment.id, startMarker, 1));
+        }); // Mark peaks is ready
+
+        dispatch(peaksReady(true));
+      }
+    }
+  }
+};
 
 function initPeaks(peaksInstance, duration) {
   return {

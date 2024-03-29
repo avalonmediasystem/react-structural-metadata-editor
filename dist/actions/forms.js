@@ -9,7 +9,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.removeAlert = exports.handleStructureError = exports.handleEditingTimespans = exports.clearExistingAlerts = void 0;
 exports.retrieveStreamMedia = retrieveStreamMedia;
-exports.updateStructureStatus = exports.streamMediaSuccess = exports.streamMediaError = exports.setStreamMediaLoading = exports.setAlert = exports.retrieveWaveformSuccess = exports.retrieveStructureSuccess = void 0;
+exports.updateStructureStatus = exports.streamMediaSuccess = exports.setStreamMediaLoading = exports.setStreamMediaError = exports.setAlert = exports.retrieveWaveformSuccess = exports.retrieveStructureSuccess = void 0;
 
 var types = _interopRequireWildcard(require("./types"));
 
@@ -133,14 +133,14 @@ var handleStructureError = function handleStructureError(flag, status) {
 
 exports.handleStructureError = handleStructureError;
 
-var streamMediaError = function streamMediaError(code) {
+var setStreamMediaError = function setStreamMediaError(code) {
   return {
     type: types.STREAM_MEDIA_ERROR,
     payload: code
   };
 };
 
-exports.streamMediaError = streamMediaError;
+exports.setStreamMediaError = setStreamMediaError;
 
 var streamMediaSuccess = function streamMediaSuccess() {
   return {
@@ -166,9 +166,24 @@ function retrieveStreamMedia(audioFile, mediaPlayer) {
       var config = {
         xhrSetup: function xhrSetup(xhr) {
           xhr.withCredentials = opts.withCredentials;
-        }
+        },
+
+        /*
+          Sometimes captions/subtitles in Avalon fails to render and this makes
+          HLS streaming to break resulting in a indefinite blocking loading spinner.
+          Therefore, disable captions/subtitles rendering in HLS.js setup.
+        */
+        subtitleTrackController: null,
+        enableWebVTT: false,
+        enableIMSC1: false,
+        enableCEA708Captions: false,
+        renderTextTracksNatively: false
       };
-      var hls = new _hls["default"](config); // Bind media player
+      var hls = new _hls["default"](config);
+
+      var _getState = getState(),
+          state = _getState.state; // Bind media player
+
 
       hls.attachMedia(mediaPlayer); // MEDIA_ATTACHED event is fired by hls object once MediaSource is ready
 
@@ -176,39 +191,49 @@ function retrieveStreamMedia(audioFile, mediaPlayer) {
         hls.loadSource(audioFile); // BUFFER_CREATED event is fired when fetching the media stream is successful
 
         hls.on(_hls["default"].Events.BUFFER_CREATED, function () {
-          hls.on(_hls["default"].Events.BUFFER_APPENDED, function () {
+          hls.once(_hls["default"].Events.BUFFER_APPENDED, function () {
             /**
-             * Set stream status as successful once BUFFER_APPENDED event is fired in HLS.
+             * Only set stream status as successful once BUFFER_APPENDED event is fired in HLS,
+             * if state is not undefined. With the modal use in Avalon for SME, the component can
+             * be unmounted by closing the modal before the async API requests and HLS buffer 
+             * gets appended. And this makes the Redux state incosistent  when the SME modal is
+             * opened next time making the re-initializing of Peaks.js to fail.
+             * 
              * This starts the Peaks initialization, in which the presence of the player
              * is required.
              */
-            dispatch(streamMediaSuccess());
+            if (state != undefined) {
+              dispatch(streamMediaSuccess());
+            }
           });
         });
       }); // ERROR event is fired when fetching media stream is not successful
 
       hls.on(_hls["default"].Events.ERROR, function (event, data) {
-        var _data$frag, _data$response;
-
-        dispatch(setStreamMediaLoading(1)); // When there are errors in the HLS build this block catches it and flashes
+        // When there are errors in the HLS build this block catches it and flashes
         // the warning message for a split second. The ErrorType for these errors is
         // OTHER_ERROR. Issue in HLS.js: https://github.com/video-dev/hls.js/issues/2435
-
-        if (data.type === _hls["default"].ErrorTypes.NETWORK_ERROR && ((_data$frag = data.frag) === null || _data$frag === void 0 ? void 0 : _data$frag.type) === "subtitle" && ((_data$response = data.response) === null || _data$response === void 0 ? void 0 : _data$response.code) === 404) {
-          // When captions fragment fetching fails set streamMediaLoading=true
-          // and exit event handler
-          dispatch(streamMediaSuccess(0));
-          hls.off(_hls["default"].Events.ERROR);
-          return;
-        } else if (data.fatal && data.type !== _hls["default"].ErrorTypes.OTHER_ERROR) {
-          console.log('TCL: forms action -> retrieveStreamMedia -> error', data);
-          hls.off(_hls["default"].Events.ERROR);
-          dispatch(streamMediaError(-6));
-        } else if (data.levelRetry) {
-          // Check if HLS.js is still trying to fetch stream
+        if (data.fatal) {
           dispatch(setStreamMediaLoading(1));
-        } else {
-          dispatch(setStreamMediaLoading(0));
+
+          if (data.type !== _hls["default"].ErrorTypes.OTHER_ERROR) {
+            switch (data.type) {
+              case _hls["default"].ErrorTypes.MEDIA_ERROR:
+                console.log('TCL: forms action -> retrieveStreamMedia -> HLS:MEDIA_ERROR trying to recover:', data);
+                hls.recoverMediaError();
+                dispatch(setStreamMediaLoading(1));
+                break;
+
+              default:
+                // cannot recover
+                hls.off(_hls["default"].Events.ERROR);
+                dispatch(setStreamMediaLoading(0));
+                break;
+            }
+          } else {
+            hls.off(_hls["default"].Events.ERROR);
+            dispatch(setStreamMediaLoading(0));
+          }
         }
       });
     }

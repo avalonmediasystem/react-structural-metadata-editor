@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.WAVEFORM_INITIALIZE_ERROR = exports.UNAUTHORIZED_ACCESS = exports.STREAM_MEDIA_ERROR = exports.SAVE_STRUCTURE_SUCCESS = exports.SAVE_STRUCTURE_FAIL = exports.PEAKSJS_REACHED_END_OF_FILE = exports.NETWORK_ERROR = exports.MISSING_WAVEFORM_ERROR = exports.INVALID_SEGMENTS_WARNING = exports.FETCH_STRUCTURED_DATA_ERROR = exports.FETCH_MANIFEST_ERROR = void 0;
+exports.WAVEFORM_INITIALIZE_ERROR = exports.UNAUTHORIZED_ACCESS = exports.STREAM_MEDIA_ERROR = exports.SAVE_STRUCTURE_SUCCESS = exports.SAVE_STRUCTURE_FAIL = exports.PEAKSJS_REACHED_END_OF_FILE = exports.NO_MEDIA_MESSAGE = exports.NETWORK_ERROR = exports.MISSING_WAVEFORM_ERROR = exports.INVALID_SEGMENTS_WARNING = exports.FETCH_STRUCTURED_DATA_ERROR = exports.FETCH_MANIFEST_ERROR = void 0;
 exports.configureAlert = configureAlert;
 var UNAUTHORIZED_ACCESS = "You're not authorized to access this resource.";
 exports.UNAUTHORIZED_ACCESS = UNAUTHORIZED_ACCESS;
@@ -26,12 +26,14 @@ exports.MISSING_WAVEFORM_ERROR = MISSING_WAVEFORM_ERROR;
 var INVALID_SEGMENTS_WARNING = 'Please check start/end times of the marked invalid timespan(s).';
 exports.INVALID_SEGMENTS_WARNING = INVALID_SEGMENTS_WARNING;
 var FETCH_MANIFEST_ERROR = 'Error fetching IIIF manifest.';
+exports.FETCH_MANIFEST_ERROR = FETCH_MANIFEST_ERROR;
+var NO_MEDIA_MESSAGE = 'No available media. Editing structure is disabled.';
 /**
  * Helper function which prepares a configuration object to feed the AlertContainer component
  * @param {number} status Code for response
  */
 
-exports.FETCH_MANIFEST_ERROR = FETCH_MANIFEST_ERROR;
+exports.NO_MEDIA_MESSAGE = NO_MEDIA_MESSAGE;
 
 function configureAlert() {
   var status = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
@@ -65,6 +67,8 @@ function configureAlert() {
     alertObj.message = FETCH_MANIFEST_ERROR;
   } else if (status == -10) {
     alertObj.message = SAVE_STRUCTURE_FAIL;
+  } else if (status == -11) {
+    alertObj.message = NO_MEDIA_MESSAGE;
   } else {
     alertObj.message = NETWORK_ERROR;
   }

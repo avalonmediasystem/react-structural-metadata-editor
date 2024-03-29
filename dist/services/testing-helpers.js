@@ -5,7 +5,7 @@ var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefau
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.manifestWoStructure = exports.manifestWoChoice = exports.manifestWithStructure = exports.manifestWithInvalidStruct = exports.manifest = void 0;
+exports.manifestWoStructure = exports.manifestWoChoice = exports.manifestWithStructure = exports.manifestWithInvalidStruct = exports.manifestWEmptyCanvas = exports.manifest = void 0;
 exports.renderWithRedux = renderWithRedux;
 exports.testSmData = exports.testInvalidData = exports.testEmptyHeaderBefore = exports.testEmptyHeaderAfter = exports.testDataFromServer = void 0;
 
@@ -579,3 +579,52 @@ var manifestWoChoice = {
   }]
 };
 exports.manifestWoChoice = manifestWoChoice;
+var manifestWEmptyCanvas = {
+  '@context': ['http://iiif.io/api/presentation/3/context.json'],
+  id: "http://example.com/empty-canvas-manifest/manifest.json",
+  type: 'Manifest',
+  label: {
+    en: ['Empty Canvas Manifest']
+  },
+  items: [{
+    id: 'http://example.com/empty-canvas-manifest/manifest/canvas/1',
+    type: 'Canvas',
+    height: 1080,
+    width: 1920,
+    items: [{
+      id: 'http://example.com/empty-canvas-manifest/canvas/1/page',
+      type: 'AnnotationPage'
+    }],
+    seeAlso: [{
+      id: 'https://example.com/empty-canvas-manifest/waveform.json',
+      type: 'Dataset',
+      label: {
+        en: ['waveform.json']
+      },
+      format: 'application/json'
+    }],
+    placeholderCanvas: {
+      type: "Canvas",
+      id: "https://example.com/empty-canvas-manifest/canvas/1/placeholder",
+      items: [{
+        type: "AnnotationPage",
+        id: "https://example.com/empty-canvas-manifest/canvas/1/placeholder/annotation_page/1",
+        items: [{
+          type: "Annotation",
+          motivation: "painting",
+          body: {
+            id: null,
+            type: "Text",
+            format: "text/plain",
+            label: {
+              none: ["This item is still processing. Please check back later."]
+            }
+          },
+          id: "https://example.com/empty-canvas-manifest/canvas/1/placeholder/annotation_page/1",
+          target: "https://example.com/empty-canvas-manifest/canvas/1/placeholder"
+        }]
+      }]
+    }
+  }]
+};
+exports.manifestWEmptyCanvas = manifestWEmptyCanvas;

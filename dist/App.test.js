@@ -10,6 +10,7 @@ import {
   testSmData,
   manifestWoStructure,
   manifestWithInvalidStruct,
+  manifestWEmptyCanvas,
 } from './services/testing-helpers';
 import mockAxios from 'axios';
 import { AudioContext } from 'standardized-audio-context-mock';
@@ -43,7 +44,7 @@ const baseState = {
     manifestFetched: true,
   },
   peaksInstance: {
-    readyPeaks: true
+    readyPeaks: false,
   }
 };
 
@@ -107,7 +108,7 @@ describe('App component', () => {
               data: manifest
             });
           });
-  
+
           const initialState = {
             ...baseState,
             forms: {
@@ -115,8 +116,12 @@ describe('App component', () => {
               streamInfo: {
                 streamMediaLoading: false,
               },
+            },
+            manifest: {
+              ...baseState.manifest,
+              waveformInfo: null
             }
-          }
+          };
           const app = renderWithRedux(<App {...props} />, { initialState });
           await wait(() => {
             expect(app.getByTestId('waveform-container')).toBeInTheDocument();
@@ -126,8 +131,8 @@ describe('App component', () => {
             ).toBeInTheDocument();
             expect(app.getByTestId('alert-message').innerHTML).toBe('No available waveform data.');
           });
-        }, 10000);
-  
+        });
+
         test('for media file with duration < 5 mins', async () => {
           mockAxios.get.mockImplementationOnce(() => {
             return Promise.resolve({
@@ -135,7 +140,7 @@ describe('App component', () => {
               data: manifestWithStructure
             });
           });
-  
+
           const initialState = {
             manifest: {
               manifestFetched: true,
@@ -155,18 +160,20 @@ describe('App component', () => {
               },
               structureInfo: {
                 structureRetrieved: true,
-              }
+              },
+              alerts: []
             },
           };
           const app = renderWithRedux(<App {...props} />, { initialState });
-  
+
           await wait(() => {
             expect(app.queryByTestId('waveform-container')).toBeInTheDocument();
             expect(mockAxios.head).toHaveBeenCalledTimes(0);
             expect(app.queryByTestId('alert-container')).not.toBeInTheDocument();
           });
-        }, 10000);
+        });
       });
+
       test('with waveform information', async () => {
         mockAxios.get.mockImplementationOnce(() => {
           return Promise.resolve({
@@ -190,7 +197,8 @@ describe('App component', () => {
             mediaInfo: {
               src: 'http://example.com/volleyball/high/volleyball-for-boys.mp4',
               duration: 572.4,
-            }
+            },
+            waveformInfo: 'http://example.com/lunchroom-manners/waveform.json',
           },
           structuralMetadata: {
             smData: testSmData,
@@ -202,22 +210,64 @@ describe('App component', () => {
             },
             structureInfo: {
               structureRetrieved: true,
-            }
+            },
+            alerts: [],
           },
         };
         const propsRevised = {
           ...props,
           canvasIndex: 1,
 
-        }
-        const app = renderWithRedux(<App { ...propsRevised } />, { initialState });
+        };
+        const app = renderWithRedux(<App {...propsRevised} />, { initialState });
 
         await wait(() => {
           expect(app.queryByTestId('waveform-container')).toBeInTheDocument();
           expect(mockAxios.head).toHaveBeenCalled();
           expect(app.queryByTestId('alert-container')).not.toBeInTheDocument();
         });
-      }, 10000);
+      });
+
+      test.skip('without media information (empty Canvas)', async () => {
+        mockAxios.get.mockImplementationOnce(() => {
+          return Promise.resolve({
+            status: 200,
+            data: manifestWEmptyCanvas
+          });
+        });
+
+        const initialState = {
+          manifest: {
+            manifestFetched: true,
+            manifest: manifestWEmptyCanvas,
+            mediaInfo: {
+              src: undefined,
+              duration: 0,
+            },
+            waveformInfo: 'https://example.com/empty-canvas-manifest/waveform.json',
+          },
+          forms: {
+            streamInfo: {
+              streamMediaLoading: false,
+              streamMediaError: true,
+              streamMediaStatus: -11,
+            },
+            structureInfo: {
+              structureRetrieved: true,
+            },
+            alerts: [],
+          },
+        };
+        const app = renderWithRedux(<App {...props} />, { initialState });
+
+        await wait(() => {
+          expect(app.queryByTestId('waveform-container')).toBeInTheDocument();
+          expect(app.queryByTestId('alert-container')).toBeInTheDocument();
+          expect(app.getByTestId('alert-message').innerHTML).toBe(
+            'No available media. Editing structure is disabled.'
+          );
+        });
+      });
     });
 
     describe('without manifest', () => {
@@ -257,7 +307,7 @@ describe('App component', () => {
             'Error fetching IIIF manifest.'
           );
         });
-      }, 10000);
+      });
     });
   });
 
@@ -303,7 +353,7 @@ describe('App component', () => {
             'Saved successfully.'
           );
         });
-      }, 10000);
+      });
 
       test('closes the alert after 2000ms', async () => {
         await wait(() => {
@@ -362,7 +412,7 @@ describe('App component', () => {
           'Failed to save structure successfully.'
         );
       });
-    }, 10000);
+    });
 
     test('when structure has invalid timespans', async () => {
       mockAxios.get.mockImplementationOnce(() => {
@@ -398,7 +448,7 @@ describe('App component', () => {
         expect(app.getByTestId('alert-message').innerHTML)
           .toEqual('Please check start/end times of the marked invalid timespan(s).');
       });
-    }, 10000);
+    });
   });
 
   describe('renders structure', () => {
@@ -432,7 +482,7 @@ describe('App component', () => {
         expect(app.queryAllByTestId('list-item').length).toBeGreaterThan(0);
         expect(app.queryAllByTestId('heading-label')[0].innerHTML).toEqual('Volleyball for Boys');
       });
-    }, 10000);
+    });
 
     test('from dummy computed structure when manifest\'s structures is empty', async () => {
       mockAxios.get.mockImplementationOnce(() => {
@@ -493,6 +543,6 @@ describe('App component', () => {
         expect(app.getAllByTestId('alert-message')[0].innerHTML)
           .toEqual('No structure information was found. Please check your Manifest.');
       });
-    }, 10000);
+    });
   });
 });

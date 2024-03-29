@@ -19,8 +19,6 @@ var _freeSolidSvgIcons = require("@fortawesome/free-solid-svg-icons");
 
 var _reactRedux = require("react-redux");
 
-var _alertStatus = require("../services/alert-status");
-
 var _forms = require("../actions/forms");
 
 var _Slider = _interopRequireDefault(require("./Slider"));
@@ -33,9 +31,6 @@ var zoomViewLabel = "A detailed portion of the waveform data, the level of detai
 var overViewLabel = "An overview of the waveform data of the media file used. This shows all the time-based segments from the structure";
 
 var Waveform = /*#__PURE__*/_react["default"].forwardRef(function (props, ref) {
-  var streamMediaStatus = (0, _reactRedux.useSelector)(function (state) {
-    return state.forms.streamInfo.streamMediaStatus;
-  });
   var mediaInfo = (0, _reactRedux.useSelector)(function (state) {
     return state.manifest.mediaInfo;
   });
@@ -67,15 +62,10 @@ var Waveform = /*#__PURE__*/_react["default"].forwardRef(function (props, ref) {
       volume = _React$useState4[0],
       setVolume = _React$useState4[1];
 
-  var _React$useState5 = _react["default"].useState(readyPeaks),
+  var _React$useState5 = _react["default"].useState(),
       _React$useState6 = (0, _slicedToArray2["default"])(_React$useState5, 2),
-      peaksIsReady = _React$useState6[0],
-      setPeaksIsReady = _React$useState6[1];
-
-  var _React$useState7 = _react["default"].useState(),
-      _React$useState8 = (0, _slicedToArray2["default"])(_React$useState7, 2),
-      stillLoading = _React$useState8[0],
-      setStillLoading = _React$useState8[1];
+      stillLoading = _React$useState6[0],
+      setStillLoading = _React$useState6[1];
   /* Ref to access changes in 'editingDisabled' state variable from 
   redux within the eventhandler for 'keydown' event */
 
@@ -90,41 +80,27 @@ var Waveform = /*#__PURE__*/_react["default"].forwardRef(function (props, ref) {
     // Add an event listener to keydown event
     document.addEventListener('keydown', handleKeyPress); // Remove event listener when component is unmounting
 
-    return function cleanup() {
+    return function () {
       document.removeEventListener('keydown', handleKeyPress);
     };
-  });
+  }, []);
 
   _react["default"].useEffect(function () {
-    var isLoading = streamMediaLoading && !streamMediaError || !readyPeaks;
+    var isLoading = streamMediaLoading || !readyPeaks;
     setStillLoading(isLoading);
-  }, [streamMediaError, streamMediaLoading, readyPeaks]);
+  }, [streamMediaLoading, readyPeaks]);
 
   _react["default"].useEffect(function () {
-    if (!mediaInfo.isStream) {
+    if (mediaInfo.src === undefined) {
+      dispatch((0, _forms.setStreamMediaLoading)(0));
+    } else if (!mediaInfo.isStream) {
       setAudioFile(mediaInfo.src);
     }
   }, [mediaInfo]);
 
   _react["default"].useEffect(function () {
-    // Add an event listener to keydown event
-    document.addEventListener('keydown', handleKeyPress); // Remove event listener when component is unmounting
-
-    return function cleanup() {
-      document.removeEventListener('keydown', handleKeyPress);
-    };
-  });
-
-  _react["default"].useEffect(function () {
     setEditing(editingDisabled);
   }, [editingDisabled]);
-
-  _react["default"].useEffect(function () {
-    if (streamMediaStatus) {
-      var alert = (0, _alertStatus.configureAlert)(streamMediaStatus);
-      dispatch((0, _forms.setAlert)(alert));
-    }
-  }, [streamMediaStatus]);
 
   var handleKeyPress = function handleKeyPress(event) {
     if (event.target.nodeName == 'INPUT') return; // When structure is not being edited play/pause audio when spacebar is pressed
@@ -167,6 +143,7 @@ var Waveform = /*#__PURE__*/_react["default"].forwardRef(function (props, ref) {
     sm: 8
   }, /*#__PURE__*/_react["default"].createElement("div", {
     id: "waveform-container",
+    className: streamMediaError ? "disabled" : "",
     tabIndex: "0",
     "data-testid": "waveform",
     "aria-label": waveformLabel

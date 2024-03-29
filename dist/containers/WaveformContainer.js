@@ -36,6 +36,12 @@ var WaveformContainer = function WaveformContainer(props) {
   var mediaInfo = (0, _reactRedux.useSelector)(function (state) {
     return state.manifest.mediaInfo;
   });
+  var readyPeaks = (0, _reactRedux.useSelector)(function (state) {
+    return state.peaksInstance.readyPeaks;
+  });
+  var manifest = (0, _reactRedux.useSelector)(function (state) {
+    return state.manifest.manifest;
+  });
   var smData = (0, _reactRedux.useSelector)(function (state) {
     return state.structuralMetadata.smData;
   });
@@ -48,13 +54,15 @@ var WaveformContainer = function WaveformContainer(props) {
   }, []);
 
   _react["default"].useEffect(function () {
-    // When given a .m3u8 playlist, use HLS to stream media
-    if (mediaInfo.isStream) {
-      dispatch((0, _forms.retrieveStreamMedia)(mediaInfo.src, mediaPlayer.current, {
-        withCredentials: props.withCredentials
-      }));
+    if (manifest != null) {
+      // When given a .m3u8 playlist, use HLS to stream media
+      if (mediaInfo.isStream) {
+        dispatch((0, _forms.retrieveStreamMedia)(mediaInfo.src, mediaPlayer.current, {
+          withCredentials: props.withCredentials
+        }));
+      }
     }
-  }, [mediaInfo]);
+  }, [manifest, mediaInfo]);
 
   _react["default"].useEffect(function () {
     var peaksOptions = {
@@ -75,8 +83,8 @@ var WaveformContainer = function WaveformContainer(props) {
       player: null
     };
 
-    if (!streamMediaLoading && smData != []) {
-      dispatch((0, _peaksInstance.initializePeaks)(peaksOptions, smData, props.canvasIndex));
+    if (!streamMediaLoading && smData != [] && !readyPeaks) {
+      dispatch((0, _peaksInstance.initializePeaks)(peaksOptions, smData));
     }
   }, [streamMediaLoading]);
 

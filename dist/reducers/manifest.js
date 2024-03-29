@@ -30,7 +30,8 @@ var initialState = {
     duration: 0,
     isStream: false,
     isVideo: false
-  }
+  },
+  waveformInfo: null
 };
 
 var manifest = function manifest() {
@@ -61,6 +62,11 @@ var manifest = function manifest() {
           isStream: action.isStream,
           isVideo: action.isVideo
         })
+      });
+
+    case types.SET_CANVAS_WAVEFORMINFO:
+      return _objectSpread(_objectSpread({}, state), {}, {
+        waveformInfo: action.waveformUrl
       });
 
     default:

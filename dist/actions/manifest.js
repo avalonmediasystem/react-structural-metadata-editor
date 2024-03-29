@@ -7,7 +7,7 @@ var _typeof = require("@babel/runtime/helpers/typeof");
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.setMediaInfo = exports.setManifest = exports.initManifest = exports.handleManifestError = exports.fetchManifestSuccess = void 0;
+exports.setWaveformInfo = exports.setMediaInfo = exports.setManifest = exports.initManifest = exports.handleManifestError = exports.fetchManifestSuccess = void 0;
 
 var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
 
@@ -39,7 +39,7 @@ var structuralMetadataUtils = new _StructuralMetadataUtils["default"]();
 var initManifest = function initManifest(manifestURL, canvasIndex) {
   return /*#__PURE__*/function () {
     var _ref = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee(dispatch, getState) {
-      var smData, duration, mediaInfo, response, alert, status, _alert;
+      var smData, duration, mediaInfo, waveformInfo, response, alert, status, _alert;
 
       return _regenerator["default"].wrap(function _callee$(_context) {
         while (1) {
@@ -48,16 +48,20 @@ var initManifest = function initManifest(manifestURL, canvasIndex) {
               smData = [];
               duration = 0;
               mediaInfo = {};
-              _context.prev = 3;
-              _context.next = 6;
+              waveformInfo = '';
+              _context.prev = 4;
+              _context.next = 7;
               return apiUtils.getRequest(manifestURL);
 
-            case 6:
+            case 7:
               response = _context.sent;
 
               if (!(0, _lodash.isEmpty)(response.data)) {
                 mediaInfo = (0, _iiifParser.getMediaInfo)(response.data, canvasIndex);
+                waveformInfo = (0, _iiifParser.getWaveformInfo)(response.data, canvasIndex); // Set manifest info in state
+
                 dispatch(setManifest(response.data));
+                dispatch(setWaveformInfo(waveformInfo));
                 dispatch(setMediaInfo(mediaInfo.src, mediaInfo.duration, mediaInfo.isStream, mediaInfo.isVideo));
                 smData = (0, _iiifParser.parseStructureToJSON)(response.data, mediaInfo.duration, canvasIndex);
                 duration = mediaInfo.duration;
@@ -77,12 +81,12 @@ var initManifest = function initManifest(manifestURL, canvasIndex) {
               dispatch((0, _smData.saveInitialStructure)(smData)); // Mark the top element as 'root'
 
               structuralMetadataUtils.markRootElement(smData);
-              _context.next = 22;
+              _context.next = 23;
               break;
 
-            case 15:
-              _context.prev = 15;
-              _context.t0 = _context["catch"](3);
+            case 16:
+              _context.prev = 16;
+              _context.t0 = _context["catch"](4);
               console.log('TCL: manifest -> initManifest() -> error', _context.t0); // Update manifest error in the redux store
 
               status = -9;
@@ -90,12 +94,12 @@ var initManifest = function initManifest(manifestURL, canvasIndex) {
               _alert = (0, _alertStatus.configureAlert)(status);
               dispatch((0, _forms.setAlert)(_alert));
 
-            case 22:
+            case 23:
             case "end":
               return _context.stop();
           }
         }
-      }, _callee, null, [[3, 15]]);
+      }, _callee, null, [[4, 16]]);
     }));
 
     return function (_x, _x2) {
@@ -168,5 +172,20 @@ var setMediaInfo = function setMediaInfo(src, duration, isStream, isVideo) {
     isVideo: isVideo
   };
 };
+/**
+ * Set waveform file URL in the Redux store
+ * @param {String} waveformUrl - URL of the waveform in Canvas
+ * @returns 
+ */
+
 
 exports.setMediaInfo = setMediaInfo;
+
+var setWaveformInfo = function setWaveformInfo(waveformUrl) {
+  return {
+    type: types.SET_CANVAS_WAVEFORMINFO,
+    waveformUrl: waveformUrl
+  };
+};
+
+exports.setWaveformInfo = setWaveformInfo;

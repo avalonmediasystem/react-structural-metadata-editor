@@ -1010,33 +1010,37 @@ var StructuralMetadataUtils = /*#__PURE__*/function () {
   }, {
     key: "toHHmmss",
     value: function toHHmmss(secTime) {
-      var sec_num = this.roundOff(secTime);
-      var hours = Math.floor(sec_num / 3600);
-      var minutes = Math.floor(sec_num % 3600 / 60);
-      var seconds = sec_num - minutes * 60 - hours * 3600;
-      var hourStr = hours < 10 ? "0".concat(hours) : "".concat(hours);
-      var minStr = minutes < 10 ? "0".concat(minutes) : "".concat(minutes);
-      var secStr = seconds.toFixed(3);
-      secStr = seconds < 10 ? "0".concat(secStr) : "".concat(secStr);
-      return "".concat(hourStr, ":").concat(minStr, ":").concat(secStr);
+      if (secTime != undefined) {
+        var sec_num = this.roundOff(secTime);
+        var hours = Math.floor(sec_num / 3600);
+        var minutes = Math.floor(sec_num % 3600 / 60);
+        var seconds = sec_num - minutes * 60 - hours * 3600;
+        var hourStr = hours < 10 ? "0".concat(hours) : "".concat(hours);
+        var minStr = minutes < 10 ? "0".concat(minutes) : "".concat(minutes);
+        var secStr = seconds.toFixed(3);
+        secStr = seconds < 10 ? "0".concat(secStr) : "".concat(secStr);
+        return "".concat(hourStr, ":").concat(minStr, ":").concat(secStr);
+      }
     }
   }, {
     key: "roundOff",
     value: function roundOff(value) {
-      var valueString = '';
+      if (value != undefined) {
+        var valueString = '';
 
-      var _value$toString$split = value.toString().split('.'),
-          _value$toString$split2 = (0, _slicedToArray2["default"])(_value$toString$split, 2),
-          intVal = _value$toString$split2[0],
-          decVal = _value$toString$split2[1];
+        var _value$toString$split = value.toString().split('.'),
+            _value$toString$split2 = (0, _slicedToArray2["default"])(_value$toString$split, 2),
+            intVal = _value$toString$split2[0],
+            decVal = _value$toString$split2[1];
 
-      if (!decVal) {
-        valueString = intVal;
-      } else {
-        valueString = intVal + '.' + decVal.substring(0, 3);
+        if (!decVal) {
+          valueString = intVal;
+        } else {
+          valueString = intVal + '.' + decVal.substring(0, 3);
+        }
+
+        return parseFloat(valueString);
       }
-
-      return parseFloat(valueString);
     }
     /**
      * Remove a given key in the each object in the structure

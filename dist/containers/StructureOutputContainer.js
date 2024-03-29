@@ -57,8 +57,8 @@ var StructureOutputContainer = function StructureOutputContainer(props) {
   var _useSelector3 = (0, _reactRedux.useSelector)(function (state) {
     return state.forms;
   }),
-      editingDisabled = _useSelector3.editingDisabled,
-      structureInfo = _useSelector3.structureInfo;
+      structureInfo = _useSelector3.structureInfo,
+      editingDisabled = _useSelector3.editingDisabled;
 
   var _useState = (0, _react.useState)(initSmData),
       _useState2 = (0, _slicedToArray2["default"])(_useState, 2),
@@ -155,7 +155,7 @@ var StructureOutputContainer = function StructureOutputContainer(props) {
     variant: "primary",
     onClick: handleSaveItClick,
     "data-testid": "structure-save-button",
-    disabled: props.editingDisabled
+    disabled: editingDisabled
   }, "Save Structure"))));
 };
 

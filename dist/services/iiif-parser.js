@@ -30,26 +30,45 @@ var smUtils = new _StructuralMetadataUtils["default"]();
 
 function getMediaInfo(manifest) {
   var canvasIndex = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
-  var canvas;
   var mediaInfo = {};
 
   try {
-    canvas = (0, _manifesto.parseManifest)(manifest).getSequences()[0].getCanvases()[canvasIndex];
-    var sources = canvas.getContent()[0].getBody();
+    var _readAnnotations = (0, _utils.readAnnotations)({
+      manifest: manifest,
+      canvasIndex: canvasIndex,
+      key: "items",
+      motivation: "painting"
+    }),
+        resources = _readAnnotations.resources,
+        error = _readAnnotations.error,
+        duration = _readAnnotations.duration;
 
-    var _filtersrc = filtersrc(sources),
-        src = _filtersrc.src,
-        type = _filtersrc.type;
+    if (resources.length === 0) {
+      console.log('iiif-parser -> getMediaInfo() -> error', error);
+      return {
+        src: undefined,
+        duration: 0,
+        isStream: false,
+        isVideo: false,
+        error: error
+      };
+    } else {
+      var _filtersrc = filtersrc(resources),
+          src = _filtersrc.src,
+          type = _filtersrc.type;
 
-    mediaInfo.isStream = (0, _utils.getMimetype)(src) === 'application/x-mpegURL' ? true : false;
-    mediaInfo.src = src;
-    mediaInfo.isVideo = type === 'video' ? true : false;
-    mediaInfo.duration = canvas.getDuration();
+      mediaInfo.isStream = (0, _utils.getMimetype)(src) === 'application/x-mpegURL' ? true : false;
+      mediaInfo.src = src;
+      mediaInfo.isVideo = type.toLowerCase() === 'video' ? true : false;
+      mediaInfo.duration = duration;
+    }
   } catch (err) {
     console.error(err);
-    var error = (0, _typeof2["default"])(err) == 'object' ? 'Manifest is invalid. Please check the Manifest.' : err;
+
+    var _error = (0, _typeof2["default"])(err) == 'object' ? 'Manifest is invalid. Please check the Manifest.' : err;
+
     return {
-      error: error
+      error: _error
     };
   }
 
@@ -61,18 +80,18 @@ function filtersrc(sources) {
     throw 'Error fetching media files. Please check the Manifest.';
   } else if (sources.length == 1) {
     return {
-      src: sources[0].id,
-      type: sources[0].getType()
+      src: sources[0].src,
+      type: sources[0].kind
     };
   } else {
-    var srcId = sources[0].id;
-    var type = sources[0].getType();
+    var srcId = sources[0].src;
+    var type = sources[0].kind;
     sources.map(function (src) {
-      var srcQuality = src.getLabel()[0].value.toLowerCase();
+      var srcQuality = src.label;
 
       if (srcQuality == 'auto' || srcQuality == 'low') {
-        srcId = src.id;
-        type = src.getType();
+        srcId = src.src;
+        type = src.kind;
       }
     });
     return {
@@ -93,6 +112,10 @@ function filtersrc(sources) {
 function getWaveformInfo(manifest, canvasIndex) {
   var waveformFile = null;
   var fileInfo = [];
+
+  if (manifest === null) {
+    return null;
+  }
 
   try {
     var manifestParsed = (0, _manifesto.parseManifest)(manifest);
@@ -131,6 +154,7 @@ function getWaveformInfo(manifest, canvasIndex) {
 function parseStructureToJSON(manifest, duration) {
   var canvasIndex = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
   var structureJSON = [];
+  if (!manifest) return [];
 
   var buildStructureItems = function buildStructureItems(items, children) {
     if (items.length > 0) {

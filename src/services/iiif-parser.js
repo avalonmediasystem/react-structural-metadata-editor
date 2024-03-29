@@ -1,6 +1,6 @@
 import { parseManifest } from "manifesto.js";
 import StructuralMetadataUtils from "./StructuralMetadataUtils";
-import { getMimetype } from "./utils";
+import { getMimetype, readAnnotations } from "./utils";
 
 const smUtils = new StructuralMetadataUtils;
 
@@ -12,18 +12,24 @@ const smUtils = new StructuralMetadataUtils;
  * @returns { String, Number } { media src, media duration }
  */
 export function getMediaInfo(manifest, canvasIndex = 0) {
-  let canvas;
   let mediaInfo = {};
   try {
-    canvas = parseManifest(manifest)
-      .getSequences()[0]
-      .getCanvases()[canvasIndex];
-    const sources = canvas.getContent()[0].getBody();
-    const { src, type } = filtersrc(sources);
-    mediaInfo.isStream = getMimetype(src) === 'application/x-mpegURL' ? true : false;
-    mediaInfo.src = src;
-    mediaInfo.isVideo = type === 'video' ? true : false;
-    mediaInfo.duration = canvas.getDuration();
+    const { resources, error, duration } = readAnnotations({
+      manifest,
+      canvasIndex,
+      key: "items",
+      motivation: "painting"
+    });
+    if (resources.length === 0) {
+      console.log('iiif-parser -> getMediaInfo() -> error', error);
+      return { src: undefined, duration: 0, isStream: false, isVideo: false, error };
+    } else {
+      const { src, type } = filtersrc(resources);
+      mediaInfo.isStream = getMimetype(src) === 'application/x-mpegURL' ? true : false;
+      mediaInfo.src = src;
+      mediaInfo.isVideo = type.toLowerCase() === 'video' ? true : false;
+      mediaInfo.duration = duration;
+    }
   } catch (err) {
     console.error(err);
     const error = typeof err == 'object' ?
@@ -39,15 +45,15 @@ function filtersrc(sources) {
     throw 'Error fetching media files. Please check the Manifest.';
   }
   else if (sources.length == 1) {
-    return { src: sources[0].id, type: sources[0].getType() };
+    return { src: sources[0].src, type: sources[0].kind };
   } else {
-    let srcId = sources[0].id;
-    let type = sources[0].getType();
+    let srcId = sources[0].src;
+    let type = sources[0].kind;
     sources.map((src) => {
-      const srcQuality = src.getLabel()[0].value.toLowerCase();
+      const srcQuality = src.label;
       if (srcQuality == 'auto' || srcQuality == 'low') {
-        srcId = src.id;
-        type = src.getType();
+        srcId = src.src;
+        type = src.kind;
       }
     });
     return { src: srcId, type };
@@ -66,12 +72,14 @@ export function getWaveformInfo(manifest, canvasIndex) {
   let waveformFile = null;
   let fileInfo = [];
 
+  if (manifest === null) {
+    return null;
+  }
   try {
     const manifestParsed = parseManifest(manifest);
-
     let canvas = manifestParsed.getSequences()[0]
       .getCanvasByIndex(canvasIndex);
-    if(canvas.__jsonld.seeAlso) {
+    if (canvas.__jsonld.seeAlso) {
       fileInfo = canvas.__jsonld.seeAlso;
 
       if (fileInfo.length > 0) {
@@ -98,15 +106,16 @@ export function getWaveformInfo(manifest, canvasIndex) {
  * @returns {Array.<Object>} structureJSON - array of nested JSON 
  * objects with structure items parsed from the given manifest
  */
-export function parseStructureToJSON(manifest, duration, canvasIndex=0) {
+export function parseStructureToJSON(manifest, duration, canvasIndex = 0) {
   let structureJSON = [];
 
+  if (!manifest) return [];
   let buildStructureItems = (items, children) => {
     if (items.length > 0) {
       items.map((i) => {
         const range = parseManifest(manifest)
-                .getRangeById(i.id);
-        if(range) {
+          .getRangeById(i.id);
+        if (range) {
           const childCanvases = range.getCanvasIds();
           let structItem = {};
           if (childCanvases.length > 0) {

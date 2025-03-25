@@ -5,10 +5,10 @@
  *
  */
 import React from 'react';
-import VolumeUp from '@material-ui/icons/VolumeUp';
-import VolumeOff from '@material-ui/icons/VolumeOff';
-import { withStyles, makeStyles } from '@material-ui/core/styles';
-import { Paper, Slider } from '@material-ui/core';
+import VolumeUpIcon from '@mui/icons-material/VolumeUp';
+import VolumeOffIcon from '@mui/icons-material/VolumeOff';
+import { makeStyles, styled } from '@mui/material/styles';
+import { Paper, Slider } from '@mui/material';
 import { Row, Col } from 'react-bootstrap';
 
 const useStyles = makeStyles(() => ({
@@ -21,33 +21,30 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-const StyledSlider = withStyles({
-  root: {
-    color: '#000',
-    height: 1,
-    marginLeft: 20,
-  },
-  thumb: {
+const StyledSlider = styled(Slider)(({ theme }) => ({
+  color: '#000',
+  height: 1,
+  marginLeft: 20,
+  '& .MuiSlider-thumb': {
     height: 12,
     width: 12,
     backgroundColor: '#000',
     border: '2px solid #000',
-    '&:focus,&:hover,&$active': {
+    '&:focus, &:hover, &.Mui-active': {
       boxShadow: '#000',
     },
   },
-  active: {},
-  track: {
+  '& .MuiSlider-track': {
     height: 2,
     borderRadius: 4,
     backgroundColor: '#000',
   },
-  rail: {
+  '& .MuiSlider-rail': {
     height: 2,
     borderRadius: 4,
     backgroundColor: '#000',
   },
-})(Slider);
+}));
 
 export default function VolumeSlider(props) {
   const SPEAKER_ICON_SIZE = {
@@ -74,11 +71,11 @@ export default function VolumeSlider(props) {
         <Col xs={2} md={2} style={{ paddingRight: 0, paddingLeft: 5 }}>
           <div onClick={onToggle} style={{ margin: 2, paddingRight: 15 }}>
             {props.volume === 0 ? (
-              <VolumeOff
+              <VolumeOffIcon
                 style={{ ...SPEAKER_ICON_SIZE, transform: 'translateX(1px)' }}
               />
             ) : (
-              <VolumeUp
+              <VolumeUpIcon
                 style={{ ...SPEAKER_ICON_SIZE, transform: 'translateX(1px)' }}
               />
             )}

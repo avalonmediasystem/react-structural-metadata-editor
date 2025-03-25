@@ -1,5 +1,5 @@
-import React, { Component } from 'react';
-import { DropTarget } from 'react-dnd';
+import React from 'react';
+// import { DropTarget } from 'react-dnd';
 import { ItemTypes } from '../services/Constants';
 import { connect } from 'react-redux';
 import * as smActions from '../actions/sm-data';
@@ -40,21 +40,33 @@ function collect(connect, monitor) {
   };
 }
 
-class PlaceholderItem extends Component {
-  render() {
-    const { isOver, connectDropTarget } = this.props;
+const PlaceholderItem = ({ isOver, connectDropTarget }) => {
+  return connectDropTarget(
+    <li
+      className="row-wrapper"
+      data-testid="drop-list-item"
+      style={isOver ? styles.liHovered : styles.li}
+    >
+      Drop here
+    </li>
+  );
+};
 
-    return connectDropTarget(
-      <li
-        className="row-wrapper"
-        data-testid="drop-list-item"
-        style={isOver ? styles.liHovered : styles.li}
-      >
-        Drop here
-      </li>
-    );
-  }
-}
+// class PlaceholderItem extends Component {
+//   render() {
+//     const { isOver, connectDropTarget } = this.props;
+
+//     return connectDropTarget(
+//       <li
+//         className="row-wrapper"
+//         data-testid="drop-list-item"
+//         style={isOver ? styles.liHovered : styles.li}
+//       >
+//         Drop here
+//       </li>
+//     );
+//   }
+// }
 
 const ConnectedDropTarget = DropTarget(ItemTypes.SPAN, optionalTarget, collect)(
   PlaceholderItem

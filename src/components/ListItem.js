@@ -1,13 +1,10 @@
-import React, { Component } from 'react';
-import { findDOMNode } from 'react-dom';
+import React, { useEffect, useRef } from 'react';
 import List from './List';
 import { connect } from 'react-redux';
 import * as smActions from '../actions/sm-data';
 import { deleteSegment } from '../actions/peaks-instance';
 import { handleEditingTimespans } from '../actions/forms';
-import PropTypes from 'prop-types';
 import { ItemTypes } from '../services/Constants';
-import { DragSource, DropTarget } from 'react-dnd';
 import ListItemEditForm from './ListItemEditForm';
 import ListItemControls from './ListItemControls';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -50,58 +47,46 @@ function collectDrop(connect, monitor) {
   };
 }
 
-class ListItem extends Component {
-  static propTypes = {
-    item: PropTypes.shape({
-      active: PropTypes.bool,
-      begin: PropTypes.string,
-      end: PropTypes.string,
-      items: PropTypes.array,
-      id: PropTypes.string,
-      type: PropTypes.string,
-      editing: PropTypes.bool,
-    }),
+const ListItem = ({
+  addDropTargets,
+  item,
+  canDrag,
+  deleteItem,
+  deleteSegment,
+  handleEditingTimespans,
+  removeActiveDragSources,
+  removeDropTargets,
+  setActiveDragSource,
+  setCanDrag,
+  smDataIsValid
+}) => {
+  const [editing, setEditing] = React.useState(false);
+  const [focused, setFocused] = React.useState(false);
+
+  const liRef = useRef(null);
+
+  const handleDelete = () => {
+    deleteItem(item.id);
+    deleteSegment(item);
   };
 
-  state = {
-    editing: false,
-    canDrag: this.props.canDrag,
-    focused: false,
-  };
-  node = undefined;
-
-  handleDelete = () => {
-    const { item } = this.props;
-
-    this.props.deleteItem(item.id);
-    this.props.deleteSegment(item);
-  };
-
-  handleEditClick = () => {
+  const handleEditClick = () => {
     // Disable the edit buttons of other list items
-    this.props.handleEditingTimespans(1, this.props.smDataIsValid);
+    handleEditingTimespans(1, smDataIsValid);
 
-    this.setState({ editing: true });
+    setEditing(true);
   };
 
-  handleEditFormCancel = () => {
-    this.setState({ editing: false });
+  const handleEditFormCancel = () => {
+    setEditing(false);
 
     // Enable the edit buttons of other list items
-    this.props.handleEditingTimespans(0, this.props.smDataIsValid);
+    handleEditingTimespans(0, smDataIsValid);
   };
 
-  handleShowDropTargetsClick = () => {
-    const {
-      addDropTargets,
-      item,
-      removeActiveDragSources,
-      removeDropTargets,
-      setActiveDragSource,
-    } = this.props;
-
+  const handleShowDropTargetsClick = () => {
     // Disable other editing actions
-    this.props.handleEditingTimespans(1);
+    const handleEditingTimespans(1);
 
     // Clear out any current drop targets
     removeDropTargets();
@@ -111,7 +96,7 @@ class ListItem extends Component {
       // Clear out any active drag sources
       removeActiveDragSources();
       // Enable other editing actions
-      this.props.handleEditingTimespans(0);
+      handleEditingTimespans(0);
       return;
     }
     // Clear out any active drag sources
@@ -124,131 +109,107 @@ class ListItem extends Component {
     setActiveDragSource(item.id);
   };
 
-  getInputElements = (node) => {
+  const getInputElements = (node) => {
     return node
       ? Array.prototype.slice
-          .call(node.getElementsByTagName('input'))
-          .filter((e) => !e.readOnly)
+        .call(node.getElementsByTagName('input'))
+        .filter((e) => !e.readOnly)
       : [];
   };
 
-  onHoverOverInput = () => {
-    this.props.setCanDrag(false);
-  };
+  const onHoverOverInput = () => setCanDrag(false);
+  const onHoverOutOfInput = () => setCanDrag(true);
+  const onFocus = () => setFocused(true);
+  const onBlur = () => setFocused(false);
 
-  onHoverOutOfInput = () => {
-    this.props.setCanDrag(true);
-  };
-
-  onFocus = () => this.setState({ focused: true });
-
-  onBlur = () => this.setState({ focused: false });
-
-  detachEventListeners = (node) => {
-    this.getInputElements(node).map((e) => {
-      e.removeEventListener('mouseleave', this.onHoverOutOfInput);
-      e.removeEventListener('mouseenter', this.onHoverOverInput);
+  const detachEventListeners = (node) => {
+    getInputElements(node).map((e) => {
+      e.removeEventListener('mouseleave', onHoverOutOfInput);
+      e.removeEventListener('mouseenter', onHoverOverInput);
     });
   };
 
-  componentWillUnmount() {
-    this.detachEventListeners(this.node);
-    this.node = undefined;
-  }
+  useEffect(() => {
+    if (liRef.current) {
+      detachEventListeners(liRef.current);
+      if (canDrag) {
+        getInputElements(liRef.current).map((e) => {
+          e.addEventListener('mouseenter', onHoverOverInput);
+        });
+      } else {
+        getInputElements(liRef.current).map((e) => {
+          e.addEventListener('mouseleave', onHoverOutOfInput);
+        });
+      }
+    }
 
-  render() {
-    const {
-      item,
-      canDrag,
-      item: { begin },
-      item: { end },
-      item: { items },
-      item: { label },
-      item: { type },
-      item: { active },
-      item: { valid },
-      connectDragSource,
-      connectDropTarget,
-    } = this.props;
-
-    const subMenu = items && items.length > 0 ? <List items={items} /> : null;
-    const itemProp = {
-      childrenCount: items ? items.length : 0,
-      label: label,
-      type: type,
-      active: active,
+    return () => {
+      detachEventListeners(liRef.current);
     };
+  }, [canDrag]);
 
-    return connectDragSource(
-      connectDropTarget(
-        <li
-          className={active ? 'active' : ''}
-          ref={(instance) => {
-            this.detachEventListeners(this.node);
-            this.node = findDOMNode(instance);
+  const subMenu = item.items && item.items.length > 0 ? <List items={item.items} /> : null;
+  const itemProp = {
+    childrenCount: item.items ? item.items.length : 0,
+    label: item.label,
+    type: item.type,
+    active: item.active,
+  };
 
-            if (canDrag) {
-              this.getInputElements(this.node).map((e) => {
-                e.addEventListener('mouseenter', this.onHoverOverInput);
-              });
-            } else {
-              this.getInputElements(this.node).map((e) => {
-                e.addEventListener('mouseleave', this.onHoverOutOfInput);
-              });
-            }
-          }}
+  return (
+    <li
+      className={item.active ? 'active' : ''}
+      ref={liRef}
+    >
+      {editing && (
+        <ListItemEditForm
+          item={item}
+          handleEditFormCancel={handleEditFormCancel}
+        />
+      )}
+
+      {!editing && (
+        <div
+          className={'row-wrapper' + (!item.valid ? ' invalid' : '')}
+          data-testid="list-item"
         >
-          {this.state.editing && (
-            <ListItemEditForm
-              item={item}
-              handleEditFormCancel={this.handleEditFormCancel}
-            />
+          {item.type === 'span' && (
+            <React.Fragment>
+              <span
+                className="structure-title"
+                data-testid="timespan-label"
+              >
+                {!item.valid && (
+                  <FontAwesomeIcon
+                    icon={faExclamationTriangle}
+                    className="icon-invalid"
+                  />
+                )}{' '}
+                {item.label} ({item.begin} - {item.end})
+              </span>
+            </React.Fragment>
           )}
-
-          {!this.state.editing && (
+          {(item.type === 'div' || item.type === 'root') && (
             <div
-              className={'row-wrapper' + (!valid ? ' invalid' : '')}
-              data-testid="list-item"
+              className="structure-title heading"
+              data-testid="heading-label"
             >
-              {type === 'span' && (
-                <React.Fragment>
-                  <span
-                    className="structure-title"
-                    data-testid="timespan-label"
-                  >
-                    {!valid && (
-                      <FontAwesomeIcon
-                        icon={faExclamationTriangle}
-                        className="icon-invalid"
-                      />
-                    )}{' '}
-                    {label} ({begin} - {end})
-                  </span>
-                </React.Fragment>
-              )}
-              {(type === 'div' || type === 'root') && (
-                <div
-                  className="structure-title heading"
-                  data-testid="heading-label"
-                >
-                  {label}
-                </div>
-              )}
-              <ListItemControls
-                handleDelete={this.handleDelete}
-                handleEditClick={this.handleEditClick}
-                item={itemProp}
-                handleShowDropTargetsClick={this.handleShowDropTargetsClick}
-              />
+              {item.label}
             </div>
           )}
+          <ListItemControls
+            handleDelete={handleDelete}
+            handleEditClick={handleEditClick}
+            item={itemProp}
+            handleShowDropTargetsClick={handleShowDropTargetsClick}
+          />
+        </div>
+      )}
 
-          {subMenu}
-        </li>
-      )
-    );
-  }
-}
+      {subMenu}
+    </li>
+  );
+};
 
 const mapDispatchToProps = {
   deleteItem: smActions.deleteItem,
@@ -261,7 +222,6 @@ const mapDispatchToProps = {
 };
 
 const mapStateToProps = (state) => ({
-  smData: state.structuralMetadata.smData,
   smDataIsValid: state.structuralMetadata.smDataIsValid,
 });
 

@@ -1,165 +1,96 @@
-import React, { useEffect, useRef } from 'react';
-import List from './List';
-import { connect } from 'react-redux';
-import * as smActions from '../actions/sm-data';
-import { deleteSegment } from '../actions/peaks-instance';
-import { handleEditingTimespans } from '../actions/forms';
-import { ItemTypes } from '../services/Constants';
-import ListItemEditForm from './ListItemEditForm';
-import ListItemControls from './ListItemControls';
+import React, { useState, useRef, useEffect } from 'react';
+import { useDrag } from 'react-dnd';
+import { connect, useDispatch, useSelector } from 'react-redux';
+import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 
-const spanSource = {
-  // canDrag prop is turned false/true based on mouse events mouseenter/mouseleave
-  // respectively. This takes place when an item is being edited inline.
-  canDrag(props) {
-    // props.canDrag = false => dragging is disabled
-    return props.canDrag;
-  },
-  beginDrag(props) {
-    return { id: props.item.id };
-  },
-};
+import ListItemEditForm from './ListItemEditForm';
+import ListItemControls from './ListItemControls';
+import { ItemTypes } from '../services/Constants';
+import {
+  addDropTargets, deleteItem, handleListItemDrop, removeActiveDragSources,
+  removeDropTargets, setActiveDragSource
+} from '../actions/sm-data';
+import { deleteSegment } from '../actions/peaks-instance';
+import { handleEditingTimespans } from '../actions/forms';
 
-const spanTarget = {
-  canDrop(props, monitor) {
-    // You can disallow drop based on props or item
-    return true;
-  },
-};
+const ListItem = ({ item, children }) => {
+  const dispatch = useDispatch();
+  const { smDataIsValid } = useSelector((state) => state.structuralMetadata);
 
-function collectDrag(connect, monitor) {
-  return {
-    connectDragSource: connect.dragSource(),
-    isDragging: monitor.isDragging(),
-  };
-}
+  const [editing, setEditing] = useState(false);
 
-function collectDrop(connect, monitor) {
-  return {
-    connectDropTarget: connect.dropTarget(),
-    // You can ask the monitor about the current drag state:
-    isOver: monitor.isOver(),
-    isOverCurrent: monitor.isOver({ shallow: true }),
-    canDrop: monitor.canDrop(),
-    itemType: monitor.getItemType(),
-  };
-}
+  const nodeRef = useRef(null);
 
-const ListItem = ({
-  addDropTargets,
-  item,
-  canDrag,
-  deleteItem,
-  deleteSegment,
-  handleEditingTimespans,
-  removeActiveDragSources,
-  removeDropTargets,
-  setActiveDragSource,
-  setCanDrag,
-  smDataIsValid
-}) => {
-  const [editing, setEditing] = React.useState(false);
-  const [focused, setFocused] = React.useState(false);
-
-  const liRef = useRef(null);
+  // Wire the component into DnD system as a drag source
+  const [{ isDragging }, drag] = useDrag(() => ({
+    type: ItemTypes.SPAN,
+    item: { id: item.id },
+    // Call this function when the item is dropped
+    end: (item, monitor) => {
+      // Get the dropItem saved in PlaceholderItem
+      const { dropItem } = monitor.getDropResult();
+      if (item && dropItem) {
+        dispatch(handleListItemDrop(item, dropItem));
+      }
+    },
+  }), [item.id]);
 
   const handleDelete = () => {
-    deleteItem(item.id);
-    deleteSegment(item);
+    dispatch(deleteItem(item.id));
+    dispatch(deleteSegment(item));
   };
 
   const handleEditClick = () => {
-    // Disable the edit buttons of other list items
-    handleEditingTimespans(1, smDataIsValid);
-
+    dispatch(handleEditingTimespans(1, smDataIsValid));
     setEditing(true);
   };
 
   const handleEditFormCancel = () => {
     setEditing(false);
-
-    // Enable the edit buttons of other list items
-    handleEditingTimespans(0, smDataIsValid);
+    dispatch(handleEditingTimespans(0, smDataIsValid));
   };
 
   const handleShowDropTargetsClick = () => {
-    // Disable other editing actions
-    const handleEditingTimespans(1);
+    dispatch(handleEditingTimespans(1));
+    dispatch(removeDropTargets());
 
-    // Clear out any current drop targets
-    removeDropTargets();
-
-    // Handle closing of current drag source drop targets, and exit with a clean UI.
     if (item.active === true) {
-      // Clear out any active drag sources
-      removeActiveDragSources();
-      // Enable other editing actions
-      handleEditingTimespans(0);
+      dispatch(removeActiveDragSources());
+      dispatch(handleEditingTimespans(0));
       return;
     }
-    // Clear out any active drag sources
-    removeActiveDragSources();
 
-    // Calculate possible drop targets
-    addDropTargets(item);
-
-    // Redux way of setting active drag list item
-    setActiveDragSource(item.id);
+    dispatch(removeActiveDragSources());
+    dispatch(addDropTargets(item));
+    dispatch(setActiveDragSource(item.id));
   };
 
-  const getInputElements = (node) => {
-    return node
-      ? Array.prototype.slice
-        .call(node.getElementsByTagName('input'))
-        .filter((e) => !e.readOnly)
-      : [];
-  };
+  const { begin, end, items, label, type, active, valid } = item;
 
-  const onHoverOverInput = () => setCanDrag(false);
-  const onHoverOutOfInput = () => setCanDrag(true);
-  const onFocus = () => setFocused(true);
-  const onBlur = () => setFocused(false);
-
-  const detachEventListeners = (node) => {
-    getInputElements(node).map((e) => {
-      e.removeEventListener('mouseleave', onHoverOutOfInput);
-      e.removeEventListener('mouseenter', onHoverOverInput);
-    });
-  };
-
-  useEffect(() => {
-    if (liRef.current) {
-      detachEventListeners(liRef.current);
-      if (canDrag) {
-        getInputElements(liRef.current).map((e) => {
-          e.addEventListener('mouseenter', onHoverOverInput);
-        });
-      } else {
-        getInputElements(liRef.current).map((e) => {
-          e.addEventListener('mouseleave', onHoverOutOfInput);
-        });
-      }
-    }
-
-    return () => {
-      detachEventListeners(liRef.current);
-    };
-  }, [canDrag]);
-
-  const subMenu = item.items && item.items.length > 0 ? <List items={item.items} /> : null;
   const itemProp = {
-    childrenCount: item.items ? item.items.length : 0,
-    label: item.label,
-    type: item.type,
-    active: item.active,
+    childrenCount: items ? items.length : 0,
+    label: label,
+    type: type,
+    active: active,
+  };
+
+  /**
+   * Add drag source ref to nodeRef
+   * @param {Object} el 
+   */
+  const dragRef = (el) => {
+    nodeRef.current = el;
+    drag(el);
   };
 
   return (
     <li
-      className={item.active ? 'active' : ''}
-      ref={liRef}
+      key={item.id}
+      ref={dragRef}
+      className={active ? 'active' : ''}
+      style={{ opacity: isDragging ? 0.5 : 1 }}
     >
       {editing && (
         <ListItemEditForm
@@ -167,34 +98,31 @@ const ListItem = ({
           handleEditFormCancel={handleEditFormCancel}
         />
       )}
-
       {!editing && (
         <div
-          className={'row-wrapper' + (!item.valid ? ' invalid' : '')}
+          className={'row-wrapper' + (!valid ? ' invalid' : '')}
           data-testid="list-item"
         >
-          {item.type === 'span' && (
-            <React.Fragment>
-              <span
-                className="structure-title"
-                data-testid="timespan-label"
-              >
-                {!item.valid && (
-                  <FontAwesomeIcon
-                    icon={faExclamationTriangle}
-                    className="icon-invalid"
-                  />
-                )}{' '}
-                {item.label} ({item.begin} - {item.end})
-              </span>
-            </React.Fragment>
+          {type === 'span' && (
+            <span
+              className="structure-title"
+              data-testid="timespan-label"
+            >
+              {!valid && (
+                <FontAwesomeIcon
+                  icon={faExclamationTriangle}
+                  className="icon-invalid"
+                />
+              )}{' '}
+              {label} ({begin} - {end})
+            </span>
           )}
-          {(item.type === 'div' || item.type === 'root') && (
+          {(type === 'div' || type === 'root') && (
             <div
               className="structure-title heading"
               data-testid="heading-label"
             >
-              {item.label}
+              {label}
             </div>
           )}
           <ListItemControls
@@ -205,28 +133,39 @@ const ListItem = ({
           />
         </div>
       )}
-
-      {subMenu}
+      {children}
     </li>
   );
 };
 
+ListItem.propTypes = {
+  item: PropTypes.shape({
+    active: PropTypes.bool,
+    begin: PropTypes.string,
+    end: PropTypes.string,
+    items: PropTypes.array,
+    id: PropTypes.string,
+    type: PropTypes.string,
+    editing: PropTypes.bool,
+    valid: PropTypes.bool,
+  }),
+  children: PropTypes.node,
+};
+
 const mapDispatchToProps = {
-  deleteItem: smActions.deleteItem,
-  addDropTargets: smActions.addDropTargets,
-  removeDropTargets: smActions.removeDropTargets,
-  removeActiveDragSources: smActions.removeActiveDragSources,
-  setActiveDragSource: smActions.setActiveDragSource,
+  deleteItem: deleteItem,
+  addDropTargets: addDropTargets,
+  removeDropTargets: removeDropTargets,
+  removeActiveDragSources: removeActiveDragSources,
+  setActiveDragSource: setActiveDragSource,
+  handleListItemDrop: handleListItemDrop,
   deleteSegment: deleteSegment,
   handleEditingTimespans: handleEditingTimespans,
 };
 
 const mapStateToProps = (state) => ({
+  smData: state.structuralMetadata.smData,
   smDataIsValid: state.structuralMetadata.smDataIsValid,
 });
 
-const ConnectedDropTarget = DropTarget(ItemTypes.SPAN, spanTarget, collectDrop);
-const ConnectedDragSource = DragSource(ItemTypes.SPAN, spanSource, collectDrag);
-const DragConnected = ConnectedDropTarget(ConnectedDragSource(ListItem));
-
-export default connect(mapStateToProps, mapDispatchToProps)(DragConnected);
+export default connect(mapStateToProps, mapDispatchToProps)(ListItem);

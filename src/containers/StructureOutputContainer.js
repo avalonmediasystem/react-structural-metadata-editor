@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { connect, useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import List from '../components/List';
 import { Button, Col, Row } from 'react-bootstrap';
 import APIUtils from '../api/Utils';
@@ -89,7 +89,6 @@ const StructureOutputContainer = (props) => {
           </Col>
         </Row>)
       }
-
     </section>
   );
 };

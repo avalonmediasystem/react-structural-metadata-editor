@@ -111,10 +111,11 @@ class ListItemControls extends Component {
 
         {item.type !== 'root' && (
           <React.Fragment>
-            <OverlayTrigger
+            {/* <OverlayTrigger
               trigger="click"
               placement="left"
               show={showDeleteConfirm}
+              animation={false}
               overlay={
                 <Popover data-testid="delete-confirmation-popup">
                   <Popover.Title as="h3">Confirm delete?</Popover.Title>
@@ -154,7 +155,7 @@ class ListItemControls extends Component {
               >
                 <FontAwesomeIcon icon={faTrash} />
               </Button>
-            </OverlayTrigger>
+            </OverlayTrigger> */}
           </React.Fragment>
         )}
       </div>

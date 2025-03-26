@@ -1,8 +1,6 @@
 import React from 'react';
-// import { DropTarget } from 'react-dnd';
+import { useDrop } from 'react-dnd';
 import { ItemTypes } from '../services/Constants';
-import { connect } from 'react-redux';
-import * as smActions from '../actions/sm-data';
 
 const styles = {
   li: {
@@ -15,69 +13,25 @@ const styles = {
   }
 };
 
-const optionalTarget = {
-  hover(props, monitor, component) {
-    //console.log('hover over drop target');
-  },
+const PlaceholderItem = ({ item }) => {
+  // Wire the component into DnD system as a drop target
+  const [{ isOver, canDrop }, drop] = useDrop({
+    // Specifying the item type that can be dropped
+    accept: ItemTypes.SPAN,
+    // Use drop method to store placeholder to update in handleListItemDrop()
+    drop: () => ({ dropItem: item }),
+  }, [item]);
 
-  drop(props, monitor, component) {
-    let dragItem = monitor.getItem();
-
-    props.handleListItemDrop(dragItem, props.item);
-  }
-};
-
-function collect(connect, monitor) {
-  return {
-    // Call this function inside render()
-    // to let React DnD handle the drag events:
-    connectDropTarget: connect.dropTarget(),
-    // You can ask the monitor about the current drag state:
-    isOver: monitor.isOver(),
-    isOverCurrent: monitor.isOver({ shallow: true }),
-    canDrop: monitor.canDrop(),
-    itemType: monitor.getItemType()
-  };
-}
-
-const PlaceholderItem = ({ isOver, connectDropTarget }) => {
-  return connectDropTarget(
+  return (
     <li
       className="row-wrapper"
       data-testid="drop-list-item"
       style={isOver ? styles.liHovered : styles.li}
+      ref={drop}
     >
-      Drop here
+      {canDrop && isOver ? 'Release to drop' : 'Drop here'}
     </li>
   );
 };
 
-// class PlaceholderItem extends Component {
-//   render() {
-//     const { isOver, connectDropTarget } = this.props;
-
-//     return connectDropTarget(
-//       <li
-//         className="row-wrapper"
-//         data-testid="drop-list-item"
-//         style={isOver ? styles.liHovered : styles.li}
-//       >
-//         Drop here
-//       </li>
-//     );
-//   }
-// }
-
-const ConnectedDropTarget = DropTarget(ItemTypes.SPAN, optionalTarget, collect)(
-  PlaceholderItem
-);
-
-const mapDispatchToProps = dispatch => ({
-  handleListItemDrop: (dragItem, dropItem) =>
-    dispatch(smActions.handleListItemDrop(dragItem, dropItem))
-});
-
-export default connect(
-  null,
-  mapDispatchToProps
-)(ConnectedDropTarget);
+export default PlaceholderItem;

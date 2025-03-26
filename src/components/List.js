@@ -3,12 +3,10 @@ import ListItem from './ListItem';
 import PlaceholderItem from './PlaceholderItem';
 import PropTypes from 'prop-types';
 
-const List = (props) => {
-  const [canDrag, setCanDrag] = React.useState(true);
-
+const List = ({ items }) => {
   return (
-    <ul className="structure-list" data-testid="list">
-      {props.items.map((item, i) => {
+    <ul className="structure-list" data-testid="list" >
+      {items.map((item, i) => {
         if (!item) {
           return null;
         }
@@ -19,9 +17,14 @@ const List = (props) => {
           <ListItem
             key={item.id}
             item={item}
-            canDrag={canDrag}
-            setCanDrag={(flag) => setCanDrag(flag)}
-          />
+          >
+            {item.items?.length > 0 && (
+              <ul >
+                <List items={item.items} />
+              </ul>
+            )
+            }
+          </ListItem>
         );
       })}
     </ul>

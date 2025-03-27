@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Form } from 'react-bootstrap';
+import Form from 'react-bootstrap/Form';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
 import {
   getExistingFormValues,
   getValidationBeginState,
@@ -170,7 +172,7 @@ class TimespanInlineForm extends Component {
   }
 
   handleCancelClick = () => {
-    // Revert to segment to the state before
+    // Revert to segment to the state prior to editing
     this.props.revertSegment(this.state.clonedSegment);
     this.props.cancelFn();
   };
@@ -203,55 +205,64 @@ class TimespanInlineForm extends Component {
     const { beginTime, endTime, timespanTitle } = this.state;
 
     return (
-      <div className="row-wrapper">
-        <Form inline data-testid="timespan-inline-form" className="mb-0">
-          <Form.Group controlId="timespanTitle">
-            <Form.Label>Title</Form.Label>
-            <Form.Control
-              type="text"
-              style={styles.formControl}
-              value={timespanTitle}
-              isValid={getValidationTitleState(timespanTitle)}
-              isInvalid={!getValidationTitleState(timespanTitle)}
-              onChange={this.handleInputChange}
-              data-testid="timespan-inline-form-title"
-            />
+      <div className='row-wrapper d-flex justify-content-between gap-5 px-0'>
+        <Form data-testid='timespan-inline-form' className='mb-0 d-flex gap-4 flex-wrap flex-lg-nowrap no-gutters'>
+          <Form.Group as={Row} controlId='timespanTitle' className='ml-0'>
+            <Form.Label column sm={2} md={3}>Title</Form.Label>
+            <Col sm={10} md={9} className='px-0'>
+              <Form.Control
+                type='text'
+                style={styles.formControl}
+                value={timespanTitle}
+                isValid={getValidationTitleState(timespanTitle)}
+                isInvalid={!getValidationTitleState(timespanTitle)}
+                onChange={this.handleInputChange}
+                data-testid='timespan-inline-form-title'
+                className='mx-0'
+              />
+            </Col>
           </Form.Group>
-          <Form.Group controlId="beginTime">
-            <Form.Label>Begin Time</Form.Label>
-            <Form.Control
-              as="input"
-              style={styles.formControl}
-              value={beginTime}
-              onChange={this.handleInputChange}
-              isValid={getValidationBeginState(beginTime, this.allSpans)}
-              isInvalid={!getValidationBeginState(beginTime, this.allSpans)}
-              data-testid="timespan-inline-form-begintime"
-            />
+          <Form.Group as={Row} controlId='beginTime' className='ml-0'>
+            <Form.Label column sm={2} md={3}>Begin</Form.Label>
+            <Col sm={10} md={9} className='px-0'>
+              <Form.Control
+                as='input'
+                style={styles.formControl}
+                value={beginTime}
+                onChange={this.handleInputChange}
+                isValid={getValidationBeginState(beginTime, this.allSpans)}
+                isInvalid={!getValidationBeginState(beginTime, this.allSpans)}
+                data-testid='timespan-inline-form-begintime'
+                className='mx-0'
+              />
+            </Col>
           </Form.Group>
-          <Form.Group controlId="endTime">
-            <Form.Label>End Time</Form.Label>
-            <Form.Control
-              type="text"
-              style={styles.formControl}
-              value={endTime}
-              isValid={getValidationEndState(
-                beginTime,
-                endTime,
-                this.allSpans,
-                this.props.peaksInstance.duration
-              )}
-              isInvalid={
-                !getValidationEndState(
+          <Form.Group as={Row} controlId='endTime' className='ml-0'>
+            <Form.Label column sm={2} md={3}>End</Form.Label>
+            <Col sm={10} md={9} className='px-0'>
+              <Form.Control
+                type='text'
+                style={styles.formControl}
+                value={endTime}
+                isValid={getValidationEndState(
                   beginTime,
                   endTime,
                   this.allSpans,
                   this.props.peaksInstance.duration
-                )
-              }
-              onChange={this.handleInputChange}
-              data-testid="timespan-inline-form-endtime"
-            />
+                )}
+                isInvalid={
+                  !getValidationEndState(
+                    beginTime,
+                    endTime,
+                    this.allSpans,
+                    this.props.peaksInstance.duration
+                  )
+                }
+                onChange={this.handleInputChange}
+                data-testid='timespan-inline-form-endtime'
+                className='mx-0'
+              />
+            </Col>
           </Form.Group>
         </Form>
         <ListItemInlineEditControls

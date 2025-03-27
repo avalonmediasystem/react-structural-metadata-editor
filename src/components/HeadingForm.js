@@ -1,7 +1,10 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
-import { Button, ButtonToolbar, Col, Row } from 'react-bootstrap';
+import Button from 'react-bootstrap/Button';
+import ButtonToolbar from 'react-bootstrap/ButtonToolbar';
+import Col from 'react-bootstrap/Col';
+import Row from 'react-bootstrap/Row';
 import Form from 'react-bootstrap/Form';
 import * as actions from '../actions/forms';
 import PropTypes from 'prop-types';
@@ -96,48 +99,47 @@ class HeadingForm extends Component {
     const { headingTitle } = this.state;
 
     return (
-      <Form onSubmit={this.handleSubmit} data-testid="heading-form">
-        <Form.Group controlId="headingTitle">
+      <Form onSubmit={this.handleSubmit} data-testid='heading-form' className='mb-0'>
+        <Form.Group controlId='headingTitle' className='mb-3'>
           <Form.Label>Title</Form.Label>
           <Form.Control
-            type="text"
+            type='text'
             value={headingTitle}
             isValid={getValidationTitleState(headingTitle)}
             isInvalid={!getValidationTitleState(headingTitle)}
             onChange={this.handleHeadingChange}
-            data-testid="heading-title-form-control"
+            data-testid='heading-title-form-control'
           />
           <Form.Control.Feedback />
         </Form.Group>
 
-        <Form.Group controlId="headingChildOf">
+        <Form.Group controlId='headingChildOf' className='mb-3'>
           <Form.Label>Child Of</Form.Label>
-          <Form.Control
-            as="select"
+          <Form.Select
             onChange={this.handleChildOfChange}
             value={this.state.headingChildOf}
           >
-            <option value="">Select...</option>
+            <option value=''>Select...</option>
             {this.state.childOfOptions}
-          </Form.Control>
+          </Form.Select>
         </Form.Group>
 
         <Row>
           <Col sm={{ offset: 5 }} md={{ offset: 5 }} lg={{ offset: 10 }}>
-            <ButtonToolbar className="float-right">
+            <ButtonToolbar className='float-right'>
               <Button
-                variant="outline-secondary"
-                className="mr-1"
+                variant='outline-secondary'
+                className='mr-1'
                 onClick={this.props.cancelClick}
-                data-testid="heading-form-cancel-button"
+                data-testid='heading-form-cancel-button'
               >
                 Cancel
               </Button>
               <Button
-                variant="primary"
-                type="submit"
+                variant='primary'
+                type='submit'
                 disabled={!this.formIsValid()}
-                data-testid="heading-form-save-button"
+                data-testid='heading-form-save-button'
               >
                 Save
               </Button>

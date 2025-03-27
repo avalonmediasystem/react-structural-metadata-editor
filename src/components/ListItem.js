@@ -100,18 +100,18 @@ const ListItem = ({ item, children }) => {
       )}
       {!editing && (
         <div
-          className={'row-wrapper' + (!valid ? ' invalid' : '')}
-          data-testid="list-item"
+          className={`d-flex justify-content-between row-wrapper ${!valid ? ' invalid' : ''}`}
+          data-testid='list-item'
         >
           {type === 'span' && (
             <span
-              className="structure-title"
-              data-testid="timespan-label"
+              className='structure-title'
+              data-testid='timespan-label'
             >
               {!valid && (
                 <FontAwesomeIcon
                   icon={faExclamationTriangle}
-                  className="icon-invalid"
+                  className='icon-invalid'
                 />
               )}{' '}
               {label} ({begin} - {end})
@@ -119,8 +119,8 @@ const ListItem = ({ item, children }) => {
           )}
           {(type === 'div' || type === 'root') && (
             <div
-              className="structure-title heading"
-              data-testid="heading-label"
+              className='structure-title heading'
+              data-testid='heading-label'
             >
               {label}
             </div>

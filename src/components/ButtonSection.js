@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Button, Col, Collapse, Row } from 'react-bootstrap';
+import Button from 'react-bootstrap/Button';
+import Collapse from 'react-bootstrap/Collapse';
+import Col from 'react-bootstrap/Col';
+import Row from 'react-bootstrap/Row';
 import HeadingFormContainer from '../containers/HeadingFormContainer';
 import TimespanFormContainer from '../containers/TimespanFormContainer';
 import * as peaksActions from '../actions/peaks-instance';
@@ -125,42 +128,36 @@ class ButtonSection extends Component {
 
     // Only return UI when both structure and waveform data exist
     return structureInfo.structureRetrieved ? (
-      <section className="button-section" data-testid="button-section">
-        <Row data-testid="button-row">
-          <Col sm="6">
-            <Button
-              variant="outline-secondary"
-              data-testid="add-heading-button"
-              block
-              onClick={this.handleHeadingClick}
-              disabled={this.state.disabled && editingDisabled}
-            >
-              Add a Heading
-            </Button>
-          </Col>
-          <Col sm="6">
-            <Button
-              variant="outline-secondary"
-              data-testid="add-timespan-button"
-              block
-              onClick={this.handleTimeSpanClick}
-              disabled={
-                (this.state.disabled && editingDisabled) ||
-                streamInfo.streamMediaError
-              }
-            >
-              Add a Timespan
-            </Button>
-          </Col>
-        </Row>
+      <section data-testid='button-section'>
+        <div className='d-grid gap-2 button-section-container' data-testid='button-row'>
+          <Button
+            variant='outline-secondary'
+            data-testid='add-heading-button'
+            onClick={this.handleHeadingClick}
+            disabled={this.state.disabled && editingDisabled}
+          >
+            Add a Heading
+          </Button>
+          <Button
+            variant='outline-secondary'
+            data-testid='add-timespan-button'
+            onClick={this.handleTimeSpanClick}
+            disabled={
+              (this.state.disabled && editingDisabled) ||
+              streamInfo.streamMediaError
+            }
+          >
+            Add a Timespan
+          </Button>
+        </div>
 
         <Collapse in={this.state.headingOpen}>
-          <div style={styles.well} data-testid="heading-form-wrapper">
+          <div style={styles.well} data-testid='heading-form-wrapper'>
             <HeadingFormContainer cancelClick={this.handleCancelHeadingClick} />
           </div>
         </Collapse>
         <Collapse in={this.state.timespanOpen}>
-          <div style={styles.well} data-testid="timespan-form-wrapper">
+          <div style={styles.well} data-testid='timespan-form-wrapper'>
             <TimespanFormContainer {...timespanFormProps} />
           </div>
         </Collapse>

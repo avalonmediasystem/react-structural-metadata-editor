@@ -1,3 +1,5 @@
+@import url('../node_modules/bootstrap/dist/css/bootstrap.min.css');
+
 .sme-container {
   padding-right: 15px;
   padding-left: 15px;
@@ -14,6 +16,14 @@
   margin-bottom: 20px;
 }
 
+/* START - Button Section */
+
+.button-section-container {
+  grid-template-columns: 1fr 1fr;
+}
+
+/* END - Button Section */
+
 /* START - Structure Section */
 .structure-section>.structure-lists {
   overflow-y: auto;
@@ -25,6 +35,10 @@
   .structure-section {
     height: 20vh;
   }
+}
+
+.structure-list {
+  padding-left: 0;
 }
 
 .structure-list li {
@@ -46,9 +60,6 @@
 }
 
 .row-wrapper {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   background: #efefef;
   border: 1px solid #ccc;
   padding: 5px 10px;
@@ -57,6 +68,18 @@
 
 .row-wrapper.invalid {
   background: #eccdcd;
+}
+
+@media (max-width: 768px) {
+  .no-gutters {
+    gap: 0 !important;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 991.98px) {
+  .no-gutters {
+    gap: 0.25em !important;
+  }
 }
 
 .edit-controls-wrapper {

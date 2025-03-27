@@ -20,6 +20,10 @@ const PlaceholderItem = ({ item }) => {
     accept: ItemTypes.SPAN,
     // Use drop method to store placeholder to update in handleListItemDrop()
     drop: () => ({ dropItem: item }),
+    collect: (monitor) => ({
+      isOver: monitor.isOver(),
+      canDrop: monitor.canDrop()
+    }),
   }, [item]);
 
   return (

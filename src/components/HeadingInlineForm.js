@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Form } from 'react-bootstrap';
+import Form from 'react-bootstrap/Form';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
 import {
   getExistingFormValues,
   getValidationTitleState,
@@ -69,19 +71,21 @@ class HeadingInlineForm extends Component {
     const { headingTitle } = this.state;
 
     return (
-      <div className="row-wrapper">
-        <Form inline data-testid="heading-inline-form" className="mb-0">
-          <Form.Group controlId="headingTitle">
-            <Form.Label>Title</Form.Label>
-            <Form.Control
-              type="text"
-              style={styles.formControl}
-              value={headingTitle}
-              isValid={getValidationTitleState(headingTitle)}
-              isInvalid={!getValidationTitleState(headingTitle)}
-              onChange={this.handleInputChange}
-              data-testid="inline-heading-title-form-control"
-            />
+      <div className='row-wrapper d-flex justify-content-between'>
+        <Form inline data-testid='heading-inline-form' className='mb-0'>
+          <Form.Group as={Row} controlId='headingTitle'>
+            <Form.Label column sm={2}>Title</Form.Label>
+            <Col sm={10}>
+              <Form.Control
+                type='text'
+                style={styles.formControl}
+                value={headingTitle}
+                isValid={getValidationTitleState(headingTitle)}
+                isInvalid={!getValidationTitleState(headingTitle)}
+                onChange={this.handleInputChange}
+                data-testid='inline-heading-title-form-control'
+              />
+            </Col>
           </Form.Group>
         </Form>
         <ListItemInlineEditControls

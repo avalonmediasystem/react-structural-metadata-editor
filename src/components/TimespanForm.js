@@ -1,5 +1,9 @@
 import React, { Component } from 'react';
-import { Button, ButtonToolbar, Col, Form, Row } from 'react-bootstrap';
+import Button from 'react-bootstrap/Button';
+import ButtonToolbar from 'react-bootstrap/ButtonToolbar';
+import Col from 'react-bootstrap/Col';
+import Form from 'react-bootstrap/Form';
+import Row from 'react-bootstrap/Row';
 import { connect } from 'react-redux';
 import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
 import {
@@ -232,41 +236,41 @@ class TimespanForm extends Component {
       this.state;
 
     return (
-      <Form onSubmit={this.handleSubmit} data-testid="timespan-form">
-        <Form.Group controlId="timespanTitle">
+      <Form onSubmit={this.handleSubmit} data-testid='timespan-form' className='mb-0'>
+        <Form.Group controlId='timespanTitle'>
           <Form.Label>Title</Form.Label>
           <Form.Control
-            type="text"
+            type='text'
             value={timespanTitle}
             isValid={getValidationTitleState(timespanTitle)}
             isInvalid={!getValidationTitleState(timespanTitle)}
             onChange={this.handleInputChange}
-            data-testid="timespan-form-title"
+            data-testid='timespan-form-title'
           />
           <Form.Control.Feedback />
         </Form.Group>
 
         <Row>
           <Col sm={6}>
-            <Form.Group controlId="beginTime">
+            <Form.Group controlId='beginTime' className='mb-3'>
               <Form.Label>Begin Time</Form.Label>
               <Form.Control
-                type="text"
+                type='text'
                 value={beginTime}
                 isValid={getValidationBeginState(beginTime, allSpans)}
                 isInvalid={!getValidationBeginState(beginTime, allSpans)}
-                placeholder="00:00:00"
+                placeholder='00:00:00'
                 onChange={this.handleTimeChange}
-                data-testid="timespan-form-begintime"
+                data-testid='timespan-form-begintime'
               />
               <Form.Control.Feedback />
             </Form.Group>
           </Col>
           <Col sm={6}>
-            <Form.Group controlId="endTime">
+            <Form.Group controlId='endTime' className='mb-3'>
               <Form.Label>End Time</Form.Label>
               <Form.Control
-                type="text"
+                type='text'
                 value={endTime}
                 isValid={getValidationEndState(
                   beginTime,
@@ -282,48 +286,47 @@ class TimespanForm extends Component {
                     this.props.peaksInstance.peaks
                   )
                 }
-                placeholder="00:00:00"
+                placeholder='00:00:00'
                 onChange={this.handleTimeChange}
-                data-testid="timespan-form-endtime"
+                data-testid='timespan-form-endtime'
               />
               <Form.Control.Feedback />
             </Form.Group>
           </Col>
         </Row>
 
-        <Form.Group controlId="timespanChildOf">
+        <Form.Group controlId='timespanChildOf' className='mb-3'>
           <Form.Label>Child Of</Form.Label>
-          <Form.Control
-            as="select"
+          <Form.Select
             onChange={this.handleChildOfChange}
             value={timespanChildOf}
-            data-testid="timespan-form-childof"
+            data-testid='timespan-form-childof'
           >
-            <option value="">Select...</option>
+            <option value=''>Select...</option>
             {this.state.validHeadings.map((item) => (
               <option value={item.id} key={item.id}>
                 {item.label}
               </option>
             ))}
-          </Form.Control>
+          </Form.Select>
         </Form.Group>
 
         <Row>
           <Col sm={{ offset: 5 }} md={{ offset: 5 }} lg={{ offset: 10 }}>
-            <ButtonToolbar className="float-right">
+            <ButtonToolbar className='float-right'>
               <Button
-                variant="outline-secondary"
-                className="mr-1"
+                variant='outline-secondary'
+                className='mr-1'
                 onClick={this.handleCancelClick}
-                data-testid="timespan-form-cancel-button"
+                data-testid='timespan-form-cancel-button'
               >
                 Cancel
               </Button>
               <Button
-                variant="primary"
-                type="submit"
+                variant='primary'
+                type='submit'
                 disabled={!this.formIsValid()}
-                data-testid="timespan-form-save-button"
+                data-testid='timespan-form-save-button'
               >
                 Save
               </Button>

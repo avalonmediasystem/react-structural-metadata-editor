@@ -1,90 +1,56 @@
-/**
- * NOTE:
- * The logic of turning on/off volume in this module is taken from,
- * https://github.com/digirati-co-uk/timeliner/blob/master/src/components/VolumeSliderCompact/VolumeSliderCompact.js
- *
- */
-import React from 'react';
-import VolumeUpIcon from '@mui/icons-material/VolumeUp';
-import VolumeOffIcon from '@mui/icons-material/VolumeOff';
-import { makeStyles, styled } from '@mui/material/styles';
-import { Paper, Slider } from '@mui/material';
-import { Row, Col } from 'react-bootstrap';
+import React, { useEffect, useRef, useState } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faVolumeLow, faVolumeHigh, faVolumeMute } from '@fortawesome/free-solid-svg-icons';
+import Button from 'react-bootstrap/Button';
 
-const useStyles = makeStyles(() => ({
-  root: {
-    width: 200,
-    paddingLeft: 12,
-    paddingTop: 5,
-    paddingBottom: 5,
-    paddingRight: 25,
-  },
-}));
+export default function Slider({ setVolume, volume }) {
+  const [prevValue, setPrevValue] = useState(100);
+  const sliderRef = useRef(null);
 
-const StyledSlider = styled(Slider)(({ theme }) => ({
-  color: '#000',
-  height: 1,
-  marginLeft: 20,
-  '& .MuiSlider-thumb': {
-    height: 12,
-    width: 12,
-    backgroundColor: '#000',
-    border: '2px solid #000',
-    '&:focus, &:hover, &.Mui-active': {
-      boxShadow: '#000',
-    },
-  },
-  '& .MuiSlider-track': {
-    height: 2,
-    borderRadius: 4,
-    backgroundColor: '#000',
-  },
-  '& .MuiSlider-rail': {
-    height: 2,
-    borderRadius: 4,
-    backgroundColor: '#000',
-  },
-}));
+  // Set the initial volume progress when the component mounts
+  useEffect(() => {
+    updateVolumeProgress(volume);
+  }, []);
 
-export default function VolumeSlider(props) {
-  const SPEAKER_ICON_SIZE = {
-    width: 20,
-    height: 20,
+  const handleChange = (e) => {
+    updateVolumeProgress(e.target.value, e.target.max);
   };
-  const classes = useStyles();
-  const [prevValue, setPrevValue] = React.useState(100);
-  const handleChange = (e, value) => {
-    props.setVolume(value);
-  };
+
+  /**
+   * Toggle volume between 0 and previous value when clicked on mute/unmute button
+   */
   const onToggle = () => {
-    const { volume, setVolume } = props;
-    if (volume === 0) {
-      setVolume(prevValue);
+    if (volume == 0) {
+      updateVolumeProgress(prevValue);
     } else {
       setPrevValue(volume);
-      setVolume(0);
+      updateVolumeProgress(0);
     }
   };
+
+  /**
+   * Update volume in the parent component and set styling for the current
+   * volume in the slider
+   * @param {Number} value current value of the slider
+   */
+  const updateVolumeProgress = (value) => {
+    const progress = (value / 100) * 100;
+    sliderRef.current.style.background
+      = `linear-gradient(to right, #000000 ${progress}%, #9d9d9d ${progress}%)`;
+    setVolume(value);
+  };
+
   return (
-    <Paper className={classes.root}>
-      <Row>
-        <Col xs={2} md={2} style={{ paddingRight: 0, paddingLeft: 5 }}>
-          <div onClick={onToggle} style={{ margin: 2, paddingRight: 15 }}>
-            {props.volume === 0 ? (
-              <VolumeOffIcon
-                style={{ ...SPEAKER_ICON_SIZE, transform: 'translateX(1px)' }}
-              />
-            ) : (
-              <VolumeUpIcon
-                style={{ ...SPEAKER_ICON_SIZE, transform: 'translateX(1px)' }}
-              />
-            )}
-          </div>
-        </Col>
-        <Col xs={10} md={10} style={{ paddingRight: 25, paddingLeft: 0 }}>
-          <StyledSlider value={props.volume} onChange={handleChange} />
-        </Col>
-      </Row>
-    </Paper>
+    <div className='volume-slider'>
+      <Button onClick={onToggle}>
+        {volume > 50
+          ? <FontAwesomeIcon icon={faVolumeHigh} />
+          : volume == 0
+            ? <FontAwesomeIcon icon={faVolumeMute} /> : <FontAwesomeIcon icon={faVolumeLow} />
+        }
+      </Button>
+      <input type='range' className='volume-slider-range' min='0' max='100'
+        value={volume} onChange={handleChange} ref={sliderRef} />
+    </div>
   );
 }

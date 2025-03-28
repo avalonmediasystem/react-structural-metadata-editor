@@ -12,7 +12,7 @@ import {
   setStreamMediaLoading,
   streamMediaSuccess,
 } from '../actions/forms';
-// import VolumeSlider from './Slider';
+import Slider from './Slider';
 import LoadingSpinner from '../services/LoadingSpinner';
 
 // Content of aria-label for UI components
@@ -166,7 +166,7 @@ const Waveform = React.forwardRef((props, ref) => {
       {!streamMediaLoading && !streamMediaError && (
         <Row data-testid="waveform-toolbar">
           <Col sm={6} md={6}>
-            {/* <VolumeSlider volume={volume} setVolume={adjustVolume} /> */}
+            <Slider volume={volume} setVolume={adjustVolume} />
           </Col>
           <Col sm={6} md={6} className="mt-1">
             <ButtonToolbar>

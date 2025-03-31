@@ -53,15 +53,6 @@ const useWaveform = ({ canvasIndex, manifestURL, withCredentials }) => {
 
   const dispatch = useDispatch();
 
-  const [peaksOptions, setPeaksOptions] = React.useState({
-    keyboard: true,
-    pointMarkerColor: '#006eb0',
-    showPlayheadTime: true,
-    timeLabelPrecision: 3,
-    withCredentials: withCredentials,
-    player: null,
-  });
-
   useEffect(() => {
     if (manifestURL) {
       dispatch(initManifest(manifestURL, canvasIndex));
@@ -82,20 +73,23 @@ const useWaveform = ({ canvasIndex, manifestURL, withCredentials }) => {
   }, [manifest, mediaInfo]);
 
   useEffect(() => {
-    setPeaksOptions((prev) => {
-      return {
-        ...prev,
-        zoomview: {
-          container: zoomView.current,
-          waveformColor: 'rgba(117, 117, 117, 1)',
-        },
-        overview: {
-          container: overView.current,
-          waveformColor: 'rgba(117, 117, 117, 1)',
-        },
-        mediaElement: mediaPlayer.current,
-      };
-    });
+    let peaksOptions = {
+      keyboard: true,
+      pointMarkerColor: '#006eb0',
+      showPlayheadTime: true,
+      timeLabelPrecision: 3,
+      withCredentials: withCredentials,
+      zoomview: {
+        container: zoomView.current,
+        waveformColor: 'rgba(117, 117, 117, 1)',
+      },
+      overview: {
+        container: overView.current,
+        waveformColor: 'rgba(117, 117, 117, 1)',
+      },
+      mediaElement: mediaPlayer.current,
+      player: null,
+    };
     if (!streamMediaLoading && smData != [] && !readyPeaks) {
       dispatch(initializePeaks(peaksOptions, smData));
     }

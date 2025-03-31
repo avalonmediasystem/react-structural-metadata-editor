@@ -1,6 +1,5 @@
 import React from 'react';
-import { cleanup } from 'react-testing-library';
-import 'jest-dom/extend-expect';
+import { cleanup } from '@testing-library/react';
 import TimespanFormContainer from '../TimespanFormContainer';
 import { renderWithRedux, testSmData } from '../../services/testing-helpers';
 

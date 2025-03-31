@@ -1,6 +1,5 @@
 import React from 'react';
-import { fireEvent, cleanup } from 'react-testing-library';
-import 'jest-dom/extend-expect';
+import { fireEvent, cleanup } from '@testing-library/react';
 import HeadingInlineForm from '../HeadingInlineForm';
 import { renderWithRedux, testSmData } from '../../services/testing-helpers';
 

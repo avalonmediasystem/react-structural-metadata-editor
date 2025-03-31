@@ -1,13 +1,8 @@
 import React from 'react';
-import { cleanup, wait } from 'react-testing-library';
-import 'jest-dom/extend-expect';
+import { act, cleanup, waitFor } from '@testing-library/react';
 import WaveformContainer from '../WaveformContainer';
 import { manifest, renderWithRedux, testSmData } from '../../services/testing-helpers';
 import mockAxios from 'axios';
-
-// Mocking the external libraries used in the component execution
-jest.mock('rxjs');
-jest.mock('peaks.js');
 
 // Setup Redux store for tests
 const initialState = {
@@ -26,32 +21,7 @@ const initialState = {
 afterEach(cleanup);
 
 describe('WaveformContainer component', () => {
-  let originalError, originalLogger;
-  beforeEach(() => {
-    /** Mock console.error and console.log functions with empty jest.fn().
-     *  This avoids multiple console outputs from within Peaks.init() function
-     *  while the Waveform component (child of WaveformContainer) gets rendered.
-     */
-    originalError = console.error;
-    console.error = jest.fn();
-    originalLogger = console.log;
-    console.log = jest.fn();
-  });
-  afterEach(() => {
-    console.error = originalError;
-    console.log = originalLogger;
-  });
-
   test('renders', async () => {
-    mockAxios.head.mockImplementationOnce(() => {
-      return Promise.resolve({
-        status: 200,
-        request: {
-          responseURL: 'https://mockurl.edu/waveform.json',
-        },
-      });
-    });
-
     mockAxios.get.mockImplementationOnce(() => {
       return Promise.resolve({
         status: 200,
@@ -61,17 +31,21 @@ describe('WaveformContainer component', () => {
 
     const { getByTestId } = renderWithRedux(
       <WaveformContainer
+        canvasIndex={0}
+        withCredentials={false}
         manifestURL="https://example.com/manifest.json"
         structureURL="https://mockurl.edu/structure.json"
       />,
       { initialState }
     );
 
-    await wait(() => {
-      expect(getByTestId('waveform-container')).toBeInTheDocument();
-      expect(getByTestId('zoomview-view')).toBeInTheDocument();
-      expect(getByTestId('overview-view')).toBeInTheDocument();
-    });
+    await act(() => Promise.resolve());
+
+    expect(mockAxios.get).toHaveBeenCalledTimes(1);
+    expect(getByTestId('waveform-container')).toBeInTheDocument();
+    expect(getByTestId('zoomview-view')).toBeInTheDocument();
+    expect(getByTestId('overview-view')).toBeInTheDocument();
+
   });
 
   test('waveform renders when manifest.json has waveform info', async () => {
@@ -79,17 +53,6 @@ describe('WaveformContainer component', () => {
       return Promise.resolve({
         status: 200,
         data: manifest,
-      });
-    });
-    mockAxios.head.mockImplementationOnce(() => {
-      return Promise.resolve({
-        status: 200,
-        request: {
-          responseURL: 'https://example.com/volleyball-for-boys/waveform.json',
-        },
-        headers: {
-          'content-disposition': 'attachment; filename="waveform.json"',
-        },
       });
     });
 
@@ -101,13 +64,18 @@ describe('WaveformContainer component', () => {
       { initialState }
     );
 
-    await wait(() => {
+    await act(() => Promise.resolve());
+
+    await waitFor(() => {
       expect(mockAxios.get).toHaveBeenCalledTimes(1);
       expect(mockAxios.get).toHaveBeenCalledWith(
         'https://example.com/manifest.json',
         { headers: { 'Content-Type': 'application/json' } }
       );
       expect(getByTestId('waveform-container')).toBeInTheDocument();
+      expect(getByTestId('waveform-container')).toBeInTheDocument();
+      expect(getByTestId('zoomview-view')).toBeInTheDocument();
+      expect(getByTestId('overview-view')).toBeInTheDocument();
     });
   });
 });

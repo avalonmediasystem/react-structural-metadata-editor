@@ -72,7 +72,7 @@ class HeadingInlineForm extends Component {
 
     return (
       <div className='row-wrapper d-flex justify-content-between'>
-        <Form inline data-testid='heading-inline-form' className='mb-0'>
+        <Form data-testid='heading-inline-form' className='mb-0'>
           <Form.Group as={Row} controlId='headingTitle'>
             <Form.Label column sm={2}>Title</Form.Label>
             <Col sm={10}>

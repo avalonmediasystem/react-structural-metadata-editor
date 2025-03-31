@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { useDrag } from 'react-dnd';
 import { connect, useDispatch, useSelector } from 'react-redux';
 import PropTypes from 'prop-types';

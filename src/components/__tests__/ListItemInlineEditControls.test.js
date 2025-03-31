@@ -1,8 +1,7 @@
 import React from 'react';
-import { cleanup, fireEvent } from 'react-testing-library';
-import 'jest-dom/extend-expect';
+import { cleanup, fireEvent } from '@testing-library/react';
 import ListItemInlineEditControls from '../ListItemInlineEditControls';
-import { render } from 'react-testing-library';
+import { render } from '@testing-library/react';
 
 afterEach(cleanup);
 

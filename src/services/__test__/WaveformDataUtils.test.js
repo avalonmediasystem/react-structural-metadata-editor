@@ -1,7 +1,7 @@
 import WaveformDataUtils from '../WaveformDataUtils';
 import { testSmData } from '../testing-helpers';
 import Peaks from 'peaks';
-import { cleanup } from 'react-testing-library';
+import { cleanup } from '@testing-library/react';
 
 const waveformUtils = new WaveformDataUtils();
 

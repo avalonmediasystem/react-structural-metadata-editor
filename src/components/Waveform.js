@@ -142,7 +142,7 @@ const Waveform = React.forwardRef((props, ref) => {
                 ref={ref.mediaPlayerRef}
                 controls={false}
                 data-testid="waveform-video-player"
-                src={audioFile}
+                src={audioFile || null}
                 onCanPlay={handleCanplay}
               >
                 Your browser does not support the video element.
@@ -154,7 +154,7 @@ const Waveform = React.forwardRef((props, ref) => {
                 hidden={true}
                 controls="controls"
                 data-testid="waveform-audio-player"
-                src={audioFile}
+                src={audioFile || null}
                 onCanPlay={handleCanplay}
               >
                 Your browser does not support the audio element.

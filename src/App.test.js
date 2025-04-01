@@ -1,6 +1,5 @@
 import React from 'react';
-import { cleanup, wait, fireEvent } from 'react-testing-library';
-import 'jest-dom/extend-expect';
+import { act, wait, fireEvent, screen, waitFor } from '@testing-library/react';
 import App from './App';
 import './App.css';
 import {
@@ -14,6 +13,7 @@ import {
 } from './services/testing-helpers';
 import mockAxios from 'axios';
 import { AudioContext } from 'standardized-audio-context-mock';
+import Peaks from 'peaks.js';
 
 global.AudioContext = AudioContext;
 
@@ -55,13 +55,24 @@ const props = {
   structureURL: 'https://example.com/structure.json'
 };
 
+// Mock react-dnd and react-dnd-html5-backend
+jest.mock('react-dnd', () => ({
+  useDrag: jest.fn(() => [{ isDragging: false }, jest.fn()]),
+  useDrop: jest.fn(() => [{ isOver: false }, jest.fn()]),
+  DndProvider: jest.fn(({ children }) => children),
+}));
+jest.mock('react-dnd-html5-backend', () => ({
+  HTML5Backend: jest.fn(),
+}));
+
 describe('App component', () => {
   let originalError, originalLogger;
   beforeEach(() => {
-    /** Mock console.error and console.log functions with empty jest.fn().
-     *  This avoids multiple console.error/console.log outputs from within 
-     *  Peaks.init() function and other modules the children components 
-     *  are populated for the tests.
+    /** 
+     * Mock console.error and console.log functions with empty jest.fn().
+     * This avoids multiple console.error/console.log outputs from within 
+     * Peaks.init() function and other modules the children components 
+     * are populated for the tests.
      */
     originalError = console.error;
     console.error = jest.fn();
@@ -71,31 +82,37 @@ describe('App component', () => {
   afterEach(() => {
     console.error = originalError;
     console.log = originalLogger;
-    cleanup();
   });
 
   test('generic alert renders successfully', () => {
-    const app = renderWithRedux(<App {...props} />, baseState);
-    expect(app.queryByTestId('alert-container')).not.toBeInTheDocument();
+    mockAxios.get.mockImplementationOnce(() => {
+      return Promise.resolve({
+        status: 200,
+        data: manifest
+      });
+    });
+    renderWithRedux(<App {...props} />, baseState);
 
+    expect(screen.queryByTestId('alert-container')).not.toBeInTheDocument();
+  });
+
+  test('renders an alert when structure is empty', async () => {
     const updatedProps = {
       ...baseState,
-      forms: {
-        ...baseState.forms,
-        alerts: [
-          {
-            alertStyle: 'danger',
-            message: 'Error message',
-            id: '1234-5678-90ab',
-          },
-        ],
+      structuralMetadata: {
+        smData: [],
+        smDataIsValid: false,
       },
     };
 
-    app.rerenderWithRedux(<App {...props} />, updatedProps);
-    expect(app.getByTestId('alert-container')).toBeInTheDocument();
-    expect(app.getByTestId('alert-message').innerHTML).toBe('Error message');
-    expect(mockAxios.get).toHaveBeenCalledTimes(1);
+    renderWithRedux(<App {...props} />, updatedProps);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('alert-container')).toBeInTheDocument();
+      expect(screen.getByTestId('alert-message').innerHTML)
+        .toBe('No structure information was found. Please check your Manifest.');
+      expect(mockAxios.get).toHaveBeenCalledTimes(1);
+    });
   });
 
   describe('renders alerts', () => {
@@ -123,7 +140,8 @@ describe('App component', () => {
             }
           };
           const app = renderWithRedux(<App {...props} />, { initialState });
-          await wait(() => {
+
+          await waitFor(() => {
             expect(app.getByTestId('waveform-container')).toBeInTheDocument();
             expect(mockAxios.get).toHaveBeenCalledTimes(1);
             expect(
@@ -166,11 +184,9 @@ describe('App component', () => {
           };
           const app = renderWithRedux(<App {...props} />, { initialState });
 
-          await wait(() => {
-            expect(app.queryByTestId('waveform-container')).toBeInTheDocument();
-            expect(mockAxios.head).toHaveBeenCalledTimes(0);
-            expect(app.queryByTestId('alert-container')).not.toBeInTheDocument();
-          });
+          expect(app.queryByTestId('waveform-container')).toBeInTheDocument();
+          expect(mockAxios.head).toHaveBeenCalledTimes(0);
+          expect(app.queryByTestId('alert-container')).not.toBeInTheDocument();
         });
       });
 
@@ -221,19 +237,25 @@ describe('App component', () => {
         };
         const app = renderWithRedux(<App {...propsRevised} />, { initialState });
 
-        await wait(() => {
-          expect(app.queryByTestId('waveform-container')).toBeInTheDocument();
-          expect(mockAxios.head).toHaveBeenCalled();
-          expect(app.queryByTestId('alert-container')).not.toBeInTheDocument();
-        });
+        expect(app.queryByTestId('waveform-container')).toBeInTheDocument();
+        expect(mockAxios.head).toHaveBeenCalled();
+        expect(app.queryByTestId('alert-container')).not.toBeInTheDocument();
       });
 
-      test.skip('without media information (empty Canvas)', async () => {
+      test('without media information (empty Canvas)', async () => {
         mockAxios.get.mockImplementationOnce(() => {
           return Promise.resolve({
             status: 200,
             data: manifestWEmptyCanvas
           });
+        });
+        // Mock Peaks.js initialization error
+        jest.spyOn(Peaks, 'init').mockImplementation(({ }, callback) => {
+          let err = new TypeError('Peaks.init(): Media error');
+          if (err) {
+            callback(err);
+            return;
+          }
         });
 
         const initialState = {
@@ -259,54 +281,52 @@ describe('App component', () => {
           },
         };
         const app = renderWithRedux(<App {...props} />, { initialState });
+        await act(() => Promise.resolve());
 
-        await wait(() => {
-          expect(app.queryByTestId('waveform-container')).toBeInTheDocument();
-          expect(app.queryByTestId('alert-container')).toBeInTheDocument();
-          expect(app.getByTestId('alert-message').innerHTML).toBe(
-            'No available media. Editing structure is disabled.'
-          );
-        });
+        expect(app.queryByTestId('waveform-container')).toBeInTheDocument();
+        expect(app.queryByTestId('alert-container')).toBeInTheDocument();
+        expect(app.getByTestId('alert-message').innerHTML).toBe(
+          'No available media. Editing structure is disabled.'
+        );
       });
     });
 
-    describe('without manifest', () => {
-      test('shows an error message', async () => {
-        mockAxios.get.mockImplementationOnce(() => {
-          return Promise.reject({
-            response: { status: -9, }
-          });
+    test('shows an error message without a Manifest', async () => {
+      mockAxios.get.mockImplementationOnce(() => {
+        return Promise.reject({
+          response: { status: -9, }
         });
-        mockAxios.head.mockImplementationOnce(() => {
-          return Promise.resolve({
-            status: 200,
-            request: {
-              responseURL: 'https://example.com/lunchroom_manners/waveform.json',
-            },
-          });
+      });
+      mockAxios.head.mockImplementationOnce(() => {
+        return Promise.resolve({
+          status: 200,
+          request: {
+            responseURL: 'https://example.com/lunchroom_manners/waveform.json',
+          },
         });
+      });
 
-        const nextState = {
-          ...baseState,
-          manifest: {
-            manifest: null,
-            mediaInfo: {
-              src: '',
-              duration: 0
-            },
-            manifestError: -9,
-            manifestFetched: false,
-          }
-        };
-        const app = renderWithRedux(<App {...props} />, { nextState });
-        await wait(() => {
-          expect(mockAxios.get).toHaveBeenCalledTimes(1);
-          expect(mockAxios.head).toHaveBeenCalledTimes(0);
-          expect(app.getByTestId('alert-container')).toBeInTheDocument();
-          expect(app.getByTestId('alert-message').innerHTML).toBe(
-            'Error fetching IIIF manifest.'
-          );
-        });
+      const nextState = {
+        ...baseState,
+        manifest: {
+          manifest: null,
+          mediaInfo: {
+            src: '',
+            duration: 0
+          },
+          manifestError: -9,
+          manifestFetched: false,
+        }
+      };
+      const app = renderWithRedux(<App {...props} />, { nextState });
+
+      await waitFor(() => {
+        expect(mockAxios.get).toHaveBeenCalledTimes(1);
+        expect(mockAxios.head).toHaveBeenCalledTimes(0);
+        expect(app.getByTestId('alert-container')).toBeInTheDocument();
+        expect(app.getByTestId('alert-message').innerHTML).toBe(
+          'Error fetching IIIF manifest.'
+        );
       });
     });
   });
@@ -315,7 +335,7 @@ describe('App component', () => {
     describe('when saving structure is successful', () => {
       let app, saveButton;
       let initialState = {};
-      beforeEach(() => {
+      beforeEach(async () => {
         initialState = {
           manifest: {
             manifestFetched: true,
@@ -339,39 +359,32 @@ describe('App component', () => {
         });
 
         app = renderWithRedux(<App {...props} />, { initialState });
+        await act(() => Promise.resolve());
+
         saveButton = app.getByTestId('structure-save-button');
 
         fireEvent.click(saveButton);
       });
 
-      test('shows a success alert', async () => {
+      test('shows a success alert', () => {
         expect(mockAxios.post).toHaveBeenCalledTimes(1);
-
-        await wait(() => {
-          expect(app.getByTestId('alert-container')).toBeInTheDocument();
-          expect(app.getByTestId('alert-message').innerHTML).toBe(
-            'Saved successfully.'
-          );
-        });
+        expect(app.getByTestId('alert-container')).toBeInTheDocument();
+        expect(app.getByTestId('alert-message').innerHTML).toBe(
+          'Saved successfully.'
+        );
       });
 
-      test('closes the alert after 2000ms', async () => {
-        await wait(() => {
-          expect(app.getByTestId('alert-container')).toBeInTheDocument();
-        });
+      test('closes the alert after 2000ms', () => {
+        expect(app.getByTestId('alert-container')).toBeInTheDocument();
 
         setTimeout(() => {
           expect(app.getByTestId('alert-container')).not.toBeInTheDocument();
         }, 2000);
       });
 
-      test('alert closes when structure is edited again', async () => {
-        await wait(() => {
-          expect(app.getByTestId('alert-container')).toBeInTheDocument();
-
-          fireEvent.click(app.queryAllByTestId('list-item-edit-btn')[0]);
-        });
-
+      test('alert closes when structure is edited again', () => {
+        expect(app.getByTestId('alert-container')).toBeInTheDocument();
+        fireEvent.click(app.queryAllByTestId('list-item-edit-btn')[0]);
         expect(app.queryByTestId('alert-container')).not.toBeInTheDocument();
       });
     });
@@ -406,7 +419,7 @@ describe('App component', () => {
 
       expect(mockAxios.post).toHaveBeenCalledTimes(1);
 
-      await wait(() => {
+      await waitFor(() => {
         expect(app.getByTestId('alert-container')).toBeInTheDocument();
         expect(app.getByTestId('alert-message').innerHTML).toBe(
           'Failed to save structure successfully.'
@@ -441,7 +454,7 @@ describe('App component', () => {
       };
       const app = renderWithRedux(<App {...props} />, { initialState });
 
-      await wait(() => {
+      await waitFor(() => {
         expect(app.queryAllByTestId('list-item').length).toBeGreaterThan(0);
         expect(app.getAllByTestId('heading-label')[0].innerHTML).toEqual('Lunchroom Manners');
         expect(app.getByTestId('alert-container')).toBeInTheDocument();
@@ -476,7 +489,7 @@ describe('App component', () => {
       };
       const app = renderWithRedux(<App {...props} />, { initialState });
 
-      await wait(() => {
+      await waitFor(() => {
         expect(app.getByTestId('structure-output-list')).toBeInTheDocument();
         expect(app.getByTestId('structure-save-button')).toBeInTheDocument();
         expect(app.queryAllByTestId('list-item').length).toBeGreaterThan(0);
@@ -509,7 +522,7 @@ describe('App component', () => {
       };
       const app = renderWithRedux(<App {...props} />, { initialState });
 
-      await wait(() => {
+      await waitFor(() => {
         expect(app.queryByTestId('structure-output-list')).toBeInTheDocument();
         expect(app.queryByTestId('structure-save-button')).toBeInTheDocument();
         expect(app.queryAllByTestId('list-item').length).toBeGreaterThan(0);
@@ -538,7 +551,7 @@ describe('App component', () => {
       };
       const app = renderWithRedux(<App {...props} />, { initialState });
 
-      await wait(() => {
+      await waitFor(() => {
         expect(app.queryAllByTestId('alert-container').length).toBeGreaterThan(0);
         expect(app.getAllByTestId('alert-message')[0].innerHTML)
           .toEqual('No structure information was found. Please check your Manifest.');

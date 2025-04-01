@@ -1,9 +1,7 @@
 import React from 'react';
 import ListItem from '../ListItem';
-import { cleanup, fireEvent } from 'react-testing-library';
+import { fireEvent } from '@testing-library/react';
 import { renderWithRedux, testSmData } from '../../services/testing-helpers';
-import 'jest-dom/extend-expect';
-import { wrapInTestContext } from 'react-dnd-test-utils';
 import Peaks from 'peaks';
 
 const peaksOptions = {
@@ -100,17 +98,15 @@ const divItemWithChildren = {
   ],
 };
 
-let ListItemContext = null;
+// Mock react-dnd library
+jest.mock('react-dnd', () => ({
+  useDrag: jest.fn(() => [{ isDragging: false }, jest.fn()]),
+}));
 
 describe('ListItem component', () => {
-  beforeEach(() => {
-    ListItemContext = wrapInTestContext(ListItem);
-  });
-  afterEach(cleanup);
-
   describe('renders', () => {
     test('successfully', () => {
-      const utils = renderWithRedux(<ListItemContext item={divItem} />, {
+      const utils = renderWithRedux(<ListItem item={divItem} />, {
         initialState,
       });
       expect(utils.queryByTestId('heading-label')).toBeInTheDocument();
@@ -118,7 +114,7 @@ describe('ListItem component', () => {
     });
 
     test('without any edit forms', () => {
-      const utils = renderWithRedux(<ListItemContext item={divItem} />, {
+      const utils = renderWithRedux(<ListItem item={divItem} />, {
         initialState,
       });
       expect(utils.queryByTestId('heading-label')).toBeInTheDocument();
@@ -131,7 +127,7 @@ describe('ListItem component', () => {
     });
 
     test('an invalid timespan', () => {
-      const utils = renderWithRedux(<ListItemContext item={invalidItem} />, {
+      const utils = renderWithRedux(<ListItem item={invalidItem} />, {
         initialState,
       });
       expect(utils.queryByTestId('timespan-label')).toBeInTheDocument();
@@ -141,7 +137,7 @@ describe('ListItem component', () => {
 
   describe('renders correct item based on type', () => {
     test('type == div', () => {
-      const utils = renderWithRedux(<ListItemContext item={divItem} />, {
+      const utils = renderWithRedux(<ListItem item={divItem} />, {
         initialState,
       });
 
@@ -150,7 +146,7 @@ describe('ListItem component', () => {
     });
 
     test('type == root', () => {
-      const utils = renderWithRedux(<ListItemContext item={rootItem} />, {
+      const utils = renderWithRedux(<ListItem item={rootItem} />, {
         initialState,
       });
       expect(utils.getByTestId('heading-label')).toBeInTheDocument();
@@ -161,7 +157,7 @@ describe('ListItem component', () => {
     });
 
     test('type == span', () => {
-      const utils = renderWithRedux(<ListItemContext item={spanItem} />, {
+      const utils = renderWithRedux(<ListItem item={spanItem} />, {
         initialState,
       });
       expect(utils.queryByTestId('heading-label')).not.toBeInTheDocument();
@@ -171,7 +167,7 @@ describe('ListItem component', () => {
 
   describe('timespan item', () => {
     test('displays a begin and end time with its label', () => {
-      const utils = renderWithRedux(<ListItemContext item={spanItem} />, {
+      const utils = renderWithRedux(<ListItem item={spanItem} />, {
         initialState,
       });
 
@@ -188,28 +184,30 @@ describe('ListItem component', () => {
   });
 
   describe('heading item', () => {
-    test('displays a submenu list if the item object contains items', () => {
-      const utils = renderWithRedux(<ListItemContext item={divItem} />, {
+    test('displays a div item without children', () => {
+      const utils = renderWithRedux(<ListItem item={divItem} />, {
         initialState,
       });
-      expect(utils.queryAllByTestId('list')).toHaveLength(0);
+      expect(utils.queryAllByTestId('list-item')).toHaveLength(1);
+    });
 
-      utils.rerenderWithRedux(
-        <ListItemContext item={divItemWithChildren} />,
+    test('displays a div item with children', () => {
+      const utils = renderWithRedux(
+        <ListItem item={divItemWithChildren} />,
         initialState
       );
-      expect(utils.queryAllByTestId('list')).toHaveLength(2);
+      expect(utils.queryAllByTestId('list-item')).toHaveLength(1);
     });
   });
 
   test('adds .active to an active list item', () => {
-    const utils = renderWithRedux(<ListItemContext item={divItem} />, {
+    const utils = renderWithRedux(<ListItem item={divItem} />, {
       initialState,
     });
     expect(utils.container.querySelector('.active')).toBeNull();
 
     const item = { ...divItem, active: true };
-    utils.rerenderWithRedux(<ListItemContext item={item} />, initialState);
+    utils.rerenderWithRedux(<ListItem item={item} />, initialState);
     expect(utils.container.querySelector('.active')).toBeInTheDocument();
   });
 
@@ -223,7 +221,7 @@ describe('ListItem component', () => {
     const label = /^Sub-Segment 1.1$/;
 
     beforeEach(() => {
-      utils = renderWithRedux(<ListItemContext item={testItem} />, {
+      utils = renderWithRedux(<ListItem item={testItem} />, {
         initialState,
       });
       editButton = utils.getByTestId('list-item-edit-btn');

@@ -1,13 +1,10 @@
 import React from 'react';
 import Peaks from 'peaks';
-import { fireEvent, cleanup, wait, waitFor } from '@testing-library/react';
+import { fireEvent, waitFor } from '@testing-library/react';
 import { renderWithRedux, testSmData } from '../../services/testing-helpers';
 import ButtonSection from '../ButtonSection';
 
 describe('ButtonSection component', () => {
-  afterEach(() => {
-    cleanup();
-  });
   describe('does not render', () => {
     test('when structural or waveform data is not present', () => {
       const { queryByTestId } = renderWithRedux(<ButtonSection />);

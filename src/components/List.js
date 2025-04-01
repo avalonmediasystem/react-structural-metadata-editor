@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 
 const List = ({ items }) => {
   return (
-    <ul className="structure-list" data-testid="list" >
+    <>
       {items.map((item, i) => {
         if (!item) {
           return null;
@@ -19,7 +19,7 @@ const List = ({ items }) => {
             item={item}
           >
             {item.items?.length > 0 && (
-              <ul >
+              <ul data-testid='list'>
                 <List items={item.items} />
               </ul>
             )
@@ -27,7 +27,7 @@ const List = ({ items }) => {
           </ListItem>
         );
       })}
-    </ul>
+    </>
   );
 };
 

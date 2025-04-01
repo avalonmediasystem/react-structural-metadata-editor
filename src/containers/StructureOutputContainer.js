@@ -70,9 +70,9 @@ const StructureOutputContainer = (props) => {
     >
       <Col lg={12} className="structure-lists">
         {manifestFetched && smData != null && (
-          <div data-testid="structure-output-list">
+          <ul data-testid="structure-output-list">
             <List items={smData} />
-          </div>)
+          </ul>)
         }
       </Col>
       {!props.disableSave && (

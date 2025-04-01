@@ -1,5 +1,5 @@
 import { findIndex, cloneDeep } from 'lodash';
-import uuidv1 from 'uuid/v1';
+import { v4 as uuidv4 } from 'uuid';;
 
 /**
  * Rules - https://github.com/avalonmediasystem/avalon/issues/3022
@@ -23,7 +23,7 @@ export default class StructuralMetadataUtils {
   createDropZoneObject() {
     return {
       type: 'optional',
-      id: uuidv1(),
+      id: uuidv4(),
     };
   }
 
@@ -34,7 +34,7 @@ export default class StructuralMetadataUtils {
    */
   createSpanObject(obj) {
     return {
-      id: uuidv1(),
+      id: uuidv4(),
       type: 'span',
       label: obj.timespanTitle,
       begin: obj.beginTime,
@@ -658,7 +658,7 @@ export default class StructuralMetadataUtils {
     // If children exist, add to list
     if (foundDiv) {
       foundDiv.items.push({
-        id: uuidv1(),
+        id: uuidv4(),
         type: 'div',
         label: obj.headingTitle,
         items: [],
@@ -804,7 +804,7 @@ export default class StructuralMetadataUtils {
     let fn = (items) => {
       for (let item of items) {
         // Create and add an id
-        item.id = uuidv1();
+        item.id = uuidv4();
 
         // Send child items back into the function
         if (item.items && item.items.length > 0) {

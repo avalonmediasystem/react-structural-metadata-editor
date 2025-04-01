@@ -3,7 +3,7 @@ import { Provider } from 'react-redux';
 import { createStore, applyMiddleware } from 'redux';
 import { render } from '@testing-library/react';
 import reducer from '../reducers';
-import thunk from 'redux-thunk';
+import { thunk } from 'redux-thunk';
 
 /**
  * Helper function for providing a Redux connected component for testing.

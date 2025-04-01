@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, wait, fireEvent, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, screen, waitFor } from '@testing-library/react';
 import App from './App';
 import './App.css';
 import {
@@ -12,10 +12,7 @@ import {
   manifestWEmptyCanvas,
 } from './services/testing-helpers';
 import mockAxios from 'axios';
-import { AudioContext } from 'standardized-audio-context-mock';
 import Peaks from 'peaks.js';
-
-global.AudioContext = AudioContext;
 
 jest.mock('peaks.js');
 const mockStructureIsSaved = jest.fn();

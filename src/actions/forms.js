@@ -1,6 +1,6 @@
 import * as types from './types';
 import Hls from 'hls.js';
-import uuidv1 from 'uuid/v1';
+import { v4 as uuidv4 } from 'uuid';;
 
 /**
  * Enable/disable other editing actions when editing a list item
@@ -21,7 +21,7 @@ export const handleEditingTimespans =
     };
 
 export const setAlert = (alert) => (dispatch) => {
-  const id = uuidv1();
+  const id = uuidv4();
   alert.id = id;
   dispatch({
     type: types.SET_ALERT,

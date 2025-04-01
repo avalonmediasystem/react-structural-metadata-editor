@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 import WaveformContainer from './containers/WaveformContainer';
 import ButtonSection from './components/ButtonSection';

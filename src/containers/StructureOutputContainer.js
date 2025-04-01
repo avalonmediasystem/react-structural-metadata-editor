@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import List from '../components/List';
-import { Button, Col, Row } from 'react-bootstrap';
+import Button from 'react-bootstrap/Button';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
+
 import APIUtils from '../api/Utils';
 import { configureAlert } from '../services/alert-status';
 import { setAlert, updateStructureStatus } from '../actions/forms';

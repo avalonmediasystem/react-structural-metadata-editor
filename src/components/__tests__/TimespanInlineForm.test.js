@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, cleanup, fireEvent } from '@testing-library/react';
+import { act, fireEvent } from '@testing-library/react';
 import TimespanInlineForm from '../TimespanInlineForm';
 import {
   renderWithRedux,
@@ -35,8 +35,6 @@ const initialState = {
     duration: 1738.945,
   },
 };
-
-afterEach(cleanup);
 
 // Set up props for the tests
 const setTypingMock = jest.fn();

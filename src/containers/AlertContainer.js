@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Alert } from 'react-bootstrap';
+import Alert from 'react-bootstrap/Alert';
 
 function AlertContainer(props) {
   let alertList = [];
@@ -9,29 +9,29 @@ function AlertContainer(props) {
     props.alerts.map((alert) => {
       const { alertStyle, message, persistent, id } = alert;
       if (!alertMessage.includes(message)) {
-        alertMessage.push(message)
+        alertMessage.push(message);
         if (!persistent) {
           alertList.push(
             <Alert
               key={id}
               variant={alertStyle}
               data-testid='alert-container'
-              onClose={() => { props.removeAlert(id) }}
+              onClose={() => { props.removeAlert(id); }}
               dismissible >
               <p data-testid="alert-message">{message}</p>
             </Alert>
           );
         } else {
           alertList.push(
-          <Alert
-            key={id}
-            variant={alertStyle}
-            data-testid='persistent-alert-container' >
-            <p data-testid="alert-message">{message}</p>
-          </Alert>
-        );
+            <Alert
+              key={id}
+              variant={alertStyle}
+              data-testid='persistent-alert-container' >
+              <p data-testid="alert-message">{message}</p>
+            </Alert>
+          );
+        }
       }
-    }
     });
   }
 

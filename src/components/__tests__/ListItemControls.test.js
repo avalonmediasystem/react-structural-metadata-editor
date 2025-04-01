@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, fireEvent, cleanup, waitFor } from '@testing-library/react';
+import { act, fireEvent } from '@testing-library/react';
 import ListItemControls from '../ListItemControls';
 import { renderWithRedux } from '../../services/testing-helpers';
 
@@ -9,8 +9,6 @@ const initialState = {
     alerts: [],
   },
 };
-
-afterEach(cleanup);
 
 const handleDeleteMock = jest.fn();
 const handleEditMock = jest.fn();

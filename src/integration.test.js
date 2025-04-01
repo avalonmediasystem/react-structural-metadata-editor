@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, queryByText } from '@testing-library/react';
+import { fireEvent } from '@testing-library/react';
 import StructureOutputContainer from './containers/StructureOutputContainer';
 import ButtonSection from './components/ButtonSection';
 import { renderWithRedux, testSmData } from './services/testing-helpers';

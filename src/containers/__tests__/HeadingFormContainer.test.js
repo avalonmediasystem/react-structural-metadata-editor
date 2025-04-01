@@ -1,5 +1,4 @@
 import React from 'react';
-import { cleanup } from '@testing-library/react';
 import HeadingFormContainer from '../HeadingFormContainer';
 import { renderWithRedux, testSmData } from '../../services/testing-helpers';
 
@@ -7,8 +6,6 @@ import { renderWithRedux, testSmData } from '../../services/testing-helpers';
 const initialState = {
   structuralMetadata: { smData: testSmData }
 };
-
-afterEach(cleanup);
 
 test('HeadingFormContainer renders without props', () => {
   const { getByTestId } = renderWithRedux(<HeadingFormContainer />);

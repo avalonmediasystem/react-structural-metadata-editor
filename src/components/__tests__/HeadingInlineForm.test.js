@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, cleanup } from '@testing-library/react';
+import { fireEvent } from '@testing-library/react';
 import HeadingInlineForm from '../HeadingInlineForm';
 import { renderWithRedux, testSmData } from '../../services/testing-helpers';
 
@@ -22,8 +22,6 @@ const invalidItem = {
   id: '123a-456b-789c-9d',
   items: [],
 };
-
-afterEach(cleanup);
 
 describe('HeadingInlineForm component', () => {
   test('renders successfully', () => {

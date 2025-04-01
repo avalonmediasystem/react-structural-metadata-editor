@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, cleanup, waitFor } from '@testing-library/react';
+import { act, waitFor } from '@testing-library/react';
 import WaveformContainer from '../WaveformContainer';
 import { manifest, renderWithRedux, testSmData } from '../../services/testing-helpers';
 import mockAxios from 'axios';
@@ -17,8 +17,6 @@ const initialState = {
     }
   },
 };
-
-afterEach(cleanup);
 
 describe('WaveformContainer component', () => {
   test('renders', async () => {

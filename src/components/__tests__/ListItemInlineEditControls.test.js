@@ -1,9 +1,7 @@
 import React from 'react';
-import { cleanup, fireEvent } from '@testing-library/react';
+import { fireEvent } from '@testing-library/react';
 import ListItemInlineEditControls from '../ListItemInlineEditControls';
 import { render } from '@testing-library/react';
-
-afterEach(cleanup);
 
 const handleSaveClickMock = jest.fn();
 const handleCancelClickMock = jest.fn();

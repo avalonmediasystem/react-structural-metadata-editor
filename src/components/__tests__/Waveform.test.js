@@ -1,10 +1,8 @@
 import React from 'react';
-import { cleanup, fireEvent } from '@testing-library/react';
+import { fireEvent } from '@testing-library/react';
 import Waveform from '../Waveform';
 import { renderWithRedux, manifest } from '../../services/testing-helpers';
 import Peaks from 'peaks';
-
-afterEach(cleanup);
 
 describe('Waveform component', () => {
   let originalError;

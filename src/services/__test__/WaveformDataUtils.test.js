@@ -1,11 +1,8 @@
 import WaveformDataUtils from '../WaveformDataUtils';
 import { testSmData } from '../testing-helpers';
 import Peaks from 'peaks';
-import { cleanup } from '@testing-library/react';
 
 const waveformUtils = new WaveformDataUtils();
-
-afterEach(cleanup);
 
 describe('WaveformDataUtils class', () => {
   describe('initSegments()', () => {

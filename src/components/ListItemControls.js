@@ -108,7 +108,7 @@ class ListItemControls extends Component {
         >
           <FontAwesomeIcon icon={faPen} />
         </Button>
-
+        {/* 
         {item.type !== 'root' && (
           <React.Fragment>
             <OverlayTrigger
@@ -156,7 +156,7 @@ class ListItemControls extends Component {
               </Button>
             </OverlayTrigger>
           </React.Fragment>
-        )}
+        )} */}
       </div>
     );
   }

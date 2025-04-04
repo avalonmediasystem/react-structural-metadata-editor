@@ -1,5 +1,5 @@
+import { createRoot } from "react-dom/client";
 import React from 'react';
-import { render } from 'react-dom';
 import config from '../config';
 import App from './app';
 
@@ -11,4 +11,5 @@ const props = {
   disableSave: true
 };
 
-render(<App {...props} />, document.getElementById('root'));
+const root = createRoot(document.getElementById('root'));
+root.render(<App {...props} />);

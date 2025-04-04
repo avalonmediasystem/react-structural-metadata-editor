@@ -27,8 +27,12 @@
   }
 }
 
-.structure-list li {
+.structure-lists ul {
   list-style: none;
+}
+
+.structure-list {
+  padding-left: 0;
 }
 
 .structure-list li.active .row-wrapper {

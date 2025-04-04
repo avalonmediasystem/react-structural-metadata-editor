@@ -52,22 +52,24 @@ module.exports = {
     static: {
       directory: path.resolve(__dirname, "public")
     },
-    proxy: {
-      '/structure.json': {
-        bypass: function(req, res) {
-          if(req.method == 'POST') {
-            res.send({ statusCode: 200, data: 'Success'})
-          }
+    proxy: [
+      {
+        '/structure.json': {
+          bypass: function (req, res) {
+            if (req.method == 'POST') {
+              res.send({ statusCode: 200, data: 'Success' });
+            }
+          },
         },
-      },
-      '/waveform.json': {
-        bypass: function(req, res) {
-          if(req.method == 'HEAD') {
-            res.send({ statusCode: 200 })
+        '/waveform.json': {
+          bypass: function (req, res) {
+            if (req.method == 'HEAD') {
+              res.send({ statusCode: 200 });
+            }
           }
         }
       }
-    }
+    ]
   },
   devtool: 'source-map',
 };

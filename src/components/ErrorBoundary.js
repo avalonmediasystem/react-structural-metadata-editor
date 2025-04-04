@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Alert } from 'react-bootstrap';
+import Alert from 'react-bootstrap/Alert';
 
 class ErrorBoundary extends Component {
   constructor(props) {

@@ -1,5 +1,9 @@
 import React from 'react';
-import { FormControl, InputGroup, Card, Button, Container } from 'react-bootstrap';
+import Button from 'react-bootstrap/Button';
+import Form from 'react-bootstrap/Form';
+import InputGroup from 'react-bootstrap/InputGroup';
+import Container from 'react-bootstrap/Container';
+import Card from 'react-bootstrap/Card';
 import Root from '../../src';
 import './app.css';
 
@@ -30,16 +34,14 @@ const App = (props) => {
       </p>
       <Card className="m-3 sme-demo-form">
         <InputGroup className="p-4">
-          <FormControl
+          <Form.Control
             placeholder="Manifest URL"
             aria-label="Manifest URL"
             aria-describedby="manifest-url"
             value={userUrl}
             onChange={handleChange}
           />
-          <InputGroup.Append>
-            <Button variant="primary" onClick={handleSubmit}>Set Manifest</Button>
-          </InputGroup.Append>
+          <Button variant="primary" onClick={handleSubmit}>Set Manifest</Button>
         </InputGroup>
       </Card>
       {(!manifestUrl)

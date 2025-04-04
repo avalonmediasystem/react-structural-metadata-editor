@@ -1,10 +1,7 @@
 import React from 'react';
-import { cleanup, fireEvent } from 'react-testing-library';
-import 'jest-dom/extend-expect';
+import { fireEvent } from '@testing-library/react';
 import { renderWithRedux } from '../../services/testing-helpers';
 import AlertContainer from '../AlertContainer';
-
-afterEach(cleanup);
 
 const mockRemoveAlert = jest.fn();
 

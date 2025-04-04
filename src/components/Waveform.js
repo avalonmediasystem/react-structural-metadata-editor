@@ -1,5 +1,8 @@
 import React from 'react';
-import { Button, ButtonToolbar, Row, Col } from 'react-bootstrap';
+import Button from 'react-bootstrap/Button';
+import ButtonToolbar from 'react-bootstrap/ButtonToolbar';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faPause,
@@ -12,7 +15,7 @@ import {
   setStreamMediaLoading,
   streamMediaSuccess,
 } from '../actions/forms';
-import VolumeSlider from './Slider';
+import Slider from './Slider';
 import LoadingSpinner from '../services/LoadingSpinner';
 
 // Content of aria-label for UI components
@@ -142,7 +145,7 @@ const Waveform = React.forwardRef((props, ref) => {
                 ref={ref.mediaPlayerRef}
                 controls={false}
                 data-testid="waveform-video-player"
-                src={audioFile}
+                src={audioFile || null}
                 onCanPlay={handleCanplay}
               >
                 Your browser does not support the video element.
@@ -154,7 +157,7 @@ const Waveform = React.forwardRef((props, ref) => {
                 hidden={true}
                 controls="controls"
                 data-testid="waveform-audio-player"
-                src={audioFile}
+                src={audioFile || null}
                 onCanPlay={handleCanplay}
               >
                 Your browser does not support the audio element.
@@ -166,7 +169,7 @@ const Waveform = React.forwardRef((props, ref) => {
       {!streamMediaLoading && !streamMediaError && (
         <Row data-testid="waveform-toolbar">
           <Col sm={6} md={6}>
-            <VolumeSlider volume={volume} setVolume={adjustVolume} />
+            <Slider volume={volume} setVolume={adjustVolume} />
           </Col>
           <Col sm={6} md={6} className="mt-1">
             <ButtonToolbar>

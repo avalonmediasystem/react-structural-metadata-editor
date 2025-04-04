@@ -1,14 +1,10 @@
 import React from 'react';
 import Peaks from 'peaks';
-import { fireEvent, cleanup, wait } from 'react-testing-library';
-import 'jest-dom/extend-expect';
+import { fireEvent, waitFor } from '@testing-library/react';
 import { renderWithRedux, testSmData } from '../../services/testing-helpers';
 import ButtonSection from '../ButtonSection';
 
 describe('ButtonSection component', () => {
-  afterEach(() => {
-    cleanup();
-  });
   describe('does not render', () => {
     test('when structural or waveform data is not present', () => {
       const { queryByTestId } = renderWithRedux(<ButtonSection />);
@@ -67,54 +63,68 @@ describe('ButtonSection component', () => {
     });
 
     describe('heading button', () => {
-      test('opens add new heading form', async () => {
+      test('opens add new heading form', () => {
         const { getByTestId } = buttonSection;
+        // Form is not shown on initial render
+        expect(getByTestId('heading-form-wrapper')).not.toHaveClass('show');
+
         fireEvent.click(getByTestId('add-heading-button'));
 
-        await wait(() => {
-          expect(getByTestId('heading-form-wrapper')).toHaveClass(
-            'collapse show'
-          );
+        // Immediately set the class to collapsing
+        expect(getByTestId('heading-form-wrapper')).toHaveClass('collapsing');
+
+        // Then change to 'collapse show'
+        waitFor(() => {
+          expect(getByTestId('heading-form-wrapper')).toHaveClass('collapse show');
         });
+
         expect(getByTestId('heading-form-save-button')).toBeDisabled();
+        expect(getByTestId('heading-form-cancel-button')).not.toBeDisabled();
       });
 
-      test('add new heading form cancel button closes the form', async () => {
+      test('add new heading form cancel button closes the form', () => {
         const { getByTestId } = buttonSection;
+
         fireEvent.click(getByTestId('heading-form-cancel-button'));
-        await wait(() => {
-          expect(getByTestId('heading-form-wrapper')).not.toHaveClass('show');
-        });
+
+        expect(getByTestId('heading-form-wrapper')).not.toHaveClass('show');
       });
     });
 
     describe('timespan button', () => {
-      test('opens add new timespan form with default values', async () => {
+      test('opens add new timespan form with default values', () => {
         const { getByTestId } = buttonSection;
+
+        // Form is not shown on initial render
+        expect(getByTestId('timespan-form-wrapper')).not.toHaveClass('show');
+
         fireEvent.click(getByTestId('add-timespan-button'));
 
-        await wait(() => {
-          expect(getByTestId('timespan-form-wrapper')).toHaveClass('show');
-          // Begin Time and End Time is already filled with default values
-          expect(getByTestId('timespan-form-begintime').value).toBe(
-            '00:00:00.000'
-          );
-          expect(getByTestId('timespan-form-endtime').value).toBe(
-            '00:00:03.321'
-          );
-          // Save button is disabled
-          expect(getByTestId('timespan-form-save-button')).toBeDisabled();
+        // Immediately set the class to collapsing
+        expect(getByTestId('timespan-form-wrapper')).toHaveClass('collapsing');
+
+        // Then change to 'collapse show'
+        waitFor(() => {
+          expect(getByTestId('timespan-form-wrapper')).toHaveClass('collapse show');
         });
+
+        // Begin Time and End Time is already filled with default values
+        expect(getByTestId('timespan-form-begintime').value).toBe(
+          '00:00:00.000'
+        );
+        expect(getByTestId('timespan-form-endtime').value).toBe(
+          '00:00:03.321'
+        );
+        // Save button is disabled
+        expect(getByTestId('timespan-form-save-button')).toBeDisabled();
       });
 
-      test('add new timespan form cancel button closes the form', async () => {
+      test('add new timespan form cancel button closes the form', () => {
         const { getByTestId } = buttonSection;
-        fireEvent.click(getByTestId('add-timespan-button'));
 
         fireEvent.click(getByTestId('timespan-form-cancel-button'));
-        await wait(() => {
-          expect(getByTestId('timespan-form-wrapper')).not.toHaveClass('show');
-        });
+
+        expect(getByTestId('timespan-form-wrapper')).not.toHaveClass('show');
       });
 
       test('is disabled when there is an error in fetching stream media file', () => {
@@ -133,22 +143,28 @@ describe('ButtonSection component', () => {
       });
     });
 
-    test('forms operate in tandem with each other', async () => {
+    test('forms operate in tandem with each other', () => {
       const { getByTestId } = buttonSection;
-      fireEvent.click(getByTestId('add-heading-button'));
-      await wait(() => {
-        expect(getByTestId('heading-form-wrapper')).toHaveClass(
-          'collapse show'
-        );
-      });
 
-      fireEvent.click(getByTestId('add-timespan-button'));
-      await wait(() => {
-        expect(getByTestId('heading-form-wrapper')).not.toHaveClass('show');
-        expect(getByTestId('timespan-form-wrapper')).toHaveClass(
-          'collapse show'
-        );
+      // Both forms are not displaying on initial render
+      expect(getByTestId('heading-form-wrapper')).not.toHaveClass('show');
+      expect(getByTestId('timespan-form-wrapper')).not.toHaveClass('show');
+
+      // Click 'Add a Heading' button
+      fireEvent.click(getByTestId('add-heading-button'));
+      expect(getByTestId('heading-form-wrapper')).toHaveClass('collapsing');
+      waitFor(() => {
+        expect(getByTestId('heading-form-wrapper')).toHaveClass('collapse show');
       });
+      expect(getByTestId('timespan-form-wrapper')).not.toHaveClass('show');
+
+      // Click 'Add a Timespan' button
+      fireEvent.click(getByTestId('add-timespan-button'));
+      expect(getByTestId('timespan-form-wrapper')).toHaveClass('collapsing');
+      waitFor(() => {
+        expect(getByTestId('timespan-form-wrapper')).toHaveClass('collapse show');
+      });
+      expect(getByTestId('heading-form-wrapper')).not.toHaveClass('show');
     });
 
     describe('add 2 timespans in a row', () => {
@@ -160,14 +176,13 @@ describe('ButtonSection component', () => {
         endTime = getByTestId('timespan-form-endtime');
       });
 
-      test('after saving first timespan', async () => {
+      test('after saving first timespan', () => {
         const { getByTestId } = buttonSection;
         // Add first timespan
         fireEvent.click(timespanButton);
-        await wait(() => {
-          expect(beginTime.value).toBe('00:00:00.000');
-          expect(endTime.value).toBe('00:00:03.321');
-        });
+        // Form is filled with default values
+        expect(beginTime.value).toBe('00:00:00.000');
+        expect(endTime.value).toBe('00:00:03.321');
 
         // Fill the form
         fireEvent.change(beginTime, { target: { value: '00:00:01.000' } });
@@ -177,40 +192,42 @@ describe('ButtonSection component', () => {
         fireEvent.change(getByTestId('timespan-form-childof'), {
           target: { value: '123a-456b-789c-1d' },
         });
+        // Saving the timespan closes the form
         fireEvent.click(getByTestId('timespan-form-save-button'));
+        expect(getByTestId('timespan-form-wrapper')).not.toHaveClass('show');
 
-        // Adding second timespan
+        // Open the timespan form again to add a second timespan
         fireEvent.click(timespanButton);
 
-        await wait(() => {
-          // Form is filled with next possible time values
-          expect(beginTime.value).toBe('00:00:10.321');
-          expect(endTime.value).toBe('00:00:11.231');
-        });
+        // Form is filled with next possible time values
+        expect(beginTime.value).toBe('00:00:10.321');
+        expect(endTime.value).toBe('00:00:11.231');
       });
 
-      test('without saving first timespan', async () => {
+      test('without saving first timespan', () => {
         const { getByTestId } = buttonSection;
+
+        expect(getByTestId('timespan-form-wrapper')).not.toHaveClass('show');
+
+        // Open timespan form to add the first timespan
         fireEvent.click(timespanButton);
-
-        await wait(() => {
-          expect(beginTime.value).toBe('00:00:00.000');
-          expect(endTime.value).toBe('00:00:03.321');
-        });
-
+        // Form is filled with default values
+        expect(beginTime.value).toBe('00:00:00.000');
+        expect(endTime.value).toBe('00:00:03.321');
+        // Change the given values
         fireEvent.change(beginTime, { target: { value: '00:00:01.000' } });
+        // Close the form without saving
         fireEvent.click(getByTestId('timespan-form-cancel-button'));
+        expect(getByTestId('timespan-form-wrapper')).not.toHaveClass('show');
 
         // Move playhead to 00:07:00.00 time marker
         initialState.peaksInstance.peaks.player.seek(420.0);
 
-        // Adding second timespan
+        // Open the timespan form again to add a timspan
         fireEvent.click(timespanButton);
-        await wait(() => {
-          // Form is filled with next possible time values
-          expect(beginTime.value).toBe('00:08:00.001');
-          expect(endTime.value).toBe('00:09:00.001');
-        });
+        // Form is filled with next possible time values
+        expect(beginTime.value).toBe('00:08:00.001');
+        expect(endTime.value).toBe('00:09:00.001');
       });
     });
   });

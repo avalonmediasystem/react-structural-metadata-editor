@@ -1,9 +1,7 @@
 import React from 'react';
-import { cleanup, fireEvent } from 'react-testing-library';
-import 'jest-dom/extend-expect';
+import { fireEvent } from '@testing-library/react';
 import StructureOutputContainer from '../StructureOutputContainer';
 import { renderWithRedux, testSmData } from '../../services/testing-helpers';
-import { wrapInTestContext } from 'react-dnd-test-utils';
 import Peaks from 'peaks';
 
 // Set up a redux store for the tests
@@ -37,19 +35,19 @@ const initialState = {
 };
 const mockStructureIsSaved = jest.fn();
 
-// Wrap the component in DnD context
-let StructureOutputContext = null;
-
-beforeEach(() => {
-  StructureOutputContext = wrapInTestContext(StructureOutputContainer);
-});
-
-afterEach(cleanup);
+// Mock react-dnd and related libraries
+jest.mock('react-dnd', () => ({
+  useDrag: jest.fn(() => [{ isDragging: false }, jest.fn()]),
+  useDrop: jest.fn(() => [{ isOver: false }, jest.fn()]),
+}));
+jest.mock('react-dnd-html5-backend', () => ({
+  HTML5Backend: jest.fn(),
+}));
 
 describe('StructureOutputContainer component', () => {
   test('renders successfully', () => {
     const { getByTestId } = renderWithRedux(
-      <StructureOutputContext structureIsSaved={mockStructureIsSaved} />,
+      <StructureOutputContainer structureIsSaved={mockStructureIsSaved} />,
       {
         initialState,
       }
@@ -59,7 +57,7 @@ describe('StructureOutputContainer component', () => {
 
   test('shows structure list when fetching manifest.json is successful', () => {
     const { getByTestId, queryByTestId } = renderWithRedux(
-      <StructureOutputContext structureIsSaved={mockStructureIsSaved} />,
+      <StructureOutputContainer structureIsSaved={mockStructureIsSaved} />,
       { initialState }
     );
 
@@ -72,7 +70,7 @@ describe('StructureOutputContainer component', () => {
   describe('displays updated structure tree after', () => {
     test('deleting a timespan', () => {
       const { getByTestId, queryAllByTestId } = renderWithRedux(
-        <StructureOutputContext structureIsSaved={mockStructureIsSaved} />,
+        <StructureOutputContainer structureIsSaved={mockStructureIsSaved} />,
         { initialState }
       );
 
@@ -98,7 +96,7 @@ describe('StructureOutputContainer component', () => {
 
     test('deleting a heading without children', () => {
       const { getByTestId, queryAllByTestId } = renderWithRedux(
-        <StructureOutputContext structureIsSaved={mockStructureIsSaved} />,
+        <StructureOutputContainer structureIsSaved={mockStructureIsSaved} />,
         { initialState }
       );
 
@@ -124,7 +122,7 @@ describe('StructureOutputContainer component', () => {
 
     test('deleting a heading with children', () => {
       const { getByTestId, queryAllByTestId } = renderWithRedux(
-        <StructureOutputContext structureIsSaved={mockStructureIsSaved} />,
+        <StructureOutputContainer structureIsSaved={mockStructureIsSaved} />,
         { initialState }
       );
 

@@ -14,10 +14,22 @@
   margin-bottom: 20px;
 }
 
+/* START - Button Section */
+
+.button-section-container {
+  grid-template-columns: 1fr 1fr;
+}
+
+/* END - Button Section */
+
 /* START - Structure Section */
 .structure-section>.structure-lists {
   overflow-y: auto;
   height: 25vh;
+}
+
+.structure-lists ul {
+  list-style: none;
 }
 
 /* When the width is smaller than 768px */
@@ -27,8 +39,8 @@
   }
 }
 
-.structure-list li {
-  list-style: none;
+.structure-list {
+  padding-left: 0;
 }
 
 .structure-list li.active .row-wrapper {
@@ -46,9 +58,6 @@
 }
 
 .row-wrapper {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   background: #efefef;
   border: 1px solid #ccc;
   padding: 5px 10px;
@@ -57,6 +66,18 @@
 
 .row-wrapper.invalid {
   background: #eccdcd;
+}
+
+@media (max-width: 768px) {
+  .no-gutters {
+    gap: 0 !important;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 991.98px) {
+  .no-gutters {
+    gap: 0.25em !important;
+  }
 }
 
 .edit-controls-wrapper {
@@ -180,6 +201,8 @@
 
 /* END - Waveform section */
 
+
+/* START - Loading spinner */
 /* Loading spinner from https://github.com/avalonmediasystem/avalon/blob/develop/app/assets/stylesheets/avalon/_loading-spinner.scss */
 /* Modified to block the background while loading */
 .loading-spinner {
@@ -228,3 +251,93 @@
     -webkit-transform: rotate(360deg);
   }
 }
+
+/* END - Loading spinner */
+
+/* START - Volume slider styles, refrence: https://codepen.io/ibaslogic/pen/zYMJZaQ */
+.volume-slider {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  /* gap: 1em; */
+  width: 200px;
+  box-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 3px 0px rgba(0, 0, 0, 0.12);
+  padding: 5px 10px;
+  border-radius: 4px;
+}
+
+.volume-slider>button>.svg-inline--fa {
+  width: 1em;
+  color: black;
+}
+
+.volume-slider>button,
+.volume-slider>button:active,
+.volume-slider>button:focus {
+  padding-left: 0;
+  border: none;
+  outline: none;
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+
+.volume-slider>button:hover {
+  background-color: transparent;
+}
+
+.volume-slider-range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  cursor: pointer;
+  outline: none;
+  height: 3px;
+  background: #ccc;
+}
+
+.volume-slider-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 15px;
+  width: 15px;
+  background-color: rgb(0, 0, 0);
+  border-radius: 50%;
+  border: none;
+  transition: .2s ease-in-out;
+}
+
+.volume-slider-range::-moz-range-thumb {
+  height: 15px;
+  width: 15px;
+  background-color: rgb(0, 0, 0);
+  border-radius: 50%;
+  border: none;
+  transition: .2s ease-in-out;
+}
+
+.volume-slider-range::-webkit-slider-thumb:hover {
+  box-shadow: 0 0 0 10px rgba(150, 150, 150, 0.1)
+}
+
+.volume-slider-range:active::-webkit-slider-thumb {
+  box-shadow: 0 0 0 13px rgba(150, 150, 150, 0.2)
+}
+
+.volume-slider-range:focus::-webkit-slider-thumb {
+  box-shadow: 0 0 0 13px rgba(150, 150, 150, 0.2)
+}
+
+
+.volume-slider-range::-moz-range-thumb:hover {
+  box-shadow: 0 0 0 10px rgba(150, 150, 150, 0.1)
+}
+
+.volume-slider-range:active::-moz-range-thumb {
+  box-shadow: 0 0 0 13px rgba(150, 150, 150, 0.2)
+}
+
+.volume-slider-range:focus::-moz-range-thumb {
+  box-shadow: 0 0 0 13px rgba(150, 150, 150, 0.2)
+}
+
+/* END - Volume slider styles */

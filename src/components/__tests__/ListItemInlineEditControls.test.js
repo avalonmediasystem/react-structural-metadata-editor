@@ -1,10 +1,7 @@
 import React from 'react';
-import { cleanup, fireEvent } from 'react-testing-library';
-import 'jest-dom/extend-expect';
+import { fireEvent } from '@testing-library/react';
 import ListItemInlineEditControls from '../ListItemInlineEditControls';
-import { render } from 'react-testing-library';
-
-afterEach(cleanup);
+import { render } from '@testing-library/react';
 
 const handleSaveClickMock = jest.fn();
 const handleCancelClickMock = jest.fn();

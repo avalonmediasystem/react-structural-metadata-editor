@@ -1,6 +1,5 @@
 import React from 'react';
-import { fireEvent, cleanup } from 'react-testing-library';
-import 'jest-dom/extend-expect';
+import { fireEvent } from '@testing-library/react';
 import HeadingInlineForm from '../HeadingInlineForm';
 import { renderWithRedux, testSmData } from '../../services/testing-helpers';
 
@@ -23,8 +22,6 @@ const invalidItem = {
   id: '123a-456b-789c-9d',
   items: [],
 };
-
-afterEach(cleanup);
 
 describe('HeadingInlineForm component', () => {
   test('renders successfully', () => {

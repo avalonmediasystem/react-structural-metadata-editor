@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { connect, useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import List from '../components/List';
-import { Button, Col, Row } from 'react-bootstrap';
+import Button from 'react-bootstrap/Button';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
+
 import APIUtils from '../api/Utils';
 import { configureAlert } from '../services/alert-status';
 import { setAlert, updateStructureStatus } from '../actions/forms';
@@ -70,9 +73,9 @@ const StructureOutputContainer = (props) => {
     >
       <Col lg={12} className="structure-lists">
         {manifestFetched && smData != null && (
-          <div data-testid="structure-output-list">
+          <ul data-testid="structure-output-list">
             <List items={smData} />
-          </div>)
+          </ul>)
         }
       </Col>
       {!props.disableSave && (
@@ -89,7 +92,6 @@ const StructureOutputContainer = (props) => {
           </Col>
         </Row>)
       }
-
     </section>
   );
 };

@@ -1,7 +1,5 @@
 import React from 'react';
-import { cleanup, wait, fireEvent, queryByText } from 'react-testing-library';
-import 'jest-dom/extend-expect';
-import { wrapInTestContext } from 'react-dnd-test-utils';
+import { fireEvent } from '@testing-library/react';
 import StructureOutputContainer from './containers/StructureOutputContainer';
 import ButtonSection from './components/ButtonSection';
 import { renderWithRedux, testSmData } from './services/testing-helpers';
@@ -50,22 +48,21 @@ const props = {
   structureURL: 'https://example.com/structure.json'
 };
 
+// Mock react-dnd and related libraries
+jest.mock('react-dnd', () => ({
+  useDrag: jest.fn(() => [{ isDragging: false }, jest.fn()]),
+  useDrop: jest.fn(() => [{ isOver: false }, jest.fn()]),
+}));
+jest.mock('react-dnd-html5-backend', () => ({
+  HTML5Backend: jest.fn(),
+}));
+
 describe('ButtonSection/StructureOutputContainer renders', () => {
-  // Wrap the component in DnD context
-  let StructureOutputContext = null;
-
-  beforeEach(() => {
-    StructureOutputContext = wrapInTestContext(StructureOutputContainer);
-  });
-  afterEach(() => {
-    cleanup();
-  });
-
   test('the structure tree when a new timespan is added', () => {
     let app = renderWithRedux(
       <>
         <ButtonSection />
-        <StructureOutputContext {...props} />
+        <StructureOutputContainer {...props} />
       </>, {
       initialState,
     });

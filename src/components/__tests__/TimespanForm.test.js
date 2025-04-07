@@ -1,6 +1,5 @@
 import React from 'react';
-import { cleanup, fireEvent } from 'react-testing-library';
-import 'jest-dom/extend-expect';
+import { fireEvent } from '@testing-library/react';
 import TimespanForm from '../TimespanForm';
 import { renderWithRedux, testSmData } from '../../services/testing-helpers';
 import Peaks from 'peaks';
@@ -62,8 +61,6 @@ const props = {
   onSubmit: onSubmitMock,
   cancelClick: cancelMock,
 };
-
-afterEach(cleanup);
 
 describe('Timespan component', () => {
   describe('renders', () => {

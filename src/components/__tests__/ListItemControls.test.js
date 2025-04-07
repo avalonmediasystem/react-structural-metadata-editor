@@ -1,6 +1,5 @@
 import React from 'react';
-import { fireEvent, cleanup } from 'react-testing-library';
-import 'jest-dom/extend-expect';
+import { act, fireEvent } from '@testing-library/react';
 import ListItemControls from '../ListItemControls';
 import { renderWithRedux } from '../../services/testing-helpers';
 
@@ -10,8 +9,6 @@ const initialState = {
     alerts: [],
   },
 };
-
-afterEach(cleanup);
 
 const handleDeleteMock = jest.fn();
 const handleEditMock = jest.fn();
@@ -121,8 +118,12 @@ describe('ListItemControls component', () => {
     });
 
     describe('delete action', () => {
+      let originalError;
       let listItemControls;
       beforeEach(() => {
+        originalError = console.error;
+        console.error = jest.fn();
+
         listItemControls = renderWithRedux(
           <ListItemControls
             handleDelete={handleDeleteMock}
@@ -132,7 +133,12 @@ describe('ListItemControls component', () => {
           />,
           { initialState }
         );
-        fireEvent.click(listItemControls.getByTestId('list-item-delete-btn'));
+        act(() => {
+          fireEvent.click(listItemControls.getByTestId('list-item-delete-btn'));
+        });
+      });
+      afterEach(() => {
+        console.error = originalError;
       });
 
       test('shows a delete confirmation popover', () => {

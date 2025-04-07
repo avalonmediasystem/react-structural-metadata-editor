@@ -356,7 +356,6 @@ export default class WaveformDataUtils {
         startTime: startTime,
         endTime: endTime,
         labelText: labelText,
-        id: id,
         color: color,
         editable: editable,
       });

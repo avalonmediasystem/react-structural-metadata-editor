@@ -1,7 +1,6 @@
 import React from 'react';
 import Peaks from 'peaks';
-import { cleanup, fireEvent } from 'react-testing-library';
-import 'jest-dom/extend-expect';
+import { fireEvent } from '@testing-library/react';
 import { renderWithRedux, testSmData } from '../../services/testing-helpers';
 import ListItemEditForm from '../ListItemEditForm';
 
@@ -31,8 +30,6 @@ const initialState = {
 };
 
 const handleCancelMock = jest.fn();
-
-afterEach(cleanup);
 
 describe('ListItemEditForm component', () => {
   describe('renders', () => {

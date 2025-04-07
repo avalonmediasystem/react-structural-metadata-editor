@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
-import {
-  Button,
-  ButtonToolbar,
-  OverlayTrigger,
-  Popover,
-} from 'react-bootstrap';
+import Button from 'react-bootstrap/Button';
+import ButtonToolbar from 'react-bootstrap/ButtonToolbar';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Popover from 'react-bootstrap/Popover';
+import PopoverBody from 'react-bootstrap/PopoverBody';
+import PopoverHeader from 'react-bootstrap/PopoverHeader';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { connect } from 'react-redux';
@@ -87,75 +87,72 @@ class ListItemControls extends Component {
     const { handleShowDropTargetsClick, handleEditClick, item, forms } =
       this.props;
     const { deleteMessage, showDeleteConfirm } = this.state;
+    const popover = <Popover data-testid='delete-confirmation-popup'>
+      <PopoverHeader as='h3'>Confirm delete?</PopoverHeader>
+      <PopoverBody>
+        <p
+          dangerouslySetInnerHTML={{ __html: deleteMessage }}
+          data-testid='delete-confirmation-message'
+        />
+        <ButtonToolbar style={styles.buttonToolbar}>
+          <Button
+            variant='danger'
+            size='sm'
+            onClick={this.handleConfirmDelete}
+            data-testid='delete-confirmation-confirm-btn'
+            className='mr-1'
+          >
+            Delete
+          </Button>
+          <Button
+            size='sm'
+            variant='outline-secondary'
+            onClick={this.cancelDeleteClick}
+            data-testid='delete-confirmation-cancel-btn'
+          >
+            Cancel
+          </Button>
+        </ButtonToolbar>
+      </PopoverBody>
+    </Popover>;
 
     return (
-      <div className="edit-controls-wrapper" data-testid="list-item-controls">
+      <div className='edit-controls-wrapper' data-testid='list-item-controls'>
         {item.type === 'span' && (
           <Button
-            variant="link"
+            variant='link'
             disabled={forms.editingDisabled && !item.active}
             onClick={handleShowDropTargetsClick}
-            data-testid="list-item-dnd-btn"
+            data-testid='list-item-dnd-btn'
           >
             <FontAwesomeIcon icon={faDotCircle} />
           </Button>
         )}
         <Button
-          variant="link"
+          variant='link'
           onClick={handleEditClick}
           disabled={forms.editingDisabled}
-          data-testid="list-item-edit-btn"
+          data-testid='list-item-edit-btn'
         >
           <FontAwesomeIcon icon={faPen} />
         </Button>
 
         {item.type !== 'root' && (
-          <React.Fragment>
-            <OverlayTrigger
-              trigger="click"
-              placement="left"
-              show={showDeleteConfirm}
-              overlay={
-                <Popover data-testid="delete-confirmation-popup">
-                  <Popover.Title as="h3">Confirm delete?</Popover.Title>
-                  <Popover.Content>
-                    <p
-                      dangerouslySetInnerHTML={{ __html: deleteMessage }}
-                      data-testid="delete-confirmation-message"
-                    />
-                    <ButtonToolbar style={styles.buttonToolbar}>
-                      <Button
-                        variant="danger"
-                        size="sm"
-                        onClick={this.handleConfirmDelete}
-                        data-testid="delete-confirmation-confirm-btn"
-                        className="mr-1"
-                      >
-                        Delete
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline-secondary"
-                        onClick={this.cancelDeleteClick}
-                        data-testid="delete-confirmation-cancel-btn"
-                      >
-                        Cancel
-                      </Button>
-                    </ButtonToolbar>
-                  </Popover.Content>
-                </Popover>
-              }
+          <OverlayTrigger
+            trigger='click'
+            placement='left'
+            show={showDeleteConfirm}
+            overlay={popover}
+          >
+            <Button
+              variant='link'
+              onClick={this.handleDeleteClick}
+              disabled={forms.editingDisabled}
+              data-testid='list-item-delete-btn'
             >
-              <Button
-                variant="link"
-                onClick={this.handleDeleteClick}
-                disabled={forms.editingDisabled}
-                data-testid="list-item-delete-btn"
-              >
-                <FontAwesomeIcon icon={faTrash} />
-              </Button>
-            </OverlayTrigger>
-          </React.Fragment>
+              <FontAwesomeIcon icon={faTrash} />
+            </Button>
+          </OverlayTrigger>
         )}
       </div>
     );

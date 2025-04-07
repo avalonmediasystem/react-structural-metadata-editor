@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 import WaveformContainer from './containers/WaveformContainer';
 import ButtonSection from './components/ButtonSection';
 import StructureOutputContainer from './containers/StructureOutputContainer';
-import { DragDropContextProvider } from 'react-dnd';
-import HTML5Backend from 'react-dnd-html5-backend';
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 import { connect } from 'react-redux';
 import { resetReduxStore } from './actions';
 import { removeAlert } from './actions/forms';
@@ -28,16 +29,16 @@ class App extends Component {
 
   render() {
     return (
-      <DragDropContextProvider backend={HTML5Backend}>
-        <div className="sme-container">
-          <WaveformContainer {...this.props} />
-          <ErrorBoundary>
-            <AlertContainer removeAlert={this.props.removeAlert} />
-            <ButtonSection />
+      <div className="sme-container">
+        <WaveformContainer {...this.props} />
+        <ErrorBoundary>
+          <AlertContainer removeAlert={this.props.removeAlert} />
+          <ButtonSection />
+          <DndProvider backend={HTML5Backend}>
             <StructureOutputContainer {...this.props} />
-          </ErrorBoundary>
-        </div>
-      </DragDropContextProvider>
+          </DndProvider>
+        </ErrorBoundary>
+      </div>
     );
   }
 }

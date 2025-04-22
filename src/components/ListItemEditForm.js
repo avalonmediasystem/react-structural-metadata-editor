@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
+<<<<<<< HEAD
 import { useDispatch, useSelector } from 'react-redux';
+=======
+import { connect, useDispatch, useSelector } from 'react-redux';
+>>>>>>> 44af1bc (Convert some of the form and listitem controls components to functional components)
 import TimespanInlineForm from './TimespanInlineForm';
 import HeadingInlineForm from './HeadingInlineForm';
 import { reBuildSMUI } from '../actions/sm-data';

@@ -26,7 +26,7 @@ const invalidItem = {
 describe('HeadingInlineForm component', () => {
   test('renders successfully', () => {
     const { getByTestId } = renderWithRedux(
-      <HeadingInlineForm item={validItem} />,
+      <HeadingInlineForm itemId={validItem.id} />,
       {
         initialState,
       }
@@ -37,7 +37,7 @@ describe('HeadingInlineForm component', () => {
   describe('validates form', () => {
     test('when existing heading is valid', () => {
       const { getByLabelText, getByTestId } = renderWithRedux(
-        <HeadingInlineForm item={validItem} />,
+        <HeadingInlineForm itemId={validItem.id} />,
         { initialState }
       );
 
@@ -50,7 +50,7 @@ describe('HeadingInlineForm component', () => {
 
     test('when existing heading is invalid', () => {
       const { getByLabelText, getByTestId } = renderWithRedux(
-        <HeadingInlineForm item={invalidItem} />,
+        <HeadingInlineForm itemId={invalidItem.id} />,
         { initialState }
       );
 
@@ -63,7 +63,7 @@ describe('HeadingInlineForm component', () => {
 
     test('when changing heading', () => {
       const { getByLabelText, getByTestId } = renderWithRedux(
-        <HeadingInlineForm item={validItem} />,
+        <HeadingInlineForm itemId={validItem.id} />,
         { initialState }
       );
 
@@ -88,7 +88,7 @@ describe('HeadingInlineForm component', () => {
 
     test('enables save button when form is valid', () => {
       const { getByLabelText, getByTestId } = renderWithRedux(
-        <HeadingInlineForm item={invalidItem} />,
+        <HeadingInlineForm itemId={invalidItem.id} />,
         { initialState }
       );
 
@@ -113,7 +113,7 @@ describe('HeadingInlineForm component', () => {
     beforeEach(() => {
       utils = renderWithRedux(
         <HeadingInlineForm
-          item={invalidItem}
+          itemId={invalidItem.id}
           saveFn={saveFnMock}
           cancelFn={cancelFnMock}
         />,

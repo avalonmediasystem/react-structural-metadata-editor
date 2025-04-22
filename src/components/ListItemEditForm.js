@@ -1,6 +1,6 @@
-import React, { Component } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
+import { connect, useDispatch, useSelector } from 'react-redux';
 import TimespanInlineForm from './TimespanInlineForm';
 import HeadingInlineForm from './HeadingInlineForm';
 import { reBuildSMUI } from '../actions/sm-data';
@@ -9,39 +9,41 @@ import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
 
 const structuralMetadataUtils = new StructuralMetadataUtils();
 
-class ListItemEditForm extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      isTyping: false,
-      isInitializing: true,
-    };
-  }
+const ListItemEditForm = ({ item, handleEditFormCancel }) => {
+  const dispatch = useDispatch();
+  const { smData } = useSelector((state) => state.structuralMetadata);
+  const { duration } = useSelector((state) => state.peaksInstance);
 
-  static propTypes = {
-    handleEditFormCancel: PropTypes.func,
-    item: PropTypes.object.isRequired,
-  };
+  const [isTyping, _setIsTyping] = useState(false);
+  const [isInitializing, _setIsInitializing] = useState(true);
+
+  useEffect(() => {
+    return () => {
+      setIsTyping(false);
+      setIsInitializing(true);
+    };
+  });
 
   // Toggle isTyping flag on and off from events in TimespanInlinForm
-  setIsTyping = (value) => {
+  const setIsTyping = (value) => {
     if (value === 1) {
-      this.setState({ isTyping: true });
+      _setIsTyping(true);
     } else {
-      this.setState({ isTyping: false });
+      _setIsTyping(false);
     }
   };
 
   // Toggle isInitializing flag on and off from events in TimespanInlinForm
-  setIsInitializing = (value) => {
+  const setIsInitializing = (value) => {
     if (value === 1) {
-      this.setState({ isInitializing: true });
+      _setIsInitializing(true);
     } else {
-      this.setState({ isInitializing: false });
+      _setIsInitializing(false);
     }
   };
 
-  addUpdatedValues(item, payload) {
+
+  const addUpdatedValues = (item, payload) => {
     if (item.type === 'div' || item.type === 'root') {
       item.label = payload.headingTitle;
     } else if (item.type === 'span') {
@@ -50,15 +52,15 @@ class ListItemEditForm extends Component {
       item.end = payload.endTime;
     }
     return item;
-  }
-
-  handleCancelClick = (e) => {
-    this.props.handleEditFormCancel();
   };
 
-  handleSaveClick = (id, payload) => {
+  const handleCancelClick = (e) => {
+    handleEditFormCancel();
+  };
+
+  const handleSaveClick = (id, payload) => {
     // Clone smData
-    let clonedItems = cloneDeep(this.props.smData);
+    let clonedItems = cloneDeep(smData);
 
     // Get the original item
     /* eslint-disable */
@@ -66,58 +68,53 @@ class ListItemEditForm extends Component {
     /* eslint-enable */
 
     // Update item values
-    item = this.addUpdatedValues(item, payload);
+    item = addUpdatedValues(item, payload);
 
     // Send updated smData back to redux
-    this.props.reBuildSMUI(clonedItems, this.props.duration);
+    dispatch(reBuildSMUI(clonedItems, duration));
 
     // Turn off editing state
-    this.props.handleEditFormCancel();
+    handleEditFormCancel();
   };
 
-  componentWillUnmount() {
-    this.setState({
-      isInitializing: true,
-      isTyping: false,
-    });
+  if (item.type === 'span') {
+    return (
+      <TimespanInlineForm
+        item={item}
+        cancelFn={handleCancelClick}
+        saveFn={handleSaveClick}
+        setIsTyping={setIsTyping}
+        isTyping={isTyping}
+        isInitializing={isInitializing}
+        setIsInitializing={setIsInitializing}
+      />
+    );
   }
 
-  render() {
-    const { item } = this.props;
-
-    if (item.type === 'span') {
-      return (
-        <TimespanInlineForm
-          item={item}
-          cancelFn={this.handleCancelClick}
-          saveFn={this.handleSaveClick}
-          setIsTyping={this.setIsTyping}
-          isTyping={this.state.isTyping}
-          isInitializing={this.state.isInitializing}
-          setIsInitializing={this.setIsInitializing}
-        />
-      );
-    }
-
-    if (item.type === 'div' || item.type === 'root') {
-      return (
-        <HeadingInlineForm
-          item={item}
-          cancelFn={this.handleCancelClick}
-          saveFn={this.handleSaveClick}
-        />
-      );
-    }
+  if (item.type === 'div' || item.type === 'root') {
+    return (
+      <HeadingInlineForm
+        itemId={item.id}
+        cancelFn={handleCancelClick}
+        saveFn={handleSaveClick}
+      />
+    );
   }
-}
+};
+
+ListItemEditForm.propTypes = {
+  item: PropTypes.object.isRequired,
+  handleEditFormCancel: PropTypes.func
+};
 
 const mapStateToProps = (state) => ({
   smData: state.structuralMetadata.smData,
   duration: state.peaksInstance.duration,
 });
 
-const mapDispathToProps = {
+const mapDispatchToProps = {
   reBuildSMUI: reBuildSMUI,
 };
 
-export default connect(mapStateToProps, mapDispathToProps)(ListItemEditForm);
+export default connect(mapStateToProps, mapDispatchToProps)(ListItemEditForm);
+

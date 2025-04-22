@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import ButtonToolbar from 'react-bootstrap/ButtonToolbar';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
@@ -7,7 +7,7 @@ import PopoverBody from 'react-bootstrap/PopoverBody';
 import PopoverHeader from 'react-bootstrap/PopoverHeader';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { connect } from 'react-redux';
+import { connect, useDispatch, useSelector } from 'react-redux';
 import {
   handleEditingTimespans,
   updateStructureStatus,
@@ -25,39 +25,29 @@ const styles = {
   },
 };
 
-class ListItemControls extends Component {
-  static propTypes = {
-    handleShowDropTargetsClick: PropTypes.func,
-    handleEditClick: PropTypes.func,
-    handleDelete: PropTypes.func,
-    item: PropTypes.shape({
-      childrenCount: PropTypes.number,
-      label: PropTypes.string.isRequired,
-      type: PropTypes.string,
-    }),
-  };
+const ListItemControls = ({ handleDelete, handleEditClick, handleShowDropTargetsClick, item }) => {
+  const dispatch = useDispatch();
+  const { editingDisabled } = useSelector((state) => state.forms);
 
-  state = {
-    deleteMessage: '',
-    showDeleteConfirm: false,
-    target: null,
-  };
+  const [deleteMessage, setDeleteMessage] = useState('');
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-  enableEditing() {
+  const enableEditing = () => {
     // Enable editing of other list items
-    this.props.handleEditingTimespans(0);
-  }
-
-  handleConfirmDelete = () => {
-    this.props.handleDelete();
-    this.enableEditing();
-    this.setState({ deleteMessage: '', showDeleteConfirm: false });
-    // Change structureIsSaved to false
-    this.props.updateStructureStatus(0);
+    dispatch(handleEditingTimespans(0));
   };
 
-  handleDeleteClick = (e) => {
-    const { childrenCount, label } = this.props.item;
+  const handleConfirmDelete = () => {
+    handleDelete();
+    enableEditing();
+    setDeleteMessage('');
+    setShowDeleteConfirm(false);
+    // Change structureIsSaved to false
+    dispatch(updateStructureStatus(0));
+  };
+
+  const handleDeleteClick = (e) => {
+    const { childrenCount, label } = item;
     let deleteMessage = `Are you sure you'd like to delete <strong>${label}</strong>`;
 
     if (childrenCount > 0) {
@@ -67,102 +57,103 @@ class ListItemControls extends Component {
     deleteMessage += `?`;
 
     // Disable editing of other list items
-    this.props.handleEditingTimespans(1);
+    dispatch(handleEditingTimespans(1));
 
-    this.setState({
-      deleteMessage,
-      showDeleteConfirm: true,
-      target: e.target,
-    });
+    setDeleteMessage(deleteMessage);
+    setShowDeleteConfirm(true);
   };
 
-  cancelDeleteClick = (e) => {
-    this.enableEditing();
-    this.setState({
-      showDeleteConfirm: false,
-    });
+  const cancelDeleteClick = (e) => {
+    enableEditing();
+    setShowDeleteConfirm(false);
   };
 
-  render() {
-    const { handleShowDropTargetsClick, handleEditClick, item, forms } =
-      this.props;
-    const { deleteMessage, showDeleteConfirm } = this.state;
-    const popover = <Popover data-testid='delete-confirmation-popup'>
-      <PopoverHeader as='h3'>Confirm delete?</PopoverHeader>
-      <PopoverBody>
-        <p
-          dangerouslySetInnerHTML={{ __html: deleteMessage }}
-          data-testid='delete-confirmation-message'
-        />
-        <ButtonToolbar style={styles.buttonToolbar}>
-          <Button
-            variant='danger'
-            size='sm'
-            onClick={this.handleConfirmDelete}
-            data-testid='delete-confirmation-confirm-btn'
-            className='mr-1'
-          >
-            Delete
-          </Button>
-          <Button
-            size='sm'
-            variant='outline-secondary'
-            onClick={this.cancelDeleteClick}
-            data-testid='delete-confirmation-cancel-btn'
-          >
-            Cancel
-          </Button>
-        </ButtonToolbar>
-      </PopoverBody>
-    </Popover>;
+  const popover = <Popover data-testid='delete-confirmation-popup'>
+    <PopoverHeader as='h3'>Confirm delete?</PopoverHeader>
+    <PopoverBody>
+      <p
+        dangerouslySetInnerHTML={{ __html: deleteMessage }}
+        data-testid='delete-confirmation-message'
+      />
+      <ButtonToolbar style={styles.buttonToolbar}>
+        <Button
+          variant='danger'
+          size='sm'
+          onClick={handleConfirmDelete}
+          data-testid='delete-confirmation-confirm-btn'
+          className='mr-1'
+        >
+          Delete
+        </Button>
+        <Button
+          size='sm'
+          variant='outline-secondary'
+          onClick={cancelDeleteClick}
+          data-testid='delete-confirmation-cancel-btn'
+        >
+          Cancel
+        </Button>
+      </ButtonToolbar>
+    </PopoverBody>
+  </Popover>;
 
-    return (
-      <div className='edit-controls-wrapper' data-testid='list-item-controls'>
-        {item.type === 'span' && (
-          <Button
-            variant='link'
-            disabled={forms.editingDisabled && !item.active}
-            onClick={handleShowDropTargetsClick}
-            data-testid='list-item-dnd-btn'
-          >
-            <FontAwesomeIcon icon={faDotCircle} />
-          </Button>
-        )}
+  return (
+    <div className='edit-controls-wrapper' data-testid='list-item-controls'>
+      {item.type === 'span' && (
         <Button
           variant='link'
-          onClick={handleEditClick}
-          disabled={forms.editingDisabled}
-          data-testid='list-item-edit-btn'
+          disabled={editingDisabled && !item.active}
+          onClick={handleShowDropTargetsClick}
+          data-testid='list-item-dnd-btn'
         >
-          <FontAwesomeIcon icon={faPen} />
+          <FontAwesomeIcon icon={faDotCircle} />
         </Button>
+      )}
+      <Button
+        variant='link'
+        onClick={handleEditClick}
+        disabled={editingDisabled}
+        data-testid='list-item-edit-btn'
+      >
+        <FontAwesomeIcon icon={faPen} />
+      </Button>
 
-        {item.type !== 'root' && (
-          <OverlayTrigger
-            trigger='click'
-            placement='left'
-            show={showDeleteConfirm}
-            overlay={popover}
+      {item.type !== 'root' && (
+        <OverlayTrigger
+          trigger='click'
+          placement='left'
+          show={showDeleteConfirm}
+          overlay={popover}
+        >
+          <Button
+            variant='link'
+            onClick={handleDeleteClick}
+            disabled={editingDisabled}
+            data-testid='list-item-delete-btn'
           >
-            <Button
-              variant='link'
-              onClick={this.handleDeleteClick}
-              disabled={forms.editingDisabled}
-              data-testid='list-item-delete-btn'
-            >
-              <FontAwesomeIcon icon={faTrash} />
-            </Button>
-          </OverlayTrigger>
-        )}
-      </div>
-    );
-  }
-}
+            <FontAwesomeIcon icon={faTrash} />
+          </Button>
+        </OverlayTrigger>
+      )}
+    </div>
+  );
+};
 
-const mapDispatchToProps = (dispatch) => ({
-  handleEditingTimespans: (code) => dispatch(handleEditingTimespans(code)),
-  updateStructureStatus: (code) => dispatch(updateStructureStatus(code)),
-});
+ListItemControls.propTypes = {
+  handleDelete: PropTypes.func,
+  handleEditClick: PropTypes.func,
+  handleShowDropTargetsClick: PropTypes.func,
+  item: PropTypes.shape({
+    childrenCount: PropTypes.number,
+    label: PropTypes.string.isRequired,
+    type: PropTypes.string,
+  }),
+};
+
+const mapDispatchToProps = {
+  handleEditingTimespans: handleEditingTimespans,
+  updateStructureStatus: updateStructureStatus
+};
 
 const mapStateToProps = (state) => ({
   forms: state.forms,

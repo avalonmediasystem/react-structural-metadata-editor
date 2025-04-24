@@ -26,7 +26,12 @@ const styles = {
 };
 
 const ListItemControls = ({ handleDelete, handleEditClick, handleShowDropTargetsClick, item }) => {
+  // Dispatch actions to Redux store
   const dispatch = useDispatch();
+  const updateEditingTimespans = (value) => dispatch(handleEditingTimespans(value));
+  const updateStructStatus = (value) => dispatch(updateStructureStatus(value));
+
+  // Get state variables from Redux store
   const { editingDisabled } = useSelector((state) => state.forms);
 
   const [deleteMessage, setDeleteMessage] = useState('');
@@ -34,7 +39,7 @@ const ListItemControls = ({ handleDelete, handleEditClick, handleShowDropTargets
 
   const enableEditing = () => {
     // Enable editing of other list items
-    dispatch(handleEditingTimespans(0));
+    updateEditingTimespans(0);
   };
 
   const handleConfirmDelete = () => {
@@ -43,7 +48,7 @@ const ListItemControls = ({ handleDelete, handleEditClick, handleShowDropTargets
     setDeleteMessage('');
     setShowDeleteConfirm(false);
     // Change structureIsSaved to false
-    dispatch(updateStructureStatus(0));
+    updateStructStatus(0);
   };
 
   const handleDeleteClick = (e) => {
@@ -57,7 +62,7 @@ const ListItemControls = ({ handleDelete, handleEditClick, handleShowDropTargets
     deleteMessage += `?`;
 
     // Disable editing of other list items
-    dispatch(handleEditingTimespans(1));
+    updateEditingTimespans(1);
 
     setDeleteMessage(deleteMessage);
     setShowDeleteConfirm(true);
@@ -150,13 +155,4 @@ ListItemControls.propTypes = {
   }),
 };
 
-const mapDispatchToProps = {
-  handleEditingTimespans: handleEditingTimespans,
-  updateStructureStatus: updateStructureStatus
-};
-
-const mapStateToProps = (state) => ({
-  forms: state.forms,
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(ListItemControls);
+export default ListItemControls;

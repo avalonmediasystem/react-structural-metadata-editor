@@ -8,7 +8,7 @@ import {
   getValidationTitleState,
   isTitleValid,
 } from '../services/form-helper';
-import { connect, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { cloneDeep } from 'lodash';
 import ListItemInlineEditControls from './ListItemInlineEditControls';
 
@@ -20,7 +20,9 @@ const styles = {
 };
 
 const HeadingInlineForm = ({ itemId, cancelFn, saveFn }) => {
+  // State variables from Redux store
   const { smData } = useSelector((state) => state.structuralMetadata);
+
   const [headingTitle, setHeadingTitle] = useState('');
 
   useEffect(() => {
@@ -81,9 +83,5 @@ HeadingInlineForm.propTypes = {
   saveFn: PropTypes.func,
 };
 
-const mapStateToProps = (state) => ({
-  smData: state.structuralMetadata.smData,
-});
-
-export default connect(mapStateToProps)(HeadingInlineForm);
+export default HeadingInlineForm;
 

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { connect, useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import TimespanInlineForm from './TimespanInlineForm';
 import HeadingInlineForm from './HeadingInlineForm';
 import { reBuildSMUI } from '../actions/sm-data';
@@ -10,7 +10,11 @@ import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
 const structuralMetadataUtils = new StructuralMetadataUtils();
 
 const ListItemEditForm = ({ item, handleEditFormCancel }) => {
+  // Dispatch actions to Redux store
   const dispatch = useDispatch();
+  const updateSMUI = (cloned, duration) => dispatch(reBuildSMUI(cloned, duration));
+
+  // Get state variables from Redux store
   const { smData } = useSelector((state) => state.structuralMetadata);
   const { duration } = useSelector((state) => state.peaksInstance);
 
@@ -71,7 +75,7 @@ const ListItemEditForm = ({ item, handleEditFormCancel }) => {
     item = addUpdatedValues(item, payload);
 
     // Send updated smData back to redux
-    dispatch(reBuildSMUI(clonedItems, duration));
+    updateSMUI(clonedItems, duration);
 
     // Turn off editing state
     handleEditFormCancel();
@@ -107,14 +111,5 @@ ListItemEditForm.propTypes = {
   handleEditFormCancel: PropTypes.func
 };
 
-const mapStateToProps = (state) => ({
-  smData: state.structuralMetadata.smData,
-  duration: state.peaksInstance.duration,
-});
-
-const mapDispatchToProps = {
-  reBuildSMUI: reBuildSMUI,
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(ListItemEditForm);
+export default ListItemEditForm
 

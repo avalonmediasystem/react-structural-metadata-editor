@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { connect, useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import Button from 'react-bootstrap/Button';
 import Collapse from 'react-bootstrap/Collapse';
 import HeadingFormContainer from '../containers/HeadingFormContainer';
@@ -22,7 +22,14 @@ const styles = {
 };
 
 const ButtonSection = () => {
+  // Dispatch actions to Redux store
   const dispatch = useDispatch();
+  const createTempSegment = () => dispatch(peaksActions.insertTempSegment());
+  const removeTempSegment = (id) => dispatch(peaksActions.deleteTempSegment(id));
+  const updateEditingTimespans = (value) => dispatch(handleEditingTimespans(value));
+  const settingAlert = (alert) => dispatch(setAlert(alert));
+
+  // Get state variables from Redux store
   const { editingDisabled, structureInfo, streamInfo } = useSelector((state) => state.forms);
   const { peaks } = useSelector((state) => state.peaksInstance);
 
@@ -56,11 +63,11 @@ const ButtonSection = () => {
 
   const handleCancelHeadingClick = () => {
     setFormStatus({ formState: false, hState: false });
-    dispatch(handleEditingTimespans(0));
+    updateEditingTimespans(0);
   };
 
   const handleHeadingClick = () => {
-    dispatch(handleEditingTimespans(1));
+    updateEditingTimespans(1);
     // When opening heading form, delete if a temporary segment exists
     deleteTempSegment();
     setFormStatus({ formState: true, hState: true });
@@ -70,23 +77,23 @@ const ButtonSection = () => {
   const handleCancelTimespanClick = () => {
     deleteTempSegment();
     setFormStatus({ formState: false });
-    dispatch(handleEditingTimespans(0));
+    updateEditingTimespans(0);
   };
 
   const handleTimeSpanClick = () => {
     // Disable editing other items in structure
-    dispatch(handleEditingTimespans(1));
+    updateEditingTimespans(1);
 
     // Create a temporary segment if timespan form is closed
     if (!timespanOpen) {
-      dispatch(peaksActions.insertTempSegment());
+      createTempSegment();
     }
 
     const tempSegment = peaks.segments.getSegment('temp-segment');
 
     if (tempSegment == undefined) {
       const noSpaceAlert = configureAlert(-4);
-      dispatch(setAlert(noSpaceAlert));
+      settingAlert(noSpaceAlert);
     } else {
       // Initialize Redux store with temporary segment
       dispatch(peaksActions.dragSegment(tempSegment.id, null, 0));
@@ -99,7 +106,7 @@ const ButtonSection = () => {
   // Delete if a temporary segment exists
   const deleteTempSegment = () => {
     if (initSegment != null) {
-      dispatch(peaksActions.deleteTempSegment(initSegment.id));
+      removeTempSegment(initSegment.id);
     }
   };
 
@@ -152,17 +159,5 @@ const ButtonSection = () => {
   }
 };
 
-const mapStateToProps = (state) => ({
-  peaksInstance: state.peaksInstance,
-  forms: state.forms,
-});
 
-const mapDispatchToProps = {
-  createTempSegment: peaksActions.insertTempSegment,
-  deleteTempSegment: peaksActions.deleteTempSegment,
-  dragSegment: peaksActions.dragSegment,
-  handleEditingTimespans: handleEditingTimespans,
-  setAlert: setAlert,
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(ButtonSection);
+export default ButtonSection;

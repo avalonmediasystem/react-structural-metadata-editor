@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { connect, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
 import Button from 'react-bootstrap/Button';
 import ButtonToolbar from 'react-bootstrap/ButtonToolbar';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import Form from 'react-bootstrap/Form';
-import * as actions from '../actions/forms';
 import PropTypes from 'prop-types';
 import { getValidationTitleState } from '../services/form-helper';
 
 const structuralMetadataUtils = new StructuralMetadataUtils();
 
 const HeadingForm = ({ cancelClick, onSubmit }) => {
+  // State variables from Redux store
   const { smData } = useSelector((state) => state.structuralMetadata);
 
   const [headingTitle, setHeadingTitle] = useState('');
@@ -129,8 +129,4 @@ HeadingForm.propTypes = {
   onSubmit: PropTypes.func,
 };
 
-const mapStateToProps = (state) => ({
-  smData: state.structuralMetadata.smData,
-});
-
-export default connect(mapStateToProps, actions)(HeadingForm);
+export default HeadingForm;

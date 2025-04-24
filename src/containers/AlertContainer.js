@@ -1,12 +1,16 @@
 import React from 'react';
-import { connect } from 'react-redux';
+import { useSelector } from 'react-redux';
 import Alert from 'react-bootstrap/Alert';
 
-function AlertContainer(props) {
+function AlertContainer({ removeAlert }) {
   let alertList = [];
   let alertMessage = [];
-  if (props.alerts && props.alerts.length != 0) {
-    props.alerts.map((alert) => {
+
+  // State variables from global redux store
+  const { alerts } = useSelector((state) => state.forms);
+
+  if (alerts && alerts.length != 0) {
+    alerts.map((alert) => {
       const { alertStyle, message, persistent, id } = alert;
       if (!alertMessage.includes(message)) {
         alertMessage.push(message);
@@ -16,7 +20,7 @@ function AlertContainer(props) {
               key={id}
               variant={alertStyle}
               data-testid='alert-container'
-              onClose={() => { props.removeAlert(id); }}
+              onClose={() => { removeAlert(id); }}
               dismissible >
               <p data-testid="alert-message">{message}</p>
             </Alert>
@@ -35,14 +39,11 @@ function AlertContainer(props) {
     });
   }
 
-  if (props.alerts) {
+  if (alerts) {
     return <div>{alertList}</div>;
   } else {
     return null;
   }
 }
 
-const mapStateToProps = (state) => ({
-  alerts: state.forms.alerts,
-});
-export default connect(mapStateToProps)(AlertContainer);
+export default AlertContainer;

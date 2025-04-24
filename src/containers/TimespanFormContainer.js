@@ -1,65 +1,63 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
+import PropTypes from 'prop-types';
 import TimespanForm from '../components/TimespanForm';
-import { connect } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
 import * as smActions from '../actions/sm-data';
 import * as peaksActions from '../actions/peaks-instance';
 
 const structuralMetadataUtils = new StructuralMetadataUtils();
-class TimespanFormContainer extends Component {
-  state = {
-    isTyping: false,
-  };
 
-  submit = (values) => {
+const TimespanFormContainer = ({ cancelClick, ...restProps }) => {
+  // Dispatch actions from Redux store
+  const dispatch = useDispatch();
+  const updateSMUI = (data, duration) => dispatch(smActions.reBuildSMUI(data, duration));
+  const addNewSegment = (newSpan) => dispatch(peaksActions.insertNewSegment(newSpan));
+
+  // State variables from Redux store
+  const smData = useSelector((state) => state.structuralMetadata.smData);
+  const duration = useSelector((state) => state.peaksInstance.duration);
+
+  const [isTyping, _setIsTyping] = useState(false);
+
+  const submit = (values) => {
     // Update the data structure with new heading
-    const { newSpan, updatedData } = structuralMetadataUtils.insertNewTimespan(
-      values,
-      this.props.smData
-    );
+    const { newSpan, updatedData } = structuralMetadataUtils.insertNewTimespan(values, smData);
 
     // Update the waveform segments with new timespan
-    this.props.insertNewSegment(newSpan);
+    addNewSegment(newSpan);
 
     // Update redux store
-    this.props.reBuildSMUI(updatedData, this.props.duration);
+    updateSMUI(updatedData, duration);
 
     // Close the form
-    this.props.cancelClick();
+    cancelClick();
   };
 
-  setIsTyping = (value) => {
+  const setIsTyping = (value) => {
     if (value === 1) {
-      this.setState({ isTyping: true });
+      _setIsTyping(true);
     } else {
-      this.setState({ isTyping: false });
+      _setIsTyping(false);
     }
   };
 
-  render() {
-    return (
-      <TimespanForm
-        {...this.props}
-        setIsTyping={this.setIsTyping}
-        isTyping={this.state.isTyping}
-        onSubmit={this.submit}
-      />
-    );
-  }
-}
+  return (
+    <TimespanForm
+      {...restProps}
+      cancelClick={cancelClick}
+      setIsTyping={setIsTyping}
+      isTyping={isTyping}
+      onSubmit={submit}
+    />
+  );
+};
 
-const mapDispatchToProps = (dispatch) => ({
-  reBuildSMUI: (data) => dispatch(smActions.reBuildSMUI(data)),
-  insertNewSegment: (newspan) =>
-    dispatch(peaksActions.insertNewSegment(newspan)),
-});
+TimespanFormContainer.propTypes = {
+  cancelClick: PropTypes.func.isRequired,
+  initSegment: PropTypes.object,
+  isInitializing: PropTypes.bool,
+  setIsInitializing: PropTypes.func,
+};
 
-const mapStateToProps = (state) => ({
-  smData: state.structuralMetadata.smData,
-  duration: state.peaksInstance.duration,
-});
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(TimespanFormContainer);
+export default TimespanFormContainer;

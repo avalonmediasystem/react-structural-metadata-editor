@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { forwardRef, useEffect, useRef, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import ButtonToolbar from 'react-bootstrap/ButtonToolbar';
 import Row from 'react-bootstrap/Row';
@@ -24,7 +24,8 @@ There are time-based visual sections plotted in these 2 waveforms representing e
 const zoomViewLabel = `A detailed portion of the waveform data, the level of details shown can be changed with zoom in/out buttons in the waveform toolbar`;
 const overViewLabel = `An overview of the waveform data of the media file used. This shows all the time-based segments from the structure`;
 
-const Waveform = React.forwardRef((props, ref) => {
+const Waveform = forwardRef(({ }, ref) => {
+  // State variables from global state
   const mediaInfo = useSelector((state) => state.manifest.mediaInfo);
   const readyPeaks = useSelector((state) => state.peaksInstance.readyPeaks);
   const peaksInstance = useSelector((state) => state.peaksInstance.peaks);
@@ -32,20 +33,23 @@ const Waveform = React.forwardRef((props, ref) => {
   const { streamMediaError, streamMediaLoading } = useSelector(
     (state) => state.forms.streamInfo
   );
+  // Dispatch actions
   const dispatch = useDispatch();
+  const mediaLoading = (value) => dispatch(setStreamMediaLoading(value));
+  const mediaSuccess = () => dispatch(streamMediaSuccess());
 
-  const [audioFile, setAudioFile] = React.useState(mediaInfo.src);
-  const [volume, setVolume] = React.useState(100);
-  const [stillLoading, setStillLoading] = React.useState();
+  const [audioFile, setAudioFile] = useState(mediaInfo.src);
+  const [volume, setVolume] = useState(100);
+  const [stillLoading, setStillLoading] = useState();
 
   /* Ref to access changes in 'editingDisabled' state variable from 
   redux within the eventhandler for 'keydown' event */
-  const editingRef = React.useRef(editingDisabled);
+  const editingRef = useRef(editingDisabled);
   const setEditing = (e) => {
     editingRef.current = e;
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     // Add an event listener to keydown event
     document.addEventListener('keydown', handleKeyPress);
 
@@ -55,20 +59,20 @@ const Waveform = React.forwardRef((props, ref) => {
     };
   }, []);
 
-  React.useEffect(() => {
+  useEffect(() => {
     let isLoading = streamMediaLoading || !readyPeaks;
     setStillLoading(isLoading);
   }, [streamMediaLoading, readyPeaks]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (mediaInfo.src === undefined) {
-      dispatch(setStreamMediaLoading(0));
+      mediaLoading(0);
     } else if (!mediaInfo.isStream) {
       setAudioFile(mediaInfo.src);
     }
   }, [mediaInfo]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     setEditing(editingDisabled);
   }, [editingDisabled]);
 
@@ -82,7 +86,7 @@ const Waveform = React.forwardRef((props, ref) => {
   };
 
   const handleCanplay = () => {
-    dispatch(streamMediaSuccess());
+    mediaSuccess();
   };
 
   const zoomIn = () => {

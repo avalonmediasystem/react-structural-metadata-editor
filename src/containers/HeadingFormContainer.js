@@ -1,18 +1,18 @@
-import React, { Component } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import HeadingForm from '../components/HeadingForm';
-import { connect } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import * as smActions from '../actions/sm-data';
 import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
 
 const structuralMetadataUtils = new StructuralMetadataUtils();
 
-class HeadingFormContainer extends Component {
-  state = {
-    message: null,
-  };
+const HeadingFormContainer = ({ cancelClick }) => {
+  const { smData } = useSelector((state) => state.structuralMetadata);
+  const dispatch = useDispatch();
+  const updateSMData = (updatedData, duration) => dispatch(smActions.reBuildSMUI(updatedData, duration));
 
-  submit = (values) => {
-    const { smData } = this.props;
+  const submit = (values) => {
     let submittedItem = {
       headingChildOf: values.headingChildOf,
       headingTitle: values.headingTitle,
@@ -20,39 +20,25 @@ class HeadingFormContainer extends Component {
     let updatedSmData = null;
 
     // Update the data structure with new heading
-    updatedSmData = structuralMetadataUtils.insertNewHeader(
-      submittedItem,
-      smData
-    );
+    updatedSmData = structuralMetadataUtils.insertNewHeader(submittedItem, smData);
 
     // Update redux store
-    this.props.reBuildSMUI(updatedSmData, this.props.duration);
+    updateSMData(updatedSmData, this.props.duration);
 
     // Close the form
-    this.props.cancelClick();
+    cancelClick();
   };
 
-  render() {
-    return (
-      <HeadingForm
-        onSubmit={this.submit}
-        cancelClick={this.props.cancelClick}
-      />
-    );
-  }
-}
+  return (
+    <HeadingForm
+      onSubmit={submit}
+      cancelClick={cancelClick}
+    />
+  );
+};
 
-const mapDispatchToProps = (dispatch) => ({
-  reBuildSMUI: (data, duration) =>
-    dispatch(smActions.reBuildSMUI(data, duration)),
-});
+HeadingFormContainer.propTypes = {
+  cancelClick: PropTypes.func.isRequired,
+};
 
-const mapStateToProps = (state) => ({
-  smData: state.structuralMetadata.smData,
-  duration: state.peaksInstance.duration,
-});
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(HeadingFormContainer);
+export default HeadingFormContainer;

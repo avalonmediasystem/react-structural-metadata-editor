@@ -12,7 +12,6 @@ const WaveformContainer = ({ canvasIndex, manifestURL, withCredentials }) => {
   return (
     <section className="waveform-section" data-testid="waveform-container">
       <Waveform
-        withCredentials={withCredentials}
         ref={{
           zoomViewRef: zoomView,
           overViewRef: overView,

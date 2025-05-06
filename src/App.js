@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
@@ -7,41 +7,38 @@ import ButtonSection from './components/ButtonSection';
 import StructureOutputContainer from './containers/StructureOutputContainer';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import { connect } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { resetReduxStore } from './actions';
 import { removeAlert } from './actions/forms';
 import ErrorBoundary from './components/ErrorBoundary';
 import AlertContainer from './containers/AlertContainer';
 
-class App extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      structureAlert: {},
+const App = (props) => {
+  // Dispatch actions from Redux store
+  const dispatch = useDispatch();
+  const resetStore = () => dispatch(resetReduxStore());
+  const deleteAlert = () => dispatch(removeAlert());
+
+  useEffect(() => {
+    return () => {
+      // Reset the redux-store
+      resetStore();
     };
-  }
+  }, []);
 
-  // Lifecycle method fired before unmounting the React component
-  componentWillUnmount() {
-    // Reset the redux-store
-    this.props.resetStore();
-  }
-
-  render() {
-    return (
-      <div className="sme-container">
-        <WaveformContainer {...this.props} />
-        <ErrorBoundary>
-          <AlertContainer removeAlert={this.props.removeAlert} />
-          <ButtonSection />
-          <DndProvider backend={HTML5Backend}>
-            <StructureOutputContainer {...this.props} />
-          </DndProvider>
-        </ErrorBoundary>
-      </div>
-    );
-  }
-}
+  return (
+    <div className="sme-container">
+      <WaveformContainer {...props} />
+      <ErrorBoundary>
+        <AlertContainer removeAlert={deleteAlert} />
+        <ButtonSection />
+        <DndProvider backend={HTML5Backend}>
+          <StructureOutputContainer {...props} />
+        </DndProvider>
+      </ErrorBoundary>
+    </div>
+  );
+};
 
 App.defaultProps = {
   canvasIndex: 0,
@@ -63,9 +60,4 @@ App.propTypes = {
   disableSave: PropTypes.bool,
 };
 
-const mapDispatchToProps = {
-  resetStore: resetReduxStore,
-  removeAlert: removeAlert
-};
-
-export default connect(null, mapDispatchToProps)(App);
+export default App;

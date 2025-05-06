@@ -11,14 +11,19 @@ import { setAlert, updateStructureStatus } from '../actions/forms';
 import { isEqual } from 'lodash';
 import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
 
-const StructureOutputContainer = (props) => {
+const StructureOutputContainer = ({ disableSave, structureIsSaved, structureURL }) => {
   const smu = new StructuralMetadataUtils();
   const apiUtils = new APIUtils();
 
-  const dispatch = useDispatch();
+  // State variables from Redux store
   const { manifestFetched } = useSelector((state) => state.manifest);
   const { smData, initSmData, smDataIsValid } = useSelector((state) => state.structuralMetadata);
   const { structureInfo, editingDisabled } = useSelector((state) => state.forms);
+
+  // Dispatch actions
+  const dispatch = useDispatch();
+  const settingAlert = (alert) => dispatch(setAlert(alert));
+  const updateStructStatus = (value) => dispatch(updateStructureStatus(value));
 
   const [stateInitStructure, setInitStructure] = useState(initSmData);
 
@@ -28,19 +33,19 @@ const StructureOutputContainer = (props) => {
 
   useEffect(() => {
     if (!smDataIsValid) {
-      dispatch(setAlert(configureAlert(-8)));
+      settingAlert(configureAlert(-8));
     }
   }, [smDataIsValid]);
 
   useEffect(() => {
     if (structureInfo.structureSaved) {
-      props.structureIsSaved(true);
+      structureIsSaved(true);
     } else {
       const cleanSmData = smu.filterObjectKey(smData, 'active');
       if (!isEqual(stateInitStructure, cleanSmData)) {
-        props.structureIsSaved(false);
+        structureIsSaved(false);
       } else {
-        props.structureIsSaved(true);
+        structureIsSaved(true);
       }
     }
   }, [structureInfo.structureSaved]);
@@ -49,18 +54,18 @@ const StructureOutputContainer = (props) => {
     console.log('TCL: handleSaveError -> error -> ', error);
     let status = -10;
     const alert = configureAlert(status);
-    dispatch(setAlert(alert));
+    settingAlert(alert);
   };
 
   const handleSaveItClick = async () => {
     let postData = { json: smData[0] };
     try {
-      const response = await apiUtils.postRequest(props.structureURL, postData);
+      const response = await apiUtils.postRequest(structureURL, postData);
       const { status } = response;
       const alert = configureAlert(status);
-      dispatch(setAlert(alert));
+      settingAlert(alert);
 
-      dispatch(updateStructureStatus(1));
+      updateStructStatus(1);
     } catch (error) {
       handleSaveError(error);
     }
@@ -78,7 +83,7 @@ const StructureOutputContainer = (props) => {
           </ul>)
         }
       </Col>
-      {!props.disableSave && (
+      {!disableSave && (
         <Row>
           <Col md={{ span: 4, offset: 8 }} className="text-right pr-4 pt-2">
             <Button

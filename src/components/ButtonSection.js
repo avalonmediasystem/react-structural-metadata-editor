@@ -94,7 +94,7 @@ class ButtonSection extends Component {
       formOpen: true,
     });
 
-    if (tempSegment === null) {
+    if (tempSegment == undefined) {
       const noSpaceAlert = configureAlert(-4);
       this.props.setAlert(noSpaceAlert);
     } else {

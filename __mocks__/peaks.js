@@ -53,34 +53,7 @@ export const Peaks = jest.fn((opts) => {
       }
     }),
     _peaks: peaks,
-    // segements are built in match with timespans from 'testSmData' 
-    // in ./testing-helpers.js file
-    _segments: [
-      new Segment({
-        parent: peaks,
-        startTime: 3.321,
-        endTime: 10.321,
-        id: '123a-456b-789c-3d',
-        labelText: 'Segment 1.1',
-        color: '#80A590',
-      }),
-      new Segment({
-        parent: peaks,
-        startTime: 11.231,
-        endTime: 480.001,
-        id: '123a-456b-789c-4d',
-        labelText: 'Segment 1.2',
-        color: '#2A5459',
-      }),
-      new Segment({
-        parent: peaks,
-        startTime: 543.241,
-        endTime: 900.001,
-        id: '123a-456b-789c-8d',
-        labelText: 'Segment 2.1',
-        color: '#80A590',
-      }),
-    ],
+    _segments: [...peaksSegments(opts, peaks)],
   };
   peaks.zoom = {
     zoomIn: jest.fn(() => { }),
@@ -88,6 +61,46 @@ export const Peaks = jest.fn((opts) => {
   };
   return peaks;
 });
+
+// segements are built in match with timespans from 'testSmData' 
+// in ./testing-helpers.js file
+const peaksSegments = (opts, peaks) => {
+  let segments = [
+    new Segment({
+      parent: peaks,
+      startTime: 3.321,
+      endTime: 10.321,
+      id: '123a-456b-789c-3d',
+      labelText: 'Segment 1.1',
+      color: '#80A590',
+    }),
+    new Segment({
+      parent: peaks,
+      startTime: 11.231,
+      endTime: 480.001,
+      id: '123a-456b-789c-4d',
+      labelText: 'Segment 1.2',
+      color: '#2A5459',
+    }),
+    new Segment({
+      parent: peaks,
+      startTime: 543.241,
+      endTime: 900.001,
+      id: '123a-456b-789c-8d',
+      labelText: 'Segment 2.1',
+      color: '#80A590',
+    })
+  ];
+  // Add a temporary segment when needed
+  if (opts.tempSegment) {
+    segments.push(
+      new Segment({
+        parent: peaks,
+        ...opts.tempSegment,
+      }));
+  }
+  return segments;
+};
 
 export const Segment = jest.fn((opts) => {
   let segment = { ...opts };

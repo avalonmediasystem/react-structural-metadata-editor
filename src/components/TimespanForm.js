@@ -1,10 +1,11 @@
-import React, { Component } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import PropTypes from 'prop-types';
 import Button from 'react-bootstrap/Button';
 import ButtonToolbar from 'react-bootstrap/ButtonToolbar';
 import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
-import { connect } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
 import {
   getValidationBeginState,
@@ -15,162 +16,110 @@ import {
 } from '../services/form-helper';
 import * as peaksActions from '../actions/peaks-instance';
 import WaveformDataUtils from '../services/WaveformDataUtils';
-import { isEqual } from 'lodash';
 
 const structuralMetadataUtils = new StructuralMetadataUtils();
 const waveformDataUtils = new WaveformDataUtils();
 
-class TimespanForm extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      beginTime: '',
-      endTime: '',
-      timespanChildOf: '',
-      timespanTitle: '',
-      validHeadings: [],
-      peaksInstance: this.props.peaksInstance,
-      isInitializing: this.props.isInitializing,
-      allSpans: null,
-    };
-  }
+const TimespanForm = ({
+  cancelClick, initSegment, isInitializing, isTyping,
+  onSubmit, setIsInitializing, setIsTyping
+}) => {
+  // State variables from global state
+  const { smData } = useSelector((state) => state.structuralMetadata);
+  const peaksInstance = useSelector((state) => state.peaksInstance);
+  const { duration, isDragging, peaks, segment, startTimeChanged } = peaksInstance;
 
-  componentDidMount() {
-    const { smData, peaksInstance } = this.props;
-    const { beginTime, endTime } = this.state;
-    this.setState({
-      allSpans: structuralMetadataUtils.getItemsOfType('span', smData),
-    });
-    if (peaksInstance && beginTime !== '' && endTime !== '') {
-      this.updateChildOfOptions();
-    }
-  }
+  // Dispatch actions
+  const dispatch = useDispatch();
+  const updateSegment = (segment, state) => dispatch(peaksActions.updateSegment(segment, state));
+  const dragSegment = (id, startTimeChanged, value) => dispatch(peaksActions.dragSegment(id, startTimeChanged, value));
 
-  componentDidUpdate(prevProps, prevState) {
-    const { smData } = this.props;
-    if (!isEqual(smData, prevProps.smData) && smData.length > 0) {
-      this.setState({
-        allSpans: structuralMetadataUtils.getItemsOfType('span', smData),
-      });
-      // Update valid headings when structure changes
-      this.updateChildOfOptions();
-    }
-    const { beginTime, endTime, isInitializing } = this.state;
-    const { beginTime: prevBeginTime, endTime: prevEndTime } = prevState;
-    if (beginTime !== prevBeginTime || endTime !== prevEndTime) {
-      this.updateChildOfOptions();
-      if (!isInitializing) {
-        // Set isInitializing flag to false
-        this.props.setIsInitializing(0);
-      }
-    }
-  }
+  const [beginTime, setBeginTime] = useState('');
+  const [endTime, setEndTime] = useState('');
+  const [timespanChildOf, setTimespanChildOf] = useState('');
+  const [timespanTitle, setTimespanTitle] = useState('');
+  const [validHeadings, setValidHeadings] = useState([]);
 
-  static getDerivedStateFromProps(nextProps, prevState) {
-    if (nextProps.timespanOpen && !nextProps.isTyping) {
-      const {
-        initSegment,
-        isInitializing,
-        peaksInstance,
-        segment,
-        smData,
-        startTimeChanged,
-      } = nextProps;
-
-      // Render initial values when form opens
-      if (initSegment && isInitializing) {
-        const { startTime, endTime } = initSegment;
-        return {
-          allSpans: structuralMetadataUtils.getItemsOfType('span', smData),
-          beginTime: structuralMetadataUtils.toHHmmss(startTime),
-          endTime: structuralMetadataUtils.toHHmmss(endTime),
-          isInitializing: false,
-        };
-      }
-      // Render time value changes
-      if (prevState.peaksInstance !== peaksInstance && !isInitializing) {
-        const { startTime, endTime } = waveformDataUtils.validateSegment(
-          segment,
-          startTimeChanged,
-          peaksInstance.peaks,
-          peaksInstance.duration
-        );
-        return {
-          beginTime: structuralMetadataUtils.toHHmmss(startTime),
-          endTime: structuralMetadataUtils.toHHmmss(endTime),
-        };
-      }
+  const allSpans = useMemo(() => {
+    if (smData?.length > 0) {
+      return structuralMetadataUtils.getItemsOfType('span', smData);
     }
-    // When handles in waveform is dragged disable typing in the input form
-    if (nextProps.isDragging) {
-      nextProps.setIsTyping(0);
-    }
-    return null;
-  }
+  }, [smData]);
 
-  buildHeadingsOptions = () => {
-    const { smData } = this.props;
-    let newSpan = {
-      begin: this.state.beginTime,
-      end: this.state.endTime,
-    };
+  const buildHeadingsOptions = () => {
+    let newSpan = { begin: beginTime, end: endTime };
 
     // Get spans in overall span list which fall before and after the new span
-    let wrapperSpans = structuralMetadataUtils.findWrapperSpans(
-      newSpan,
-      this.state.allSpans
-    );
+    let wrapperSpans = structuralMetadataUtils.findWrapperSpans(newSpan, allSpans);
 
     // Get all valid div headings
-    let validHeadings = structuralMetadataUtils.getValidHeadings(
-      newSpan,
-      wrapperSpans,
-      smData
-    );
+    let validHeadings = structuralMetadataUtils.getValidHeadings(newSpan, wrapperSpans, smData);
 
     // Update state with valid headings
-    this.setState({ validHeadings });
+    setValidHeadings(validHeadings);
   };
 
-  clearHeadingOptions = () => {
-    this.setState({
-      validHeadings: [],
-    });
-  };
+  const isValidTimespan = useMemo(() => {
+    const { valid } = validTimespans(beginTime, endTime, duration, allSpans);
+    if (valid) {
+      buildHeadingsOptions();
+    } else {
+      setValidHeadings([]);
+    }
+    return valid;
+  }, [beginTime, endTime, duration, allSpans]);
 
-  clearFormValues() {
-    this.setState({
-      beginTime: '',
-      endTime: '',
-      timespanChildOf: '',
-      timespanTitle: '',
-      validHeadings: [],
-    });
+  useEffect(() => {
+    if (!isInitializing) {
+      setIsInitializing(0);
+    }
+  }, [smData, isInitializing]);
+
+  useEffect(() => {
+    if (!isTyping) {
+      if (initSegment && isInitializing) {
+        setBeginTime(structuralMetadataUtils.toHHmmss(initSegment.startTime));
+        setEndTime(structuralMetadataUtils.toHHmmss(initSegment.endTime));
+        // Set isInitializing flag to false
+        setIsInitializing(0);
+      }
+      if (!isInitializing) {
+        const { startTime, endTime } = waveformDataUtils.validateSegment(
+          segment, startTimeChanged, peaks, duration
+        );
+        setBeginTime(structuralMetadataUtils.toHHmmss(startTime));
+        setEndTime(structuralMetadataUtils.toHHmmss(endTime));
+      }
+    }
+    if (isDragging) {
+      setIsTyping(0);
+    }
+  }, [initSegment, isDragging, isInitializing, peaksInstance]);
+
+  const clearFormValues = () => {
+    setBeginTime('');
+    setEndTime('');
+    setTimespanChildOf('');
+    setTimespanTitle('');
+    setValidHeadings([]);
     // Reset isTyping flag
-    this.props.setIsTyping(0);
-  }
-
-  formIsValid() {
-    const titleValid = isTitleValid(this.state.timespanTitle);
-    const childOfValid = this.state.timespanChildOf.length > 0;
-    const timesValidResponse = this.localValidTimespans();
-
-    return titleValid && childOfValid && timesValidResponse.valid;
-  }
-
-  handleInputChange = (e) => {
-    this.setState(
-      { [e.target.id]: e.target.value },
-      this.updateChildOfOptions()
-    );
+    setIsTyping(0);
   };
 
-  handleSubmit = (e) => {
-    e.preventDefault();
-    const { beginTime, endTime, timespanChildOf, timespanTitle } = this.state;
+  const formIsValid = () => {
+    const titleValid = isTitleValid(timespanTitle);
+    const childOfValid = timespanChildOf.length > 0;
+    return titleValid && childOfValid && isValidTimespan;
+  };
 
-    this.props.cancelClick();
-    this.props.onSubmit({
+  const handleInputChange = (e) => {
+    setTimespanTitle(e.target.value);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    cancelClick();
+    onSubmit({
       beginTime,
       endTime,
       timespanChildOf,
@@ -178,177 +127,161 @@ class TimespanForm extends Component {
     });
 
     // Clear form values
-    this.clearFormValues();
+    clearFormValues();
   };
-
-  handleTimeChange = (e) => {
-    const { segment, startTimeChanged } = this.props;
-    // Lock setting isTyping to false before updating the DOM
-    this.props.dragSegment(segment.id, startTimeChanged, 0);
-
-    // Set isTyping flag in props to true
-    this.props.setIsTyping(1);
-
-    this.setState({ [e.target.id]: e.target.value }, () => {
-      this.updateChildOfOptions();
-      // Update waveform segment with user inputs in the form
-      if (this.localValidTimespans().valid) {
-        this.props.updateSegment(segment, this.state);
-      }
-    });
-  };
-
-  handleCancelClick = () => {
-    this.props.cancelClick();
-    this.props.setIsTyping(0);
-  };
-
-  handleChildOfChange = (e) => {
-    this.setState({ timespanChildOf: e.target.value });
-  };
-
-  updateChildOfOptions() {
-    const timesValidResponse = this.localValidTimespans();
-
-    if (timesValidResponse.valid) {
-      this.buildHeadingsOptions();
-    } else {
-      this.clearHeadingOptions();
-    }
-  }
 
   /**
-   * A local wrapper for the reusable function 'validTimespans'
+   * Set begin and end time and call handleTimeChange to update peaks
+   * segement. This is a reusable function to update the begin and end time
+   * of the segment when the user changes times in the form.
+   * @param {Object} obj
+   * @param {string} obj.start changed/existing start time
+   * @param {string} obj.end changed/existing end time
    */
-  localValidTimespans() {
-    const { beginTime, endTime, allSpans } = this.state;
+  const handleTimeChange = ({ start, end }) => {
+    // Lock setting isTyping to false before updating the DOM
+    dragSegment(segment.id, startTimeChanged, 0);
 
-    return validTimespans(
-      beginTime,
-      endTime,
-      this.props.peaksInstance.duration,
-      allSpans
-    );
-  }
+    // Set isTyping flag in props to true
+    setIsTyping(1);
 
-  render() {
-    const { beginTime, endTime, timespanChildOf, timespanTitle, allSpans } =
-      this.state;
+    if (isValidTimespan) {
+      updateSegment(segment, { beginTime: start, endTime: end });
+    }
+  };
 
-    return (
-      <Form onSubmit={this.handleSubmit} data-testid='timespan-form' className='mb-0'>
-        <Form.Group controlId='timespanTitle'>
-          <Form.Label>Title</Form.Label>
-          <Form.Control
-            type='text'
-            value={timespanTitle}
-            isValid={getValidationTitleState(timespanTitle)}
-            isInvalid={!getValidationTitleState(timespanTitle)}
-            onChange={this.handleInputChange}
-            data-testid='timespan-form-title'
-          />
-          <Form.Control.Feedback />
-        </Form.Group>
+  /**
+   * Set end time and call handleTimeChange to update peaks
+   * segement. This event is triggered when the user types in the
+   * input field for end time.
+   * @param {Event} e 
+   */
+  const handleEndTimeChange = (e) => {
+    setEndTime(e.target.value);
+    handleTimeChange({ start: beginTime, end: e.target.value });
+  };
 
-        <Row>
-          <Col sm={6}>
-            <Form.Group controlId='beginTime' className='mb-3'>
-              <Form.Label>Begin Time</Form.Label>
-              <Form.Control
-                type='text'
-                value={beginTime}
-                isValid={getValidationBeginState(beginTime, allSpans)}
-                isInvalid={!getValidationBeginState(beginTime, allSpans)}
-                placeholder='00:00:00'
-                onChange={this.handleTimeChange}
-                data-testid='timespan-form-begintime'
-              />
-              <Form.Control.Feedback />
-            </Form.Group>
-          </Col>
-          <Col sm={6}>
-            <Form.Group controlId='endTime' className='mb-3'>
-              <Form.Label>End Time</Form.Label>
-              <Form.Control
-                type='text'
-                value={endTime}
-                isValid={getValidationEndState(
-                  beginTime,
-                  endTime,
-                  allSpans,
-                  this.props.peaksInstance.peaks
-                )}
-                isInvalid={
-                  !getValidationEndState(
-                    beginTime,
-                    endTime,
-                    allSpans,
-                    this.props.peaksInstance.peaks
-                  )
-                }
-                placeholder='00:00:00'
-                onChange={this.handleTimeChange}
-                data-testid='timespan-form-endtime'
-              />
-              <Form.Control.Feedback />
-            </Form.Group>
-          </Col>
-        </Row>
+  /**
+   * Set begin time and call handleTimeChange to update peaks
+   * segement. This event is triggered when the user types in the
+   * input field for begin time.
+   * @param {Event} e 
+   */
+  const handleBeginTimeChange = (e) => {
+    setBeginTime(e.target.value);
+    handleTimeChange({ start: e.target.value, end: endTime });
+  };
 
-        <Form.Group controlId='timespanChildOf' className='mb-3'>
-          <Form.Label>Child Of</Form.Label>
-          <Form.Select
-            onChange={this.handleChildOfChange}
-            value={timespanChildOf}
-            data-testid='timespan-form-childof'
-          >
-            <option value=''>Select...</option>
-            {this.state.validHeadings.map((item) => (
-              <option value={item.id} key={item.id}>
-                {item.label}
-              </option>
-            ))}
-          </Form.Select>
-        </Form.Group>
+  const handleCancelClick = () => {
+    cancelClick();
+    setIsTyping(0);
+  };
 
-        <Row>
-          <Col sm={{ offset: 5 }} md={{ offset: 5 }} lg={{ offset: 10 }}>
-            <ButtonToolbar className='float-right'>
-              <Button
-                variant='outline-secondary'
-                className='mr-1'
-                onClick={this.handleCancelClick}
-                data-testid='timespan-form-cancel-button'
-              >
-                Cancel
-              </Button>
-              <Button
-                variant='primary'
-                type='submit'
-                disabled={!this.formIsValid()}
-                data-testid='timespan-form-save-button'
-              >
-                Save
-              </Button>
-            </ButtonToolbar>
-          </Col>
-        </Row>
-      </Form>
-    );
-  }
-}
+  const handleChildOfChange = (e) => {
+    setTimespanChildOf(e.target.value);
+  };
 
-const mapStateToProps = (state) => ({
-  smData: state.structuralMetadata.smData,
-  peaksInstance: state.peaksInstance,
-  segment: state.peaksInstance.segment,
-  startTimeChanged: state.peaksInstance.startTimeChanged,
-  isDragging: state.peaksInstance.isDragging,
-});
+  return (
+    <Form onSubmit={handleSubmit} data-testid='timespan-form' className='mb-0'>
+      <Form.Group controlId='timespanTitle'>
+        <Form.Label>Title</Form.Label>
+        <Form.Control
+          type='text'
+          value={timespanTitle}
+          isValid={getValidationTitleState(timespanTitle)}
+          isInvalid={!getValidationTitleState(timespanTitle)}
+          onChange={handleInputChange}
+          data-testid='timespan-form-title'
+        />
+        <Form.Control.Feedback />
+      </Form.Group>
 
-const mapDispatchToProps = {
-  updateSegment: peaksActions.updateSegment,
-  dragSegment: peaksActions.dragSegment,
+      <Row>
+        <Col sm={6}>
+          <Form.Group controlId='beginTime' className='mb-3'>
+            <Form.Label>Begin Time</Form.Label>
+            <Form.Control
+              type='text'
+              value={beginTime}
+              isValid={getValidationBeginState(beginTime, allSpans)}
+              isInvalid={!getValidationBeginState(beginTime, allSpans)}
+              placeholder='00:00:00'
+              onChange={handleBeginTimeChange}
+              data-testid='timespan-form-begintime'
+            />
+            <Form.Control.Feedback />
+          </Form.Group>
+        </Col>
+        <Col sm={6}>
+          <Form.Group controlId='endTime' className='mb-3'>
+            <Form.Label>End Time</Form.Label>
+            <Form.Control
+              type='text'
+              value={endTime}
+              isValid={getValidationEndState(beginTime, endTime, allSpans, duration)}
+              isInvalid={
+                !getValidationEndState(beginTime, endTime, allSpans, duration)
+              }
+              placeholder='00:00:00'
+              onChange={handleEndTimeChange}
+              data-testid='timespan-form-endtime'
+            />
+            <Form.Control.Feedback />
+          </Form.Group>
+        </Col>
+      </Row>
+
+      <Form.Group controlId='timespanChildOf' className='mb-3'>
+        <Form.Label>Child Of</Form.Label>
+        <Form.Select
+          onChange={handleChildOfChange}
+          value={timespanChildOf}
+          data-testid='timespan-form-childof'
+        >
+          <option value=''>Select...</option>
+          {validHeadings.map((item) => (
+            <option value={item.id} key={item.id}>
+              {item.label}
+            </option>
+          ))}
+        </Form.Select>
+      </Form.Group>
+
+      <Row>
+        <Col sm={{ offset: 5 }} md={{ offset: 5 }} lg={{ offset: 10 }}>
+          <ButtonToolbar className='float-right'>
+            <Button
+              variant='outline-secondary'
+              className='mr-1'
+              onClick={handleCancelClick}
+              data-testid='timespan-form-cancel-button'
+            >
+              Cancel
+            </Button>
+            <Button
+              variant='primary'
+              type='submit'
+              disabled={!formIsValid()}
+              data-testid='timespan-form-save-button'
+            >
+              Save
+            </Button>
+          </ButtonToolbar>
+        </Col>
+      </Row>
+    </Form>
+  );
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(TimespanForm);
+TimespanForm.propTypes = {
+  cancelClick: PropTypes.func,
+  initSegment: PropTypes.object,
+  isInitializing: PropTypes.bool,
+  isTyping: PropTypes.bool,
+  onSubmit: PropTypes.func,
+  timespanOpen: PropTypes.bool,
+  setIsInitializing: PropTypes.func,
+  setIsTyping: PropTypes.func,
+};
+
+export default TimespanForm;

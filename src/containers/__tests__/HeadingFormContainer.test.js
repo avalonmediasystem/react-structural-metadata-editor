@@ -7,6 +7,13 @@ const initialState = {
   structuralMetadata: { smData: testSmData }
 };
 
+// Mock react-error-boundary library
+jest.mock('react-error-boundary', () => ({
+  useErrorBoundary: jest.fn(() => ({
+    showBoundary: jest.fn(),
+  }))
+}));
+
 test('HeadingFormContainer renders without props', () => {
   const { getByTestId } = renderWithRedux(<HeadingFormContainer />);
   expect(getByTestId('heading-form')).toBeInTheDocument();

@@ -23,6 +23,13 @@ const invalidItem = {
   items: [],
 };
 
+// Mock react-error-boundary library
+jest.mock('react-error-boundary', () => ({
+  useErrorBoundary: jest.fn(() => ({
+    showBoundary: jest.fn(),
+  }))
+}));
+
 describe('HeadingInlineForm component', () => {
   test('renders successfully', () => {
     const { getByTestId } = renderWithRedux(

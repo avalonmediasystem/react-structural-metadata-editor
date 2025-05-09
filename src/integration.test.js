@@ -56,6 +56,11 @@ jest.mock('react-dnd', () => ({
 jest.mock('react-dnd-html5-backend', () => ({
   HTML5Backend: jest.fn(),
 }));
+jest.mock('react-error-boundary', () => ({
+  useErrorBoundary: jest.fn(() => ({
+    showBoundary: jest.fn(),
+  }))
+}));
 
 describe('ButtonSection/StructureOutputContainer renders', () => {
   test('the structure tree when a new timespan is added', () => {

@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useDrag } from 'react-dnd';
-import { connect, useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { useErrorBoundary } from 'react-error-boundary';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
@@ -8,18 +9,28 @@ import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 import ListItemEditForm from './ListItemEditForm';
 import ListItemControls from './ListItemControls';
 import { ItemTypes } from '../services/Constants';
-import {
-  addDropTargets, deleteItem, handleListItemDrop, removeActiveDragSources,
-  removeDropTargets, setActiveDragSource
-} from '../actions/sm-data';
+import * as actions from '../actions/sm-data';
 import { deleteSegment } from '../actions/peaks-instance';
 import { handleEditingTimespans } from '../actions/forms';
 
 const ListItem = ({ item, children }) => {
+  // Dispatch actions to Redux store
   const dispatch = useDispatch();
+  const deleteItem = (id) => dispatch(actions.deleteItem(id));
+  const addDropTargets = (item) => dispatch(actions.addDropTargets(item));
+  const removeDropTargets = () => dispatch(actions.removeDropTargets());
+  const removeActiveDragSources = () => dispatch(actions.removeActiveDragSources());
+  const setActiveDragSource = (id) => dispatch(actions.setActiveDragSource(id));
+  const handleListItemDrop = (item, dropItem) => dispatch(actions.handleListItemDrop(item, dropItem));
+  const removeSegment = (item) => dispatch(deleteSegment(item));
+  const updateEditingTimespans = (value, smDataIsValid) => dispatch(handleEditingTimespans(value, smDataIsValid));
+
+  // Get state variables from Redux store
   const { smDataIsValid } = useSelector((state) => state.structuralMetadata);
 
   const [editing, setEditing] = useState(false);
+
+  const { showBoundary } = useErrorBoundary();
 
   const nodeRef = useRef(null);
 
@@ -29,42 +40,54 @@ const ListItem = ({ item, children }) => {
     item: { id: item.id },
     // Call this function when the item is dropped
     end: (item, monitor) => {
-      // Get the dropItem saved in PlaceholderItem
-      const { dropItem } = monitor.getDropResult();
-      if (item && dropItem) {
-        dispatch(handleListItemDrop(item, dropItem));
+      try {
+        // Get the dropItem saved in PlaceholderItem
+        const dropResult = monitor.getDropResult();
+        if (dropResult && item && dropResult?.dropItem) {
+          handleListItemDrop(item, dropResult.dropItem);
+        }
+      } catch (error) {
+        showBoundary(error);
       }
     },
   }), [item.id]);
 
   const handleDelete = () => {
-    dispatch(deleteItem(item.id));
-    dispatch(deleteSegment(item));
+    try {
+      deleteItem(item.id);
+      removeSegment(item);
+    } catch (error) {
+      showBoundary(error);
+    }
   };
 
   const handleEditClick = () => {
-    dispatch(handleEditingTimespans(1, smDataIsValid));
+    updateEditingTimespans(1, smDataIsValid);
     setEditing(true);
   };
 
   const handleEditFormCancel = () => {
     setEditing(false);
-    dispatch(handleEditingTimespans(0, smDataIsValid));
+    updateEditingTimespans(0, smDataIsValid);
   };
 
   const handleShowDropTargetsClick = () => {
-    dispatch(handleEditingTimespans(1));
-    dispatch(removeDropTargets());
+    try {
+      updateEditingTimespans(1);
+      removeDropTargets();
 
-    if (item.active === true) {
-      dispatch(removeActiveDragSources());
-      dispatch(handleEditingTimespans(0));
-      return;
+      if (item.active === true) {
+        removeActiveDragSources();
+        updateEditingTimespans(0);
+        return;
+      }
+
+      removeActiveDragSources();
+      addDropTargets(item);
+      setActiveDragSource(item.id);
+    } catch (error) {
+      showBoundary(error);
     }
-
-    dispatch(removeActiveDragSources());
-    dispatch(addDropTargets(item));
-    dispatch(setActiveDragSource(item.id));
   };
 
   const { begin, end, items, label, type, active, valid } = item;
@@ -152,20 +175,5 @@ ListItem.propTypes = {
   children: PropTypes.node,
 };
 
-const mapDispatchToProps = {
-  deleteItem: deleteItem,
-  addDropTargets: addDropTargets,
-  removeDropTargets: removeDropTargets,
-  removeActiveDragSources: removeActiveDragSources,
-  setActiveDragSource: setActiveDragSource,
-  handleListItemDrop: handleListItemDrop,
-  deleteSegment: deleteSegment,
-  handleEditingTimespans: handleEditingTimespans,
-};
 
-const mapStateToProps = (state) => ({
-  smData: state.structuralMetadata.smData,
-  smDataIsValid: state.structuralMetadata.smDataIsValid,
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(ListItem);
+export default ListItem;

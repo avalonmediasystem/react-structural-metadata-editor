@@ -1,4 +1,5 @@
 import React from 'react';
+import { useErrorBoundary } from 'react-error-boundary';
 import PropTypes from 'prop-types';
 import HeadingForm from '../components/HeadingForm';
 import { useDispatch, useSelector } from 'react-redux';
@@ -12,21 +13,27 @@ const HeadingFormContainer = ({ cancelClick }) => {
   const dispatch = useDispatch();
   const updateSMData = (updatedData, duration) => dispatch(smActions.reBuildSMUI(updatedData, duration));
 
+  const { showBoundary } = useErrorBoundary();
+
   const submit = (values) => {
-    let submittedItem = {
-      headingChildOf: values.headingChildOf,
-      headingTitle: values.headingTitle,
-    };
-    let updatedSmData = null;
+    try {
+      let submittedItem = {
+        headingChildOf: values.headingChildOf,
+        headingTitle: values.headingTitle,
+      };
+      let updatedSmData = null;
 
-    // Update the data structure with new heading
-    updatedSmData = structuralMetadataUtils.insertNewHeader(submittedItem, smData);
+      // Update the data structure with new heading
+      updatedSmData = structuralMetadataUtils.insertNewHeader(submittedItem, smData);
 
-    // Update redux store
-    updateSMData(updatedSmData, this.props.duration);
+      // Update redux store
+      updateSMData(updatedSmData, this.props.duration);
 
-    // Close the form
-    cancelClick();
+      // Close the form
+      cancelClick();
+    } catch (error) {
+      showBoundary(error);
+    }
   };
 
   return (

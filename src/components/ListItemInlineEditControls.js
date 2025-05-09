@@ -6,14 +6,14 @@ import Tooltip from 'react-bootstrap/Tooltip';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMinusCircle, faSave } from '@fortawesome/free-solid-svg-icons';
 
-const ListItemInlineEditControls = (props) => {
+const ListItemInlineEditControls = ({ formIsValid, handleCancelClick, handleSaveClick }) => {
   return (
     <div className='edit-controls-wrapper d-flex' data-testid='inline-form-controls'>
       <OverlayTrigger placement='left' overlay={<Tooltip id='tooltip-save'>Save</Tooltip>}>
         <Button
           variant='link'
-          disabled={!props.formIsValid}
-          onClick={props.handleSaveClick}
+          disabled={!formIsValid}
+          onClick={handleSaveClick}
           data-testid='inline-form-save-button'
         >
           <FontAwesomeIcon icon={faSave} />
@@ -23,7 +23,7 @@ const ListItemInlineEditControls = (props) => {
         <Button
           variant='link'
           data-testid='inline-form-cancel-button'
-          onClick={props.handleCancelClick}
+          onClick={handleCancelClick}
         >
           <FontAwesomeIcon icon={faMinusCircle} />
         </Button>

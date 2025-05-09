@@ -52,7 +52,7 @@ const props = {
   structureURL: 'https://example.com/structure.json'
 };
 
-// Mock react-dnd and react-dnd-html5-backend
+// Mock react-dnd, react-dnd-html5-backend, and react-error-boundary
 jest.mock('react-dnd', () => ({
   useDrag: jest.fn(() => [{ isDragging: false }, jest.fn()]),
   useDrop: jest.fn(() => [{ isOver: false }, jest.fn()]),
@@ -60,6 +60,14 @@ jest.mock('react-dnd', () => ({
 }));
 jest.mock('react-dnd-html5-backend', () => ({
   HTML5Backend: jest.fn(),
+}));
+jest.mock('react-error-boundary', () => ({
+  ErrorBoundary: ({ children }) => {
+    return <>{children}</>;
+  },
+  useErrorBoundary: jest.fn(() => ({
+    showBoundary: jest.fn(),
+  }))
 }));
 
 describe('App component', () => {

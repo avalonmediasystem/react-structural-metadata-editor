@@ -1,32 +1,34 @@
-import React, { Component } from 'react';
+import React, { useEffect, useState } from 'react';
 import Alert from 'react-bootstrap/Alert';
 
-class ErrorBoundary extends Component {
-  constructor(props) {
-    super(props);
-    this.state = { hasError: false, error: null };
-  }
+const ErrorBoundary = ({ children, fallback }) => {
+  const { error, handleError } = useErrorHandler();
 
-  static getDerivedStateFromError(error) {
-    // Update state so the next render will show the fallback UI.
-    return { hasError: true, error };
-  }
+  useEffect(() => {
+    try {
 
-  componentDidCatch(error, errorInfo) {
-    console.log('Error: ', error);
-  }
-
-  render() {
-    if (this.state.error) {
-      return (
-        <Alert variant="danger" data-testid="alert-container">
-          <p data-testid="alert-message">Something went wrong...</p>
-        </Alert>
-      );
+    } catch (err) {
+      handleError(err);
     }
+  }, [handleError]);
 
-    return this.props.children;
+  if (error) {
+    return fallback || (<Alert variant="danger" data-testid="alert-container">
+      <p data-testid="alert-message">Something went wrong...</p>
+    </Alert>);
   }
-}
+  return children;
+};
 
 export default ErrorBoundary;
+
+// Custom hook to enable error boundary behavior without a class component
+function useErrorHandler() {
+  const [error, setError] = useState(null);
+
+  const handleError = (err) => {
+    setError(err);
+  };
+
+  return { error, handleError };
+}

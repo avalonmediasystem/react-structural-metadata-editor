@@ -14,6 +14,13 @@ const props = {
   setIsInitializing: jest.fn(),
 };
 
+// Mock react-error-boundary library
+jest.mock('react-error-boundary', () => ({
+  useErrorBoundary: jest.fn(() => ({
+    showBoundary: jest.fn(),
+  }))
+}));
+
 test('TimespanFormContainer renders without props', () => {
   const { getByTestId } = renderWithRedux(<TimespanFormContainer {...props} />);
   expect(getByTestId('timespan-form')).toBeInTheDocument();

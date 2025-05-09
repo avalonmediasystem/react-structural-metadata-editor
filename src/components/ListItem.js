@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useDrag } from 'react-dnd';
 import { useDispatch, useSelector } from 'react-redux';
+import { useErrorBoundary } from 'react-error-boundary';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
@@ -29,6 +30,8 @@ const ListItem = ({ item, children }) => {
 
   const [editing, setEditing] = useState(false);
 
+  const { showBoundary } = useErrorBoundary();
+
   const nodeRef = useRef(null);
 
   // Wire the component into DnD system as a drag source
@@ -37,17 +40,25 @@ const ListItem = ({ item, children }) => {
     item: { id: item.id },
     // Call this function when the item is dropped
     end: (item, monitor) => {
-      // Get the dropItem saved in PlaceholderItem
-      const dropResult = monitor.getDropResult();
-      if (dropResult && item && dropResult?.dropItem) {
-        dispatch(handleListItemDrop(item, dropResult.dropItem));
+      try {
+        // Get the dropItem saved in PlaceholderItem
+        const dropResult = monitor.getDropResult();
+        if (dropResult && item && dropResult?.dropItem) {
+          handleListItemDrop(item, dropResult.dropItem);
+        }
+      } catch (error) {
+        showBoundary(error);
       }
     },
   }), [item.id]);
 
   const handleDelete = () => {
-    deleteItem(item.id);
-    removeSegment(item);
+    try {
+      deleteItem(item.id);
+      removeSegment(item);
+    } catch (error) {
+      showBoundary(error);
+    }
   };
 
   const handleEditClick = () => {
@@ -61,18 +72,22 @@ const ListItem = ({ item, children }) => {
   };
 
   const handleShowDropTargetsClick = () => {
-    updateEditingTimespans(1);
-    removeDropTargets();
+    try {
+      updateEditingTimespans(1);
+      removeDropTargets();
 
-    if (item.active === true) {
+      if (item.active === true) {
+        removeActiveDragSources();
+        updateEditingTimespans(0);
+        return;
+      }
+
       removeActiveDragSources();
-      updateEditingTimespans(0);
-      return;
+      addDropTargets(item);
+      setActiveDragSource(item.id);
+    } catch (error) {
+      showBoundary(error);
     }
-
-    removeActiveDragSources();
-    addDropTargets(item);
-    setActiveDragSource(item.id);
   };
 
   const { begin, end, items, label, type, active, valid } = item;

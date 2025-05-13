@@ -40,7 +40,7 @@ const ListItem = ({ item, children }) => {
       // Get the dropItem saved in PlaceholderItem
       const dropResult = monitor.getDropResult();
       if (dropResult && item && dropResult?.dropItem) {
-        dispatch(handleListItemDrop(item, dropItem));
+        dispatch(handleListItemDrop(item, dropResult.dropItem));
       }
     },
   }), [item.id]);

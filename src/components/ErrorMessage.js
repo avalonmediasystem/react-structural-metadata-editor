@@ -27,7 +27,6 @@ const ErrorMessage = ({ children }) => {
 };
 
 ErrorMessage.propTypes = {
-  message: PropTypes.string,
   children: PropTypes.object
 };
 

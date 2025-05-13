@@ -1,9 +1,7 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import Button from 'react-bootstrap/Button';
 import Collapse from 'react-bootstrap/Collapse';
-import Col from 'react-bootstrap/Col';
-import Row from 'react-bootstrap/Row';
 import HeadingFormContainer from '../containers/HeadingFormContainer';
 import TimespanFormContainer from '../containers/TimespanFormContainer';
 import * as peaksActions from '../actions/peaks-instance';
@@ -23,127 +21,122 @@ const styles = {
   },
 };
 
-class ButtonSection extends Component {
-  state = {
-    headingOpen: false,
-    timespanOpen: false,
-    initSegment: null,
-    isInitializing: true,
-    alertObj: {
-      alert: null,
-      showAlert: false,
-    },
-    disabled: true,
-    formOpen: false,
-  };
+const ButtonSection = () => {
+  // Dispatch actions to Redux store
+  const dispatch = useDispatch();
+  const createTempSegment = () => dispatch(peaksActions.insertTempSegment());
+  const removeTempSegment = (id) => dispatch(peaksActions.deleteTempSegment(id));
+  const updateEditingTimespans = (value) => dispatch(handleEditingTimespans(value));
+  const settingAlert = (alert) => dispatch(setAlert(alert));
 
-  static getDerivedStateFromProps(nextProps, prevState) {
-    const { formOpen } = prevState;
-    const { editingDisabled } = nextProps.forms;
+  // Get state variables from Redux store
+  const { editingDisabled, structureInfo, streamInfo } = useSelector((state) => state.forms);
+  const { peaks } = useSelector((state) => state.peaksInstance);
+
+  const [headingOpen, setHeadingOpen] = useState(false);
+  const [timespanOpen, setTimespanOpen] = useState(false);
+  const [initSegment, setInitSegment] = useState(null);
+  const [isInitializing, _setIsInitializing] = useState(true);
+  const [disabled, setDisabled] = useState(true);
+  const [formOpen, setFormOpen] = useState(false);
+
+  useEffect(() => {
     if (editingDisabled && !formOpen) {
-      return { disabled: true };
+      setDisabled(true);
     }
-    return null;
-  }
+  }, [formOpen, editingDisabled]);
 
-  setIsInitializing = (value) => {
+  const setIsInitializing = (value) => {
     if (value === 1) {
-      this.setState({ isInitializing: true });
+      _setIsInitializing(true);
     } else {
-      this.setState({ isInitializing: false });
+      _setIsInitializing(false);
     }
   };
 
-  handleCancelHeadingClick = () => {
-    this.setState({ headingOpen: false, formOpen: false });
-    this.props.handleEditingTimespans(0);
+  // Wrapper function to update heeading/timespan collapsible form states
+  const setFormStatus = ({ formState, hState = false, tState = false }) => {
+    setHeadingOpen(hState);
+    setTimespanOpen(tState);
+    setFormOpen(formState);
   };
 
-  handleHeadingClick = () => {
-    this.props.handleEditingTimespans(1);
+  const handleCancelHeadingClick = () => {
+    setFormStatus({ formState: false, hState: false });
+    updateEditingTimespans(0);
+  };
+
+  const handleHeadingClick = () => {
+    updateEditingTimespans(1);
     // When opening heading form, delete if a temporary segment exists
-    this.deleteTempSegment();
-    this.setState({
-      headingOpen: true,
-      timespanOpen: false,
-      disabled: false,
-      formOpen: true,
-    });
+    deleteTempSegment();
+    setFormStatus({ formState: true, hState: true });
+    setDisabled(false);
   };
 
-  handleCancelTimespanClick = () => {
-    this.deleteTempSegment();
-    this.setState({ timespanOpen: false, formOpen: false });
-    this.props.handleEditingTimespans(0);
+  const handleCancelTimespanClick = () => {
+    deleteTempSegment();
+    setFormStatus({ formState: false });
+    updateEditingTimespans(0);
   };
 
-  handleTimeSpanClick = () => {
+  const handleTimeSpanClick = () => {
     // Disable editing other items in structure
-    this.props.handleEditingTimespans(1);
+    updateEditingTimespans(1);
 
     // Create a temporary segment if timespan form is closed
-    if (!this.state.timespanOpen) {
-      this.props.createTempSegment();
+    if (!timespanOpen) {
+      createTempSegment();
     }
-    const tempSegment =
-      this.props.peaksInstance.peaks.segments.getSegment('temp-segment');
 
-    this.setState({
-      headingOpen: false,
-      disabled: false,
-      formOpen: true,
-    });
+    const tempSegment = peaks.segments.getSegment('temp-segment');
 
     if (tempSegment == undefined) {
       const noSpaceAlert = configureAlert(-4);
-      this.props.setAlert(noSpaceAlert);
+      settingAlert(noSpaceAlert);
     } else {
       // Initialize Redux store with temporary segment
-      this.props.dragSegment(tempSegment.id, null, 0);
-      this.setState({
-        initSegment: tempSegment,
-        timespanOpen: true,
-        isInitializing: true,
-      });
+      dispatch(peaksActions.dragSegment(tempSegment.id, null, 0));
+      setInitSegment(tempSegment);
+      setTimespanOpen(true);
+      setIsInitializing(true);
     }
   };
 
   // Delete if a temporary segment exists
-  deleteTempSegment = () => {
-    if (this.state.initSegment !== null) {
-      this.props.deleteTempSegment(this.state.initSegment.id);
+  const deleteTempSegment = () => {
+    if (initSegment != null) {
+      removeTempSegment(initSegment.id);
     }
   };
 
-  render() {
-    const timespanFormProps = {
-      cancelClick: this.handleCancelTimespanClick,
-      initSegment: this.state.initSegment,
-      isInitializing: this.state.isInitializing,
-      timespanOpen: this.state.timespanOpen,
-      setIsInitializing: this.setIsInitializing,
-    };
+  const timespanFormProps = {
+    cancelClick: handleCancelTimespanClick,
+    initSegment,
+    isInitializing,
+    timespanOpen,
+    setIsInitializing,
+  };
 
-    const { editingDisabled, structureInfo, streamInfo } = this.props.forms;
-
-    // Only return UI when both structure and waveform data exist
-    return structureInfo.structureRetrieved ? (
+  // Only return UI when both structure and waveform data exist
+  if (structureInfo.structureRetrieved) {
+    return (
       <section data-testid='button-section'>
         <div className='d-grid gap-2 button-section-container' data-testid='button-row'>
           <Button
             variant='outline-secondary'
             data-testid='add-heading-button'
-            onClick={this.handleHeadingClick}
-            disabled={this.state.disabled && editingDisabled}
+            onClick={handleHeadingClick}
+            disabled={disabled && editingDisabled}
           >
             Add a Heading
           </Button>
           <Button
             variant='outline-secondary'
             data-testid='add-timespan-button'
-            onClick={this.handleTimeSpanClick}
+            onClick={handleTimeSpanClick}
             disabled={
-              (this.state.disabled && editingDisabled) ||
+              (disabled && editingDisabled) ||
               streamInfo.streamMediaError
             }
           >
@@ -151,32 +144,20 @@ class ButtonSection extends Component {
           </Button>
         </div>
 
-        <Collapse in={this.state.headingOpen}>
+        <Collapse in={headingOpen}>
           <div style={styles.well} data-testid='heading-form-wrapper'>
-            <HeadingFormContainer cancelClick={this.handleCancelHeadingClick} />
+            <HeadingFormContainer cancelClick={handleCancelHeadingClick} />
           </div>
         </Collapse>
-        <Collapse in={this.state.timespanOpen}>
+        <Collapse in={timespanOpen}>
           <div style={styles.well} data-testid='timespan-form-wrapper'>
             <TimespanFormContainer {...timespanFormProps} />
           </div>
         </Collapse>
       </section>
-    ) : null;
+    );
   }
-}
-
-const mapStateToProps = (state) => ({
-  peaksInstance: state.peaksInstance,
-  forms: state.forms,
-});
-
-const mapDispatchToProps = {
-  createTempSegment: peaksActions.insertTempSegment,
-  deleteTempSegment: peaksActions.deleteTempSegment,
-  dragSegment: peaksActions.dragSegment,
-  handleEditingTimespans: handleEditingTimespans,
-  setAlert: setAlert,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(ButtonSection);
+
+export default ButtonSection;

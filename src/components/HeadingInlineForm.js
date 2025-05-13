@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
@@ -8,7 +8,7 @@ import {
   getValidationTitleState,
   isTitleValid,
 } from '../services/form-helper';
-import { connect } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { cloneDeep } from 'lodash';
 import ListItemInlineEditControls from './ListItemInlineEditControls';
 
@@ -19,87 +19,69 @@ const styles = {
   },
 };
 
-class HeadingInlineForm extends Component {
-  constructor(props) {
-    super(props);
+const HeadingInlineForm = ({ itemId, cancelFn, saveFn }) => {
+  // State variables from Redux store
+  const { smData } = useSelector((state) => state.structuralMetadata);
 
-    // To implement validation logic on begin and end times, we need to remove the current item
-    // from the stored data
-    this.tempSmData = undefined;
-  }
+  const [headingTitle, setHeadingTitle] = useState('');
 
-  static propTypes = {
-    item: PropTypes.object,
-    cancelFn: PropTypes.func,
-    saveFn: PropTypes.func,
-  };
-
-  state = {
-    headingTitle: '',
-  };
-
-  componentDidMount() {
-    const { smData } = this.props;
-
+  useEffect(() => {
     // Get a fresh copy of store data
-    this.tempSmData = cloneDeep(smData);
+    const tempSmData = cloneDeep(smData);
 
     // Load existing form values
-    this.setState(getExistingFormValues(this.props.item.id, this.tempSmData));
-  }
+    const formValues = getExistingFormValues(itemId, tempSmData);
+    setHeadingTitle(formValues.headingTitle);
+  }, [smData]);
 
-  formIsValid() {
-    return isTitleValid(this.state.headingTitle);
-  }
-
-  handleCancelClick = () => {
-    this.props.cancelFn();
+  const formIsValid = () => {
+    return isTitleValid(headingTitle);
   };
 
-  handleInputChange = (e) => {
-    this.setState({ [e.target.id]: e.target.value });
+  const handleCancelClick = () => {
+    cancelFn();
   };
 
-  handleSaveClick = () => {
-    const { headingTitle } = this.state;
-    this.props.saveFn(this.props.item.id, {
-      headingTitle,
-    });
+  const handleInputChange = (e) => {
+    setHeadingTitle(e.target.value);
   };
 
-  render() {
-    const { headingTitle } = this.state;
+  const handleSaveClick = () => {
+    saveFn(itemId, { headingTitle });
+  };
 
-    return (
-      <div className='row-wrapper d-flex justify-content-between'>
-        <Form data-testid='heading-inline-form' className='mb-0'>
-          <Form.Group as={Row} controlId='headingTitle'>
-            <Form.Label column sm={2}>Title</Form.Label>
-            <Col sm={10}>
-              <Form.Control
-                type='text'
-                style={styles.formControl}
-                value={headingTitle}
-                isValid={getValidationTitleState(headingTitle)}
-                isInvalid={!getValidationTitleState(headingTitle)}
-                onChange={this.handleInputChange}
-                data-testid='inline-heading-title-form-control'
-              />
-            </Col>
-          </Form.Group>
-        </Form>
-        <ListItemInlineEditControls
-          formIsValid={this.formIsValid()}
-          handleSaveClick={this.handleSaveClick}
-          handleCancelClick={this.handleCancelClick}
-        />
-      </div>
-    );
-  }
-}
+  return (
+    <div className='row-wrapper d-flex justify-content-between'>
+      <Form data-testid='heading-inline-form' className='mb-0'>
+        <Form.Group as={Row} controlId='headingTitle'>
+          <Form.Label column sm={2}>Title</Form.Label>
+          <Col sm={10}>
+            <Form.Control
+              type='text'
+              style={styles.formControl}
+              value={headingTitle}
+              isValid={getValidationTitleState(headingTitle)}
+              isInvalid={!getValidationTitleState(headingTitle)}
+              onChange={handleInputChange}
+              data-testid='inline-heading-title-form-control'
+            />
+          </Col>
+        </Form.Group>
+      </Form>
+      <ListItemInlineEditControls
+        formIsValid={formIsValid()}
+        handleSaveClick={handleSaveClick}
+        handleCancelClick={handleCancelClick}
+      />
+    </div>
+  );
+};
 
-const mapStateToProps = (state) => ({
-  smData: state.structuralMetadata.smData,
-});
+HeadingInlineForm.propTypes = {
+  itemId: PropTypes.string,
+  cancelFn: PropTypes.func,
+  saveFn: PropTypes.func,
+};
 
-export default connect(mapStateToProps)(HeadingInlineForm);
+export default HeadingInlineForm;
+

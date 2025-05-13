@@ -1,61 +1,51 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
+import React, { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
 import Button from 'react-bootstrap/Button';
 import ButtonToolbar from 'react-bootstrap/ButtonToolbar';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import Form from 'react-bootstrap/Form';
-import * as actions from '../actions/forms';
 import PropTypes from 'prop-types';
-import { isEqual } from 'lodash';
 import { getValidationTitleState } from '../services/form-helper';
 
 const structuralMetadataUtils = new StructuralMetadataUtils();
-class HeadingForm extends Component {
-  state = {
-    headingTitle: '',
-    headingChildOf: '',
-    childOfOptions: [],
+
+const HeadingForm = ({ cancelClick, onSubmit }) => {
+  // State variables from Redux store
+  const { smData } = useSelector((state) => state.structuralMetadata);
+
+  const [headingTitle, setHeadingTitle] = useState('');
+  const [headingChildOf, setHeadingChildOf] = useState('');
+  const [childOfOptions, setChildOfOptions] = useState([]);
+
+  useEffect(() => {
+    if (smData?.length > 0) {
+      processOptions();
+    }
+  }, [smData]);
+
+  const processOptions = () => {
+    const options = getOptions();
+    setChildOfOptions([...options]);
   };
 
-  componentDidMount() {
-    if (this.props.smData.length > 0) {
-      this.processOptions();
-    }
-  }
+  const clearFormValues = () => {
+    setHeadingTitle('');
+    setHeadingChildOf('');
+    setChildOfOptions([]);
+  };
 
-  componentDidUpdate(prevProps) {
-    if (!isEqual(this.props.smData, prevProps.smData)) {
-      this.processOptions();
-    }
-  }
-
-  clearFormValues() {
-    this.setState({
-      headingTitle: '',
-      headingChildOf: '',
-      childOfOptions: [],
-    });
-  }
-
-  formIsValid() {
-    const { headingTitle } = this.state;
+  const formIsValid = () => {
     const titleValid = headingTitle && headingTitle.length > 2;
-    const childOfValid = this.state.headingChildOf.length > 0;
+    const childOfValid = headingChildOf.length > 0;
 
     return titleValid && childOfValid;
-  }
+  };
 
-  getOptions() {
-    const rootHeader = structuralMetadataUtils.getItemsOfType(
-      'root',
-      this.props.smData
-    );
-    const divHeaders = structuralMetadataUtils.getItemsOfType(
-      'div',
-      this.props.smData
-    );
+  const getOptions = () => {
+    const rootHeader = structuralMetadataUtils.getItemsOfType('root', smData);
+    const divHeaders = structuralMetadataUtils.getItemsOfType('div', smData);
     const allHeaders = rootHeader.concat(divHeaders);
     const options = allHeaders.map((header) => (
       <option value={header.id} key={header.id}>
@@ -64,100 +54,79 @@ class HeadingForm extends Component {
     ));
 
     return options;
-  }
-
-  handleCancelClick = () => {
-    this.props.toggleHeading();
   };
 
-  handleChildOfChange = (e) => {
-    this.setState({ headingChildOf: e.target.value });
+  const handleChildOfChange = (e) => {
+    setHeadingChildOf(e.target.value);
   };
 
-  handleHeadingChange = (e) => {
-    this.setState({ headingTitle: e.target.value });
+  const handleHeadingChange = (e) => {
+    setHeadingTitle(e.target.value);
   };
 
-  handleSubmit = (e) => {
-    const { headingChildOf, headingTitle } = this.state;
-    let submitItem = { headingChildOf, headingTitle };
-
+  const handleSubmit = (e) => {
     e.preventDefault();
-
-    this.props.onSubmit(submitItem);
+    onSubmit({ headingChildOf, headingTitle });
 
     // Clear form
-    this.clearFormValues();
+    clearFormValues();
   };
 
-  processOptions() {
-    const options = this.getOptions();
-    this.setState({ childOfOptions: options });
-  }
+  return (
+    <Form onSubmit={handleSubmit} data-testid='heading-form' className='mb-0'>
+      <Form.Group controlId='headingTitle' className='mb-3'>
+        <Form.Label>Title</Form.Label>
+        <Form.Control
+          type='text'
+          value={headingTitle}
+          isValid={getValidationTitleState(headingTitle)}
+          isInvalid={!getValidationTitleState(headingTitle)}
+          onChange={handleHeadingChange}
+          data-testid='heading-title-form-control'
+        />
+        <Form.Control.Feedback />
+      </Form.Group>
 
-  render() {
-    const { headingTitle } = this.state;
+      <Form.Group controlId='headingChildOf' className='mb-3'>
+        <Form.Label>Child Of</Form.Label>
+        <Form.Select
+          onChange={handleChildOfChange}
+          value={headingChildOf}
+        >
+          <option value=''>Select...</option>
+          {childOfOptions}
+        </Form.Select>
+      </Form.Group>
 
-    return (
-      <Form onSubmit={this.handleSubmit} data-testid='heading-form' className='mb-0'>
-        <Form.Group controlId='headingTitle' className='mb-3'>
-          <Form.Label>Title</Form.Label>
-          <Form.Control
-            type='text'
-            value={headingTitle}
-            isValid={getValidationTitleState(headingTitle)}
-            isInvalid={!getValidationTitleState(headingTitle)}
-            onChange={this.handleHeadingChange}
-            data-testid='heading-title-form-control'
-          />
-          <Form.Control.Feedback />
-        </Form.Group>
-
-        <Form.Group controlId='headingChildOf' className='mb-3'>
-          <Form.Label>Child Of</Form.Label>
-          <Form.Select
-            onChange={this.handleChildOfChange}
-            value={this.state.headingChildOf}
-          >
-            <option value=''>Select...</option>
-            {this.state.childOfOptions}
-          </Form.Select>
-        </Form.Group>
-
-        <Row>
-          <Col sm={{ offset: 5 }} md={{ offset: 5 }} lg={{ offset: 10 }}>
-            <ButtonToolbar className='float-right'>
-              <Button
-                variant='outline-secondary'
-                className='mr-1'
-                onClick={this.props.cancelClick}
-                data-testid='heading-form-cancel-button'
-              >
-                Cancel
-              </Button>
-              <Button
-                variant='primary'
-                type='submit'
-                disabled={!this.formIsValid()}
-                data-testid='heading-form-save-button'
-              >
-                Save
-              </Button>
-            </ButtonToolbar>
-          </Col>
-        </Row>
-      </Form>
-    );
-  }
-}
+      <Row>
+        <Col sm={{ offset: 5 }} md={{ offset: 5 }} lg={{ offset: 10 }}>
+          <ButtonToolbar className='float-right'>
+            <Button
+              variant='outline-secondary'
+              className='mr-1'
+              onClick={cancelClick}
+              data-testid='heading-form-cancel-button'
+            >
+              Cancel
+            </Button>
+            <Button
+              variant='primary'
+              type='submit'
+              disabled={!formIsValid()}
+              data-testid='heading-form-save-button'
+            >
+              Save
+            </Button>
+          </ButtonToolbar>
+        </Col>
+      </Row>
+    </Form>
+  );
+};
 
 HeadingForm.propTypes = {
   cancelClick: PropTypes.func,
   onSubmit: PropTypes.func,
 };
 
-const mapStateToProps = (state) => ({
-  smData: state.structuralMetadata.smData,
-});
-
-export default connect(mapStateToProps, actions)(HeadingForm);
+export default HeadingForm;

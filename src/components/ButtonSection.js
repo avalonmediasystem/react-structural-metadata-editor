@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useErrorBoundary } from 'react-error-boundary';
 import Button from 'react-bootstrap/Button';
 import Collapse from 'react-bootstrap/Collapse';
 import HeadingFormContainer from '../containers/HeadingFormContainer';
@@ -39,6 +40,8 @@ const ButtonSection = () => {
   const [isInitializing, _setIsInitializing] = useState(true);
   const [disabled, setDisabled] = useState(true);
   const [formOpen, setFormOpen] = useState(false);
+
+  const { showBoundary } = useErrorBoundary();
 
   useEffect(() => {
     if (editingDisabled && !formOpen) {
@@ -91,22 +94,30 @@ const ButtonSection = () => {
 
     const tempSegment = peaks.segments.getSegment('temp-segment');
 
-    if (tempSegment == undefined) {
-      const noSpaceAlert = configureAlert(-4);
-      settingAlert(noSpaceAlert);
-    } else {
-      // Initialize Redux store with temporary segment
-      dispatch(peaksActions.dragSegment(tempSegment.id, null, 0));
-      setInitSegment(tempSegment);
-      setTimespanOpen(true);
-      setIsInitializing(true);
+    try {
+      if (tempSegment == undefined) {
+        const noSpaceAlert = configureAlert(-4);
+        settingAlert(noSpaceAlert);
+      } else {
+        // Initialize Redux store with temporary segment
+        dispatch(peaksActions.dragSegment(tempSegment.id, null, 0));
+        setInitSegment(tempSegment);
+        setTimespanOpen(true);
+        setIsInitializing(true);
+      }
+    } catch (error) {
+      showBoundary(error);
     }
   };
 
   // Delete if a temporary segment exists
   const deleteTempSegment = () => {
-    if (initSegment != null) {
-      removeTempSegment(initSegment.id);
+    try {
+      if (initSegment != null) {
+        removeTempSegment(initSegment.id);
+      }
+    } catch (error) {
+      showBoundary(error);
     }
   };
 

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useErrorBoundary } from 'react-error-boundary';
 import PropTypes from 'prop-types';
 import TimespanForm from '../components/TimespanForm';
 import { useDispatch, useSelector } from 'react-redux';
@@ -20,18 +21,24 @@ const TimespanFormContainer = ({ cancelClick, ...restProps }) => {
 
   const [isTyping, _setIsTyping] = useState(false);
 
+  const { showBoundary } = useErrorBoundary();
+
   const submit = (values) => {
-    // Update the data structure with new heading
-    const { newSpan, updatedData } = structuralMetadataUtils.insertNewTimespan(values, smData);
+    try {
+      // Update the data structure with new heading
+      const { newSpan, updatedData } = structuralMetadataUtils.insertNewTimespan(values, smData);
 
-    // Update the waveform segments with new timespan
-    addNewSegment(newSpan);
+      // Update the waveform segments with new timespan
+      addNewSegment(newSpan);
 
-    // Update redux store
-    updateSMUI(updatedData, duration);
+      // Update redux store
+      updateSMUI(updatedData, duration);
 
-    // Close the form
-    cancelClick();
+      // Close the form
+      cancelClick();
+    } catch (error) {
+      showBoundary(error);
+    }
   };
 
   const setIsTyping = (value) => {

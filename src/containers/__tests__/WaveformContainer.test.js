@@ -18,6 +18,13 @@ const initialState = {
   },
 };
 
+// Mock react-error-boundary library
+jest.mock('react-error-boundary', () => ({
+  useErrorBoundary: jest.fn(() => ({
+    showBoundary: jest.fn(),
+  }))
+}));
+
 describe('WaveformContainer component', () => {
   test('renders', async () => {
     mockAxios.get.mockImplementationOnce(() => {

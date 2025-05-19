@@ -10,8 +10,8 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import { useDispatch } from 'react-redux';
 import { resetReduxStore } from './actions';
 import { removeAlert } from './actions/forms';
-import ErrorBoundary from './components/ErrorBoundary';
 import AlertContainer from './containers/AlertContainer';
+import ErrorMessage from './components/ErrorMessage';
 
 const App = (props) => {
   // Dispatch actions from Redux store
@@ -28,14 +28,24 @@ const App = (props) => {
 
   return (
     <div className="sme-container">
-      <WaveformContainer {...props} />
-      <ErrorBoundary>
+      {/* Error boundary for the entire component: this is in place as a fallback if
+      there's an error emitted from outside of the following zoned error boundaries.
+      WaveformContainer and StructureOutputContainer are placed inside their own error
+      boundaries, because they are likely to encounter errors. */}
+      <ErrorMessage>
+        {/* Error boundary for waveform-related errors */}
+        <ErrorMessage>
+          <WaveformContainer {...props} />
+        </ErrorMessage>
         <AlertContainer removeAlert={deleteAlert} />
         <ButtonSection />
-        <DndProvider backend={HTML5Backend}>
-          <StructureOutputContainer {...props} />
-        </DndProvider>
-      </ErrorBoundary>
+        {/* Error boundary for structure-related errors */}
+        <ErrorMessage>
+          <DndProvider backend={HTML5Backend}>
+            <StructureOutputContainer {...props} />
+          </DndProvider>
+        </ErrorMessage>
+      </ErrorMessage>
     </div>
   );
 };

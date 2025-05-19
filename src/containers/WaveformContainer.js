@@ -1,4 +1,5 @@
 import React, { createRef, useEffect } from 'react';
+import { useErrorBoundary } from 'react-error-boundary';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { initializePeaks } from '../actions/peaks-instance';
@@ -43,6 +44,11 @@ const useWaveform = ({ canvasIndex, manifestURL, withCredentials }) => {
   const overView = createRef();
   const mediaPlayer = createRef();
 
+  const dispatch = useDispatch();
+  const initializeManifest = (url, index) => dispatch(initManifest(url, index));
+  const retrieveStream = (url, player, options) => dispatch(retrieveStreamMedia(url, player, options));
+  const initPeaks = (options, data) => dispatch(initializePeaks(options, data));
+
   const { streamMediaLoading } = useSelector((state) => state.forms.streamInfo);
   const mediaInfo = useSelector((state) => state.manifest.mediaInfo);
   const readyPeaks = useSelector((state) => state.peaksInstance.readyPeaks);
@@ -50,24 +56,28 @@ const useWaveform = ({ canvasIndex, manifestURL, withCredentials }) => {
 
   const smData = useSelector((state) => state.structuralMetadata.smData);
 
-  const dispatch = useDispatch();
+  const { showBoundary } = useErrorBoundary();
 
   useEffect(() => {
-    if (manifestURL) {
-      dispatch(initManifest(manifestURL, canvasIndex));
+    try {
+      if (manifestURL) {
+        initializeManifest(manifestURL, canvasIndex);
+      }
+    } catch (error) {
+      showBoundary(error);
     }
   }, []);
 
   useEffect(() => {
-    if (manifest != null) {
-      // When given a .m3u8 playlist, use HLS to stream media
-      if (mediaInfo.isStream) {
-        dispatch(
-          retrieveStreamMedia(mediaInfo.src, mediaPlayer.current, {
-            withCredentials: withCredentials,
-          })
-        );
+    try {
+      if (manifest != null) {
+        // When given a .m3u8 playlist, use HLS to stream media
+        if (mediaInfo.isStream) {
+          retrieveStream(mediaInfo.src, mediaPlayer.current, { withCredentials: withCredentials });
+        }
       }
+    } catch (error) {
+      showBoundary(error);
     }
   }, [manifest, mediaInfo]);
 
@@ -89,9 +99,13 @@ const useWaveform = ({ canvasIndex, manifestURL, withCredentials }) => {
       mediaElement: mediaPlayer.current,
       player: null,
     };
+    // try {
     if (!streamMediaLoading && smData != [] && !readyPeaks) {
-      dispatch(initializePeaks(peaksOptions, smData));
+      initPeaks(peaksOptions, smData);
     }
+    // } catch (error) {
+    //   showBoundary(error);
+    // }
   }, [streamMediaLoading]);
   return { zoomView, overView, mediaPlayer };
 };

@@ -341,3 +341,19 @@
 }
 
 /* END - Volume slider styles */
+
+/* START - Error message styles */
+/* From the Ramp UI library */
+.error-message-alert {
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem;
+  background-color: rgba(255, 0, 0, 0.2);
+  border-radius: 0.25rem;
+
+  span {
+    align-content: center;
+  }
+}
+
+/* Error message styles */

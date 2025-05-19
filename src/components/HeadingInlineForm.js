@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useErrorBoundary } from 'react-error-boundary';
 import PropTypes from 'prop-types';
 import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
@@ -25,6 +26,8 @@ const HeadingInlineForm = ({ itemId, cancelFn, saveFn }) => {
 
   const [headingTitle, setHeadingTitle] = useState('');
 
+  const { showBoundary } = useErrorBoundary();
+
   useEffect(() => {
     // Get a fresh copy of store data
     const tempSmData = cloneDeep(smData);
@@ -47,7 +50,11 @@ const HeadingInlineForm = ({ itemId, cancelFn, saveFn }) => {
   };
 
   const handleSaveClick = () => {
-    saveFn(itemId, { headingTitle });
+    try {
+      saveFn(itemId, { headingTitle });
+    } catch (error) {
+      showBoundary(error);
+    }
   };
 
   return (

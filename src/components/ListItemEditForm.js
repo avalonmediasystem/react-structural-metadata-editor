@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useErrorBoundary } from 'react-error-boundary';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import TimespanInlineForm from './TimespanInlineForm';
@@ -20,6 +21,8 @@ const ListItemEditForm = ({ item, handleEditFormCancel }) => {
 
   const [isTyping, _setIsTyping] = useState(false);
   const [isInitializing, _setIsInitializing] = useState(true);
+
+  const { showBoundary } = useErrorBoundary();
 
   useEffect(() => {
     return () => {
@@ -63,22 +66,26 @@ const ListItemEditForm = ({ item, handleEditFormCancel }) => {
   };
 
   const handleSaveClick = (id, payload) => {
-    // Clone smData
-    let clonedItems = cloneDeep(smData);
+    try {
+      // Clone smData
+      let clonedItems = cloneDeep(smData);
 
-    // Get the original item
-    /* eslint-disable */
-    let item = structuralMetadataUtils.findItem(id, clonedItems);
-    /* eslint-enable */
+      // Get the original item
+      /* eslint-disable */
+      let item = structuralMetadataUtils.findItem(id, clonedItems);
+      /* eslint-enable */
 
-    // Update item values
-    item = addUpdatedValues(item, payload);
+      // Update item values
+      item = addUpdatedValues(item, payload);
 
-    // Send updated smData back to redux
-    updateSMUI(clonedItems, duration);
+      // Send updated smData back to redux
+      updateSMUI(clonedItems, duration);
 
-    // Turn off editing state
-    handleEditFormCancel();
+      // Turn off editing state
+      handleEditFormCancel();
+    } catch (error) {
+      showBoundary(error);
+    }
   };
 
   if (item.type === 'span') {

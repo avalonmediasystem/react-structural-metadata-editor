@@ -56,29 +56,29 @@ const useWaveform = ({ canvasIndex, manifestURL, withCredentials }) => {
 
   const smData = useSelector((state) => state.structuralMetadata.smData);
 
-  // const { showBoundary } = useErrorBoundary();
+  const { showBoundary } = useErrorBoundary();
 
   useEffect(() => {
-    // try {
-    if (manifestURL) {
-      initializeManifest(manifestURL, canvasIndex);
+    try {
+      if (manifestURL) {
+        initializeManifest(manifestURL, canvasIndex);
+      }
+    } catch (error) {
+      showBoundary(error);
     }
-    // } catch (error) {
-    //   showBoundary(error);
-    // }
   }, []);
 
   useEffect(() => {
-    // try {
-    if (manifest != null) {
-      // When given a .m3u8 playlist, use HLS to stream media
-      if (mediaInfo.isStream) {
-        retrieveStream(mediaInfo.src, mediaPlayer.current, { withCredentials: withCredentials });
+    try {
+      if (manifest != null) {
+        // When given a .m3u8 playlist, use HLS to stream media
+        if (mediaInfo.isStream) {
+          retrieveStream(mediaInfo.src, mediaPlayer.current, { withCredentials: withCredentials });
+        }
       }
+    } catch (error) {
+      showBoundary(error);
     }
-    // } catch (error) {
-    //   showBoundary(error);
-    // }
   }, [manifest, mediaInfo]);
 
   useEffect(() => {

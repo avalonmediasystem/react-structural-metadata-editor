@@ -1,13 +1,20 @@
 import React from 'react';
-import { cleanup, fireEvent } from 'react-testing-library';
-import 'jest-dom/extend-expect';
+import { fireEvent } from '@testing-library/react';
 import Waveform from '../Waveform';
 import { renderWithRedux, manifest } from '../../services/testing-helpers';
 import Peaks from 'peaks';
 
-afterEach(cleanup);
-
 describe('Waveform component', () => {
+  let originalError;
+  beforeEach(() => {
+    originalError = console.error;
+    console.error = jest.fn();
+  });
+
+  afterEach(() => {
+    console.error = originalError;
+  });
+
   // Variables to contain the refs for container and mediaElement
   let zoomView, overView, mediaElement, waveform;
   let peaksInst = null;
@@ -76,8 +83,8 @@ describe('Waveform component', () => {
       expect(waveform.queryByTestId('waveform')).toBeInTheDocument();
       expect(waveform.queryByTestId('waveform-audio-player')).toBeInTheDocument();
       expect(waveform.queryByTestId('waveform-video-player')).not.toBeInTheDocument();
-    })
-  
+    });
+
     test('renders play/pause buttons in the toolbar and enabled', () => {
       expect(waveform.getByTestId('waveform-toolbar')).toBeInTheDocument();
       expect(waveform.getByTestId('waveform-play-button')).toBeEnabled();
@@ -113,7 +120,7 @@ describe('Waveform component', () => {
     test('error alert is not displayed', () => {
       expect(waveform.queryByTestId('alert-container')).not.toBeInTheDocument();
     });
-  
+
     describe('when spacebar is pressed', () => {
       test('while editing an item', () => {
         fireEvent.keyDown(waveform.getByTestId('waveform-toolbar'), {
@@ -245,7 +252,7 @@ describe('Waveform component', () => {
             isVideo: true
           }
         }
-      }
+      };
       mediaElement = React.createRef();
       waveform = renderWithRedux(
         <Waveform
@@ -262,6 +269,6 @@ describe('Waveform component', () => {
       expect(waveform.queryByTestId('waveform')).toBeInTheDocument();
       expect(waveform.queryByTestId('waveform-video-player')).toBeInTheDocument();
       expect(waveform.queryByTestId('waveform-audio-player')).not.toBeInTheDocument();
-    })
-  })
+    });
+  });
 });

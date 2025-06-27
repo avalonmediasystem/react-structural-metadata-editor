@@ -1,56 +1,26 @@
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
-
 var _typeof = require("@babel/runtime/helpers/typeof");
-
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports["default"] = void 0;
-
-var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
-
-var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
-
-var _assertThisInitialized2 = _interopRequireDefault(require("@babel/runtime/helpers/assertThisInitialized"));
-
-var _inherits2 = _interopRequireDefault(require("@babel/runtime/helpers/inherits"));
-
-var _possibleConstructorReturn2 = _interopRequireDefault(require("@babel/runtime/helpers/possibleConstructorReturn"));
-
-var _getPrototypeOf2 = _interopRequireDefault(require("@babel/runtime/helpers/getPrototypeOf"));
-
-var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/defineProperty"));
-
+var _slicedToArray2 = _interopRequireDefault(require("@babel/runtime/helpers/slicedToArray"));
 var _react = _interopRequireWildcard(require("react"));
-
 var _propTypes = _interopRequireDefault(require("prop-types"));
-
-var _reactBootstrap = require("react-bootstrap");
-
+var _Form = _interopRequireDefault(require("react-bootstrap/Form"));
+var _Row = _interopRequireDefault(require("react-bootstrap/Row"));
+var _Col = _interopRequireDefault(require("react-bootstrap/Col"));
 var _formHelper = require("../services/form-helper");
-
 var _reactRedux = require("react-redux");
-
 var _StructuralMetadataUtils = _interopRequireDefault(require("../services/StructuralMetadataUtils"));
-
 var _lodash = require("lodash");
-
 var _ListItemInlineEditControls = _interopRequireDefault(require("./ListItemInlineEditControls"));
-
 var peaksActions = _interopRequireWildcard(require("../actions/peaks-instance"));
-
 var _WaveformDataUtils = _interopRequireDefault(require("../services/WaveformDataUtils"));
-
-function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
-
-function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { "default": obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
-
-function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = (0, _getPrototypeOf2["default"])(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = (0, _getPrototypeOf2["default"])(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return (0, _possibleConstructorReturn2["default"])(this, result); }; }
-
-function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
-
+function _getRequireWildcardCache(e) { if ("function" != typeof WeakMap) return null; var r = new WeakMap(), t = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(e) { return e ? t : r; })(e); }
+function _interopRequireWildcard(e, r) { if (!r && e && e.__esModule) return e; if (null === e || "object" != _typeof(e) && "function" != typeof e) return { "default": e }; var t = _getRequireWildcardCache(r); if (t && t.has(e)) return t.get(e); var n = { __proto__: null }, a = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var u in e) if ("default" !== u && {}.hasOwnProperty.call(e, u)) { var i = a ? Object.getOwnPropertyDescriptor(e, u) : null; i && (i.get || i.set) ? Object.defineProperty(n, u, i) : n[u] = e[u]; } return n["default"] = e, t && t.set(e, n), n; }
 var structuralMetadataUtils = new _StructuralMetadataUtils["default"]();
 var waveformUtils = new _WaveformDataUtils["default"]();
 var styles = {
@@ -58,260 +28,264 @@ var styles = {
     margin: '0 5px'
   }
 };
+function TimespanInlineForm(_ref) {
+  var cancelFn = _ref.cancelFn,
+    item = _ref.item,
+    isInitializing = _ref.isInitializing,
+    isTyping = _ref.isTyping,
+    saveFn = _ref.saveFn,
+    setIsInitializing = _ref.setIsInitializing,
+    setIsTyping = _ref.setIsTyping;
+  // State variables from global state
+  var _useSelector = (0, _reactRedux.useSelector)(function (state) {
+      return state.structuralMetadata;
+    }),
+    smData = _useSelector.smData;
+  var peaksInstance = (0, _reactRedux.useSelector)(function (state) {
+    return state.peaksInstance;
+  });
+  var isDragging = peaksInstance.isDragging,
+    segment = peaksInstance.segment,
+    startTimeChanged = peaksInstance.startTimeChanged;
 
-var TimespanInlineForm = /*#__PURE__*/function (_Component) {
-  (0, _inherits2["default"])(TimespanInlineForm, _Component);
+  // Dispatch actions
+  var dispatch = (0, _reactRedux.useDispatch)();
+  var activateSegment = function activateSegment(id) {
+    return dispatch(peaksActions.activateSegment(id));
+  };
+  var insertPlaceholderSegment = function insertPlaceholderSegment(item, wrapperSpans) {
+    return dispatch(peaksActions.insertPlaceholderSegment(item, wrapperSpans));
+  };
+  var revertSegment = function revertSegment(segment) {
+    return dispatch(peaksActions.revertSegment(segment));
+  };
+  var saveSegment = function saveSegment(state) {
+    return dispatch(peaksActions.saveSegment(state));
+  };
+  var updateSegment = function updateSegment(segment, state) {
+    return dispatch(peaksActions.updateSegment(segment, state));
+  };
+  var dragSegment = function dragSegment(id, startTimeChanged, value) {
+    return dispatch(peaksActions.dragSegment(id, startTimeChanged, value));
+  };
+  var _useState = (0, _react.useState)(''),
+    _useState2 = (0, _slicedToArray2["default"])(_useState, 2),
+    beginTime = _useState2[0],
+    setBeginTime = _useState2[1];
+  var _useState3 = (0, _react.useState)(''),
+    _useState4 = (0, _slicedToArray2["default"])(_useState3, 2),
+    endTime = _useState4[0],
+    setEndTime = _useState4[1];
+  var _useState5 = (0, _react.useState)(''),
+    _useState6 = (0, _slicedToArray2["default"])(_useState5, 2),
+    timespanTitle = _useState6[0],
+    setTimespanTitle = _useState6[1];
+  var _useState7 = (0, _react.useState)({}),
+    _useState8 = (0, _slicedToArray2["default"])(_useState7, 2),
+    clonedSegment = _useState8[0],
+    setClonedSegment = _useState8[1];
+  var tempSmDataRef = (0, _react.useRef)();
+  var allSpansRef = (0, _react.useRef)([]);
+  (0, _react.useEffect)(function () {
+    // Get a fresh copy of store data
+    tempSmDataRef.current = (0, _lodash.cloneDeep)(smData);
+    var tempPeaks = (0, _lodash.cloneDeep)(peaksInstance.peaks);
 
-  var _super = _createSuper(TimespanInlineForm);
+    // Make segment related to timespan editable
+    if (item.valid) {
+      // Load existing form values
+      var formValues = (0, _formHelper.getExistingFormValues)(item.id, tempSmDataRef.current, tempPeaks);
+      setBeginTime(formValues.beginTime);
+      setEndTime(formValues.endTime);
+      setTimespanTitle(formValues.timespanTitle);
+      setClonedSegment(formValues.clonedSegment);
+      activateSegment(item.id);
+    } else {
+      handleInvalidTimespan();
+    }
 
-  function TimespanInlineForm(props) {
-    var _this;
+    // Remove current list item from the data we're doing validation against in this form
+    tempSmDataRef.current = structuralMetadataUtils.deleteListItem(item.id, tempSmDataRef.current);
 
-    (0, _classCallCheck2["default"])(this, TimespanInlineForm);
-    _this = _super.call(this, props); // To implement validation logic on begin and end times, we need to remove the current item
-    // from the stored data
+    // Save a reference to all the spans for future calculations
+    allSpansRef.current = structuralMetadataUtils.getItemsOfType('span', tempSmDataRef.current);
 
-    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "state", {
-      beginTime: '',
-      endTime: '',
-      timespanTitle: '',
-      clonedSegment: {},
-      peaksInstance: _this.props.peaksInstance,
-      segment: _this.props.segment,
-      startTimeChanged: _this.props.startTimeChanged
+    // Get segment from current peaks instance
+    var currentSegment = peaksInstance.peaks.segments.getSegment(item.id);
+
+    // Initialize the segment in Redux store with the selected item
+    dragSegment(currentSegment.id, startTimeChanged, 0);
+  }, []);
+  (0, _react.useEffect)(function () {
+    if (!isDragging && isInitializing && !isTyping && !(0, _lodash.isEmpty)(segment)) {
+      var startTime = segment.startTime,
+        _endTime = segment.endTime;
+      setBeginTime(structuralMetadataUtils.toHHmmss(startTime));
+      setEndTime(structuralMetadataUtils.toHHmmss(_endTime));
+    }
+    if (isDragging) {
+      // When handles in waveform are dragged clear out isInitializing and isTyping flags
+      if (isInitializing) setIsInitializing(0);
+      if (isTyping) setIsTyping(0);
+      var _waveformUtils$valida = waveformUtils.validateSegment(segment, startTimeChanged, peaksInstance.peaks, peaksInstance.duration),
+        _startTime = _waveformUtils$valida.startTime,
+        _endTime2 = _waveformUtils$valida.endTime;
+      setBeginTime(structuralMetadataUtils.toHHmmss(_startTime));
+      setEndTime(structuralMetadataUtils.toHHmmss(_endTime2));
+    }
+  }, [isDragging, isInitializing, isTyping, segment, peaksInstance]);
+
+  /**
+   * When there are invalid timespans in the structure, to edit them
+   * a placeholder segment is created within the Peaks instance, since
+   * they cannot be added at the time Peaks is initialized.
+   */
+  var handleInvalidTimespan = function handleInvalidTimespan() {
+    var itemIndex = structuralMetadataUtils.getItemsOfType('span', smData).findIndex(function (i) {
+      return i.id === item.id;
     });
-    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "handleCancelClick", function () {
-      // Revert to segment to the state before
-      _this.props.revertSegment(_this.state.clonedSegment);
+    var allSpans = structuralMetadataUtils.getItemsOfType('span', tempSmDataRef.current);
+    var wrapperSpans = {
+      prevSpan: null,
+      nextSpan: null
+    };
+    wrapperSpans.prevSpan = allSpans[itemIndex - 1] || null;
+    wrapperSpans.nextSpan = allSpans[itemIndex + 1] || null;
+    insertPlaceholderSegment(item, wrapperSpans);
+    var placeholderSegment = peaksInstance.peaks.segments.getSegment(item.id);
+    placeholderSegment.valid = false;
+    setClonedSegment(placeholderSegment);
+    setBeginTime(structuralMetadataUtils.toHHmmss(placeholderSegment.startTime));
+    setEndTime(structuralMetadataUtils.toHHmmss(placeholderSegment.endTime));
+    setTimespanTitle(placeholderSegment.labelText);
+  };
+  var formIsValid = function formIsValid() {
+    var titleValid = (0, _formHelper.isTitleValid)(timespanTitle);
+    var timesValidResponse = (0, _formHelper.validTimespans)(beginTime, endTime, peaksInstance.duration, allSpansRef.current);
+    return titleValid && timesValidResponse.valid;
+  };
+  var handleCancelClick = function handleCancelClick() {
+    // Revert to segment to the state prior to editing
+    revertSegment(clonedSegment);
+    cancelFn();
+  };
+  var handleInputChange = function handleInputChange(e) {
+    // Lock disabling isTyping flag before updating DOM from form inputs
+    dragSegment(segment.id, startTimeChanged, 0);
+    // Enable updating state from form inputs
+    setIsTyping(1);
+    var _e$target = e.target,
+      id = _e$target.id,
+      value = _e$target.value;
+    if (id === 'timespanTitle') {
+      setTimespanTitle(value);
+    } else if (id === 'beginTime') {
+      setBeginTime(value);
+    } else if (id === 'endTime') {
+      setEndTime(value);
+    }
 
-      _this.props.cancelFn();
+    // Update waveform segment with user inputs in the form
+    updateSegment(segment, {
+      beginTime: id === 'beginTime' ? value : beginTime,
+      endTime: id === 'endTime' ? value : endTime,
+      timespanTitle: id === 'timespanTitle' ? value : timespanTitle
     });
-    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "handleInputChange", function (e) {
-      var _this$props = _this.props,
-          segment = _this$props.segment,
-          startTimeChanged = _this$props.startTimeChanged; // Lock disabling isTyping flag before updating DOM from form inputs
-
-      _this.props.dragSegment(segment.id, startTimeChanged, 0); // Enable updating state from form inputs
-
-
-      _this.props.setIsTyping(1);
-
-      _this.setState((0, _defineProperty2["default"])({}, e.target.id, e.target.value), function () {
-        // Update waveform segment with user inputs in the form
-        _this.props.updateSegment(segment, _this.state);
-      });
+  };
+  var handleSaveClick = function handleSaveClick() {
+    saveSegment({
+      beginTime: beginTime,
+      endTime: endTime,
+      timespanTitle: timespanTitle,
+      clonedSegment: clonedSegment
     });
-    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "handleSaveClick", function () {
-      _this.props.saveSegment(_this.state);
-
-      var _this$state = _this.state,
-          beginTime = _this$state.beginTime,
-          endTime = _this$state.endTime,
-          timespanTitle = _this$state.timespanTitle;
-
-      _this.props.saveFn(_this.props.segment.id, {
-        beginTime: beginTime,
-        endTime: endTime,
-        timespanTitle: timespanTitle
-      });
+    saveFn(segment.id, {
+      beginTime: beginTime,
+      endTime: endTime,
+      timespanTitle: timespanTitle
     });
-    _this.tempSmData = undefined;
-    _this.allSpans = [];
-    return _this;
-  }
-
-  (0, _createClass2["default"])(TimespanInlineForm, [{
-    key: "componentDidMount",
-    value: function componentDidMount() {
-      var _this$props2 = this.props,
-          smData = _this$props2.smData,
-          item = _this$props2.item,
-          peaksInstance = _this$props2.peaksInstance,
-          startTimeChanged = _this$props2.startTimeChanged; // Get a fresh copy of store data
-
-      this.tempSmData = (0, _lodash.cloneDeep)(smData);
-      var tempPeaks = (0, _lodash.cloneDeep)(peaksInstance.peaks); // Make segment related to timespan editable
-
-      if (item.valid) {
-        // Load existing form values
-        this.setState((0, _formHelper.getExistingFormValues)(item.id, this.tempSmData, tempPeaks));
-        this.props.activateSegment(item.id);
-      } else {
-        this.handleInvalidTimespan();
-      } // Remove current list item from the data we're doing validation against in this form
-
-
-      this.tempSmData = structuralMetadataUtils.deleteListItem(item.id, this.tempSmData); // Save a reference to all the spans for future calculations
-
-      this.allSpans = structuralMetadataUtils.getItemsOfType('span', this.tempSmData); // Get segment from current peaks instance
-
-      var segment = peaksInstance.peaks.segments.getSegment(item.id); // Set the selected segment in the component's state
-
-      this.setState({
-        segment: segment
-      }); // Initialize the segment in Redux store with the selected item
-
-      this.props.dragSegment(segment.id, startTimeChanged, 0);
-    }
-  }, {
-    key: "handleInvalidTimespan",
-    value:
-    /**
-     * When there are invalid timespans in the structure, to edit them
-     * a placeholder segment is created within the Peaks instance, since
-     * they cannot be added at the time Peaks is initialized.
-     */
-    function handleInvalidTimespan() {
-      var _this$props3 = this.props,
-          item = _this$props3.item,
-          smData = _this$props3.smData,
-          peaksInstance = _this$props3.peaksInstance;
-      var itemIndex = structuralMetadataUtils.getItemsOfType('span', smData).findIndex(function (i) {
-        return i.id === item.id;
-      });
-      var allSpans = structuralMetadataUtils.getItemsOfType('span', this.tempSmData);
-      var wrapperSpans = {
-        prevSpan: null,
-        nextSpan: null
-      };
-      wrapperSpans.prevSpan = allSpans[itemIndex - 1] || null;
-      wrapperSpans.nextSpan = allSpans[itemIndex + 1] || null;
-      this.props.insertPlaceholderSegment(item, wrapperSpans);
-      var placeholderSegment = peaksInstance.peaks.segments.getSegment(item.id);
-      placeholderSegment.valid = false;
-      this.setState({
-        clonedSegment: placeholderSegment,
-        beginTime: structuralMetadataUtils.toHHmmss(placeholderSegment.startTime),
-        endTime: structuralMetadataUtils.toHHmmss(placeholderSegment.endTime),
-        timespanTitle: placeholderSegment.labelText
-      });
-    }
-  }, {
-    key: "formIsValid",
-    value: function formIsValid() {
-      var _this$state2 = this.state,
-          beginTime = _this$state2.beginTime,
-          endTime = _this$state2.endTime;
-      var titleValid = (0, _formHelper.isTitleValid)(this.state.timespanTitle);
-      var timesValidResponse = (0, _formHelper.validTimespans)(beginTime, endTime, this.props.peaksInstance.duration, this.allSpans);
-      return titleValid && timesValidResponse.valid;
-    }
-  }, {
-    key: "render",
-    value: function render() {
-      var _this$state3 = this.state,
-          beginTime = _this$state3.beginTime,
-          endTime = _this$state3.endTime,
-          timespanTitle = _this$state3.timespanTitle;
-      return /*#__PURE__*/_react["default"].createElement("div", {
-        className: "row-wrapper"
-      }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Form, {
-        inline: true,
-        "data-testid": "timespan-inline-form",
-        className: "mb-0"
-      }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Form.Group, {
-        controlId: "timespanTitle"
-      }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Form.Label, null, "Title"), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Form.Control, {
-        type: "text",
-        style: styles.formControl,
-        value: timespanTitle,
-        isValid: (0, _formHelper.getValidationTitleState)(timespanTitle),
-        isInvalid: !(0, _formHelper.getValidationTitleState)(timespanTitle),
-        onChange: this.handleInputChange,
-        "data-testid": "timespan-inline-form-title"
-      })), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Form.Group, {
-        controlId: "beginTime"
-      }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Form.Label, null, "Begin Time"), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Form.Control, {
-        as: "input",
-        style: styles.formControl,
-        value: beginTime,
-        onChange: this.handleInputChange,
-        isValid: (0, _formHelper.getValidationBeginState)(beginTime, this.allSpans),
-        isInvalid: !(0, _formHelper.getValidationBeginState)(beginTime, this.allSpans),
-        "data-testid": "timespan-inline-form-begintime"
-      })), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Form.Group, {
-        controlId: "endTime"
-      }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Form.Label, null, "End Time"), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Form.Control, {
-        type: "text",
-        style: styles.formControl,
-        value: endTime,
-        isValid: (0, _formHelper.getValidationEndState)(beginTime, endTime, this.allSpans, this.props.peaksInstance.duration),
-        isInvalid: !(0, _formHelper.getValidationEndState)(beginTime, endTime, this.allSpans, this.props.peaksInstance.duration),
-        onChange: this.handleInputChange,
-        "data-testid": "timespan-inline-form-endtime"
-      }))), /*#__PURE__*/_react["default"].createElement(_ListItemInlineEditControls["default"], {
-        formIsValid: this.formIsValid(),
-        handleSaveClick: this.handleSaveClick,
-        handleCancelClick: this.handleCancelClick
-      }));
-    }
-  }], [{
-    key: "getDerivedStateFromProps",
-    value: function getDerivedStateFromProps(nextProps, prevState) {
-      var peaksInstance = nextProps.peaksInstance,
-          segment = nextProps.segment,
-          isTyping = nextProps.isTyping,
-          isDragging = nextProps.isDragging,
-          isInitializing = nextProps.isInitializing,
-          startTimeChanged = nextProps.startTimeChanged;
-
-      if (!isDragging && isInitializing && !isTyping && !(0, _lodash.isEmpty)(segment)) {
-        var startTime = segment.startTime,
-            endTime = segment.endTime;
-        return {
-          beginTime: structuralMetadataUtils.toHHmmss(startTime),
-          endTime: structuralMetadataUtils.toHHmmss(endTime)
-        };
-      }
-
-      if (isDragging) {
-        // When handles in waveform are dragged clear out isInitializing and isTyping flags
-        isInitializing ? nextProps.setIsInitializing(0) : null;
-        isTyping ? nextProps.setIsTyping(0) : null;
-
-        if (prevState.peaksInstance !== peaksInstance) {
-          var _waveformUtils$valida = waveformUtils.validateSegment(segment, startTimeChanged, peaksInstance.peaks, peaksInstance.duration),
-              _startTime = _waveformUtils$valida.startTime,
-              _endTime = _waveformUtils$valida.endTime;
-
-          return {
-            beginTime: structuralMetadataUtils.toHHmmss(_startTime),
-            endTime: structuralMetadataUtils.toHHmmss(_endTime)
-          };
-        }
-      }
-
-      return null;
-    }
-  }]);
-  return TimespanInlineForm;
-}(_react.Component);
-
-(0, _defineProperty2["default"])(TimespanInlineForm, "propTypes", {
+  };
+  return /*#__PURE__*/_react["default"].createElement("div", {
+    className: "row-wrapper d-flex justify-content-between gap-5 px-0"
+  }, /*#__PURE__*/_react["default"].createElement(_Form["default"], {
+    "data-testid": "timespan-inline-form",
+    className: "mb-0 d-flex gap-4 flex-wrap flex-lg-nowrap no-gutters"
+  }, /*#__PURE__*/_react["default"].createElement(_Form["default"].Group, {
+    as: _Row["default"],
+    controlId: "timespanTitle",
+    className: "ml-0"
+  }, /*#__PURE__*/_react["default"].createElement(_Form["default"].Label, {
+    column: true,
+    sm: 2,
+    md: 3
+  }, "Title"), /*#__PURE__*/_react["default"].createElement(_Col["default"], {
+    sm: 10,
+    md: 9,
+    className: "px-0"
+  }, /*#__PURE__*/_react["default"].createElement(_Form["default"].Control, {
+    type: "text",
+    style: styles.formControl,
+    value: timespanTitle,
+    isValid: (0, _formHelper.getValidationTitleState)(timespanTitle),
+    isInvalid: !(0, _formHelper.getValidationTitleState)(timespanTitle),
+    onChange: handleInputChange,
+    "data-testid": "timespan-inline-form-title",
+    className: "mx-0"
+  }))), /*#__PURE__*/_react["default"].createElement(_Form["default"].Group, {
+    as: _Row["default"],
+    controlId: "beginTime",
+    className: "ml-0"
+  }, /*#__PURE__*/_react["default"].createElement(_Form["default"].Label, {
+    column: true,
+    sm: 2,
+    md: 3
+  }, "Begin"), /*#__PURE__*/_react["default"].createElement(_Col["default"], {
+    sm: 10,
+    md: 9,
+    className: "px-0"
+  }, /*#__PURE__*/_react["default"].createElement(_Form["default"].Control, {
+    as: "input",
+    style: styles.formControl,
+    value: beginTime,
+    onChange: handleInputChange,
+    isValid: (0, _formHelper.getValidationBeginState)(beginTime, allSpansRef.current),
+    isInvalid: !(0, _formHelper.getValidationBeginState)(beginTime, allSpansRef.current),
+    "data-testid": "timespan-inline-form-begintime",
+    className: "mx-0"
+  }))), /*#__PURE__*/_react["default"].createElement(_Form["default"].Group, {
+    as: _Row["default"],
+    controlId: "endTime",
+    className: "ml-0"
+  }, /*#__PURE__*/_react["default"].createElement(_Form["default"].Label, {
+    column: true,
+    sm: 2,
+    md: 3
+  }, "End"), /*#__PURE__*/_react["default"].createElement(_Col["default"], {
+    sm: 10,
+    md: 9,
+    className: "px-0"
+  }, /*#__PURE__*/_react["default"].createElement(_Form["default"].Control, {
+    type: "text",
+    style: styles.formControl,
+    value: endTime,
+    isValid: (0, _formHelper.getValidationEndState)(beginTime, endTime, allSpansRef.current, peaksInstance.duration),
+    isInvalid: !(0, _formHelper.getValidationEndState)(beginTime, endTime, allSpansRef.current, peaksInstance.duration),
+    onChange: handleInputChange,
+    "data-testid": "timespan-inline-form-endtime",
+    className: "mx-0"
+  })))), /*#__PURE__*/_react["default"].createElement(_ListItemInlineEditControls["default"], {
+    formIsValid: formIsValid(),
+    handleSaveClick: handleSaveClick,
+    handleCancelClick: handleCancelClick
+  }));
+}
+TimespanInlineForm.propTypes = {
   item: _propTypes["default"].object,
   cancelFn: _propTypes["default"].func,
-  saveFn: _propTypes["default"].func
-});
-
-var mapStateToProps = function mapStateToProps(state) {
-  return {
-    smData: state.structuralMetadata.smData,
-    peaksInstance: state.peaksInstance,
-    segment: state.peaksInstance.segment,
-    isDragging: state.peaksInstance.isDragging,
-    startTimeChanged: state.peaksInstance.startTimeChanged
-  };
+  saveFn: _propTypes["default"].func,
+  setIsTyping: _propTypes["default"].func,
+  isTyping: _propTypes["default"].bool,
+  isInitializing: _propTypes["default"].bool,
+  setIsInitializing: _propTypes["default"].func
 };
-
-var mapDispatchToProps = {
-  activateSegment: peaksActions.activateSegment,
-  insertPlaceholderSegment: peaksActions.insertPlaceholderSegment,
-  revertSegment: peaksActions.revertSegment,
-  saveSegment: peaksActions.saveSegment,
-  updateSegment: peaksActions.updateSegment,
-  dragSegment: peaksActions.dragSegment
-};
-
-var _default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(TimespanInlineForm);
-
-exports["default"] = _default;
+var _default = exports["default"] = TimespanInlineForm;

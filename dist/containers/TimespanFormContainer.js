@@ -1,130 +1,88 @@
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
-
 var _typeof = require("@babel/runtime/helpers/typeof");
-
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports["default"] = void 0;
-
 var _extends2 = _interopRequireDefault(require("@babel/runtime/helpers/extends"));
-
-var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
-
-var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
-
-var _assertThisInitialized2 = _interopRequireDefault(require("@babel/runtime/helpers/assertThisInitialized"));
-
-var _inherits2 = _interopRequireDefault(require("@babel/runtime/helpers/inherits"));
-
-var _possibleConstructorReturn2 = _interopRequireDefault(require("@babel/runtime/helpers/possibleConstructorReturn"));
-
-var _getPrototypeOf2 = _interopRequireDefault(require("@babel/runtime/helpers/getPrototypeOf"));
-
-var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/defineProperty"));
-
+var _slicedToArray2 = _interopRequireDefault(require("@babel/runtime/helpers/slicedToArray"));
+var _objectWithoutProperties2 = _interopRequireDefault(require("@babel/runtime/helpers/objectWithoutProperties"));
 var _react = _interopRequireWildcard(require("react"));
-
+var _reactErrorBoundary = require("react-error-boundary");
+var _propTypes = _interopRequireDefault(require("prop-types"));
 var _TimespanForm = _interopRequireDefault(require("../components/TimespanForm"));
-
 var _reactRedux = require("react-redux");
-
 var _StructuralMetadataUtils = _interopRequireDefault(require("../services/StructuralMetadataUtils"));
-
 var smActions = _interopRequireWildcard(require("../actions/sm-data"));
-
 var peaksActions = _interopRequireWildcard(require("../actions/peaks-instance"));
-
-function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
-
-function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { "default": obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
-
-function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = (0, _getPrototypeOf2["default"])(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = (0, _getPrototypeOf2["default"])(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return (0, _possibleConstructorReturn2["default"])(this, result); }; }
-
-function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
-
+var _excluded = ["cancelClick"];
+function _getRequireWildcardCache(e) { if ("function" != typeof WeakMap) return null; var r = new WeakMap(), t = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(e) { return e ? t : r; })(e); }
+function _interopRequireWildcard(e, r) { if (!r && e && e.__esModule) return e; if (null === e || "object" != _typeof(e) && "function" != typeof e) return { "default": e }; var t = _getRequireWildcardCache(r); if (t && t.has(e)) return t.get(e); var n = { __proto__: null }, a = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var u in e) if ("default" !== u && {}.hasOwnProperty.call(e, u)) { var i = a ? Object.getOwnPropertyDescriptor(e, u) : null; i && (i.get || i.set) ? Object.defineProperty(n, u, i) : n[u] = e[u]; } return n["default"] = e, t && t.set(e, n), n; }
 var structuralMetadataUtils = new _StructuralMetadataUtils["default"]();
+var TimespanFormContainer = function TimespanFormContainer(_ref) {
+  var cancelClick = _ref.cancelClick,
+    restProps = (0, _objectWithoutProperties2["default"])(_ref, _excluded);
+  // Dispatch actions from Redux store
+  var dispatch = (0, _reactRedux.useDispatch)();
+  var updateSMUI = function updateSMUI(data, duration) {
+    return dispatch(smActions.reBuildSMUI(data, duration));
+  };
+  var addNewSegment = function addNewSegment(newSpan) {
+    return dispatch(peaksActions.insertNewSegment(newSpan));
+  };
 
-var TimespanFormContainer = /*#__PURE__*/function (_Component) {
-  (0, _inherits2["default"])(TimespanFormContainer, _Component);
-
-  var _super = _createSuper(TimespanFormContainer);
-
-  function TimespanFormContainer() {
-    var _this;
-
-    (0, _classCallCheck2["default"])(this, TimespanFormContainer);
-
-    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
-      args[_key] = arguments[_key];
-    }
-
-    _this = _super.call.apply(_super, [this].concat(args));
-    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "state", {
-      isTyping: false
-    });
-    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "submit", function (values) {
+  // State variables from Redux store
+  var smData = (0, _reactRedux.useSelector)(function (state) {
+    return state.structuralMetadata.smData;
+  });
+  var duration = (0, _reactRedux.useSelector)(function (state) {
+    return state.peaksInstance.duration;
+  });
+  var _useState = (0, _react.useState)(false),
+    _useState2 = (0, _slicedToArray2["default"])(_useState, 2),
+    isTyping = _useState2[0],
+    _setIsTyping = _useState2[1];
+  var _useErrorBoundary = (0, _reactErrorBoundary.useErrorBoundary)(),
+    showBoundary = _useErrorBoundary.showBoundary;
+  var submit = function submit(values) {
+    try {
       // Update the data structure with new heading
-      var _structuralMetadataUt = structuralMetadataUtils.insertNewTimespan(values, _this.props.smData),
-          newSpan = _structuralMetadataUt.newSpan,
-          updatedData = _structuralMetadataUt.updatedData; // Update the waveform segments with new timespan
+      var _structuralMetadataUt = structuralMetadataUtils.insertNewTimespan(values, smData),
+        newSpan = _structuralMetadataUt.newSpan,
+        updatedData = _structuralMetadataUt.updatedData;
 
+      // Update the waveform segments with new timespan
+      addNewSegment(newSpan);
 
-      _this.props.insertNewSegment(newSpan); // Update redux store
+      // Update redux store
+      updateSMUI(updatedData, duration);
 
-
-      _this.props.reBuildSMUI(updatedData, _this.props.duration); // Close the form
-
-
-      _this.props.cancelClick();
-    });
-    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "setIsTyping", function (value) {
-      if (value === 1) {
-        _this.setState({
-          isTyping: true
-        });
-      } else {
-        _this.setState({
-          isTyping: false
-        });
-      }
-    });
-    return _this;
-  }
-
-  (0, _createClass2["default"])(TimespanFormContainer, [{
-    key: "render",
-    value: function render() {
-      return /*#__PURE__*/_react["default"].createElement(_TimespanForm["default"], (0, _extends2["default"])({}, this.props, {
-        setIsTyping: this.setIsTyping,
-        isTyping: this.state.isTyping,
-        onSubmit: this.submit
-      }));
-    }
-  }]);
-  return TimespanFormContainer;
-}(_react.Component);
-
-var mapDispatchToProps = function mapDispatchToProps(dispatch) {
-  return {
-    reBuildSMUI: function reBuildSMUI(data) {
-      return dispatch(smActions.reBuildSMUI(data));
-    },
-    insertNewSegment: function insertNewSegment(newspan) {
-      return dispatch(peaksActions.insertNewSegment(newspan));
+      // Close the form
+      cancelClick();
+    } catch (error) {
+      showBoundary(error);
     }
   };
-};
-
-var mapStateToProps = function mapStateToProps(state) {
-  return {
-    smData: state.structuralMetadata.smData,
-    duration: state.peaksInstance.duration
+  var setIsTyping = function setIsTyping(value) {
+    if (value === 1) {
+      _setIsTyping(true);
+    } else {
+      _setIsTyping(false);
+    }
   };
+  return /*#__PURE__*/_react["default"].createElement(_TimespanForm["default"], (0, _extends2["default"])({}, restProps, {
+    cancelClick: cancelClick,
+    setIsTyping: setIsTyping,
+    isTyping: isTyping,
+    onSubmit: submit
+  }));
 };
-
-var _default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(TimespanFormContainer);
-
-exports["default"] = _default;
+TimespanFormContainer.propTypes = {
+  cancelClick: _propTypes["default"].func.isRequired,
+  initSegment: _propTypes["default"].object,
+  isInitializing: _propTypes["default"].bool,
+  setIsInitializing: _propTypes["default"].func
+};
+var _default = exports["default"] = TimespanFormContainer;

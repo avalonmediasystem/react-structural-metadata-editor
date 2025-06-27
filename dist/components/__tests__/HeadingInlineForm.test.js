@@ -1,6 +1,5 @@
 import React from 'react';
-import { fireEvent, cleanup } from 'react-testing-library';
-import 'jest-dom/extend-expect';
+import { fireEvent } from '@testing-library/react';
 import HeadingInlineForm from '../HeadingInlineForm';
 import { renderWithRedux, testSmData } from '../../services/testing-helpers';
 
@@ -24,12 +23,17 @@ const invalidItem = {
   items: [],
 };
 
-afterEach(cleanup);
+// Mock react-error-boundary library
+jest.mock('react-error-boundary', () => ({
+  useErrorBoundary: jest.fn(() => ({
+    showBoundary: jest.fn(),
+  }))
+}));
 
 describe('HeadingInlineForm component', () => {
   test('renders successfully', () => {
     const { getByTestId } = renderWithRedux(
-      <HeadingInlineForm item={validItem} />,
+      <HeadingInlineForm itemId={validItem.id} />,
       {
         initialState,
       }
@@ -40,7 +44,7 @@ describe('HeadingInlineForm component', () => {
   describe('validates form', () => {
     test('when existing heading is valid', () => {
       const { getByLabelText, getByTestId } = renderWithRedux(
-        <HeadingInlineForm item={validItem} />,
+        <HeadingInlineForm itemId={validItem.id} />,
         { initialState }
       );
 
@@ -53,7 +57,7 @@ describe('HeadingInlineForm component', () => {
 
     test('when existing heading is invalid', () => {
       const { getByLabelText, getByTestId } = renderWithRedux(
-        <HeadingInlineForm item={invalidItem} />,
+        <HeadingInlineForm itemId={invalidItem.id} />,
         { initialState }
       );
 
@@ -66,7 +70,7 @@ describe('HeadingInlineForm component', () => {
 
     test('when changing heading', () => {
       const { getByLabelText, getByTestId } = renderWithRedux(
-        <HeadingInlineForm item={validItem} />,
+        <HeadingInlineForm itemId={validItem.id} />,
         { initialState }
       );
 
@@ -91,7 +95,7 @@ describe('HeadingInlineForm component', () => {
 
     test('enables save button when form is valid', () => {
       const { getByLabelText, getByTestId } = renderWithRedux(
-        <HeadingInlineForm item={invalidItem} />,
+        <HeadingInlineForm itemId={invalidItem.id} />,
         { initialState }
       );
 
@@ -116,7 +120,7 @@ describe('HeadingInlineForm component', () => {
     beforeEach(() => {
       utils = renderWithRedux(
         <HeadingInlineForm
-          item={invalidItem}
+          itemId={invalidItem.id}
           saveFn={saveFnMock}
           cancelFn={cancelFnMock}
         />,

@@ -1,32 +1,21 @@
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
-
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.manifestWoStructure = exports.manifestWoChoice = exports.manifestWithStructure = exports.manifestWithInvalidStruct = exports.manifestWEmptyCanvas = exports.manifest = void 0;
 exports.renderWithRedux = renderWithRedux;
 exports.testSmData = exports.testInvalidData = exports.testEmptyHeaderBefore = exports.testEmptyHeaderAfter = exports.testDataFromServer = void 0;
-
 var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/defineProperty"));
-
 var _react = _interopRequireDefault(require("react"));
-
 var _reactRedux = require("react-redux");
-
 var _redux = require("redux");
-
-var _reactTestingLibrary = require("react-testing-library");
-
+var _react2 = require("@testing-library/react");
 var _reducers = _interopRequireDefault(require("../reducers"));
-
-var _reduxThunk = _interopRequireDefault(require("redux-thunk"));
-
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { (0, _defineProperty2["default"])(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-
+var _reduxThunk = require("redux-thunk");
+function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
+function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { (0, _defineProperty2["default"])(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
 /**
  * Helper function for providing a Redux connected component for testing.
  * Taken from Testing Library:  https://testing-library.com/docs/example-react-redux
@@ -40,18 +29,15 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
  */
 function renderWithRedux(ui) {
   var _ref = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-      initialState = _ref.initialState,
-      _ref$store = _ref.store,
-      store = _ref$store === void 0 ? (0, _redux.createStore)(_reducers["default"], initialState, (0, _redux.applyMiddleware)(_reduxThunk["default"])) : _ref$store;
-
-  var renderFn = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : _reactTestingLibrary.render;
-
-  var obj = _objectSpread(_objectSpread({}, renderFn( /*#__PURE__*/_react["default"].createElement(_reactRedux.Provider, {
+    initialState = _ref.initialState,
+    _ref$store = _ref.store,
+    store = _ref$store === void 0 ? (0, _redux.createStore)(_reducers["default"], initialState, (0, _redux.applyMiddleware)(_reduxThunk.thunk)) : _ref$store;
+  var renderFn = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : _react2.render;
+  var obj = _objectSpread(_objectSpread({}, renderFn(/*#__PURE__*/_react["default"].createElement(_reactRedux.Provider, {
     store: store
   }, ui))), {}, {
     store: store
   });
-
   obj.rerenderWithRedux = function (el, nextState) {
     if (nextState) {
       store.replaceReducer(function () {
@@ -62,16 +48,13 @@ function renderWithRedux(ui) {
       });
       store.replaceReducer(_reducers["default"]);
     }
-
     return renderWithRedux(el, {
       store: store
     }, obj.rerender);
   };
-
   return obj;
 }
-
-var testSmData = [{
+var testSmData = exports.testSmData = [{
   type: 'root',
   label: 'Ima Title',
   id: '123a-456b-789c-0d',
@@ -128,8 +111,7 @@ var testSmData = [{
     items: []
   }]
 }];
-exports.testSmData = testSmData;
-var testDataFromServer = [{
+var testDataFromServer = exports.testDataFromServer = [{
   type: 'root',
   label: 'Ima Title',
   id: '123a-456b-789c-0d',
@@ -165,8 +147,7 @@ var testDataFromServer = [{
     end: 'NaN:NaN:NaN'
   }]
 }];
-exports.testDataFromServer = testDataFromServer;
-var testEmptyHeaderBefore = [{
+var testEmptyHeaderBefore = exports.testEmptyHeaderBefore = [{
   type: 'div',
   label: 'Title',
   id: '123a-456b-789c-0d',
@@ -188,8 +169,7 @@ var testEmptyHeaderBefore = [{
     }]
   }]
 }];
-exports.testEmptyHeaderBefore = testEmptyHeaderBefore;
-var testEmptyHeaderAfter = [{
+var testEmptyHeaderAfter = exports.testEmptyHeaderAfter = [{
   type: 'div',
   label: 'Title',
   id: '123a-456b-789c-0d',
@@ -211,8 +191,7 @@ var testEmptyHeaderAfter = [{
     items: []
   }]
 }];
-exports.testEmptyHeaderAfter = testEmptyHeaderAfter;
-var testInvalidData = [{
+var testInvalidData = exports.testInvalidData = [{
   type: 'root',
   label: 'Ima Title',
   id: '123a-456b-789c-0d',
@@ -249,8 +228,7 @@ var testInvalidData = [{
     }]
   }]
 }];
-exports.testInvalidData = testInvalidData;
-var manifest = {
+var manifest = exports.manifest = {
   ' @context': ['http://iiif.io/api/presentation/3/context.json'],
   type: 'Manifest',
   id: 'http://example.com/volleyball-for-boys/manifest',
@@ -318,8 +296,7 @@ var manifest = {
     }]
   }]
 };
-exports.manifest = manifest;
-var manifestWithInvalidStruct = {
+var manifestWithInvalidStruct = exports.manifestWithInvalidStruct = {
   '@context': ['http://www.w3.org/ns/anno.jsonld', 'http://iiif.io/api/presentation/3/context.json'],
   type: 'Manifest',
   id: 'https://example.com/lunchroom-manners/manifest',
@@ -377,8 +354,7 @@ var manifestWithInvalidStruct = {
     }]
   }]
 };
-exports.manifestWithInvalidStruct = manifestWithInvalidStruct;
-var manifestWoStructure = {
+var manifestWoStructure = exports.manifestWoStructure = {
   '@context': ['http://www.w3.org/ns/anno.jsonld', 'http://iiif.io/api/presentation/3/context.json'],
   type: 'Manifest',
   id: 'https://example.com/lunchroom-manners/manifest',
@@ -412,8 +388,7 @@ var manifestWoStructure = {
     }]
   }]
 };
-exports.manifestWoStructure = manifestWoStructure;
-var manifestWithStructure = {
+var manifestWithStructure = exports.manifestWithStructure = {
   '@context': ['http://iiif.io/api/presentation/3/context.json'],
   type: 'Manifest',
   id: 'http://example.com/sample-manifest/manifest',
@@ -544,8 +519,7 @@ var manifestWithStructure = {
     }]
   }]
 };
-exports.manifestWithStructure = manifestWithStructure;
-var manifestWoChoice = {
+var manifestWoChoice = exports.manifestWoChoice = {
   '@context': ['http://iiif.io/api/presentation/3/context.json'],
   id: "http://example.com/sample-manifest/manifest.json",
   type: 'Manifest',
@@ -578,8 +552,7 @@ var manifestWoChoice = {
     }]
   }]
 };
-exports.manifestWoChoice = manifestWoChoice;
-var manifestWEmptyCanvas = {
+var manifestWEmptyCanvas = exports.manifestWEmptyCanvas = {
   '@context': ['http://iiif.io/api/presentation/3/context.json'],
   id: "http://example.com/empty-canvas-manifest/manifest.json",
   type: 'Manifest',
@@ -627,4 +600,3 @@ var manifestWEmptyCanvas = {
     }
   }]
 };
-exports.manifestWEmptyCanvas = manifestWEmptyCanvas;

@@ -1,56 +1,46 @@
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
-
 var _typeof = require("@babel/runtime/helpers/typeof");
-
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.removeAlert = exports.handleStructureError = exports.handleEditingTimespans = exports.clearExistingAlerts = void 0;
 exports.retrieveStreamMedia = retrieveStreamMedia;
 exports.updateStructureStatus = exports.streamMediaSuccess = exports.setStreamMediaLoading = exports.setStreamMediaError = exports.setAlert = exports.retrieveWaveformSuccess = exports.retrieveStructureSuccess = void 0;
-
 var types = _interopRequireWildcard(require("./types"));
-
 var _hls = _interopRequireDefault(require("hls.js"));
-
-var _v = _interopRequireDefault(require("uuid/v1"));
-
-function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
-
-function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { "default": obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+var _uuid = require("uuid");
+function _getRequireWildcardCache(e) { if ("function" != typeof WeakMap) return null; var r = new WeakMap(), t = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(e) { return e ? t : r; })(e); }
+function _interopRequireWildcard(e, r) { if (!r && e && e.__esModule) return e; if (null === e || "object" != _typeof(e) && "function" != typeof e) return { "default": e }; var t = _getRequireWildcardCache(r); if (t && t.has(e)) return t.get(e); var n = { __proto__: null }, a = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var u in e) if ("default" !== u && {}.hasOwnProperty.call(e, u)) { var i = a ? Object.getOwnPropertyDescriptor(e, u) : null; i && (i.get || i.set) ? Object.defineProperty(n, u, i) : n[u] = e[u]; } return n["default"] = e, t && t.set(e, n), n; }
+;
 
 /**
  * Enable/disable other editing actions when editing a list item
  * @param {Integer} code - choose from; 1(true) | 0(false)
  */
-var handleEditingTimespans = function handleEditingTimespans(code) {
+var handleEditingTimespans = exports.handleEditingTimespans = function handleEditingTimespans(code) {
   var valid = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
   return function (dispatch) {
     dispatch({
       type: types.IS_EDITING_TIMESPAN,
       code: code
-    }); // Remove dismissible alerts when a CRUD action has been initiated
+    });
+    // Remove dismissible alerts when a CRUD action has been initiated
     // given editing is starting (code = 1) and structure is validated.
-
     if (code == 1 && valid) {
       dispatch(clearExistingAlerts());
     }
   };
 };
-
-exports.handleEditingTimespans = handleEditingTimespans;
-
-var setAlert = function setAlert(alert) {
+var setAlert = exports.setAlert = function setAlert(alert) {
   return function (dispatch) {
-    var id = (0, _v["default"])();
+    var id = (0, _uuid.v4)();
     alert.id = id;
     dispatch({
       type: types.SET_ALERT,
       alert: alert
     });
-
     if (alert.delay > 0 && !alert.persistent) {
       setTimeout(function () {
         return dispatch(removeAlert(id));
@@ -58,54 +48,40 @@ var setAlert = function setAlert(alert) {
     }
   };
 };
-
-exports.setAlert = setAlert;
-
-var removeAlert = function removeAlert(id) {
+var removeAlert = exports.removeAlert = function removeAlert(id) {
   return {
     type: types.REMOVE_ALERT,
     id: id
   };
 };
-
-exports.removeAlert = removeAlert;
-
-var clearExistingAlerts = function clearExistingAlerts() {
+var clearExistingAlerts = exports.clearExistingAlerts = function clearExistingAlerts() {
   return {
     type: types.CLEAR_EXISTING_ALERTS
   };
 };
-
-exports.clearExistingAlerts = clearExistingAlerts;
-
-var retrieveStructureSuccess = function retrieveStructureSuccess() {
+var retrieveStructureSuccess = exports.retrieveStructureSuccess = function retrieveStructureSuccess() {
   return {
     type: types.RETRIEVE_STRUCTURE_SUCCESS
   };
 };
+
 /**
  * Initially the structure status isSaved (true) and changed to false
  * when an edit action is performed on the structure
  * @param {Integer} code - choose from; 1(true -> saved) | 0(false -> not saved)
  */
-
-
-exports.retrieveStructureSuccess = retrieveStructureSuccess;
-
-var updateStructureStatus = function updateStructureStatus(code) {
+var updateStructureStatus = exports.updateStructureStatus = function updateStructureStatus(code) {
   return {
     type: types.UPDATE_STRUCTURE_STATUS,
     payload: code
   };
 };
-
-exports.updateStructureStatus = updateStructureStatus;
-
-var retrieveWaveformSuccess = function retrieveWaveformSuccess() {
+var retrieveWaveformSuccess = exports.retrieveWaveformSuccess = function retrieveWaveformSuccess() {
   return {
     type: types.RETRIEVE_WAVEFORM_SUCCESS
   };
 };
+
 /**
  * Set the error status code for fetching structure.json in Redux
  * store. This status code is then used to create the alert.
@@ -113,52 +89,36 @@ var retrieveWaveformSuccess = function retrieveWaveformSuccess() {
  * 0(false ->No error). No error -> structureStatus is set to null
  * @param {Integer} status - HTTP error status code
  */
-
-
-exports.retrieveWaveformSuccess = retrieveWaveformSuccess;
-
-var handleStructureError = function handleStructureError(flag, status) {
+var handleStructureError = exports.handleStructureError = function handleStructureError(flag, status) {
   return {
     type: types.HANDLE_STRUCTURE_ERROR,
     flag: flag,
     status: status
   };
 };
+
 /**
  * streamMediaError flag in redux store is set to true when Hls.js runs out
  * of retries and still cannot load the stream media
  * @param {Integer} code - choose from; 1(true -> failed) | 0(false -> success)
  */
-
-
-exports.handleStructureError = handleStructureError;
-
-var setStreamMediaError = function setStreamMediaError(code) {
+var setStreamMediaError = exports.setStreamMediaError = function setStreamMediaError(code) {
   return {
     type: types.STREAM_MEDIA_ERROR,
     payload: code
   };
 };
-
-exports.setStreamMediaError = setStreamMediaError;
-
-var streamMediaSuccess = function streamMediaSuccess() {
+var streamMediaSuccess = exports.streamMediaSuccess = function streamMediaSuccess() {
   return {
     type: types.STREAM_MEDIA_SUCCESS
   };
 };
-
-exports.streamMediaSuccess = streamMediaSuccess;
-
-var setStreamMediaLoading = function setStreamMediaLoading(flag) {
+var setStreamMediaLoading = exports.setStreamMediaLoading = function setStreamMediaLoading(flag) {
   return {
     type: types.STREAM_MEDIA_LOADING,
     flag: flag
   };
 };
-
-exports.setStreamMediaLoading = setStreamMediaLoading;
-
 function retrieveStreamMedia(audioFile, mediaPlayer) {
   var opts = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
   return function (dispatch, getState) {
@@ -167,7 +127,6 @@ function retrieveStreamMedia(audioFile, mediaPlayer) {
         xhrSetup: function xhrSetup(xhr) {
           xhr.withCredentials = opts.withCredentials;
         },
-
         /*
           Sometimes captions/subtitles in Avalon fails to render and this makes
           HLS streaming to break resulting in a indefinite blocking loading spinner.
@@ -180,16 +139,14 @@ function retrieveStreamMedia(audioFile, mediaPlayer) {
         renderTextTracksNatively: false
       };
       var hls = new _hls["default"](config);
-
       var _getState = getState(),
-          state = _getState.state; // Bind media player
-
-
-      hls.attachMedia(mediaPlayer); // MEDIA_ATTACHED event is fired by hls object once MediaSource is ready
-
+        state = _getState.state;
+      // Bind media player
+      hls.attachMedia(mediaPlayer);
+      // MEDIA_ATTACHED event is fired by hls object once MediaSource is ready
       hls.on(_hls["default"].Events.MEDIA_ATTACHED, function () {
-        hls.loadSource(audioFile); // BUFFER_CREATED event is fired when fetching the media stream is successful
-
+        hls.loadSource(audioFile);
+        // BUFFER_CREATED event is fired when fetching the media stream is successful
         hls.on(_hls["default"].Events.BUFFER_CREATED, function () {
           hls.once(_hls["default"].Events.BUFFER_APPENDED, function () {
             /**
@@ -207,15 +164,15 @@ function retrieveStreamMedia(audioFile, mediaPlayer) {
             }
           });
         });
-      }); // ERROR event is fired when fetching media stream is not successful
+      });
 
+      // ERROR event is fired when fetching media stream is not successful
       hls.on(_hls["default"].Events.ERROR, function (event, data) {
         // When there are errors in the HLS build this block catches it and flashes
         // the warning message for a split second. The ErrorType for these errors is
         // OTHER_ERROR. Issue in HLS.js: https://github.com/video-dev/hls.js/issues/2435
         if (data.fatal) {
           dispatch(setStreamMediaLoading(1));
-
           if (data.type !== _hls["default"].ErrorTypes.OTHER_ERROR) {
             switch (data.type) {
               case _hls["default"].ErrorTypes.MEDIA_ERROR:
@@ -223,7 +180,6 @@ function retrieveStreamMedia(audioFile, mediaPlayer) {
                 hls.recoverMediaError();
                 dispatch(setStreamMediaLoading(1));
                 break;
-
               default:
                 // cannot recover
                 hls.off(_hls["default"].Events.ERROR);

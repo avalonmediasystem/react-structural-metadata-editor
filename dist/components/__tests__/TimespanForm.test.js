@@ -1,9 +1,18 @@
 import React from 'react';
-import { cleanup, fireEvent } from 'react-testing-library';
-import 'jest-dom/extend-expect';
+import { fireEvent } from '@testing-library/react';
 import TimespanForm from '../TimespanForm';
 import { renderWithRedux, testSmData } from '../../services/testing-helpers';
 import Peaks from 'peaks';
+
+// Temporary segment for testing Peaks interactions
+const tempSegment = {
+  startTime: 0,
+  endTime: 3.321,
+  labelText: '',
+  id: 'temp-segment',
+  editable: true,
+  color: '#FBB040',
+};
 
 // Set up a redux store for the tests
 const peaksOptions = {
@@ -14,6 +23,7 @@ const peaksOptions = {
   keyboard: true,
   _zoomLevelIndex: 0,
   _zoomLevels: [512, 1024, 2048, 4096],
+  tempSegment: tempSegment,
 };
 
 let peaksInst = null;
@@ -28,14 +38,7 @@ const initialState = {
   peaksInstance: {
     peaks: peaksInst,
     isDragging: false,
-    segment: {
-      startTime: 0,
-      endTime: 3.321,
-      labelText: '',
-      id: 'temp-segment',
-      editable: true,
-      color: '#FBB040',
-    },
+    segment: tempSegment,
     duration: 1738.945,
   },
 };
@@ -54,7 +57,6 @@ const props = {
     color: '#FBB040',
     id: 'temp-segment',
   },
-  timespanOpen: true,
   isTyping: false,
   isInitializing: true,
   setIsTyping: setTypingMock,
@@ -63,12 +65,10 @@ const props = {
   cancelClick: cancelMock,
 };
 
-afterEach(cleanup);
-
 describe('Timespan component', () => {
   describe('renders', () => {
     test('successfully', () => {
-      const { getByTestId } = renderWithRedux(<TimespanForm />, {
+      const { getByTestId } = renderWithRedux(<TimespanForm  {...props} />, {
         initialState,
       });
 

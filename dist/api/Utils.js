@@ -1,32 +1,26 @@
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
-
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports["default"] = void 0;
-
 var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
-
 var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
-
 var _axios = _interopRequireDefault(require("axios"));
-
 // Config flag to change the source of data retrieval endpoint
 var useLocalData = false;
-var BASE_URL = 'http://localhost:3123/data/mock-response-'; // Default headers for API calls
+var BASE_URL = 'http://localhost:3123/data/mock-response-';
 
+// Default headers for API calls
 var defaultHeaders = {
   'Content-Type': 'application/json'
 };
-
-var APIUtils = /*#__PURE__*/function () {
+var APIUtils = exports["default"] = /*#__PURE__*/function () {
   function APIUtils() {
     (0, _classCallCheck2["default"])(this, APIUtils);
   }
-
-  (0, _createClass2["default"])(APIUtils, [{
+  return (0, _createClass2["default"])(APIUtils, [{
     key: "getRequest",
     value:
     /**
@@ -40,13 +34,13 @@ var APIUtils = /*#__PURE__*/function () {
         headers: headers
       });
     }
+
     /**
      * Construct POST request with parameters,
      * @param {String} url - url where data gets posted
      * @param {JSON} data - JSON data posting to the server
      * @param {Headers} headers
      */
-
   }, {
     key: "postRequest",
     value: function postRequest(url, data) {
@@ -55,12 +49,12 @@ var APIUtils = /*#__PURE__*/function () {
         headers: headers
       });
     }
+
     /**
      * Construct HEAD request with parameters,
      * @param {String} url
      * @param {Headers} headers
      */
-
   }, {
     key: "headRequest",
     value: function headRequest(url) {
@@ -70,7 +64,4 @@ var APIUtils = /*#__PURE__*/function () {
       });
     }
   }]);
-  return APIUtils;
 }();
-
-exports["default"] = APIUtils;

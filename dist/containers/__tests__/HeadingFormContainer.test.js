@@ -1,6 +1,4 @@
 import React from 'react';
-import { cleanup } from 'react-testing-library';
-import 'jest-dom/extend-expect';
 import HeadingFormContainer from '../HeadingFormContainer';
 import { renderWithRedux, testSmData } from '../../services/testing-helpers';
 
@@ -9,7 +7,12 @@ const initialState = {
   structuralMetadata: { smData: testSmData }
 };
 
-afterEach(cleanup);
+// Mock react-error-boundary library
+jest.mock('react-error-boundary', () => ({
+  useErrorBoundary: jest.fn(() => ({
+    showBoundary: jest.fn(),
+  }))
+}));
 
 test('HeadingFormContainer renders without props', () => {
   const { getByTestId } = renderWithRedux(<HeadingFormContainer />);

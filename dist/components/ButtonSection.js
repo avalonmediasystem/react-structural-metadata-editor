@@ -1,52 +1,24 @@
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
-
 var _typeof = require("@babel/runtime/helpers/typeof");
-
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports["default"] = void 0;
-
-var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
-
-var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
-
-var _assertThisInitialized2 = _interopRequireDefault(require("@babel/runtime/helpers/assertThisInitialized"));
-
-var _inherits2 = _interopRequireDefault(require("@babel/runtime/helpers/inherits"));
-
-var _possibleConstructorReturn2 = _interopRequireDefault(require("@babel/runtime/helpers/possibleConstructorReturn"));
-
-var _getPrototypeOf2 = _interopRequireDefault(require("@babel/runtime/helpers/getPrototypeOf"));
-
-var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/defineProperty"));
-
+var _slicedToArray2 = _interopRequireDefault(require("@babel/runtime/helpers/slicedToArray"));
 var _react = _interopRequireWildcard(require("react"));
-
 var _reactRedux = require("react-redux");
-
-var _reactBootstrap = require("react-bootstrap");
-
+var _reactErrorBoundary = require("react-error-boundary");
+var _Button = _interopRequireDefault(require("react-bootstrap/Button"));
+var _Collapse = _interopRequireDefault(require("react-bootstrap/Collapse"));
 var _HeadingFormContainer = _interopRequireDefault(require("../containers/HeadingFormContainer"));
-
 var _TimespanFormContainer = _interopRequireDefault(require("../containers/TimespanFormContainer"));
-
 var peaksActions = _interopRequireWildcard(require("../actions/peaks-instance"));
-
 var _alertStatus = require("../services/alert-status");
-
 var _forms = require("../actions/forms");
-
-function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
-
-function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { "default": obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
-
-function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = (0, _getPrototypeOf2["default"])(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = (0, _getPrototypeOf2["default"])(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return (0, _possibleConstructorReturn2["default"])(this, result); }; }
-
-function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
-
+function _getRequireWildcardCache(e) { if ("function" != typeof WeakMap) return null; var r = new WeakMap(), t = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(e) { return e ? t : r; })(e); }
+function _interopRequireWildcard(e, r) { if (!r && e && e.__esModule) return e; if (null === e || "object" != _typeof(e) && "function" != typeof e) return { "default": e }; var t = _getRequireWildcardCache(r); if (t && t.has(e)) return t.get(e); var n = { __proto__: null }, a = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var u in e) if ("default" !== u && {}.hasOwnProperty.call(e, u)) { var i = a ? Object.getOwnPropertyDescriptor(e, u) : null; i && (i.get || i.set) ? Object.defineProperty(n, u, i) : n[u] = e[u]; } return n["default"] = e, t && t.set(e, n), n; }
 var styles = {
   well: {
     marginTop: '1rem',
@@ -59,200 +31,180 @@ var styles = {
     boxShadow: 'inset 0 1px 1px rgb(0 0 0 / 5%)'
   }
 };
+var ButtonSection = function ButtonSection() {
+  // Dispatch actions to Redux store
+  var dispatch = (0, _reactRedux.useDispatch)();
+  var createTempSegment = function createTempSegment() {
+    return dispatch(peaksActions.insertTempSegment());
+  };
+  var removeTempSegment = function removeTempSegment(id) {
+    return dispatch(peaksActions.deleteTempSegment(id));
+  };
+  var updateEditingTimespans = function updateEditingTimespans(value) {
+    return dispatch((0, _forms.handleEditingTimespans)(value));
+  };
+  var settingAlert = function settingAlert(alert) {
+    return dispatch((0, _forms.setAlert)(alert));
+  };
 
-var ButtonSection = /*#__PURE__*/function (_Component) {
-  (0, _inherits2["default"])(ButtonSection, _Component);
-
-  var _super = _createSuper(ButtonSection);
-
-  function ButtonSection() {
-    var _this;
-
-    (0, _classCallCheck2["default"])(this, ButtonSection);
-
-    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
-      args[_key] = arguments[_key];
+  // Get state variables from Redux store
+  var _useSelector = (0, _reactRedux.useSelector)(function (state) {
+      return state.forms;
+    }),
+    editingDisabled = _useSelector.editingDisabled,
+    structureInfo = _useSelector.structureInfo,
+    streamInfo = _useSelector.streamInfo;
+  var _useSelector2 = (0, _reactRedux.useSelector)(function (state) {
+      return state.peaksInstance;
+    }),
+    peaks = _useSelector2.peaks;
+  var _useState = (0, _react.useState)(false),
+    _useState2 = (0, _slicedToArray2["default"])(_useState, 2),
+    headingOpen = _useState2[0],
+    setHeadingOpen = _useState2[1];
+  var _useState3 = (0, _react.useState)(false),
+    _useState4 = (0, _slicedToArray2["default"])(_useState3, 2),
+    timespanOpen = _useState4[0],
+    setTimespanOpen = _useState4[1];
+  var _useState5 = (0, _react.useState)(null),
+    _useState6 = (0, _slicedToArray2["default"])(_useState5, 2),
+    initSegment = _useState6[0],
+    setInitSegment = _useState6[1];
+  var _useState7 = (0, _react.useState)(true),
+    _useState8 = (0, _slicedToArray2["default"])(_useState7, 2),
+    isInitializing = _useState8[0],
+    _setIsInitializing = _useState8[1];
+  var _useState9 = (0, _react.useState)(true),
+    _useState10 = (0, _slicedToArray2["default"])(_useState9, 2),
+    disabled = _useState10[0],
+    setDisabled = _useState10[1];
+  var _useState11 = (0, _react.useState)(false),
+    _useState12 = (0, _slicedToArray2["default"])(_useState11, 2),
+    formOpen = _useState12[0],
+    setFormOpen = _useState12[1];
+  var _useErrorBoundary = (0, _reactErrorBoundary.useErrorBoundary)(),
+    showBoundary = _useErrorBoundary.showBoundary;
+  (0, _react.useEffect)(function () {
+    if (editingDisabled && !formOpen) {
+      setDisabled(true);
     }
+  }, [formOpen, editingDisabled]);
+  var setIsInitializing = function setIsInitializing(value) {
+    if (value === 1) {
+      _setIsInitializing(true);
+    } else {
+      _setIsInitializing(false);
+    }
+  };
 
-    _this = _super.call.apply(_super, [this].concat(args));
-    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "state", {
-      headingOpen: false,
-      timespanOpen: false,
-      initSegment: null,
-      isInitializing: true,
-      alertObj: {
-        alert: null,
-        showAlert: false
-      },
-      disabled: true,
-      formOpen: false
+  // Wrapper function to update heeading/timespan collapsible form states
+  var setFormStatus = function setFormStatus(_ref) {
+    var formState = _ref.formState,
+      _ref$hState = _ref.hState,
+      hState = _ref$hState === void 0 ? false : _ref$hState,
+      _ref$tState = _ref.tState,
+      tState = _ref$tState === void 0 ? false : _ref$tState;
+    setHeadingOpen(hState);
+    setTimespanOpen(tState);
+    setFormOpen(formState);
+  };
+  var handleCancelHeadingClick = function handleCancelHeadingClick() {
+    setFormStatus({
+      formState: false,
+      hState: false
     });
-    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "setIsInitializing", function (value) {
-      if (value === 1) {
-        _this.setState({
-          isInitializing: true
-        });
-      } else {
-        _this.setState({
-          isInitializing: false
-        });
-      }
+    updateEditingTimespans(0);
+  };
+  var handleHeadingClick = function handleHeadingClick() {
+    updateEditingTimespans(1);
+    // When opening heading form, delete if a temporary segment exists
+    deleteTempSegment();
+    setFormStatus({
+      formState: true,
+      hState: true
     });
-    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "handleCancelHeadingClick", function () {
-      _this.setState({
-        headingOpen: false,
-        formOpen: false
-      });
-
-      _this.props.handleEditingTimespans(0);
+    setDisabled(false);
+  };
+  var handleCancelTimespanClick = function handleCancelTimespanClick() {
+    deleteTempSegment();
+    setFormStatus({
+      formState: false
     });
-    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "handleHeadingClick", function () {
-      _this.props.handleEditingTimespans(1); // When opening heading form, delete if a temporary segment exists
+    updateEditingTimespans(0);
+  };
+  var handleTimeSpanClick = function handleTimeSpanClick() {
+    // Disable editing other items in structure
+    updateEditingTimespans(1);
 
-
-      _this.deleteTempSegment();
-
-      _this.setState({
-        headingOpen: true,
-        timespanOpen: false,
-        disabled: false,
-        formOpen: true
-      });
-    });
-    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "handleCancelTimespanClick", function () {
-      _this.deleteTempSegment();
-
-      _this.setState({
-        timespanOpen: false,
-        formOpen: false
-      });
-
-      _this.props.handleEditingTimespans(0);
-    });
-    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "handleTimeSpanClick", function () {
-      // Disable editing other items in structure
-      _this.props.handleEditingTimespans(1); // Create a temporary segment if timespan form is closed
-
-
-      if (!_this.state.timespanOpen) {
-        _this.props.createTempSegment();
-      }
-
-      var tempSegment = _this.props.peaksInstance.peaks.segments.getSegment('temp-segment');
-
-      _this.setState({
-        headingOpen: false,
-        disabled: false,
-        formOpen: true
-      });
-
-      if (tempSegment === null) {
+    // Create a temporary segment if timespan form is closed
+    if (!timespanOpen) {
+      createTempSegment();
+    }
+    var tempSegment = peaks.segments.getSegment('temp-segment');
+    try {
+      if (tempSegment == undefined) {
         var noSpaceAlert = (0, _alertStatus.configureAlert)(-4);
-
-        _this.props.setAlert(noSpaceAlert);
+        settingAlert(noSpaceAlert);
       } else {
         // Initialize Redux store with temporary segment
-        _this.props.dragSegment(tempSegment.id, null, 0);
-
-        _this.setState({
-          initSegment: tempSegment,
-          timespanOpen: true,
-          isInitializing: true
-        });
+        dispatch(peaksActions.dragSegment(tempSegment.id, null, 0));
+        setInitSegment(tempSegment);
+        setTimespanOpen(true);
+        setIsInitializing(true);
       }
-    });
-    (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this), "deleteTempSegment", function () {
-      if (_this.state.initSegment !== null) {
-        _this.props.deleteTempSegment(_this.state.initSegment.id);
-      }
-    });
-    return _this;
-  }
-
-  (0, _createClass2["default"])(ButtonSection, [{
-    key: "render",
-    value: function render() {
-      var timespanFormProps = {
-        cancelClick: this.handleCancelTimespanClick,
-        initSegment: this.state.initSegment,
-        isInitializing: this.state.isInitializing,
-        timespanOpen: this.state.timespanOpen,
-        setIsInitializing: this.setIsInitializing
-      };
-      var _this$props$forms = this.props.forms,
-          editingDisabled = _this$props$forms.editingDisabled,
-          structureInfo = _this$props$forms.structureInfo,
-          streamInfo = _this$props$forms.streamInfo; // Only return UI when both structure and waveform data exist
-
-      return structureInfo.structureRetrieved ? /*#__PURE__*/_react["default"].createElement("section", {
-        className: "button-section",
-        "data-testid": "button-section"
-      }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Row, {
-        "data-testid": "button-row"
-      }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Col, {
-        sm: "6"
-      }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Button, {
-        variant: "outline-secondary",
-        "data-testid": "add-heading-button",
-        block: true,
-        onClick: this.handleHeadingClick,
-        disabled: this.state.disabled && editingDisabled
-      }, "Add a Heading")), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Col, {
-        sm: "6"
-      }, /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Button, {
-        variant: "outline-secondary",
-        "data-testid": "add-timespan-button",
-        block: true,
-        onClick: this.handleTimeSpanClick,
-        disabled: this.state.disabled && editingDisabled || streamInfo.streamMediaError
-      }, "Add a Timespan"))), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Collapse, {
-        "in": this.state.headingOpen
-      }, /*#__PURE__*/_react["default"].createElement("div", {
-        style: styles.well,
-        "data-testid": "heading-form-wrapper"
-      }, /*#__PURE__*/_react["default"].createElement(_HeadingFormContainer["default"], {
-        cancelClick: this.handleCancelHeadingClick
-      }))), /*#__PURE__*/_react["default"].createElement(_reactBootstrap.Collapse, {
-        "in": this.state.timespanOpen
-      }, /*#__PURE__*/_react["default"].createElement("div", {
-        style: styles.well,
-        "data-testid": "timespan-form-wrapper"
-      }, /*#__PURE__*/_react["default"].createElement(_TimespanFormContainer["default"], timespanFormProps)))) : null;
+    } catch (error) {
+      showBoundary(error);
     }
-  }], [{
-    key: "getDerivedStateFromProps",
-    value: function getDerivedStateFromProps(nextProps, prevState) {
-      var formOpen = prevState.formOpen;
-      var editingDisabled = nextProps.forms.editingDisabled;
-
-      if (editingDisabled && !formOpen) {
-        return {
-          disabled: true
-        };
-      }
-
-      return null;
-    } // Delete if a temporary segment exists
-
-  }]);
-  return ButtonSection;
-}(_react.Component);
-
-var mapStateToProps = function mapStateToProps(state) {
-  return {
-    peaksInstance: state.peaksInstance,
-    forms: state.forms
   };
+
+  // Delete if a temporary segment exists
+  var deleteTempSegment = function deleteTempSegment() {
+    try {
+      if (initSegment != null) {
+        removeTempSegment(initSegment.id);
+      }
+    } catch (error) {
+      showBoundary(error);
+    }
+  };
+  var timespanFormProps = {
+    cancelClick: handleCancelTimespanClick,
+    initSegment: initSegment,
+    isInitializing: isInitializing,
+    timespanOpen: timespanOpen,
+    setIsInitializing: setIsInitializing
+  };
+
+  // Only return UI when both structure and waveform data exist
+  if (structureInfo.structureRetrieved) {
+    return /*#__PURE__*/_react["default"].createElement("section", {
+      "data-testid": "button-section"
+    }, /*#__PURE__*/_react["default"].createElement("div", {
+      className: "d-grid gap-2 button-section-container",
+      "data-testid": "button-row"
+    }, /*#__PURE__*/_react["default"].createElement(_Button["default"], {
+      variant: "outline-secondary",
+      "data-testid": "add-heading-button",
+      onClick: handleHeadingClick,
+      disabled: disabled && editingDisabled
+    }, "Add a Heading"), /*#__PURE__*/_react["default"].createElement(_Button["default"], {
+      variant: "outline-secondary",
+      "data-testid": "add-timespan-button",
+      onClick: handleTimeSpanClick,
+      disabled: disabled && editingDisabled || streamInfo.streamMediaError
+    }, "Add a Timespan")), /*#__PURE__*/_react["default"].createElement(_Collapse["default"], {
+      "in": headingOpen
+    }, /*#__PURE__*/_react["default"].createElement("div", {
+      style: styles.well,
+      "data-testid": "heading-form-wrapper"
+    }, /*#__PURE__*/_react["default"].createElement(_HeadingFormContainer["default"], {
+      cancelClick: handleCancelHeadingClick
+    }))), /*#__PURE__*/_react["default"].createElement(_Collapse["default"], {
+      "in": timespanOpen
+    }, /*#__PURE__*/_react["default"].createElement("div", {
+      style: styles.well,
+      "data-testid": "timespan-form-wrapper"
+    }, /*#__PURE__*/_react["default"].createElement(_TimespanFormContainer["default"], timespanFormProps))));
+  }
 };
-
-var mapDispatchToProps = {
-  createTempSegment: peaksActions.insertTempSegment,
-  deleteTempSegment: peaksActions.deleteTempSegment,
-  dragSegment: peaksActions.dragSegment,
-  handleEditingTimespans: _forms.handleEditingTimespans,
-  setAlert: _forms.setAlert
-};
-
-var _default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(ButtonSection);
-
-exports["default"] = _default;
+var _default = exports["default"] = ButtonSection;

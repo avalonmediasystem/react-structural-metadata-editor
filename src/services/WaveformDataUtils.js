@@ -329,16 +329,35 @@ export default class WaveformDataUtils {
   }
 
   /**
-   * Save the segment into Peaks instance
+   * Save the changes to the segment in Peaks instance
    * @param {Object} currentState - current values for the timespan to be saved
    * @param {Object} peaksInstance - current peaks instance for waveform
    */
   saveSegment(currentState, peaksInstance) {
-    const { beginTime, endTime, clonedSegment } = currentState;
-    clonedSegment.update({
-      startTime: this.timeToS(beginTime),
-      endTime: this.timeToS(endTime),
-    });
+    const { beginTime, endTime, clonedSegment, timespanTitle } = currentState;
+    const { color, id, labelText } = clonedSegment;
+    /**
+     * If the timespanTitle has changed, the segment needs to be removed and re-added,
+     * because Peaks.js' segment.update() doesn't reflect the updated labelText in the
+     * view.
+     */
+    if (labelText != timespanTitle) {
+      // Remove the old segment and add a new one with the updated labelText
+      peaksInstance.segments.removeById(id);
+      peaksInstance.segments.add({
+        startTime: this.timeToS(beginTime),
+        endTime: this.timeToS(endTime),
+        labelText: timespanTitle,
+        color,
+        id
+      });
+    } else {
+      // Update the start and end times when labelText has not changed
+      clonedSegment.update({
+        startTime: this.timeToS(beginTime),
+        endTime: this.timeToS(endTime),
+      })
+    }
     return peaksInstance;
   }
 

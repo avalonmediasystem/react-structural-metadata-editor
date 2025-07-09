@@ -333,7 +333,7 @@ describe('WaveformDataUtils class', () => {
         );
       });
 
-      test('when making changes to an existing segment', () => {
+      test('when making changes to time in an existing segment', () => {
         const clonedSegment = peaks.segments.getSegment('123a-456b-789c-4d');
         const currentState = {
           beginTime: '00:00:10.331',
@@ -348,6 +348,29 @@ describe('WaveformDataUtils class', () => {
             expect.objectContaining({
               startTime: 10.331,
               endTime: 480.001,
+              id: '123a-456b-789c-4d',
+            }),
+          ])
+        );
+      });
+
+      test('when making changes to title in an existing segment', () => {
+        const clonedSegment = peaks.segments.getSegment('123a-456b-789c-4d');
+        const currentState = {
+          beginTime: '00:00:11.231',
+          endTime: '00:08:00.001',
+          timespanTitle: 'Segment 1.2 - edited',
+          clonedSegment,
+        };
+        const value = waveformUtils.saveSegment(currentState, peaks);
+        const segments = value.segments.getSegments();
+        expect(segments).toHaveLength(3);
+        expect(segments).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              startTime: 11.231,
+              endTime: 480.001,
+              labelText: 'Segment 1.2 - edited',
               id: '123a-456b-789c-4d',
             }),
           ])

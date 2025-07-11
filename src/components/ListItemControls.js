@@ -86,7 +86,7 @@ const ListItemControls = ({ handleDelete, handleEditClick, handleShowDropTargets
           size='sm'
           onClick={handleConfirmDelete}
           data-testid='delete-confirmation-confirm-btn'
-          className='mr-1'
+          className='me-1'
         >
           Delete
         </Button>

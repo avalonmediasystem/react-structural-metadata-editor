@@ -99,13 +99,9 @@ const useWaveform = ({ canvasIndex, manifestURL, withCredentials }) => {
       mediaElement: mediaPlayer.current,
       player: null,
     };
-    // try {
     if (!streamMediaLoading && smData != [] && !readyPeaks) {
       initPeaks(peaksOptions, smData);
     }
-    // } catch (error) {
-    //   showBoundary(error);
-    // }
   }, [streamMediaLoading]);
   return { zoomView, overView, mediaPlayer };
 };

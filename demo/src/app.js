@@ -5,6 +5,7 @@ import InputGroup from 'react-bootstrap/InputGroup';
 import Container from 'react-bootstrap/Container';
 import Card from 'react-bootstrap/Card';
 import Root from '../../src';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import './app.css';
 
 const App = (props) => {

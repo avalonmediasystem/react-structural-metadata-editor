@@ -99,11 +99,11 @@ const HeadingForm = ({ cancelClick, onSubmit }) => {
       </Form.Group>
 
       <Row>
-        <Col sm={{ offset: 5 }} md={{ offset: 5 }} lg={{ offset: 10 }}>
-          <ButtonToolbar className='float-right'>
+        <Col>
+          <ButtonToolbar className='float-end'>
             <Button
               variant='outline-secondary'
-              className='mr-1'
+              className='me-1'
               onClick={cancelClick}
               data-testid='heading-form-cancel-button'
             >

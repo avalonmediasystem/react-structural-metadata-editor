@@ -85,12 +85,13 @@ const StructureOutputContainer = ({ disableSave, structureIsSaved, structureURL 
       </Col>
       {!disableSave && (
         <Row>
-          <Col md={{ span: 4, offset: 8 }} className="text-right pr-4 pt-2">
+          <Col className="pt-2">
             <Button
               variant="primary"
               onClick={handleSaveItClick}
               data-testid="structure-save-button"
               disabled={editingDisabled}
+              className="float-end"
             >
               Save Structure
             </Button>

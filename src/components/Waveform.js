@@ -183,7 +183,7 @@ const Waveform = forwardRef(({ }, ref) => {
                 onClick={playAudio}
                 data-testid="waveform-play-button"
                 disabled={streamMediaError || streamMediaLoading}
-                className="mr-1"
+                className="me-1"
               >
                 <FontAwesomeIcon icon={faPlay} />
               </Button>
@@ -193,7 +193,7 @@ const Waveform = forwardRef(({ }, ref) => {
                 onClick={pauseAudio}
                 data-testid="waveform-pause-button"
                 disabled={streamMediaError || streamMediaLoading}
-                className="mr-1"
+                className="me-1"
               >
                 <FontAwesomeIcon icon={faPause} />
               </Button>
@@ -202,7 +202,7 @@ const Waveform = forwardRef(({ }, ref) => {
                 aria-label="Zoom in"
                 onClick={zoomIn}
                 data-testid="waveform-zoomin-button"
-                className="mr-1"
+                className="me-1"
               >
                 <FontAwesomeIcon icon={faSearchPlus} />
               </Button>

@@ -71,7 +71,7 @@ const TimespanForm = ({
 
   useEffect(() => {
     if (!isInitializing) {
-      setIsInitializing(0);
+      setIsInitializing(false);
     }
   }, [smData, isInitializing]);
 
@@ -81,7 +81,7 @@ const TimespanForm = ({
         setBeginTime(structuralMetadataUtils.toHHmmss(initSegment.startTime));
         setEndTime(structuralMetadataUtils.toHHmmss(initSegment.endTime));
         // Set isInitializing flag to false
-        setIsInitializing(0);
+        setIsInitializing(false);
       }
       if (!isInitializing) {
         const { startTime, endTime } = waveformDataUtils.validateSegment(

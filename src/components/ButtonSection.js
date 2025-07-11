@@ -37,57 +37,47 @@ const ButtonSection = () => {
   const [headingOpen, setHeadingOpen] = useState(false);
   const [timespanOpen, setTimespanOpen] = useState(false);
   const [initSegment, setInitSegment] = useState(null);
-  const [isInitializing, _setIsInitializing] = useState(true);
+  const [isInitializing, setIsInitializing] = useState(true);
   const [disabled, setDisabled] = useState(true);
-  const [formOpen, setFormOpen] = useState(false);
 
   const { showBoundary } = useErrorBoundary();
 
-  useEffect(() => {
-    if (editingDisabled && !formOpen) {
-      setDisabled(true);
-    }
-  }, [formOpen, editingDisabled]);
-
-  const setIsInitializing = (value) => {
-    if (value === 1) {
-      _setIsInitializing(true);
-    } else {
-      _setIsInitializing(false);
-    }
-  };
-
-  // Wrapper function to update heeading/timespan collapsible form states
-  const setFormStatus = ({ formState, hState = false, tState = false }) => {
-    setHeadingOpen(hState);
-    setTimespanOpen(tState);
-    setFormOpen(formState);
-  };
-
   const handleCancelHeadingClick = () => {
-    setFormStatus({ formState: false, hState: false });
+    setHeadingOpen(false);
     updateEditingTimespans(0);
   };
 
   const handleHeadingClick = () => {
+    // If heading form is open, close it before opening timespan form
+    if (timespanOpen) {
+      setTimespanOpen(false);
+    }
+
+    // Disable editing other items in structure
     updateEditingTimespans(1);
+
     // When opening heading form, delete if a temporary segment exists
     deleteTempSegment();
-    setFormStatus({ formState: true, hState: true });
+    setHeadingOpen(true);
     setDisabled(false);
   };
 
   const handleCancelTimespanClick = () => {
     deleteTempSegment();
-    setFormStatus({ formState: false });
+    setTimespanOpen(false);
     updateEditingTimespans(0);
   };
 
   const handleTimeSpanClick = () => {
+    // If heading form is open, close it before opening timespan form
+    if (headingOpen) {
+      setHeadingOpen(false);
+    }
+
     // Disable editing other items in structure
     updateEditingTimespans(1);
 
-    // Create a temporary segment if timespan form is closed
+    // Create a temporary segment if timespan form is opened
     if (!timespanOpen) {
       createTempSegment();
     }
@@ -104,6 +94,7 @@ const ButtonSection = () => {
         setInitSegment(tempSegment);
         setTimespanOpen(true);
         setIsInitializing(true);
+        setDisabled(false);
       }
     } catch (error) {
       showBoundary(error);

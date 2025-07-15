@@ -1,8 +1,5 @@
 import StructuralMetadataUtils from './StructuralMetadataUtils';
-import WaveformDataUtils from './WaveformDataUtils';
-
 const structuralMetadataUtils = new StructuralMetadataUtils();
-const waveformDataUtils = new WaveformDataUtils();
 
 /**
  * Load existing form values to state, if in 'EDIT' mode
@@ -42,14 +39,7 @@ export function getValidationBeginState(beginTime, allSpans) {
     beginTime,
     allSpans
   );
-
-  if (validFormat && validBeginTime) {
-    return true;
-  }
-  if (!validFormat || !validBeginTime) {
-    return false;
-  }
-  return false;
+  return !!(validFormat && validBeginTime);
 }
 
 export function getValidationEndState(beginTime, endTime, allSpans, duration) {
@@ -73,13 +63,7 @@ export function getValidationEndState(beginTime, endTime, allSpans, duration) {
     allSpans
   );
 
-  if (validFormat && validEndTime && validOrdering && !doesTimespanOverlap) {
-    return true;
-  }
-  if (!validFormat || !validEndTime || !validOrdering || doesTimespanOverlap) {
-    return false;
-  }
-  return false;
+  return (validFormat && validEndTime && validOrdering && !doesTimespanOverlap);
 }
 
 export function getValidationTitleState(title) {
@@ -112,7 +96,6 @@ export function isTitleValid(title) {
  * @returns {Object} { valid: <Boolean>, message: <String> }
  */
 export function validTimespans(beginTime, endTime, duration, allSpans) {
-
   // Valid formats?
   if (!validTimeFormat(beginTime)) {
     return {
@@ -124,6 +107,13 @@ export function validTimespans(beginTime, endTime, duration, allSpans) {
     return {
       valid: false,
       message: 'Invalid end time format',
+    };
+  }
+  // Begin comes before end?
+  if (!structuralMetadataUtils.validateBeforeEndTimeOrder(beginTime, endTime)) {
+    return {
+      valid: false,
+      message: 'Begin time must start before end time',
     };
   }
   // Any individual overlapping?
@@ -139,22 +129,6 @@ export function validTimespans(beginTime, endTime, duration, allSpans) {
       message: 'End time overlaps an existing timespan region',
     };
   }
-  // Begin comes before end?
-  if (!structuralMetadataUtils.validateBeforeEndTimeOrder(beginTime, endTime)) {
-    return {
-      valid: false,
-      message: 'Begin time must start before end time',
-    };
-  }
-  // Timespan range overlaps an existing timespan?
-  if (
-    structuralMetadataUtils.doesTimespanOverlap(beginTime, endTime, allSpans)
-  ) {
-    return {
-      valid: false,
-      message: 'New timespan region overlaps an existing timespan region',
-    };
-  }
   // Timespan end time is greater than end time of the media file
   if (duration < structuralMetadataUtils.toMs(endTime) / 1000) {
     return {
@@ -167,6 +141,19 @@ export function validTimespans(beginTime, endTime, duration, allSpans) {
   return { valid: true };
 }
 
-export function validTimeFormat(value) {
-  return value && value.split(':').length === 3;
+function validTimeFormat(value) {
+  // Check if value contains only numbers, ':', '.', and ','
+  if (typeof value !== 'string' || /[^0-9:.,]/.test(value)) {
+    return false;
+  }
+  // Check if value has the correct format with colons and dots/commas
+  if (value.indexOf(':') === -1 &&
+    (value.indexOf('.') === -1 || value.indexOf(',') === -1)
+  ) {
+    return false;
+  }
+  // Split by colons and check if it has exactly three parts with valid numbers
+  const parts = value.split(':')
+    .filter(part => Number(part.replace(/,/g, '.')) >= 0);
+  return parts?.length === 3;
 }

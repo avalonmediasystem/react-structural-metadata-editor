@@ -123,6 +123,17 @@ When new code changes are merged to the `main` branch, it automatically triggers
 
 #### Deployment in Production
 
+#### Prerequisites for Git tags prior to `avalon-8.x` or `v3.x`
+- Node.js (>= 16.x)
+- `react` and `react-dom` (>= 16.x)
+- NPM or Yarn
+
+#### Prerequisites for Git tags on or after to `avalon-8.x` or `v4.x`
+- Node.js (>= 20.x)
+- `react` and `react-dom` (>= 18.x)
+- `bootstrap` (>= 5.x)
+- NPM or Yarn
+
 To add this component to a host application, currently we're installing the component through a GitHub repo instead of the NPM repository, so to import the default package into your application, run:
 
 ```

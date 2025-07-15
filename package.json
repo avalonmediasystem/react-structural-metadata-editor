@@ -1,6 +1,6 @@
 {
   "name": "react-structural-metadata-editor",
-  "version": "3.0.0",
+  "version": "4.0.0",
   "description": "React Structural Metadata Editor for Avalon Media System",
   "main": "dist/index.js",
   "scripts": {
@@ -18,9 +18,9 @@
   ],
   "license": "ISC",
   "peerDependencies": {
+    "bootstrap": "^5.3.7",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "bootstrap": "^5.3.7"
+    "react-dom": "^19.0.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.27.0",

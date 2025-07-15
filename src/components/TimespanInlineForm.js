@@ -198,7 +198,7 @@ function TimespanInlineForm({ cancelFn, item, isInitializing, isTyping, saveFn, 
   return (
     <div className='row-wrapper d-flex justify-content-between gap-5 px-0'>
       <Form data-testid='timespan-inline-form' className='mb-0 d-flex gap-4 flex-wrap flex-lg-nowrap no-gutters'>
-        <Form.Group as={Row} controlId='timespanTitle' className='ml-0'>
+        <Form.Group as={Row} controlId='timespanTitle' className='ms-0'>
           <Form.Label column sm={2} md={3}>Title</Form.Label>
           <Col sm={10} md={9} className='px-0'>
             <Form.Control
@@ -213,7 +213,7 @@ function TimespanInlineForm({ cancelFn, item, isInitializing, isTyping, saveFn, 
             />
           </Col>
         </Form.Group>
-        <Form.Group as={Row} controlId='beginTime' className='ml-0'>
+        <Form.Group as={Row} controlId='beginTime' className='ms-0'>
           <Form.Label column sm={2} md={3}>Begin</Form.Label>
           <Col sm={10} md={9} className='px-0'>
             <Form.Control
@@ -228,7 +228,7 @@ function TimespanInlineForm({ cancelFn, item, isInitializing, isTyping, saveFn, 
             />
           </Col>
         </Form.Group>
-        <Form.Group as={Row} controlId='endTime' className='ml-0'>
+        <Form.Group as={Row} controlId='endTime' className='ms-0'>
           <Form.Label column sm={2} md={3}>End</Form.Label>
           <Col sm={10} md={9} className='px-0'>
             <Form.Control

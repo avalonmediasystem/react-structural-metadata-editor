@@ -146,5 +146,14 @@ function validTimeFormat(value) {
   if (typeof value !== 'string' || /[^0-9:.,]/.test(value)) {
     return false;
   }
-  return value && value.split(':').length === 3;
+  // Check if value has the correct format with colons and dots/commas
+  if (value.indexOf(':') === -1 &&
+    (value.indexOf('.') === -1 || value.indexOf(',') === -1)
+  ) {
+    return false;
+  }
+  // Split by colons and check if it has exactly three parts with valid numbers
+  const parts = value.split(':')
+    .filter(part => Number(part.replace(/,/g, '.')) >= 0);
+  return parts?.length === 3;
 }

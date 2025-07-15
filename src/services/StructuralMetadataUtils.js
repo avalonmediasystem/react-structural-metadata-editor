@@ -837,6 +837,8 @@ export default class StructuralMetadataUtils {
     let [seconds, minutes, hours] = strTime.split(':').reverse();
     let hoursInS = hours ? parseInt(hours) * 3600 : 0;
     let minutesInS = minutes ? parseInt(minutes) * 60 : 0;
+    // Replace comma with dot for decimal seconds
+    seconds = seconds.replace(/,/g, '.');
     let secondsNum = seconds === '' ? 0.0 : parseFloat(seconds);
     let timeSeconds = hoursInS + minutesInS + secondsNum;
     return timeSeconds * 1000;

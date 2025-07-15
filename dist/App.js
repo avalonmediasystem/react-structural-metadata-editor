@@ -8,7 +8,6 @@ Object.defineProperty(exports, "__esModule", {
 exports["default"] = void 0;
 var _react = _interopRequireWildcard(require("react"));
 var _propTypes = _interopRequireDefault(require("prop-types"));
-require("bootstrap/dist/css/bootstrap.min.css");
 require("./App.css");
 var _WaveformContainer = _interopRequireDefault(require("./containers/WaveformContainer"));
 var _ButtonSection = _interopRequireDefault(require("./components/ButtonSection"));

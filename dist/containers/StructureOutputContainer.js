@@ -129,16 +129,13 @@ var StructureOutputContainer = function StructureOutputContainer(_ref) {
   }, /*#__PURE__*/_react["default"].createElement(_List["default"], {
     items: smData
   }))), !disableSave && /*#__PURE__*/_react["default"].createElement(_Row["default"], null, /*#__PURE__*/_react["default"].createElement(_Col["default"], {
-    md: {
-      span: 4,
-      offset: 8
-    },
-    className: "text-right pr-4 pt-2"
+    className: "pt-2"
   }, /*#__PURE__*/_react["default"].createElement(_Button["default"], {
     variant: "primary",
     onClick: handleSaveItClick,
     "data-testid": "structure-save-button",
-    disabled: editingDisabled
+    disabled: editingDisabled,
+    className: "float-end"
   }, "Save Structure"))));
 };
 var _default = exports["default"] = StructureOutputContainer;

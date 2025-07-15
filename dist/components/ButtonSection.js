@@ -73,70 +73,46 @@ var ButtonSection = function ButtonSection() {
   var _useState7 = (0, _react.useState)(true),
     _useState8 = (0, _slicedToArray2["default"])(_useState7, 2),
     isInitializing = _useState8[0],
-    _setIsInitializing = _useState8[1];
+    setIsInitializing = _useState8[1];
   var _useState9 = (0, _react.useState)(true),
     _useState10 = (0, _slicedToArray2["default"])(_useState9, 2),
     disabled = _useState10[0],
     setDisabled = _useState10[1];
-  var _useState11 = (0, _react.useState)(false),
-    _useState12 = (0, _slicedToArray2["default"])(_useState11, 2),
-    formOpen = _useState12[0],
-    setFormOpen = _useState12[1];
   var _useErrorBoundary = (0, _reactErrorBoundary.useErrorBoundary)(),
     showBoundary = _useErrorBoundary.showBoundary;
-  (0, _react.useEffect)(function () {
-    if (editingDisabled && !formOpen) {
-      setDisabled(true);
-    }
-  }, [formOpen, editingDisabled]);
-  var setIsInitializing = function setIsInitializing(value) {
-    if (value === 1) {
-      _setIsInitializing(true);
-    } else {
-      _setIsInitializing(false);
-    }
-  };
-
-  // Wrapper function to update heeading/timespan collapsible form states
-  var setFormStatus = function setFormStatus(_ref) {
-    var formState = _ref.formState,
-      _ref$hState = _ref.hState,
-      hState = _ref$hState === void 0 ? false : _ref$hState,
-      _ref$tState = _ref.tState,
-      tState = _ref$tState === void 0 ? false : _ref$tState;
-    setHeadingOpen(hState);
-    setTimespanOpen(tState);
-    setFormOpen(formState);
-  };
   var handleCancelHeadingClick = function handleCancelHeadingClick() {
-    setFormStatus({
-      formState: false,
-      hState: false
-    });
+    setHeadingOpen(false);
     updateEditingTimespans(0);
   };
   var handleHeadingClick = function handleHeadingClick() {
+    // If heading form is open, close it before opening timespan form
+    if (timespanOpen) {
+      setTimespanOpen(false);
+    }
+
+    // Disable editing other items in structure
     updateEditingTimespans(1);
+
     // When opening heading form, delete if a temporary segment exists
     deleteTempSegment();
-    setFormStatus({
-      formState: true,
-      hState: true
-    });
+    setHeadingOpen(true);
     setDisabled(false);
   };
   var handleCancelTimespanClick = function handleCancelTimespanClick() {
     deleteTempSegment();
-    setFormStatus({
-      formState: false
-    });
+    setTimespanOpen(false);
     updateEditingTimespans(0);
   };
   var handleTimeSpanClick = function handleTimeSpanClick() {
+    // If heading form is open, close it before opening timespan form
+    if (headingOpen) {
+      setHeadingOpen(false);
+    }
+
     // Disable editing other items in structure
     updateEditingTimespans(1);
 
-    // Create a temporary segment if timespan form is closed
+    // Create a temporary segment if timespan form is opened
     if (!timespanOpen) {
       createTempSegment();
     }
@@ -151,6 +127,7 @@ var ButtonSection = function ButtonSection() {
         setInitSegment(tempSegment);
         setTimespanOpen(true);
         setIsInitializing(true);
+        setDisabled(false);
       }
     } catch (error) {
       showBoundary(error);

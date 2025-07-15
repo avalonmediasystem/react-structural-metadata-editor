@@ -213,7 +213,7 @@ function TimespanInlineForm(_ref) {
   }, /*#__PURE__*/_react["default"].createElement(_Form["default"].Group, {
     as: _Row["default"],
     controlId: "timespanTitle",
-    className: "ml-0"
+    className: "ms-0"
   }, /*#__PURE__*/_react["default"].createElement(_Form["default"].Label, {
     column: true,
     sm: 2,
@@ -234,7 +234,7 @@ function TimespanInlineForm(_ref) {
   }))), /*#__PURE__*/_react["default"].createElement(_Form["default"].Group, {
     as: _Row["default"],
     controlId: "beginTime",
-    className: "ml-0"
+    className: "ms-0"
   }, /*#__PURE__*/_react["default"].createElement(_Form["default"].Label, {
     column: true,
     sm: 2,
@@ -255,7 +255,7 @@ function TimespanInlineForm(_ref) {
   }))), /*#__PURE__*/_react["default"].createElement(_Form["default"].Group, {
     as: _Row["default"],
     controlId: "endTime",
-    className: "ml-0"
+    className: "ms-0"
   }, /*#__PURE__*/_react["default"].createElement(_Form["default"].Label, {
     column: true,
     sm: 2,

@@ -184,7 +184,7 @@ var Waveform = /*#__PURE__*/(0, _react.forwardRef)(function (_ref, ref) {
     onClick: playAudio,
     "data-testid": "waveform-play-button",
     disabled: streamMediaError || streamMediaLoading,
-    className: "mr-1"
+    className: "me-1"
   }, /*#__PURE__*/_react["default"].createElement(_reactFontawesome.FontAwesomeIcon, {
     icon: _freeSolidSvgIcons.faPlay
   })), /*#__PURE__*/_react["default"].createElement(_Button["default"], {
@@ -193,7 +193,7 @@ var Waveform = /*#__PURE__*/(0, _react.forwardRef)(function (_ref, ref) {
     onClick: pauseAudio,
     "data-testid": "waveform-pause-button",
     disabled: streamMediaError || streamMediaLoading,
-    className: "mr-1"
+    className: "me-1"
   }, /*#__PURE__*/_react["default"].createElement(_reactFontawesome.FontAwesomeIcon, {
     icon: _freeSolidSvgIcons.faPause
   })), /*#__PURE__*/_react["default"].createElement(_Button["default"], {
@@ -201,7 +201,7 @@ var Waveform = /*#__PURE__*/(0, _react.forwardRef)(function (_ref, ref) {
     "aria-label": "Zoom in",
     onClick: zoomIn,
     "data-testid": "waveform-zoomin-button",
-    className: "mr-1"
+    className: "me-1"
   }, /*#__PURE__*/_react["default"].createElement(_reactFontawesome.FontAwesomeIcon, {
     icon: _freeSolidSvgIcons.faSearchPlus
   })), /*#__PURE__*/_react["default"].createElement(_Button["default"], {

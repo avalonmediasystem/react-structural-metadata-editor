@@ -110,21 +110,11 @@ var HeadingForm = function HeadingForm(_ref) {
     value: headingChildOf
   }, /*#__PURE__*/_react["default"].createElement("option", {
     value: ""
-  }, "Select..."), childOfOptions)), /*#__PURE__*/_react["default"].createElement(_Row["default"], null, /*#__PURE__*/_react["default"].createElement(_Col["default"], {
-    sm: {
-      offset: 5
-    },
-    md: {
-      offset: 5
-    },
-    lg: {
-      offset: 10
-    }
-  }, /*#__PURE__*/_react["default"].createElement(_ButtonToolbar["default"], {
-    className: "float-right"
+  }, "Select..."), childOfOptions)), /*#__PURE__*/_react["default"].createElement(_Row["default"], null, /*#__PURE__*/_react["default"].createElement(_Col["default"], null, /*#__PURE__*/_react["default"].createElement(_ButtonToolbar["default"], {
+    className: "float-end"
   }, /*#__PURE__*/_react["default"].createElement(_Button["default"], {
     variant: "outline-secondary",
-    className: "mr-1",
+    className: "me-1",
     onClick: cancelClick,
     "data-testid": "heading-form-cancel-button"
   }, "Cancel"), /*#__PURE__*/_react["default"].createElement(_Button["default"], {

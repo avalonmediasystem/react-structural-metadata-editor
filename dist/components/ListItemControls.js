@@ -105,7 +105,7 @@ var ListItemControls = function ListItemControls(_ref) {
     size: "sm",
     onClick: handleConfirmDelete,
     "data-testid": "delete-confirmation-confirm-btn",
-    className: "mr-1"
+    className: "me-1"
   }, "Delete"), /*#__PURE__*/_react["default"].createElement(_Button["default"], {
     size: "sm",
     variant: "outline-secondary",

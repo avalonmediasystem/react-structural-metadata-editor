@@ -907,6 +907,8 @@ var StructuralMetadataUtils = exports["default"] = /*#__PURE__*/function () {
         hours = _strTime$split$revers2[2];
       var hoursInS = hours ? parseInt(hours) * 3600 : 0;
       var minutesInS = minutes ? parseInt(minutes) * 60 : 0;
+      // Replace comma with dot for decimal seconds
+      seconds = seconds.replace(/,/g, '.');
       var secondsNum = seconds === '' ? 0.0 : parseFloat(seconds);
       var timeSeconds = hoursInS + minutesInS + secondsNum;
       return timeSeconds * 1000;

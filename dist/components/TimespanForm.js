@@ -105,7 +105,7 @@ var TimespanForm = function TimespanForm(_ref) {
   }, [beginTime, endTime, duration, allSpans]);
   (0, _react.useEffect)(function () {
     if (!isInitializing) {
-      setIsInitializing(0);
+      setIsInitializing(false);
     }
   }, [smData, isInitializing]);
   (0, _react.useEffect)(function () {
@@ -114,7 +114,7 @@ var TimespanForm = function TimespanForm(_ref) {
         setBeginTime(structuralMetadataUtils.toHHmmss(initSegment.startTime));
         setEndTime(structuralMetadataUtils.toHHmmss(initSegment.endTime));
         // Set isInitializing flag to false
-        setIsInitializing(0);
+        setIsInitializing(false);
       }
       if (!isInitializing) {
         var _waveformDataUtils$va = waveformDataUtils.validateSegment(segment, startTimeChanged, peaks, duration),
@@ -270,21 +270,11 @@ var TimespanForm = function TimespanForm(_ref) {
       value: item.id,
       key: item.id
     }, item.label);
-  }))), /*#__PURE__*/_react["default"].createElement(_Row["default"], null, /*#__PURE__*/_react["default"].createElement(_Col["default"], {
-    sm: {
-      offset: 5
-    },
-    md: {
-      offset: 5
-    },
-    lg: {
-      offset: 10
-    }
-  }, /*#__PURE__*/_react["default"].createElement(_ButtonToolbar["default"], {
-    className: "float-right"
+  }))), /*#__PURE__*/_react["default"].createElement(_Row["default"], null, /*#__PURE__*/_react["default"].createElement(_Col["default"], null, /*#__PURE__*/_react["default"].createElement(_ButtonToolbar["default"], {
+    className: "float-end"
   }, /*#__PURE__*/_react["default"].createElement(_Button["default"], {
     variant: "outline-secondary",
-    className: "mr-1",
+    className: "me-1",
     onClick: handleCancelClick,
     "data-testid": "timespan-form-cancel-button"
   }, "Cancel"), /*#__PURE__*/_react["default"].createElement(_Button["default"], {

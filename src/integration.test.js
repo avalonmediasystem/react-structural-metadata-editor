@@ -112,4 +112,53 @@ describe('ButtonSection/StructureOutputContainer renders', () => {
         ' New Timespan (00:00:00.000 - 00:00:03.321)'
       );
   });
+
+  test('the structure tree when a new heading is added', () => {
+    let app = renderWithRedux(
+      <>
+        <ButtonSection />
+        <StructureOutputContainer {...props} />
+      </>, {
+      initialState,
+    });
+
+    // Before making changes
+    expect(app.getByTestId('structure-output-list')).toBeInTheDocument();
+    expect(app.getByTestId('add-heading-button')).toBeInTheDocument();
+    expect(app.queryByTestId('structure-save-button')).toBeInTheDocument();
+
+    /* Start adding a new heading */
+    const addHeadingBtn = app.getByTestId('add-heading-button');
+    fireEvent.click(addHeadingBtn);
+
+    // Title is empty on form load
+    expect(app.getByTestId('heading-form')).toBeInTheDocument();
+    expect(app.getByTestId('heading-form-title').value).toBe('');
+    expect(app.getByTestId('heading-form-save-button')).toBeInTheDocument();
+    expect(app.getByTestId('heading-form-save-button')).toBeDisabled();
+    expect(app.getByTestId('heading-form-cancel-button')).toBeInTheDocument();
+
+    // Change the title of the heading
+    fireEvent.change(app.getByTestId('heading-form-title'),
+      {
+        target: { value: 'New Heading' }
+      }
+    );
+    expect(app.getByTestId('heading-form-title').value).toBe('New Heading');
+    expect(app.getByTestId('heading-form-save-button')).toBeDisabled();
+    // Make the new element child of the root element
+    fireEvent.change(app.getByTestId('heading-form-childof'), {
+      target: { value: '123a-456b-789c-1d' },
+    });
+    // Save the new heading
+    expect(app.getByTestId('heading-form-save-button')).not.toBeDisabled();
+    fireEvent.click(app.getByTestId('heading-form-save-button'));
+    /* End adding a new heading */
+
+    // Check the new heading was added to the end of the 'First Segment' div
+    expect(
+      app.queryAllByTestId('heading-label')[3].innerHTML).toEqual(
+        'New Heading'
+      );
+  });
 });

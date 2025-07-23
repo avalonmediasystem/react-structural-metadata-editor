@@ -41,7 +41,7 @@ describe('HeadingForm component', () => {
       );
 
       const titleInput = getByLabelText(/title/i);
-      const formControl = getByTestId('heading-title-form-control');
+      const formControl = getByTestId('heading-form-title');
 
       fireEvent.change(titleInput, {
         target: {

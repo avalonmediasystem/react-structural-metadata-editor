@@ -20,6 +20,9 @@ describe('HeadingFormContainer', () => {
   test('renders without props', () => {
     const { getByTestId } = renderWithRedux(<HeadingFormContainer />);
     expect(getByTestId('heading-form')).toBeInTheDocument();
+    expect(getByTestId('heading-form')).toHaveTextContent('Save');
+    expect(getByTestId('heading-form-save-button')).toBeDisabled();
+    expect(getByTestId('heading-form')).toHaveTextContent('Cancel');
   });
 
   test('renders with props', () => {
@@ -27,6 +30,9 @@ describe('HeadingFormContainer', () => {
       initialState
     });
     expect(getByTestId('heading-form')).toBeInTheDocument();
+    expect(getByTestId('heading-form')).toHaveTextContent('Save');
+    expect(getByTestId('heading-form-save-button')).toBeDisabled();
+    expect(getByTestId('heading-form')).toHaveTextContent('Cancel');
   });
 
   test('renders with initialState', () => {
@@ -34,6 +40,9 @@ describe('HeadingFormContainer', () => {
       initialState
     });
     expect(getByTestId('heading-form')).toBeInTheDocument();
+    expect(getByTestId('heading-form')).toHaveTextContent('Save');
+    expect(getByTestId('heading-form-save-button')).toBeDisabled();
+    expect(getByTestId('heading-form')).toHaveTextContent('Cancel');
   });
 
   test('calls cancelClick when cancel button is clicked', () => {

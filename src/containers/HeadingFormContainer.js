@@ -10,6 +10,8 @@ const structuralMetadataUtils = new StructuralMetadataUtils();
 
 const HeadingFormContainer = ({ cancelClick }) => {
   const { smData } = useSelector((state) => state.structuralMetadata);
+  const { duration } = useSelector((state) => state.peaksInstance);
+
   const dispatch = useDispatch();
   const updateSMData = (updatedData, duration) => dispatch(smActions.reBuildSMUI(updatedData, duration));
 
@@ -27,7 +29,7 @@ const HeadingFormContainer = ({ cancelClick }) => {
       updatedSmData = structuralMetadataUtils.insertNewHeader(submittedItem, smData);
 
       // Update redux store
-      updateSMData(updatedSmData, this.props.duration);
+      updateSMData(updatedSmData, duration);
 
       // Close the form
       cancelClick();

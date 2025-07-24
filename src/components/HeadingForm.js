@@ -82,7 +82,7 @@ const HeadingForm = ({ cancelClick, onSubmit }) => {
           isValid={getValidationTitleState(headingTitle)}
           isInvalid={!getValidationTitleState(headingTitle)}
           onChange={handleHeadingChange}
-          data-testid='heading-title-form-control'
+          data-testid='heading-form-title'
         />
         <Form.Control.Feedback />
       </Form.Group>
@@ -92,6 +92,7 @@ const HeadingForm = ({ cancelClick, onSubmit }) => {
         <Form.Select
           onChange={handleChildOfChange}
           value={headingChildOf}
+          data-testid='heading-form-childof'
         >
           <option value=''>Select...</option>
           {childOfOptions}

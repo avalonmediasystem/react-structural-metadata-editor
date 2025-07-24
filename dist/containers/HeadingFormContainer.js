@@ -13,7 +13,6 @@ var _HeadingForm = _interopRequireDefault(require("../components/HeadingForm"));
 var _reactRedux = require("react-redux");
 var smActions = _interopRequireWildcard(require("../actions/sm-data"));
 var _StructuralMetadataUtils = _interopRequireDefault(require("../services/StructuralMetadataUtils"));
-var _this = void 0;
 function _getRequireWildcardCache(e) { if ("function" != typeof WeakMap) return null; var r = new WeakMap(), t = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(e) { return e ? t : r; })(e); }
 function _interopRequireWildcard(e, r) { if (!r && e && e.__esModule) return e; if (null === e || "object" != _typeof(e) && "function" != typeof e) return { "default": e }; var t = _getRequireWildcardCache(r); if (t && t.has(e)) return t.get(e); var n = { __proto__: null }, a = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var u in e) if ("default" !== u && {}.hasOwnProperty.call(e, u)) { var i = a ? Object.getOwnPropertyDescriptor(e, u) : null; i && (i.get || i.set) ? Object.defineProperty(n, u, i) : n[u] = e[u]; } return n["default"] = e, t && t.set(e, n), n; }
 var structuralMetadataUtils = new _StructuralMetadataUtils["default"]();
@@ -23,6 +22,10 @@ var HeadingFormContainer = function HeadingFormContainer(_ref) {
       return state.structuralMetadata;
     }),
     smData = _useSelector.smData;
+  var _useSelector2 = (0, _reactRedux.useSelector)(function (state) {
+      return state.peaksInstance;
+    }),
+    duration = _useSelector2.duration;
   var dispatch = (0, _reactRedux.useDispatch)();
   var updateSMData = function updateSMData(updatedData, duration) {
     return dispatch(smActions.reBuildSMUI(updatedData, duration));
@@ -41,7 +44,7 @@ var HeadingFormContainer = function HeadingFormContainer(_ref) {
       updatedSmData = structuralMetadataUtils.insertNewHeader(submittedItem, smData);
 
       // Update redux store
-      updateSMData(updatedSmData, _this.props.duration);
+      updateSMData(updatedSmData, duration);
 
       // Close the form
       cancelClick();

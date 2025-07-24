@@ -101,13 +101,14 @@ var HeadingForm = function HeadingForm(_ref) {
     isValid: (0, _formHelper.getValidationTitleState)(headingTitle),
     isInvalid: !(0, _formHelper.getValidationTitleState)(headingTitle),
     onChange: handleHeadingChange,
-    "data-testid": "heading-title-form-control"
+    "data-testid": "heading-form-title"
   }), /*#__PURE__*/_react["default"].createElement(_Form["default"].Control.Feedback, null)), /*#__PURE__*/_react["default"].createElement(_Form["default"].Group, {
     controlId: "headingChildOf",
     className: "mb-3"
   }, /*#__PURE__*/_react["default"].createElement(_Form["default"].Label, null, "Child Of"), /*#__PURE__*/_react["default"].createElement(_Form["default"].Select, {
     onChange: handleChildOfChange,
-    value: headingChildOf
+    value: headingChildOf,
+    "data-testid": "heading-form-childof"
   }, /*#__PURE__*/_react["default"].createElement("option", {
     value: ""
   }, "Select..."), childOfOptions)), /*#__PURE__*/_react["default"].createElement(_Row["default"], null, /*#__PURE__*/_react["default"].createElement(_Col["default"], null, /*#__PURE__*/_react["default"].createElement(_ButtonToolbar["default"], {

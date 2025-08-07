@@ -97,6 +97,26 @@ export function getWaveformInfo(manifest, canvasIndex) {
 }
 
 /**
+ * Check if a given Canvas exists in the Manifest's items array
+ * @param {String} mediaFragment - media fragment URI
+ * @param {Object} manifest - current IIIF manifest
+ * @returns {Boolean} - true if Canvas exists in Manifest, false otherwise
+ */
+function isCanvasInManifest(mediaFragment, manifest) {
+  if (!mediaFragment || !manifest || !manifest.items) {
+    return false;
+  }
+
+  // Get Canvas ID from mediafragment URL
+  const canvasURL = mediaFragment.split('#')[0];
+
+  // Check if the Canvas ID exists in the Manifest's items list
+  return manifest.items.some(item =>
+    item.type === 'Canvas' && item.id === canvasURL
+  );
+}
+
+/**
  * Parse the structures within manifest into a nested JSON object
  * structure to be consumed by the ReactJS components to help visualize
  * and edit structure
@@ -118,7 +138,9 @@ export function parseStructureToJSON(manifest, duration, canvasIndex = 0) {
         if (range) {
           const childCanvases = range.getCanvasIds();
           let structItem = {};
-          if (childCanvases.length > 0) {
+          // Check if the Canvas for this item exists in the Manifest
+          const canvasIsInManifest = isCanvasInManifest(childCanvases[0], manifest);
+          if (childCanvases.length > 0 && canvasIsInManifest) {
             const { start, end } = getMediaFragment(childCanvases[0], duration);
             structItem = {
               label: getLabelValue(i.label),
@@ -126,6 +148,10 @@ export function parseStructureToJSON(manifest, duration, canvasIndex = 0) {
               begin: smUtils.toHHmmss(start),
               end: smUtils.toHHmmss(end),
             };
+            if (i.items) {
+              structItem.items = [];
+              buildStructureItems(i.items, structItem.items);
+            }
             children.push(structItem);
           } else {
             structItem = {

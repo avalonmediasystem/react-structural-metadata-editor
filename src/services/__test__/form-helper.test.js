@@ -57,8 +57,11 @@ describe('form-helper', () => {
     test('returns false for invalid format', () => {
       expect(formHelper.getValidationEndState('00:00:01.000', 'bad', [], 10)).toBe(false);
     });
-    test('returns true for valid format, overlap, ordering, and no overlap', () => {
-      expect(formHelper.getValidationEndState('00:00:01.000', '00:00:02.000', [], 10)).toBe(true);
+    test('returns false for invalid order', () => {
+      expect(formHelper.getValidationEndState('00:00:02.000', '00:00:01.000', 10)).toBe(false);
+    });
+    test('returns true for valid in order times', () => {
+      expect(formHelper.getValidationEndState('00:00:01.000', '00:00:02.000', 10)).toBe(true);
     });
   });
 
@@ -146,15 +149,13 @@ describe('form-helper', () => {
       expect(result.valid).toBe(false);
       expect(result.message).toMatch('Begin time must start before end time');
     });
-    test('returns false for end time overlapping an existing timespan', () => {
+    test('returns true for end time overlapping an existing timespan (overlapping now allowed)', () => {
       const result = formHelper.validTimespans('00:00:07.000', '00:00:08.300', 10, allSpans);
-      expect(result.valid).toBe(false);
-      expect(result.message).toMatch('End time overlaps an existing timespan region');
+      expect(result.valid).toBe(true);
     });
-    test('returns false for begin time overlapping an existing timespan', () => {
+    test('returns true for begin time overlapping an existing timespan (overlapping now allowed)', () => {
       const result = formHelper.validTimespans('00:00:03.000', '00:00:04.000', 10, allSpans);
-      expect(result.valid).toBe(false);
-      expect(result.message).toMatch('Begin time overlaps an existing timespan region');
+      expect(result.valid).toBe(true);
     });
     test('returns false for end time > duration', () => {
       const result = formHelper.validTimespans('00:00:01.000', '00:00:20.000', 1, []);

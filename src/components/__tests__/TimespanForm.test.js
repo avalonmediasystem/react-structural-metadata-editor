@@ -94,7 +94,7 @@ describe('Timespan component', () => {
     });
   });
 
-  describe('validates', () => {
+  describe('and validates', () => {
     test('timespan title', () => {
       const { container, getByTestId, getByLabelText } = renderWithRedux(
         <TimespanForm {...props} />,
@@ -104,19 +104,19 @@ describe('Timespan component', () => {
 
       const titleInput = getByLabelText(/title/i);
 
+      // Initially the title is empty and is invalid
+      expect(titleInput.value).toBe('');
+      expect(getByTestId('timespan-form-title').className.includes('is-invalid')).toBeTruthy();
+
+      // Title is less than 2 characters and is invalid
       fireEvent.change(titleInput, { target: { value: 'N' } });
-      expect(
-        getByTestId('timespan-form-title').className.includes('is-invalid')
-      ).toBeTruthy();
+      expect(getByTestId('timespan-form-title').className.includes('is-invalid')).toBeTruthy();
       expect(saveButton).toBeDisabled();
 
+      // Title is more than 2 characters and is valid
       fireEvent.change(titleInput, { target: { value: 'New Timespan' } });
-      expect(
-        getByTestId('timespan-form-title').className.includes('is-invalid')
-      ).toBeFalsy();
-      expect(
-        getByTestId('timespan-form-title').className.includes('is-valid')
-      ).toBeTruthy();
+      expect(getByTestId('timespan-form-title').className.includes('is-invalid')).toBeFalsy();
+      expect(getByTestId('timespan-form-title').className.includes('is-valid')).toBeTruthy();
       expect(saveButton).toBeDisabled();
 
       const childOfSelect = getByLabelText(/child of/i);
@@ -128,8 +128,9 @@ describe('Timespan component', () => {
       expect(saveButton).toBeEnabled();
     });
 
-    describe('begin/end times', () => {
+    describe('begin and end times', () => {
       let timespanForm, saveButton;
+      let beginTimeInput, endTimeInput;
       beforeEach(() => {
         timespanForm = renderWithRedux(<TimespanForm {...props} />, {
           initialState,
@@ -142,45 +143,39 @@ describe('Timespan component', () => {
         fireEvent.change(childOfSelect, {
           target: { value: '123a-456b-789c-2d' },
         });
+
+        beginTimeInput = timespanForm.getByLabelText(/begin time/i);
+        endTimeInput = timespanForm.getByLabelText(/end time/i);
+
       });
 
       test('when form opens', () => {
-        expect(
-          timespanForm
-            .getByTestId('timespan-form-begintime')
-            .classList.contains('is-valid')
-        ).toBeTruthy();
-        expect(
-          timespanForm
-            .getByTestId('timespan-form-endtime')
-            .classList.contains('is-valid')
-        ).toBeTruthy();
+        // Initial values for begin and end times are valid
+        expect(beginTimeInput.value).toBe('00:00:00.000');
+        expect(endTimeInput.value).toBe('00:00:03.321');
+        expect(beginTimeInput.className.includes('is-valid')).toBeTruthy();
+        expect(endTimeInput.className.includes('is-valid')).toBeTruthy();
+
         expect(saveButton).toBeEnabled();
       });
 
-      test('when end time overlaps next segment', () => {
+      test('when end time is changed to contain within an existing timespan', () => {
         // Change props to allow changes to go through as user input from the forms
         const updatedProps = {
           ...props,
           isInitializing: false,
           isTyping: true,
         };
-
         timespanForm.rerenderWithRedux(
           <TimespanForm {...updatedProps} />,
           initialState
         );
 
-        const endTimeInput = timespanForm.getByLabelText(/end time/i);
-        fireEvent.change(endTimeInput, {
-          target: { value: '00:00:04.001' },
-        });
+        // Change end time to be within an existing timespan
+        fireEvent.change(endTimeInput, { target: { value: '00:00:04.001' } });
 
-        expect(
-          timespanForm
-            .getByTestId('timespan-form-endtime')
-            .classList.contains('is-invalid')
-        ).toBeTruthy();
+        expect(beginTimeInput.className.includes('is-invalid')).toBeTruthy();
+        expect(endTimeInput.classList.contains('is-invalid')).toBeTruthy();
         expect(saveButton).toBeDisabled();
       });
 
@@ -190,27 +185,103 @@ describe('Timespan component', () => {
           isInitializing: false,
           isTyping: true,
         };
+        timespanForm.rerenderWithRedux(
+          <TimespanForm {...updatedProps} />,
+          initialState
+        );
+
+        // Change begin time to overlap with end time
+        fireEvent.change(beginTimeInput, { target: { value: '00:00:05.001' } });
+
+        expect(endTimeInput.className.includes('is-invalid')).toBeTruthy();
+        expect(beginTimeInput.className.includes('is-invalid')).toBeTruthy();
+        expect(saveButton).toBeDisabled();
+      });
+
+      test('when begin and end times are inside an existing timespan', () => {
+        const updatedProps = {
+          ...props,
+          isInitializing: false,
+          isTyping: true,
+        };
 
         timespanForm.rerenderWithRedux(
           <TimespanForm {...updatedProps} />,
           initialState
         );
 
-        const beginTimeInput = timespanForm.getByLabelText(/begin time/i);
-        fireEvent.change(beginTimeInput, {
-          target: { value: '00:00:05.001' },
-        });
+        // Change begin and end times to be inside an existing timespan
+        fireEvent.change(beginTimeInput, { target: { value: '00:00:03.321' } });
+        fireEvent.change(endTimeInput, { target: { value: '00:00:04.321' } });
 
-        expect(
-          timespanForm
-            .getByTestId('timespan-form-endtime')
-            .className.includes('is-invalid')
-        ).toBeTruthy();
-        expect(
-          timespanForm
-            .getByTestId('timespan-form-begintime')
-            .className.includes('is-invalid')
-        ).toBeTruthy();
+        expect(beginTimeInput.className.includes('is-valid')).toBeTruthy();
+        expect(endTimeInput.className.includes('is-valid')).toBeTruthy();
+        expect(saveButton).toBeEnabled();
+      });
+
+      test('when begin time is within an existing timespan', () => {
+        const updatedProps = {
+          ...props,
+          isInitializing: false,
+          isTyping: true,
+        };
+
+        timespanForm.rerenderWithRedux(<TimespanForm {...updatedProps} />, initialState);
+
+        // Change begin time to be within an existing timespan
+        fireEvent.change(beginTimeInput, { target: { value: '00:00:09.432' } });
+
+        // Both begin and end times are marked invalid
+        expect(beginTimeInput.value).toBe('00:00:09.432');
+        expect(endTimeInput.value).toBe('00:00:03.321');
+        expect(beginTimeInput.className.includes('is-invalid')).toBeTruthy();
+        expect(endTimeInput.className.includes('is-invalid')).toBeTruthy();
+        expect(saveButton).toBeDisabled();
+
+        // Change end time to be outside of the existing timespan of begin time
+        fireEvent.change(endTimeInput, { target: { value: '00:00:11.230' } });
+
+        // Both times are still invalid
+        expect(beginTimeInput.value).toBe('00:00:09.432');
+        expect(endTimeInput.value).toBe('00:00:11.230');
+        expect(beginTimeInput.className.includes('is-invalid')).toBeTruthy();
+        expect(endTimeInput.className.includes('is-invalid')).toBeTruthy();
+        expect(saveButton).toBeDisabled();
+      });
+
+      test('when both begin and end times are outside of existing timespans', () => {
+        const updatedProps = {
+          ...props,
+          isInitializing: false,
+          isTyping: true,
+        };
+
+        timespanForm.rerenderWithRedux(<TimespanForm {...updatedProps} />, initialState);
+
+        // Change begin time to be outside of existing timespans
+        fireEvent.change(beginTimeInput, { target: { value: '00:15:00.001' } });
+        fireEvent.change(endTimeInput, { target: { value: '00:16:00.001' } });
+
+        expect(beginTimeInput.className.includes('is-valid')).toBeTruthy();
+        expect(endTimeInput.className.includes('is-valid')).toBeTruthy();
+        expect(saveButton).toBeEnabled();
+      });
+
+      test('when end time is greater than duration', () => {
+        const updatedProps = {
+          ...props,
+          isInitializing: false,
+          isTyping: true,
+        };
+
+        timespanForm.rerenderWithRedux(<TimespanForm {...updatedProps} />, initialState);
+
+        // Change begin time to be outside of existing timespans
+        fireEvent.change(beginTimeInput, { target: { value: '00:15:00.001' } });
+        fireEvent.change(endTimeInput, { target: { value: '00:32:00.001' } });
+
+        expect(beginTimeInput.className.includes('is-invalid')).toBeTruthy();
+        expect(endTimeInput.className.includes('is-invalid')).toBeTruthy();
         expect(saveButton).toBeDisabled();
       });
     });

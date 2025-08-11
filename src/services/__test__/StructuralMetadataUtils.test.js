@@ -198,29 +198,6 @@ describe('StructuralMetadataUtils class', () => {
     });
   });
 
-  describe('doesTimespanOverlap()', () => {
-    let allSpans = [];
-    beforeEach(() => {
-      allSpans = smu.getItemsOfType('span', testData);
-    });
-    test('timespan overlapping an existing timespan', () => {
-      const value = smu.doesTimespanOverlap(
-        '00:00:00.000',
-        '00:00:05.001',
-        allSpans
-      );
-      expect(value).toBeTruthy();
-    });
-    test('timespan not overlapping an existing timespan', () => {
-      const value = smu.doesTimespanOverlap(
-        '00:15:00.001',
-        '00:18:00.001',
-        allSpans
-      );
-      expect(value).toBeFalsy();
-    });
-  });
-
   test('findItem()', () => {
     const obj = {
       type: 'div',
@@ -516,7 +493,7 @@ describe('StructuralMetadataUtils class', () => {
     });
   });
 
-  describe('getValidHeadings()', () => {
+  describe('getValidParents()', () => {
     test('when there are no timespans', () => {
       const newSpan = { begin: '00:00:00.011', end: '00:02:00.001' };
       const wrapperSpans = {
@@ -561,7 +538,7 @@ describe('StructuralMetadataUtils class', () => {
           id: '123a-456b-789c-2d',
         },
       ];
-      const value = smu.getValidHeadings(newSpan, wrapperSpans, structure);
+      const value = smu.getValidParents(newSpan, wrapperSpans, structure);
       expect(value).toHaveLength(expected.length);
       expect(value).toContainEqual({
         type: 'div',
@@ -609,7 +586,7 @@ describe('StructuralMetadataUtils class', () => {
           id: '123a-456b-789c-7d',
         },
       ];
-      const value = smu.getValidHeadings(newSpan, wrapperSpans, testData);
+      const value = smu.getValidParents(newSpan, wrapperSpans, testData);
       expect(value).toHaveLength(expected.length);
       expect(value).toContainEqual({
         type: 'div',
@@ -651,7 +628,7 @@ describe('StructuralMetadataUtils class', () => {
           id: '123a-456b-789c-9d',
         },
       ];
-      const value = smu.getValidHeadings(newSpan, wrapperSpans, testData);
+      const value = smu.getValidParents(newSpan, wrapperSpans, testData);
       expect(value).toHaveLength(expected.length);
       expect(value).toContainEqual({
         type: 'div',
@@ -688,7 +665,7 @@ describe('StructuralMetadataUtils class', () => {
           id: '123a-456b-789c-2d',
         },
       ];
-      const value = smu.getValidHeadings(newSpan, wrapperSpans, testData);
+      const value = smu.getValidParents(newSpan, wrapperSpans, testData);
       expect(value).toHaveLength(expected.length);
       expect(value).toContainEqual({
         type: 'div',

@@ -18,7 +18,7 @@ describe('ButtonSection component', () => {
     expect(queryByTestId('button-row')).toBeNull();
   });
 
-  describe('renders', () => {
+  describe('', () => {
     let buttonSection = null,
       initialState;
     beforeEach(() => {

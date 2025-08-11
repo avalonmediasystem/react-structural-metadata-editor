@@ -558,30 +558,13 @@ export default class WaveformDataUtils {
   */
   validateSegment(segment, startTimeChanged, peaksInstance, duration) {
     const { startTime, endTime } = segment;
-
-    // Segments before and after the editing segment
-    const { before, after } = this.findWrapperSegments(segment, peaksInstance);
-
-    // Check for margin of +/- 0.02 seconds to be considered
-    let isDuration = (time) => {
-      return (
-        time <= duration + 0.02 && time >= duration - 0.02
-      );
-    };
-
     if (startTimeChanged) {
-      if (before && startTime < before.endTime && !isDuration(before.endTime)) {
-        // when start handle is dragged over the segment before
-        segment.update({ startTime: before.endTime });
-      } else if (startTime > endTime) {
+      if (startTime > endTime) {
         // when start handle is dragged over the end time of the segment
         segment.update({ startTime: segment.endTime - 0.001 });
       }
     } else {
-      if (after && endTime > after.startTime) {
-        // when end handle is dragged over the segment after
-        segment.update({ endTime: after.startTime });
-      } else if (endTime < startTime) {
+      if (endTime < startTime) {
         // when end handle is dragged over the start time of the segment
         segment.update({ endTime: Math.round((segment.startTime + 0.001) * 1000) / 1000 });
       } else if (endTime > duration) {

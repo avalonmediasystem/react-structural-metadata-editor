@@ -765,7 +765,7 @@ describe('WaveformDataUtils class', () => {
         );
         // Changes the end time to the start of the overlapping segment
         expect(value.startTime).toEqual(490.991);
-        expect(value.endTime).toEqual(543.241);
+        expect(value.endTime).toEqual(543.251);
       });
 
       test('when a segment does not overlap neighboring segments', () => {

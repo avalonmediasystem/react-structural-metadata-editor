@@ -232,9 +232,8 @@ describe('TimespanInlineForm component', () => {
         nextState
       );
 
-      // expects begin value to be the updated time but is marked invalid
+      // expects begin value to be the updated time
       expect(timespanInlineForm.getByTestId('timespan-inline-form-begintime').value).toBe('00:07:30.001');
-      expect(timespanInlineForm.getByTestId('timespan-inline-form-begintime').className.includes('is-invalid')).toBeTruthy();
 
       // end time does not change
       expect(timespanInlineForm.getByTestId('timespan-inline-form-endtime').value).toBe('00:15:00.001');

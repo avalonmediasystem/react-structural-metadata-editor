@@ -373,30 +373,6 @@ export default class StructuralMetadataUtils {
   }
 
   /**
-   * Find existing timespans that can fully contain the new timespan
-   * @param {Object} newSpan - new span object with begin and end times
-   * @param {Array} allSpans - all type <span> objects in current structured metadata  
-   * @returns {Array} - array of <span> objects that can contain the new timespan
-   */
-  findWrapperTimespans(newSpan, allSpans) {
-    const { toMs } = this;
-    const newBeginMs = toMs(newSpan.begin);
-    const newEndMs = toMs(newSpan.end);
-
-    return allSpans.filter((span) => {
-      const spanBeginMs = toMs(span.begin);
-      const spanEndMs = toMs(span.end);
-
-      /**
-       * A timespan can contain the new span if the new timespan's:
-       * - begin time >= the existing span's begin time
-       * - end time <= the existing span's end time
-       */
-      return newBeginMs >= spanBeginMs && newEndMs <= spanEndMs;
-    });
-  }
-
-  /**
    * Find the <div>s wrapping the current active timespan (either in editing or in drag-n-drop)
    * @param {Object} parentDiv - parent header of the active timespan
    * @param {Array} allItems - all the items in the structured metadata

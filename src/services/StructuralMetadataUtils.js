@@ -39,6 +39,11 @@ export default class StructuralMetadataUtils {
       label: obj.timespanTitle,
       begin: obj.beginTime,
       end: obj.endTime,
+      items: [],
+      timeRange: {
+        start: this.convertToSeconds(obj.beginTime),
+        end: this.convertToSeconds(obj.endTime)
+      }
     };
   }
 
@@ -60,6 +65,21 @@ export default class StructuralMetadataUtils {
   }
 
   /**
+   * Convert time in hh:mm:ss.ms format to seconds
+   * @param {String} time time in hh:mm:ss.ms format
+   * @returns {Number}
+   */
+  convertToSeconds = (time) => {
+    let timeSeconds = this.toMs(time) / 1000;
+    // When time property is missing
+    if (isNaN(timeSeconds)) {
+      return 0;
+    } else {
+      return timeSeconds;
+    }
+  };
+
+  /**
    * Format the time of the timespans in the structured metadata fetched from the server,
    * so that they can be used in the validation logic and Peaks instance
    * @param {Array} allItems - array of all the items in structured metadata
@@ -67,17 +87,6 @@ export default class StructuralMetadataUtils {
    */
   buildSMUI(allItems, duration) {
     let smDataIsValid = true;
-
-    // Convert time to HH:mm:ss.ms format to use in validation logic
-    let convertToSeconds = (time) => {
-      let timeSeconds = this.toMs(time) / 1000;
-      // When time property is missing
-      if (isNaN(timeSeconds)) {
-        return 0;
-      } else {
-        return timeSeconds;
-      }
-    };
 
     let decodeHTML = (lableText) => {
       return lableText
@@ -95,8 +104,9 @@ export default class StructuralMetadataUtils {
         item.valid = true;
         if (item.type === 'span') {
           const { begin, end } = item;
-          let beginTime = convertToSeconds(begin);
-          let endTime = convertToSeconds(end);
+          let beginTime = this.convertToSeconds(begin);
+          let endTime = this.convertToSeconds(end);
+          item.timeRange = { start: beginTime, end: endTime };
           item.begin = this.toHHmmss(beginTime);
           item.end = this.toHHmmss(endTime);
           if (beginTime > endTime || beginTime > duration) {
@@ -363,30 +373,6 @@ export default class StructuralMetadataUtils {
   }
 
   /**
-   * Find existing timespans that can fully contain the new timespan
-   * @param {Object} newSpan - new span object with begin and end times
-   * @param {Array} allSpans - all type <span> objects in current structured metadata  
-   * @returns {Array} - array of <span> objects that can contain the new timespan
-   */
-  findWrapperTimespans(newSpan, allSpans) {
-    const { toMs } = this;
-    const newBeginMs = toMs(newSpan.begin);
-    const newEndMs = toMs(newSpan.end);
-
-    return allSpans.filter((span) => {
-      const spanBeginMs = toMs(span.begin);
-      const spanEndMs = toMs(span.end);
-
-      /**
-       * A timespan can contain the new span if the new timespan's:
-       * - begin time >= the existing span's begin time
-       * - end time <= the existing span's end time
-       */
-      return newBeginMs >= spanBeginMs && newEndMs <= spanEndMs;
-    });
-  }
-
-  /**
    * Find the <div>s wrapping the current active timespan (either in editing or in drag-n-drop)
    * @param {Object} parentDiv - parent header of the active timespan
    * @param {Array} allItems - all the items in the structured metadata
@@ -483,16 +469,22 @@ export default class StructuralMetadataUtils {
    * @param {Object} newSpan - New timespan created with values supplied by the user
    * @param {Object} wrapperSpans Object representing before and after spans of newSpan (if they exist)
    * @param {Array} allItems - All structural metadata items in tree
-   * @param {Array} wrapperTimespans - Array of timespans that can contain the new timespan
+   * @param {Array} parentTimespan - Closest possible parent timespan that can contain the new timespan
    * @return {Array} - of valid <div> and <span> objects in structural metadata tree
    */
-  getValidParents(newSpan, wrapperSpans, allItems, wrapperTimespans = []) {
+  getValidParents(newSpan, wrapperSpans, allItems, parentTimespan = []) {
     let possibleValidParents = [];
     let sortedParents = [];
     let uniqueParents = [];
     // New timespan falls between timespans in the same parent
     let stuckInMiddle = false;
     const { toMs } = this;
+
+    // If there is a possible parent timespan, then it's the only choice for a parent for the
+    // new timespan, since a timespan cannot span across multiple parent timespans.
+    if (parentTimespan?.length > 0) {
+      return parentTimespan;
+    }
 
     const { before, after } = wrapperSpans;
     const allPossibleParents = this.getItemsOfType('root', allItems).concat(
@@ -580,11 +572,6 @@ export default class StructuralMetadataUtils {
     }
 
     possibleValidParents.map((heading) => exploreOutwards(heading));
-
-    // Add wrapper timespans as valid parent containers
-    wrapperTimespans.forEach((timespan) => {
-      possibleValidParents.push(timespan);
-    });
 
     // Sort valid headings to comply with the order in the metadata structure
     allPossibleParents.forEach((key) => {
@@ -706,12 +693,14 @@ export default class StructuralMetadataUtils {
       let inFoundDiv = false;
       let closestSibling = null;
       const siblings = foundDiv.items;
-      siblings.map((sibling) => {
-        if (sibling.id === item.id) {
-          inFoundDiv = true;
-          closestSibling = sibling;
-        }
-      });
+      if (siblings?.length > 0) {
+        siblings.map((sibling) => {
+          if (sibling.id === item.id) {
+            inFoundDiv = true;
+            closestSibling = sibling;
+          }
+        });
+      }
       if (!inFoundDiv) {
         let parentItem = this.getParentDiv(item, allItems);
         if (parentItem) {

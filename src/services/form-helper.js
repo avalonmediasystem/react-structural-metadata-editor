@@ -29,26 +29,32 @@ export function getExistingFormValues(id, smData, peaks = {}) {
   }
 }
 
-export function getTimeValidation(time) {
-  if (!time || time.indexOf(':') === -1) {
-    return false;
-  }
-  return validTimeFormat(time);
-}
-
-export function getValidationBeginState(beginTime, allSpans) {
+/**
+ * Validate the begin time of a given time range
+ * @param {String} beginTime range begin time in hh:mm:ss.ms format
+ * @param {String} endTime range end time in hh:mm:ss.ms format
+ * @returns {Boolean}
+ */
+export function getValidationBeginState(beginTime, endTime) {
   if (!beginTime || beginTime.indexOf(':') === -1) {
     return false;
   }
 
   const validFormat = validTimeFormat(beginTime);
-  const validBeginTime = structuralMetadataUtils.doesTimeOverlap(
+  const validOrdering = structuralMetadataUtils.validateBeforeEndTimeOrder(
     beginTime,
-    allSpans
+    endTime
   );
-  return !!(validFormat && validBeginTime);
+  return (validFormat && validOrdering);
 }
 
+/**
+ * Validate the end time of a givent time range
+ * @param {String} beginTime range begin time in hh:mm:ss.ms format
+ * @param {String} endTime range end time in hh:mm:ss.ms format
+ * @param {Number} duration duration of the media
+ * @returns {Boolean}
+ */
 export function getValidationEndState(beginTime, endTime, duration) {
   if (!endTime || endTime.indexOf(':') === -1) {
     return false;
@@ -75,8 +81,9 @@ export function getValidationTitleState(title) {
 }
 
 /**
- * Validation logic for a valid title here
- * @param {String} title
+ * Validate the title of a structure item
+ * @param {String} title new or editing structure item's title
+ * @returns {Boolean}
  */
 export function isTitleValid(title) {
   return title.length > 2;

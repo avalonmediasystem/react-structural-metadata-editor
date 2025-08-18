@@ -63,6 +63,7 @@ export const testSmData = [
             begin: '00:00:03.321',
             end: '00:00:10.321',
             valid: true,
+            timeRange: { start: 3.321, end: 10.321 }
           },
           {
             type: 'span',
@@ -71,6 +72,7 @@ export const testSmData = [
             begin: '00:00:11.231',
             end: '00:08:00.001',
             valid: true,
+            timeRange: { start: 11.231, end: 480.001 }
           },
         ],
       },
@@ -97,6 +99,7 @@ export const testSmData = [
                 begin: '00:09:03.241',
                 end: '00:15:00.001',
                 valid: true,
+                timeRange: { start: 543.241, end: 900.001 }
               },
             ],
           },
@@ -282,6 +285,7 @@ export const nestedTestSmData = [
             begin: '00:00:03.321',
             end: '00:00:10.321',
             valid: true,
+            timeRange: { start: 3.321, end: 10.321 }
           },
           {
             type: 'span',
@@ -290,6 +294,7 @@ export const nestedTestSmData = [
             begin: '00:01:00.231',
             end: '00:08:00.001',
             valid: true,
+            timeRange: { start: 60.231, end: 480.001 }
           },
         ],
       },
@@ -310,6 +315,7 @@ export const nestedTestSmData = [
                 begin: '00:09:00.241',
                 end: '00:15:00.001',
                 valid: true,
+                timeRange: { start: 540.241, end: 900.001 },
                 items: [
                   {
                     type: 'span',
@@ -318,6 +324,7 @@ export const nestedTestSmData = [
                     begin: '00:09:10.241',
                     end: '00:10:00.321',
                     valid: true,
+                    timeRange: { start: 550.241, end: 660.321 }
                   },
                   {
                     type: 'span',
@@ -326,6 +333,7 @@ export const nestedTestSmData = [
                     begin: '00:12:00.231',
                     end: '00:13:00.001',
                     valid: true,
+                    timeRange: { start: 720.231, end: 790.001 }
                   },
                 ]
               },

@@ -46,16 +46,16 @@ describe('form-helper', () => {
 
   describe('getValidationBeginState()', () => {
     test('returns false for invalid format', () => {
-      expect(formHelper.getValidationBeginState('bad', [])).toBe(false);
+      expect(formHelper.getValidationBeginState('bad', '00:00:02.000')).toBe(false);
     });
     test('returns true for valid format and overlap', () => {
-      expect(formHelper.getValidationBeginState('00:00:01.000', [])).toBe(true);
+      expect(formHelper.getValidationBeginState('00:00:01.000', '00:00:02.000')).toBe(true);
     });
   });
 
   describe('getValidationEndState()', () => {
     test('returns false for invalid format', () => {
-      expect(formHelper.getValidationEndState('00:00:01.000', 'bad', [], 10)).toBe(false);
+      expect(formHelper.getValidationEndState('00:00:01.000', 'bad', 10)).toBe(false);
     });
     test('returns false for invalid order', () => {
       expect(formHelper.getValidationEndState('00:00:02.000', '00:00:01.000', 10)).toBe(false);

@@ -5,6 +5,7 @@ import {
   testEmptyHeaderBefore,
   testEmptyHeaderAfter,
   testInvalidData,
+  nestedTestSmData,
 } from '../testing-helpers';
 import { cloneDeep } from 'lodash';
 
@@ -36,6 +37,8 @@ describe('StructuralMetadataUtils class', () => {
     expect(value).toHaveProperty('begin', '00:00:011');
     expect(value).toHaveProperty('end', '00:00:021');
     expect(value).toHaveProperty('label', 'Tester');
+    expect(value).toHaveProperty('items', []);
+    expect(value).toHaveProperty('timeRange', { start: 11, end: 21 });
   });
 
   describe('deleteListItem()', () => {
@@ -55,6 +58,7 @@ describe('StructuralMetadataUtils class', () => {
         begin: '00:00:03.321',
         end: '00:00:10.321',
         valid: true,
+        timeRange: { start: 3.321, end: 10.321 }
       });
     });
     test('deletes a header with children', () => {
@@ -110,6 +114,7 @@ describe('StructuralMetadataUtils class', () => {
         begin: '00:09:03.241',
         end: '00:15:00.001',
         valid: true,
+        timeRange: { start: 543.241, end: 900.001 }
       });
     });
   });
@@ -228,6 +233,7 @@ describe('StructuralMetadataUtils class', () => {
           end: '00:00:10.321',
           id: '123a-456b-789c-3d',
           valid: true,
+          timeRange: { start: 3.321, end: 10.321 }
         },
       };
       const value = smu.findWrapperSpans(obj, allSpans);
@@ -246,6 +252,7 @@ describe('StructuralMetadataUtils class', () => {
           end: '00:00:10.321',
           id: '123a-456b-789c-3d',
           valid: true,
+          timeRange: { start: 3.321, end: 10.321 }
         },
         after: {
           type: 'span',
@@ -254,6 +261,7 @@ describe('StructuralMetadataUtils class', () => {
           begin: '00:00:11.231',
           end: '00:08:00.001',
           valid: true,
+          timeRange: { start: 11.231, end: 480.001 }
         },
       };
       const value = smu.findWrapperSpans(obj, allSpans);
@@ -263,6 +271,7 @@ describe('StructuralMetadataUtils class', () => {
       const obj = {
         begin: '00:15:00.001',
         end: '00:20:00.001',
+        timeRange: { start: 900.001, end: 1200.001 }
       };
       const expected = {
         before: {
@@ -272,6 +281,7 @@ describe('StructuralMetadataUtils class', () => {
           end: '00:15:00.001',
           id: '123a-456b-789c-8d',
           valid: true,
+          timeRange: { start: 543.241, end: 900.001 }
         },
         after: null,
       };
@@ -388,6 +398,7 @@ describe('StructuralMetadataUtils class', () => {
           begin: '00:00:03.321',
           end: '00:00:10.321',
           valid: true,
+          timeRange: { start: 3.321, end: 10.321 }
         },
         {
           type: 'span',
@@ -396,6 +407,7 @@ describe('StructuralMetadataUtils class', () => {
           begin: '00:00:11.231',
           end: '00:08:00.001',
           valid: true,
+          timeRange: { start: 11.231, end: 480.001 }
         },
         {
           type: 'span',
@@ -404,6 +416,7 @@ describe('StructuralMetadataUtils class', () => {
           begin: '00:09:03.241',
           end: '00:15:00.001',
           valid: true,
+          timeRange: { start: 543.241, end: 900.001 }
         },
       ];
       const value = smu.getItemsOfType('span', testData);
@@ -415,6 +428,7 @@ describe('StructuralMetadataUtils class', () => {
         begin: '00:09:03.241',
         end: '00:15:00.001',
         valid: true,
+        timeRange: { start: 543.241, end: 900.001 }
       });
     });
   });
@@ -427,6 +441,7 @@ describe('StructuralMetadataUtils class', () => {
         id: '123a-456b-789c-4d',
         begin: '00:00:11.231',
         end: '00:08:00.001',
+        timeRange: { start: 11.231, end: 480.001 }
       };
       const expected = {
         type: 'div',
@@ -446,6 +461,7 @@ describe('StructuralMetadataUtils class', () => {
             begin: '00:00:03.321',
             end: '00:00:10.321',
             valid: true,
+            timeRange: { start: 3.321, end: 10.321 }
           },
           {
             type: 'span',
@@ -454,6 +470,7 @@ describe('StructuralMetadataUtils class', () => {
             begin: '00:00:11.231',
             end: '00:08:00.001',
             valid: true,
+            timeRange: { start: 11.231, end: 480.001 }
           },
         ],
       };
@@ -485,6 +502,7 @@ describe('StructuralMetadataUtils class', () => {
             begin: '00:09:03.241',
             end: '00:15:00.001',
             valid: true,
+            timeRange: { start: 543.241, end: 900.001 }
           },
         ],
       };
@@ -685,6 +703,7 @@ describe('StructuralMetadataUtils class', () => {
           begin: '00:00:11.231',
           end: '00:08:00.001',
           valid: true,
+          timeRange: { start: 11.231, end: 480.001 }
         },
         {
           type: 'div',
@@ -709,6 +728,7 @@ describe('StructuralMetadataUtils class', () => {
                   begin: '00:09:03.241',
                   end: '00:15:00.001',
                   valid: true,
+                  timeRange: { start: 543.241, end: 900.001 }
                 },
               ],
             },

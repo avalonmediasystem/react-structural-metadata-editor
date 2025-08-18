@@ -81,19 +81,26 @@ export default class WaveformDataUtils {
       let closestToTime = [];
       let diff = Infinity;
       currentSegments.map((segment) => {
-        if (time >= segment.startTime && time < segment.endTime) {
+        if (isBegin) {
           /**
-           * When filtering the segments that overlap at the beginning, get the segment that is
-           * closest to the rangeBeginTime. This yeilds an accurate rangeEndTime when filtering
-           * through segments with children, where rangeBeginTime falls inside a child segment.
+           * Consider equality for startTime only when using rangeBeginTime
+           * to create child segments, since this needs to be considered when creating
+           * child timespans.
            */
-          if (isBegin) {
+          if (time >= segment.startTime && time < segment.endTime) {
+            /**
+             * When filtering the segments that overlap at the beginning, get the segment that is
+             * closest to the rangeBeginTime. This yeilds an accurate rangeEndTime when filtering
+             * through segments with children, where rangeBeginTime falls inside a child segment.
+             */
             let current_diff = time - segment.startTime;
             if (current_diff < diff) {
               diff = current_diff;
               closestToTime = [segment];
             }
-          } else {
+          }
+        } else {
+          if (time > segment.startTime && time < segment.endTime) {
             closestToTime.push(segment);
           }
         }
@@ -134,42 +141,72 @@ export default class WaveformDataUtils {
       const earliestBegin = Math.min(...allBeginTimes);
       const latestEnd = Math.max(...allEndTimes);
 
-      // Find containing segments for begin and end times
-      const beginContainers = findContainingSegments(rangeBeginTime, true);
-      const endContainers = findContainingSegments(rangeEndTime);
+      // Recursively validate and adjust rangeEndTime until no more conflicts exist
+      let maxIterations = 20;
+      let currentIteration = 0;
+      let rangeChanged = true;
 
-      // Suggested range for new segment is either before/after all existing segments
-      if (rangeEndTime <= earliestBegin || rangeBeginTime >= latestEnd) {
-        // Do nothing, as the suggested range is already outside existing segments
-      }
-      // Suggested range is partially overlapping the first segment
-      if (rangeBeginTime < earliestBegin && rangeEndTime > earliestBegin) {
-        // Adjust rangeEndTime to not overlap the first segment
-        rangeEndTime = earliestBegin;
-      }
-      // Suggested range is fully enclosed within an existing segment
-      else if (beginContainers.length > 0 && endContainers.length > 0) {
-        const commonContainer = beginContainers.find(beginContainer =>
-          endContainers.some(endContainer => endContainer.id === beginContainer.id)
-        );
+      while (rangeChanged && currentIteration < maxIterations) {
+        const previousRangeEndTime = rangeEndTime;
+        rangeChanged = false;
+        currentIteration++;
 
-        if (commonContainer) {
-          // Adjust rangeEndTime to not overlap with the children of the common parent segment
-          rangeEndTime = findNonOverlappingEndTime(commonContainer, rangeEndTime);
-        } else {
-          // Adjust rangeEndTime when they don't share a common parent segment
-          rangeEndTime = Math.min(rangeEndTime, beginContainers[0].endTime);
+        // Find containing segments for begin and end times
+        const beginContainers = findContainingSegments(rangeBeginTime, true);
+        const endContainers = findContainingSegments(rangeEndTime);
+
+        // Suggested range for new segment is either before/after all existing segments
+        if (rangeEndTime <= earliestBegin || rangeBeginTime >= latestEnd) {
+          // Do nothing, as the suggested range is already outside existing segments
         }
-      }
-      // Suggested range is overlapping with an existing segment at the end
-      else if (beginContainers.length === 0 && endContainers.length > 0) {
-        // Adjust rangeEndTime to the start of the segment it falls within
-        rangeEndTime = endContainers[0].startTime;
-      }
-      // Suggested range is overlapping with an existing segment at the beginning
-      else if (beginContainers.length > 0 && endContainers.length === 0) {
-        const containingSegment = beginContainers[0];
-        rangeEndTime = findNonOverlappingEndTime(containingSegment, rangeEndTime);
+        // Suggested range is partially overlapping the first segment
+        else if (rangeBeginTime < earliestBegin && rangeEndTime > earliestBegin) {
+          // Adjust rangeEndTime to not overlap the first segment
+          rangeEndTime = earliestBegin;
+        }
+        // Suggested range is fully enclosed within an existing segment
+        else if (beginContainers.length > 0 && endContainers.length > 0) {
+          const commonContainer = beginContainers.find(beginContainer =>
+            endContainers.some(endContainer => endContainer.id === beginContainer.id)
+          );
+
+          if (commonContainer) {
+            // Adjust rangeEndTime to not overlap with the children of the common parent segment
+            rangeEndTime = findNonOverlappingEndTime(commonContainer, rangeEndTime);
+          } else {
+            // Adjust rangeEndTime when they don't share a common parent segment
+            rangeEndTime = Math.min(rangeEndTime, beginContainers[0].endTime);
+          }
+        }
+        // Suggested range is not overlapping existing segments at the start/end
+        else if (beginContainers.length === 0 && endContainers.length === 0) {
+          // Find all segments that are fully enclosed within the suggested range
+          const containedSegments = currentSegments
+            .filter((seg) => seg.startTime >= rangeBeginTime && seg.endTime <= rangeEndTime);
+
+          if (containedSegments?.length > 0) {
+            // Sort contained segments by start time to process them in order
+            const sortedContainedSegments = containedSegments.sort((a, b) => a.startTime - b.startTime);
+            // Find the best non-overlapping range before the first contained segment
+            // This ensures the new temp segment doesn't overlap any fully enclosed segments
+            rangeEndTime = sortedContainedSegments[0].startTime;
+          }
+        }
+        // Suggested range is overlapping with an existing segment at the end
+        else if (beginContainers.length === 0 && endContainers.length > 0) {
+          // Adjust rangeEndTime to the start of the segment it falls within
+          rangeEndTime = endContainers[0].startTime;
+        }
+        // Suggested range is overlapping with an existing segment at the beginning
+        else if (beginContainers.length > 0 && endContainers.length === 0) {
+          const containingSegment = beginContainers[0];
+          rangeEndTime = findNonOverlappingEndTime(containingSegment, rangeEndTime);
+        }
+
+        // Check if the rangeEndTime is changed in this iteration
+        if (rangeEndTime !== previousRangeEndTime) {
+          rangeChanged = true;
+        }
       }
     }
 
@@ -542,8 +579,10 @@ export default class WaveformDataUtils {
    * @param {String} sortBy - name of the property to sort the segments
    */
   sortSegments(peaksInstance, sortBy) {
-    let segments = peaksInstance.segments.getSegments();
-    segments.sort((x, y) => x[sortBy] - y[sortBy]);
+    let segments = peaksInstance.segments?.getSegments() ?? [];
+    if (segments?.length > 0) {
+      segments.sort((x, y) => x[sortBy] - y[sortBy]);
+    }
     return segments;
   }
 

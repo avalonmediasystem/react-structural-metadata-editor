@@ -6,7 +6,6 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import {
   getExistingFormValues,
-  getValidationTitleState,
   isTitleValid,
 } from '../services/form-helper';
 import { useSelector } from 'react-redux';
@@ -67,8 +66,8 @@ const HeadingInlineForm = ({ itemId, cancelFn, saveFn }) => {
               type='text'
               style={styles.formControl}
               value={headingTitle}
-              isValid={getValidationTitleState(headingTitle)}
-              isInvalid={!getValidationTitleState(headingTitle)}
+              isValid={isTitleValid(headingTitle)}
+              isInvalid={!isTitleValid(headingTitle)}
               onChange={handleInputChange}
               data-testid='inline-heading-title-form-control'
             />

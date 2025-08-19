@@ -280,10 +280,11 @@ export default class WaveformDataUtils {
    * @param {String} id - ID of the segment to be edited
    * @param {Object} peaksInstance - current peaks instance for the waveform
    * @param {Number} duration - file length in milliseconds
+   * @param {Object} neighbors - React refs to parent and sibling segments
    */
-  activateSegment(id, peaksInstance, duration) {
-    this.initialSegmentValidation(id, peaksInstance, duration);
+  activateSegment(id, peaksInstance, duration, neighbors) {
     const segment = peaksInstance.segments.getSegment(id);
+    this.validateSegment(segment, false, peaksInstance, duration, neighbors);
     // Setting editable: true -> enables handles
     segment.update({
       editable: true,
@@ -343,56 +344,6 @@ export default class WaveformDataUtils {
       peaksInstance.segments.add(tempSegment);
     }
     peaksInstance.player.seek(tempSegment.startTime);
-    return peaksInstance;
-  }
-
-  /**
-   * When an invalid segment is being edited, adjust segment's end time to depict the
-   * valid time range it can be spread before editing starts
-   * @param {String} id - ID of the segment being edited
-   * @param {Object} peaksInstance - current peaks instance for the waveform
-   * @param {Number} duration - file length in seconds
-   */
-  initialSegmentValidation(id, peaksInstance, duration) {
-    let segment = peaksInstance.segments.getSegment(id);
-
-    if (!segment) {
-      let newPeaksInstance = this.insertTempSegment(peaksInstance, duration);
-      segment = newPeaksInstance.segments.getSegment('temp-segment');
-      segment.id = id;
-    }
-    // Segments before and after the current segment
-    const { before, after } = this.findWrapperSegments(segment, peaksInstance);
-
-    // Check for margin of +/- 0.02 seconds to be considered
-    let isDuration = (time) => {
-      return (
-        time <= duration + 0.02 && time >= duration - 0.02
-      );
-    };
-    if (
-      before &&
-      segment.startTime < before.endTime &&
-      !isDuration(before.endTime)
-    ) {
-      segment.update({ startTime: before.endTime });
-    }
-    if (
-      after &&
-      segment.endTime > after.startTime &&
-      after.startTime != segment.startTime
-    ) {
-      segment.update({ endTime: after.startTime });
-    }
-    if (isDuration(segment.endTime)) {
-      const allSegments = this.sortSegments(peaksInstance, 'startTime');
-      let afterSegments = allSegments.filter(
-        (seg) => seg.startTime > segment.startTime
-      );
-      if (afterSegments.length > 0) {
-        segment.update({ endTime: afterSegments[0].startTime });
-      }
-    }
     return peaksInstance;
   }
 
@@ -507,13 +458,12 @@ export default class WaveformDataUtils {
   /**
   * Validate segment in the waveform everytime the handles on either side are dragged
   * to change the start and end times
-  * TODO::Rename this to validateSegment in the edit timespans work and remove the other validateSegment
   * @param {Object} segment - segement being edited in the waveform
   * @param {Boolean} startTimeChanged - true -> start time changed, false -> end time changed
   * @param {Number} duration - file length in seconds
   * @param {Object} neighbors - React refs for sibling and parent timespans
   */
-  validateNestedSegment(segment, startTimeChanged, duration, neighbors) {
+  validateSegment(segment, startTimeChanged, duration, neighbors) {
     const { startTime, endTime } = segment;
     const { previousSibling, nextSibling, parentTimespan } = neighbors;
 
@@ -546,84 +496,6 @@ export default class WaveformDataUtils {
       }
     }
     return segment;
-  }
-
-  /**
-  * Validate segment in the waveform everytime the handles on either side are dragged
-  * to change the start and end times
-  * @param {Object} segment - segement being edited in the waveform
-  * @param {Boolean} startTimeChanged - true -> start time changed, false -> end time changed
-  * @param {Object} peaksInstance - current peaks instance for waveform
-  * @param {Number} duration - file length in seconds
-  */
-  validateSegment(segment, startTimeChanged, peaksInstance, duration) {
-    const { startTime, endTime } = segment;
-
-    // Segments before and after the editing segment
-    const { before, after } = this.findWrapperSegments(segment, peaksInstance);
-
-    // Check for margin of +/- 0.02 seconds to be considered
-    let isDuration = (time) => {
-      return (
-        time <= duration + 0.02 && time >= duration - 0.02
-      );
-    };
-
-    if (startTimeChanged) {
-      if (before && startTime < before.endTime && !isDuration(before.endTime)) {
-        // when start handle is dragged over the segment before
-        segment.update({ startTime: before.endTime });
-      } else if (startTime > endTime) {
-        // when start handle is dragged over the end time of the segment
-        segment.update({ startTime: segment.endTime - 0.001 });
-      }
-    } else {
-      if (after && endTime > after.startTime) {
-        // when end handle is dragged over the segment after
-        segment.update({ endTime: after.startTime });
-      } else if (endTime < startTime) {
-        // when end handle is dragged over the start time of the segment
-        segment.update({ endTime: Math.round((segment.startTime + 0.001) * 1000) / 1000 });
-      } else if (endTime > duration) {
-        // when end handle is dragged beyond the duration of file
-        segment.update({ endTime: duration });
-      }
-    }
-    return segment;
-  }
-
-  /**
-   * Find the before and after segments of a given segment
-   * @param {Object} currentSegment - current segment being added/edited
-   * @param {Object} peaksInstance - current peaks instance
-   */
-  findWrapperSegments(currentSegment, peaksInstance) {
-    let wrapperSegments = {
-      before: null,
-      after: null,
-    };
-
-    // All segments sorted by start time
-    const allSegments = this.sortSegments(peaksInstance, 'startTime');
-    const otherSegments = allSegments.filter(
-      (seg) => seg.id !== currentSegment.id
-    );
-    const { startTime } = currentSegment;
-    const timeFixedSegments = otherSegments.map((seg) => {
-      return {
-        ...seg,
-        startTime: this.roundOff(seg.startTime),
-        endTime: this.roundOff(seg.endTime),
-      };
-    });
-
-    wrapperSegments.after = timeFixedSegments.filter(
-      (seg) => seg.startTime > startTime
-    )[0];
-    wrapperSegments.before = timeFixedSegments
-      .filter((seg) => seg.startTime < startTime)
-      .reverse()[0];
-    return wrapperSegments;
   }
 
   /**

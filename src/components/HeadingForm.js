@@ -7,7 +7,7 @@ import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import Form from 'react-bootstrap/Form';
 import PropTypes from 'prop-types';
-import { getValidationTitleState } from '../services/form-helper';
+import { isTitleValid } from '../services/form-helper';
 
 const structuralMetadataUtils = new StructuralMetadataUtils();
 
@@ -79,8 +79,8 @@ const HeadingForm = ({ cancelClick, onSubmit }) => {
         <Form.Control
           type='text'
           value={headingTitle}
-          isValid={getValidationTitleState(headingTitle)}
-          isInvalid={!getValidationTitleState(headingTitle)}
+          isValid={isTitleValid(headingTitle)}
+          isInvalid={!isTitleValid(headingTitle)}
           onChange={handleHeadingChange}
           data-testid='heading-form-title'
         />

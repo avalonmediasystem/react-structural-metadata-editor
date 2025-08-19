@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, fireEvent } from '@testing-library/react';
+import { act, cleanup, fireEvent } from '@testing-library/react';
 import TimespanInlineForm from '../TimespanInlineForm';
 import {
   renderWithRedux,
@@ -7,6 +7,7 @@ import {
   testInvalidData,
 } from '../../services/testing-helpers';
 import Peaks from 'peaks';
+import * as hooks from '../../services/sme-hooks';
 
 // Set up a redux store for the tests
 const peaksOptions = {
@@ -52,8 +53,37 @@ let props = {
 };
 
 describe('TimespanInlineForm component', () => {
-  describe('renders', () => {
-    let timespanInlineForm;
+  test('renders successfully with existing values', () => {
+    props = {
+      ...props,
+      item: {
+        type: 'span',
+        label: 'Segment 2.1',
+        id: '123a-456b-789c-8d',
+        begin: '00:09:03.241',
+        end: '00:15:00.001',
+        valid: true,
+      },
+    };
+    const timespanInlineForm = renderWithRedux(<TimespanInlineForm {...props} />, {
+      initialState,
+    });
+    expect(
+      timespanInlineForm.getByTestId('timespan-inline-form')
+    ).toBeInTheDocument();
+    expect(timespanInlineForm.getByTestId('timespan-inline-form-title').value).toBe(
+      'Segment 2.1'
+    );
+    expect(timespanInlineForm.getByTestId('timespan-inline-form-begintime').value).toBe(
+      '00:09:03.241'
+    );
+    expect(timespanInlineForm.getByTestId('timespan-inline-form-endtime').value).toBe(
+      '00:15:00.001'
+    );
+  });
+
+  describe('validates form', () => {
+    let timespanInlineForm, saveButton;
     beforeEach(() => {
       props = {
         ...props,
@@ -69,70 +99,35 @@ describe('TimespanInlineForm component', () => {
       timespanInlineForm = renderWithRedux(<TimespanInlineForm {...props} />, {
         initialState,
       });
-    });
-    test('successfully with existing values', () => {
-      expect(
-        timespanInlineForm.getByTestId('timespan-inline-form')
-      ).toBeInTheDocument();
-      expect(timespanInlineForm.getByTestId('timespan-inline-form-title').value).toBe(
-        'Segment 2.1'
-      );
-      expect(timespanInlineForm.getByTestId('timespan-inline-form-begintime').value).toBe(
-        '00:09:03.241'
-      );
-      expect(timespanInlineForm.getByTestId('timespan-inline-form-endtime').value).toBe(
-        '00:15:00.001'
-      );
+      saveButton = timespanInlineForm.getByTestId('inline-form-save-button');
     });
 
-    test('proper validation messages for title', () => {
-      expect(
-        timespanInlineForm
-          .getByTestId('timespan-inline-form-title')
-          .classList.contains('is-valid')
-      ).toBeTruthy();
-      expect(
-        timespanInlineForm.getByTestId('inline-form-save-button')
-      ).toBeEnabled();
+    test('when title is changed by user input', () => {
+      // Valid on initial render
       const titleInput = timespanInlineForm.getByTestId('timespan-inline-form-title');
+      expect(titleInput.classList.contains('is-valid')).toBeTruthy();
+      expect(saveButton).toBeEnabled();
+      // Change title to contain a single character -> invalid
       fireEvent.change(titleInput, { target: { value: 'a' } });
-      expect(
-        timespanInlineForm
-          .getByTestId('timespan-inline-form-title')
-          .classList.contains('is-invalid')
-      ).toBeTruthy();
-      expect(
-        timespanInlineForm.getByTestId('inline-form-save-button')
-      ).toBeDisabled();
+      expect(titleInput.classList.contains('is-invalid')).toBeTruthy();
+      expect(saveButton).toBeDisabled();
     });
 
-    test('proper validation messages for begin/end time changes and save button is disabled/enabled', () => {
-      const saveButton = timespanInlineForm.getByTestId(
-        'inline-form-save-button'
-      );
-
+    test('when begin/end times are changed by user input', () => {
+      // Valid on initial render
       const beginTimeInput = timespanInlineForm.getByTestId('timespan-inline-form-begintime');
-      const beginTimeForm = timespanInlineForm.getByTestId(
-        'timespan-inline-form-begintime'
-      );
+      const endTimeInput = timespanInlineForm.getByTestId('timespan-inline-form-endtime');
       expect(saveButton).toBeEnabled();
 
       timespanInlineForm.rerenderWithRedux(
         <TimespanInlineForm {...props} isTyping={true} isInitializing={false} />
       );
 
-      fireEvent.change(beginTimeInput, {
-        target: { value: '00:' },
-      });
-      expect(beginTimeForm.classList.contains('is-invalid')).toBeTruthy();
+      // Change begin time
+      fireEvent.change(beginTimeInput, { target: { value: '00:' }, });
+      expect(beginTimeInput.classList.contains('is-invalid')).toBeTruthy();
+      expect(endTimeInput.classList.contains('is-valid')).toBeTruthy();
       expect(saveButton).toBeDisabled();
-
-      fireEvent.change(beginTimeInput, {
-        target: { value: '00:09:00.001' },
-      });
-      expect(beginTimeForm.classList.contains('is-invalid')).toBeFalsy();
-      expect(beginTimeForm.classList.contains('is-valid')).toBeTruthy();
-      expect(saveButton).toBeEnabled();
     });
   });
 
@@ -160,29 +155,14 @@ describe('TimespanInlineForm component', () => {
         valid: false,
       },
     };
-    const timespanInlineForm = renderWithRedux(
-      <TimespanInlineForm {...props} />,
-      {
-        initialState,
-      }
-    );
-    expect(
-      timespanInlineForm.getByTestId('timespan-inline-form')
-    ).toBeInTheDocument();
-    expect(timespanInlineForm.getByTestId('timespan-inline-form-begintime').value).toBe(
-      '00:00:10.321'
-    );
-    expect(timespanInlineForm.getByTestId('timespan-inline-form-endtime').value).toBe(
-      '00:00:11.231'
-    );
-    expect(
-      timespanInlineForm
-        .getByTestId('timespan-inline-form-begintime')
-        .classList.contains('is-valid')
-    ).toBeTruthy();
+    const timespanInlineForm = renderWithRedux(<TimespanInlineForm {...props} />, { initialState });
+    expect(timespanInlineForm.getByTestId('timespan-inline-form')).toBeInTheDocument();
+    expect(timespanInlineForm.getByTestId('timespan-inline-form-begintime').value).toBe('00:00:10.321');
+    expect(timespanInlineForm.getByTestId('timespan-inline-form-endtime').value).toBe('00:00:11.231');
+    expect(timespanInlineForm.getByTestId('timespan-inline-form-begintime').classList.contains('is-valid')).toBeTruthy();
   });
 
-  describe('form input values change', () => {
+  describe('changes form input values', () => {
     let timespanInlineForm, segment;
     let originalError;
     beforeEach(() => {
@@ -199,13 +179,27 @@ describe('TimespanInlineForm component', () => {
           valid: true,
         },
       };
-      timespanInlineForm = renderWithRedux(<TimespanInlineForm {...props} />, {
-        initialState,
-      });
-      segment =
-        initialState.peaksInstance.peaks.segments.getSegment(
-          '123a-456b-789c-8d'
-        );
+      jest.spyOn(hooks, 'useFindNeighborTimespans').mockImplementation(() => ({
+        prevSiblingRef: {
+          current: {
+            type: 'span',
+            label: 'Segment 1.2',
+            id: '123a-456b-789c-4d',
+            begin: '00:00:11.231',
+            end: '00:08:00.001',
+            valid: true,
+            timeRange: { start: 11.231, end: 480.001 }
+          }
+        },
+        nextSiblingRef: { current: null }, parentTimespanRef: { current: null }
+      }));
+      jest.spyOn(hooks, 'useTimespanFormValidation').mockImplementation(() => ({
+        formIsValid: true, isBeginValid: true, isEndValid: true
+      }));
+      timespanInlineForm = renderWithRedux(<TimespanInlineForm {...props} />, { initialState });
+      segment = initialState.peaksInstance.peaks.segments.getSegment(
+        '123a-456b-789c-8d'
+      );
     });
     afterEach(() => {
       console.error = originalError;
@@ -243,8 +237,8 @@ describe('TimespanInlineForm component', () => {
     });
 
     test('when moving handles to a different valid time', () => {
-      // Changed from 00:09:03.241 -> 00:09:00.001
-      segment.update({ startTime: 540.001 });
+      // Changed from 00:15:00.001 -> 00:15:20.001
+      segment.update({ endTime: 920.001 });
       // Update the redux store with new segment value
       const nextState = {
         structuralMetadata: {
@@ -263,13 +257,13 @@ describe('TimespanInlineForm component', () => {
         nextState
       );
 
-      expect(timespanInlineForm.getByTestId('timespan-inline-form-begintime').value).toBe(
-        '00:09:00.001'
-      );
-      // end time does not change
-      expect(timespanInlineForm.getByTestId('timespan-inline-form-endtime').value).toBe(
-        '00:15:00.001'
-      );
+      // Start time does not change
+      expect(timespanInlineForm.getByTestId('timespan-inline-form-begintime').value).toBe('00:08:00.001');
+      expect(timespanInlineForm.getByTestId('timespan-inline-form-begintime').className.includes('is-valid')).toBeTruthy();
+
+      expect(timespanInlineForm.getByTestId('timespan-inline-form-endtime').value).toBe('00:15:20.001');
+      expect(timespanInlineForm.getByTestId('timespan-inline-form-begintime').className.includes('is-valid')).toBeTruthy();
+
       expect(timespanInlineForm.getByTestId('inline-form-save-button')).toBeEnabled();
     });
   });

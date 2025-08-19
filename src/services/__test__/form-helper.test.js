@@ -65,15 +65,6 @@ describe('form-helper', () => {
     });
   });
 
-  describe('getValidationTitleState()', () => {
-    test('returns true for title length > 2', () => {
-      expect(formHelper.getValidationTitleState('abc')).toBe(true);
-    });
-    test('returns false for title length <= 2', () => {
-      expect(formHelper.getValidationTitleState('a')).toBe(false);
-    });
-  });
-
   describe('isTitleValid()', () => {
     test('returns true for title length > 2', () => {
       expect(formHelper.isTitleValid('abc')).toBe(true);

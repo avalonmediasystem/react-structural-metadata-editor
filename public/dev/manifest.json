@@ -124,6 +124,21 @@
       },
       "items": [
         {
+          "id": "http://localhost:3001/dev/lunchroom_manners/canvas/range/0",
+          "type": "Range",
+          "label": {
+            "en": [
+              "Introduction"
+            ]
+          },
+          "items": [
+            {
+              "id": "http://localhost:3001/dev/lunchroom_manners/canvas/1#t=3.321,10.321",
+              "type": "Canvas"
+            }
+          ]
+        },
+        {
           "id": "http://localhost:3001/dev/lunchroom_manners/range/1",
           "type": "Range",
           "label": {
@@ -153,6 +168,51 @@
                     {
                       "id": "http://localhost:3001/dev/lunchroom_manners/canvas/1#t=157,160",
                       "type": "Canvas"
+                    },
+                    {
+                      "id": "http://localhost:3001/dev/lunchroom_manners/canvas/range/1-1-1-1",
+                      "type": "Range",
+                      "label": {
+                        "en": [
+                          "Applying Soap"
+                        ]
+                      },
+                      "items": [
+                        {
+                          "id": "http://localhost:3001/dev/lunchroom_manners/canvas/1#t=157,158",
+                          "type": "Canvas"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "http://localhost:3001/dev/lunchroom_manners/canvas/range/1-1-1-2",
+                      "type": "Range",
+                      "label": {
+                        "en": [
+                          "Scrubbing Hands"
+                        ]
+                      },
+                      "items": [
+                        {
+                          "id": "http://localhost:3001/dev/lunchroom_manners/canvas/1#t=158,159",
+                          "type": "Canvas"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "http://localhost:3001/dev/lunchroom_manners/canvas/range/1-1-1-3",
+                      "type": "Range",
+                      "label": {
+                        "en": [
+                          "More Scrubbing"
+                        ]
+                      },
+                      "items": [
+                        {
+                          "id": "http://localhost:3001/dev/lunchroom_manners/canvas/1#t=159,160",
+                          "type": "Canvas"
+                        }
+                      ]
                     }
                   ]
                 },
@@ -168,6 +228,36 @@
                     {
                       "id": "http://localhost:3001/dev/lunchroom_manners/canvas/1#t=165,170",
                       "type": "Canvas"
+                    },
+                    {
+                      "id": "http://localhost:3001/dev/lunchroom_manners/canvas/range/1-1-3-1",
+                      "type": "Range",
+                      "label": {
+                        "en": [
+                          "Start Lathering"
+                        ]
+                      },
+                      "items": [
+                        {
+                          "id": "http://localhost:3001/dev/lunchroom_manners/canvas/1#t=165.01,166.32",
+                          "type": "Canvas"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "http://localhost:3001/dev/lunchroom_manners/canvas/range/1-1-3-2",
+                      "type": "Range",
+                      "label": {
+                        "en": [
+                          "Start Rinsing"
+                        ]
+                      },
+                      "items": [
+                        {
+                          "id": "http://localhost:3001/dev/lunchroom_manners/canvas/1#t=167.01,168.32",
+                          "type": "Canvas"
+                        }
+                      ]
                     }
                   ]
                 },

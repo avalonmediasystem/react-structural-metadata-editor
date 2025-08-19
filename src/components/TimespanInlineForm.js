@@ -3,20 +3,14 @@ import PropTypes from 'prop-types';
 import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-import {
-  getExistingFormValues,
-  getValidationBeginState,
-  getValidationEndState,
-  getValidationTitleState,
-  isTitleValid,
-  validTimespans,
-} from '../services/form-helper';
+import { getExistingFormValues, isTitleValid } from '../services/form-helper';
 import { useDispatch, useSelector } from 'react-redux';
 import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
 import { cloneDeep, isEmpty } from 'lodash';
 import ListItemInlineEditControls from './ListItemInlineEditControls';
 import * as peaksActions from '../actions/peaks-instance';
 import WaveformDataUtils from '../services/WaveformDataUtils';
+import { useFindNeighborTimespans, useTimespanFormValidation } from '../services/sme-hooks';
 
 const structuralMetadataUtils = new StructuralMetadataUtils();
 const waveformUtils = new WaveformDataUtils();
@@ -31,11 +25,11 @@ function TimespanInlineForm({ cancelFn, item, isInitializing, isTyping, saveFn, 
   // State variables from global state
   const { smData } = useSelector((state) => state.structuralMetadata);
   const peaksInstance = useSelector((state) => state.peaksInstance);
-  const { isDragging, segment, startTimeChanged } = peaksInstance;
+  const { duration, isDragging, segment, startTimeChanged } = peaksInstance;
 
   // Dispatch actions
   const dispatch = useDispatch();
-  const activateSegment = (id) => dispatch(peaksActions.activateSegment(id));
+  const activateSegment = (id, neighbors) => dispatch(peaksActions.activateSegment(id, neighbors));
   const insertPlaceholderSegment = (item, wrapperSpans) =>
     dispatch(peaksActions.insertPlaceholderSegment(item, wrapperSpans));
   const revertSegment = (segment) => dispatch(peaksActions.revertSegment(segment));
@@ -52,6 +46,17 @@ function TimespanInlineForm({ cancelFn, item, isInitializing, isTyping, saveFn, 
   const tempSmDataRef = useRef();
   const allSpansRef = useRef([]);
 
+  // Find neighboring timespans of the currently editing timespan
+  const { prevSiblingRef, nextSiblingRef, parentTimespanRef } = useFindNeighborTimespans({ item });
+
+  // Validate timespan form when editing
+  const { formIsValid, isBeginValid, isEndValid } = useTimespanFormValidation({
+    beginTime,
+    endTime,
+    neighbors: { prevSiblingRef, nextSiblingRef, parentTimespanRef },
+    timespanTitle
+  });
+
   useEffect(() => {
     // Get a fresh copy of store data
     tempSmDataRef.current = cloneDeep(smData);
@@ -66,7 +71,13 @@ function TimespanInlineForm({ cancelFn, item, isInitializing, isTyping, saveFn, 
       setTimespanTitle(formValues.timespanTitle);
       setClonedSegment(formValues.clonedSegment);
 
-      activateSegment(item.id);
+      activateSegment(
+        item.id,
+        {
+          previousSibling: prevSiblingRef.current,
+          nextSibling: nextSiblingRef.current,
+          parentTimespan: parentTimespanRef.current
+        });
     } else {
       handleInvalidTimespan();
     }
@@ -105,15 +116,18 @@ function TimespanInlineForm({ cancelFn, item, isInitializing, isTyping, saveFn, 
       const { startTime, endTime } = waveformUtils.validateSegment(
         segment,
         startTimeChanged,
-        peaksInstance.peaks,
-        peaksInstance.duration
+        duration,
+        {
+          previousSibling: prevSiblingRef.current,
+          nextSibling: nextSiblingRef.current,
+          parentTimespan: parentTimespanRef.current
+        },
       );
 
       setBeginTime(structuralMetadataUtils.toHHmmss(startTime));
       setEndTime(structuralMetadataUtils.toHHmmss(endTime));
     }
   }, [isDragging, isInitializing, isTyping, segment, peaksInstance]);
-
 
   /**
    * When there are invalid timespans in the structure, to edit them
@@ -142,18 +156,6 @@ function TimespanInlineForm({ cancelFn, item, isInitializing, isTyping, saveFn, 
     setBeginTime(structuralMetadataUtils.toHHmmss(placeholderSegment.startTime));
     setEndTime(structuralMetadataUtils.toHHmmss(placeholderSegment.endTime));
     setTimespanTitle(placeholderSegment.labelText);
-  };
-
-  const formIsValid = () => {
-    const titleValid = isTitleValid(timespanTitle);
-    const timesValidResponse = validTimespans(
-      beginTime,
-      endTime,
-      peaksInstance.duration,
-      allSpansRef.current
-    );
-
-    return titleValid && timesValidResponse.valid;
   };
 
   const handleCancelClick = () => {
@@ -205,8 +207,8 @@ function TimespanInlineForm({ cancelFn, item, isInitializing, isTyping, saveFn, 
               type='text'
               style={styles.formControl}
               value={timespanTitle}
-              isValid={getValidationTitleState(timespanTitle)}
-              isInvalid={!getValidationTitleState(timespanTitle)}
+              isValid={isTitleValid(timespanTitle)}
+              isInvalid={!isTitleValid(timespanTitle)}
               onChange={handleInputChange}
               data-testid='timespan-inline-form-title'
               className='mx-0'
@@ -221,8 +223,8 @@ function TimespanInlineForm({ cancelFn, item, isInitializing, isTyping, saveFn, 
               style={styles.formControl}
               value={beginTime}
               onChange={handleInputChange}
-              isValid={getValidationBeginState(beginTime, endTime)}
-              isInvalid={!getValidationBeginState(beginTime, endTime)}
+              isValid={isBeginValid}
+              isInvalid={!isBeginValid}
               data-testid='timespan-inline-form-begintime'
               className='mx-0'
             />
@@ -235,18 +237,8 @@ function TimespanInlineForm({ cancelFn, item, isInitializing, isTyping, saveFn, 
               type='text'
               style={styles.formControl}
               value={endTime}
-              isValid={getValidationEndState(
-                beginTime,
-                endTime,
-                peaksInstance.duration
-              )}
-              isInvalid={
-                !getValidationEndState(
-                  beginTime,
-                  endTime,
-                  peaksInstance.duration
-                )
-              }
+              isValid={isEndValid}
+              isInvalid={!isEndValid}
               onChange={handleInputChange}
               data-testid='timespan-inline-form-endtime'
               className='mx-0'
@@ -255,7 +247,7 @@ function TimespanInlineForm({ cancelFn, item, isInitializing, isTyping, saveFn, 
         </Form.Group>
       </Form>
       <ListItemInlineEditControls
-        formIsValid={formIsValid()}
+        formIsValid={formIsValid}
         handleSaveClick={handleSaveClick}
         handleCancelClick={handleCancelClick}
       />

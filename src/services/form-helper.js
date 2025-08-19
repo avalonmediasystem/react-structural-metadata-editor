@@ -70,16 +70,6 @@ export function getValidationEndState(beginTime, endTime, duration) {
   return (validFormat && validEndTime && validOrdering);
 }
 
-export function getValidationTitleState(title) {
-  if (title.length > 2) {
-    return true;
-  }
-  if (title.length > 0) {
-    return false;
-  }
-  return false;
-}
-
 /**
  * Validate the title of a structure item
  * @param {String} title new or editing structure item's title

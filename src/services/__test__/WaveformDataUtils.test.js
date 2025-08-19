@@ -314,7 +314,20 @@ describe('WaveformDataUtils class', () => {
 
       describe('editing timespans', () => {
         test('when a segment is activated', () => {
-          const value = waveformUtils.activateSegment('123a-456b-789c-4d', peaks);
+          const neighbors = {
+            previousSibling: {
+              type: 'span', label: 'Segment 1.1', id: '123a-456b-789c-3d',
+              begin: '00:00:03.321', end: '00:00:10.321', valid: true,
+              timeRange: { start: 3.321, end: 10.321 }
+            },
+            nextSibling: {
+              type: 'span', label: 'Segment 2.1', id: '123a-456b-789c-8d',
+              begin: '00:09:03.241', end: '00:15:00.001', valid: true,
+              timeRange: { start: 543.241, end: 900.001 }
+            },
+            parentTimespan: null
+          };
+          const value = waveformUtils.activateSegment('123a-456b-789c-4d', peaks, 932.32, neighbors);
           const segments = value.segments.getSegments();
           expect(segments).toHaveLength(3);
           expect(segments).toEqual(
@@ -648,53 +661,6 @@ describe('WaveformDataUtils class', () => {
         peaks = peaksInst;
       });
     });
-    describe('findWrapperSegments()', () => {
-      test('for first segment', () => {
-        const currentSegment = {
-          labelText: 'Segment 1.1',
-          id: '123a-456b-789c-3d',
-          startTime: 3.321,
-          endTime: 10.321,
-        };
-        const { before, after } = waveformUtils.findWrapperSegments(
-          currentSegment,
-          peaks,
-          1738.951
-        );
-        expect(before).toEqual(undefined);
-        expect(after.id).toEqual('123a-456b-789c-4d');
-      });
-      test('for middle segment', () => {
-        const currentSegment = {
-          labelText: 'Segment 1.2',
-          id: '123a-456b-789c-4d',
-          startTime: 11.231,
-          endTime: 480.001,
-        };
-        const { before, after } = waveformUtils.findWrapperSegments(
-          currentSegment,
-          peaks,
-          1738.951
-        );
-        expect(before.id).toEqual('123a-456b-789c-3d');
-        expect(after.id).toEqual('123a-456b-789c-8d');
-      });
-      test('for last segment', () => {
-        const currentSegment = {
-          labelText: 'Segment 2.1',
-          id: '123a-456b-789c-8d',
-          startTime: 543.241,
-          endTime: 900.001,
-        };
-        const { before, after } = waveformUtils.findWrapperSegments(
-          currentSegment,
-          peaks,
-          1738.951
-        );
-        expect(before.id).toEqual('123a-456b-789c-4d');
-        expect(after).toEqual(undefined);
-      });
-    });
 
     test('activateSegment()', () => {
       const testSegment = {
@@ -705,202 +671,18 @@ describe('WaveformDataUtils class', () => {
       };
       expect(peaks.segments.getSegments()).toHaveLength(3);
       peaks.segments.add(testSegment);
-      let activatedPeaks = waveformUtils.activateSegment('test-segment', peaks);
+      const neighbors = {
+        previousSibling: { timeRange: { start: 11.231, end: 480.001 } },
+        nextSibling: { timeRange: { start: 543.241, end: 900.001, } },
+        parentTimespan: null
+      };
+      let activatedPeaks = waveformUtils.activateSegment('test-segment', peaks, 1738.945, neighbors);
       expect(activatedPeaks.segments.getSegments()).toHaveLength(4);
       expect(activatedPeaks.segments.getSegment('test-segment').editable).toBeTruthy();
       expect(activatedPeaks.segments.getSegment('test-segment').color).toBe('#FBB040');
     });
 
     describe('validateSegment()', () => {
-      test('when start time of an editing segment overlaps segment before', () => {
-        const testSegment = {
-          startTime: 480.001,
-          endTime: 500.001,
-          editable: true,
-          id: 'test-segment',
-          color: '#FBB040',
-        };
-        peaks.segments.add(testSegment);
-        let activatedPeaks = waveformUtils.activateSegment(
-          'test-segment',
-          peaks
-        );
-        // Change start time to overlap with previous segment ending at 480.001
-        let activatedSegment =
-          activatedPeaks.segments.getSegment('test-segment');
-        activatedSegment.startTime = 479.001;
-        const value = waveformUtils.validateSegment(
-          activatedSegment,
-          true,
-          activatedPeaks,
-          1738.945
-        );
-        // Changes the start time to end of the overlapping segment
-        expect(value.startTime).toEqual(480.001);
-        expect(value.endTime).toEqual(500.001);
-      });
-
-      test('when end time of an editing segment overlaps segment after', () => {
-        const testSegment = {
-          startTime: 490.991,
-          endTime: 540.001,
-          editable: true,
-          id: 'test-segment',
-          color: '#FBB040',
-        };
-        peaks.segments.add(testSegment);
-        let activatedPeaks = waveformUtils.activateSegment(
-          'test-segment',
-          peaks
-        );
-        // Change end time to overlap with following segment starting at 543.241
-        let activatedSegment =
-          activatedPeaks.segments.getSegment('test-segment');
-        activatedSegment.endTime = 543.251;
-        const value = waveformUtils.validateSegment(
-          activatedSegment,
-          false,
-          activatedPeaks,
-          1738.945
-        );
-        // Changes the end time to the start of the overlapping segment
-        expect(value.startTime).toEqual(490.991);
-        expect(value.endTime).toEqual(543.241);
-      });
-
-      test('when a segment does not overlap neighboring segments', () => {
-        const testSegment = {
-          startTime: 499.991,
-          endTime: 529.991,
-          editable: true,
-          id: 'test-segment',
-          color: '#FBB040',
-        };
-        peaks.segments.add(testSegment);
-        let activatedPeaks = waveformUtils.activateSegment(
-          'test-segment',
-          peaks,
-          1738.945
-        );
-        // Change end time of the segment
-        let activatedSegment =
-          activatedPeaks.segments.getSegment('test-segment');
-        activatedSegment.endTime = 540.991;
-        const value = waveformUtils.validateSegment(
-          activatedSegment,
-          false,
-          activatedPeaks,
-          1738.945
-        );
-        expect(value.startTime).toEqual(499.991);
-        expect(value.endTime).toEqual(540.991);
-      });
-
-      test('when a segment overlaps the end time of the media file', () => {
-        const testSegment = {
-          startTime: 1200.991,
-          endTime: 1699.991,
-          editable: true,
-          id: 'test-segment',
-          color: '#FBB040',
-        };
-        peaks.segments.add(testSegment);
-        let activatedPeaks = waveformUtils.activateSegment(
-          'test-segment',
-          peaks,
-          1738.945
-        );
-        // Change the end time to exceed the end time of the media file
-        let activatedSegment =
-          activatedPeaks.segments.getSegment('test-segment');
-        activatedSegment.endTime = 1740.001;
-        const value = waveformUtils.validateSegment(
-          activatedSegment,
-          false,
-          activatedPeaks,
-          1738.945
-        );
-        expect(value.startTime).toEqual(1200.991);
-        expect(value.endTime).toEqual(1738.945);
-      });
-
-      test('when there is a segment going until the end of the file over an existing segment', () => {
-        const testSegment = {
-          startTime: 540.001,
-          endTime: 1738.945,
-          editable: true,
-          id: 'test-segment',
-          color: '#FBB040',
-        };
-        peaks.segments.add(testSegment);
-        let activatedPeaks = waveformUtils.activateSegment(
-          'test-segment',
-          peaks
-        );
-        // Change the start time of the segment
-        let activatedSegment =
-          activatedPeaks.segments.getSegment('test-segment');
-        activatedSegment.startTime = 541.431;
-        const value = waveformUtils.validateSegment(
-          activatedSegment,
-          true,
-          activatedPeaks,
-          1738.945
-        );
-        expect(value.startTime).toEqual(541.431);
-        expect(value.endTime).toEqual(543.241);
-      });
-
-      test('when startTime overlaps segment\'s endTime', () => {
-        const testSegment = {
-          startTime: 499.991,
-          endTime: 529.991,
-          editable: true,
-          id: 'test-segment',
-          color: '#FBB040',
-        };
-        peaks.segments.add(testSegment);
-        let activatedPeaks = waveformUtils.activateSegment('test-segment', peaks);
-        // Change the start time of the segment
-        let activatedSegment =
-          activatedPeaks.segments.getSegment('test-segment');
-        activatedSegment.startTime = 530.431;
-        const value = waveformUtils.validateSegment(
-          activatedSegment,
-          true,
-          activatedPeaks,
-          1738.945
-        );
-        expect(value.startTime).toEqual(529.990);
-        expect(value.endTime).toEqual(529.991);
-      });
-
-      test('when endTime overlaps segment\'s startTime', () => {
-        const testSegment = {
-          startTime: 499.991,
-          endTime: 529.991,
-          editable: true,
-          id: 'test-segment',
-          color: '#FBB040',
-        };
-        peaks.segments.add(testSegment);
-        let activatedPeaks = waveformUtils.activateSegment('test-segment', peaks);
-        // Change the start time of the segment
-        let activatedSegment =
-          activatedPeaks.segments.getSegment('test-segment');
-        activatedSegment.endTime = 499.322;
-        const value = waveformUtils.validateSegment(
-          activatedSegment,
-          false,
-          activatedPeaks,
-          1738.945
-        );
-        expect(value.startTime).toEqual(499.991);
-        expect(value.endTime).toEqual(499.992);
-      });
-    });
-
-    describe('validateNestedSegment()', () => {
       let segment;
       let previousSibling, nextSibling, parentTimespan;
       const duration = 1738.945;
@@ -922,7 +704,7 @@ describe('WaveformDataUtils class', () => {
       });
 
       test('does nothing if no siblings or parent and times are valid', () => {
-        const result = waveformUtils.validateNestedSegment(
+        const result = waveformUtils.validateSegment(
           segment, true, duration,
           { previousSibling, nextSibling, parentTimespan }
         );
@@ -933,7 +715,7 @@ describe('WaveformDataUtils class', () => {
       test('updates segment.startTime when handle is dragged before previousSibling\'s endTime', () => {
         previousSibling = { timeRange: { start: 0, end: 150 } };
         segment.startTime = 140;
-        const result = waveformUtils.validateNestedSegment(
+        const result = waveformUtils.validateSegment(
           segment, true, duration,
           { previousSibling, nextSibling, parentTimespan }
         );
@@ -945,7 +727,7 @@ describe('WaveformDataUtils class', () => {
       test('updates segment.startTime when handle is dragged before parentTimespan\'s startTime', () => {
         parentTimespan = { timeRange: { start: 120, end: 200 } };
         segment.startTime = 110;
-        const result = waveformUtils.validateNestedSegment(
+        const result = waveformUtils.validateSegment(
           segment, true, duration,
           { previousSibling, nextSibling, parentTimespan }
         );
@@ -956,7 +738,7 @@ describe('WaveformDataUtils class', () => {
 
       test('updates segment.startTime when handle is dragged over endTime', () => {
         segment.startTime = 250;
-        const result = waveformUtils.validateNestedSegment(
+        const result = waveformUtils.validateSegment(
           segment, true, duration,
           { previousSibling, nextSibling, parentTimespan }
         );
@@ -968,7 +750,7 @@ describe('WaveformDataUtils class', () => {
       test('updates segment.endTime when handle is dragged before startTime', () => {
         segment.startTime = 150;
         segment.endTime = 140;
-        const result = waveformUtils.validateNestedSegment(
+        const result = waveformUtils.validateSegment(
           segment, false, duration,
           { previousSibling, nextSibling, parentTimespan }
         );
@@ -981,7 +763,7 @@ describe('WaveformDataUtils class', () => {
       test('updates segment.endTime when handle is dragged after nextSibling\'s startTime', () => {
         nextSibling = { timeRange: { start: 180, end: 250 } };
         segment.endTime = 190;
-        const result = waveformUtils.validateNestedSegment(
+        const result = waveformUtils.validateSegment(
           segment, false, duration,
           { previousSibling, nextSibling, parentTimespan }
         );
@@ -993,7 +775,7 @@ describe('WaveformDataUtils class', () => {
       test('updates segment.endTime when handle is dragged after parentTimespan\'s endTime', () => {
         parentTimespan = { timeRange: { start: 90, end: 175 } };
         segment.endTime = 180;
-        const result = waveformUtils.validateNestedSegment(
+        const result = waveformUtils.validateSegment(
           segment, false, duration,
           { previousSibling, nextSibling, parentTimespan }
         );
@@ -1004,7 +786,7 @@ describe('WaveformDataUtils class', () => {
 
       test('updates segment.endTime when handle is dragged beyond duration', () => {
         segment.endTime = 1838.945;
-        const result = waveformUtils.validateNestedSegment(
+        const result = waveformUtils.validateSegment(
           segment, false, duration,
           { previousSibling, nextSibling, parentTimespan }
         );

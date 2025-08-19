@@ -176,33 +176,6 @@ describe('StructuralMetadataUtils class', () => {
     });
   });
 
-  describe('doesTimeOverlap()', () => {
-    let allSpans = [];
-    beforeEach(() => {
-      allSpans = smu.getItemsOfType('span', testData);
-    });
-    test('time == 00:00:00.000 (before the first timespan)', () => {
-      const time = '00:00:00.000';
-      expect(smu.doesTimeOverlap(time, allSpans)).toBeTruthy();
-    });
-    test('time = 00:00:03.321 (start of the first timespan)', () => {
-      const time = '00:00:03.321';
-      expect(smu.doesTimeOverlap(time, allSpans)).toBeTruthy();
-    });
-    test('time == 00:00:05.001 (within an existing timespan)', () => {
-      const time = '00:00:05.001';
-      expect(smu.doesTimeOverlap(time, allSpans)).toBeFalsy();
-    });
-    test('time == 00:00:10.451 (between existing timespans)', () => {
-      const time = '00:00:10.451';
-      expect(smu.doesTimeOverlap(time, allSpans)).toBeTruthy();
-    });
-    test('time exceeds file duration', () => {
-      const time = '00:39:34.000';
-      expect(smu.doesTimeOverlap(time, allSpans, 1738.945306)).toBeFalsy();
-    });
-  });
-
   test('findItem()', () => {
     const obj = {
       type: 'div',

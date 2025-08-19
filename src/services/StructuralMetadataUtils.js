@@ -294,36 +294,6 @@ export default class StructuralMetadataUtils {
   };
 
   /**
-   * Determine whether a time overlaps (or falls between), an existing timespan's range
-   * @param {String} time - form input value
-   * @param {*} allSpans - all timespans in the data structure
-   * @param {Float} duration - file length in seconds
-   * @return {Boolean}
-   */
-  doesTimeOverlap(time, allSpans, duration = Number.MAX_SAFE_INTEGER) {
-    const { toMs } = this;
-    let valid = true;
-    time = toMs(time);
-    // Loop through all spans
-    for (let i in allSpans) {
-      let spanBegin = toMs(allSpans[i].begin);
-      let spanEnd = toMs(allSpans[i].end);
-
-      // Illegal time (falls between existing start/end times)
-      if (time > spanBegin && time < spanEnd) {
-        valid = false;
-        break;
-      }
-      // Time exceeds the end time of the media file
-      if (time / 1000 > duration) {
-        valid = false;
-        break;
-      }
-    }
-    return valid;
-  }
-
-  /**
    * Find an item by it's id
    * @param {String} id - string value to match against
    * @param {Array} items - Array of nested structured metadata objects containing headings and time spans

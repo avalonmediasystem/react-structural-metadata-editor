@@ -136,34 +136,35 @@ export function parseStructureToJSON(manifest, duration, canvasIndex = 0) {
         const range = parseManifest(manifest)
           .getRangeById(i.id);
         if (range) {
+          // Set default type to 'div' and change it as needed for timespans
+          let structItem = { label: getLabelValue(i.label), items: [], type: "div" };
+
+          // If the structure item has children build them recuresively
+          if (i.items?.length > 0) {
+            buildStructureItems(i.items, structItem.items);
+          }
+          // Get canvases associated with the current Range
           const childCanvases = range.getCanvasIds();
-          let structItem = {};
-          // Check if the Canvas for this item exists in the Manifest
+          /**
+           * Only mark a structure item as a timespan, when the relevant Canvas is in the current
+           * Manifest.
+           * NOTE::It's possible to have Canvas references to external Manifests in the
+           * structure, but for the purpose of SME only consider Range items with Canvas
+           * references in the Manifest as timespans. This helps with validation in Peaks.js 
+           * when editing timespans.
+           */
           const canvasIsInManifest = isCanvasInManifest(childCanvases[0], manifest);
           if (childCanvases.length > 0 && canvasIsInManifest) {
             const { start, end } = getMediaFragment(childCanvases[0], duration);
             structItem = {
-              label: getLabelValue(i.label),
+              ...structItem,
               type: "span",
               begin: smUtils.toHHmmss(start),
               end: smUtils.toHHmmss(end),
+              timeRange: { start, end }
             };
-            if (i.items) {
-              structItem.items = [];
-              buildStructureItems(i.items, structItem.items);
-            }
-            children.push(structItem);
-          } else {
-            structItem = {
-              label: getLabelValue(i.label),
-              type: "div",
-              items: [],
-            };
-            if (i.items) {
-              buildStructureItems(i.items, structItem.items);
-            }
-            children.push(structItem);
           }
+          children.push(structItem);
         }
       });
     }

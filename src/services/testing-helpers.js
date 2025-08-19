@@ -624,6 +624,12 @@ export const manifestWithStructure = {
                 },
               ],
             },
+            {
+              type: 'Range',
+              id: 'http://example.com/sample-manifest/manifest/range/5',
+              label: { en: ['Washing Hands'] },
+              items: [],
+            }
           ],
         },
       ]

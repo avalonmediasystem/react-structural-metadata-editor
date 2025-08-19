@@ -136,8 +136,20 @@ describe('iiif-parser', () => {
       const { type, label, items } = structureJSON[0];
       expect(label).toEqual('Lunchroom Manners');
       expect(type).toEqual('div');
-      expect(items.length).toBe(1);
+      expect(items.length).toBe(2);
       expect(items[0].label).toBe('Introduction');
+    });
+
+    test('builds structure for childless divs', () => {
+      const structureJSON = iiifParser.parseStructureToJSON(manifestWithStructure, 660, 1);
+      expect(structureJSON.length).toEqual(1);
+
+      const { type, label, items } = structureJSON[0];
+      expect(label).toEqual('Lunchroom Manners');
+      expect(type).toEqual('div');
+      expect(items.length).toBe(2);
+      expect(items[1].label).toBe('Washing Hands');
+      expect(items[1].items.length).toBe(0);
     });
 
     test('handles nested structures', () => {

@@ -363,18 +363,25 @@ export const manifestWithInvalidStruct = {
       id: 'https://example.com/lunchroom-manners/manifest/canvas/1',
       width: 480,
       height: 360,
-      duration: 660,
+      duration: 662.037,
       items: [
         {
-          id: 'https://example.com/manifest/canvas/1/page',
+          id: 'https://example.com/lunchroom-manners/manifest/canvas/1/page',
           type: 'AnnotationPage',
           items: [
             {
-              id: 'https://example.com/manifest/canvas/1/page/annotation',
+              id: 'https://example.com/lunchroom-manners/manifest/canvas/1/page/annotation',
               type: 'Annotation',
               motivation: 'painting',
-              body: {},
-              target: 'https://example.com/manifest/canvas/1',
+              body: {
+                id: 'http://example.com/volleyball-for-boys/volleyball-for-boys.m3u8',
+                type: 'Sound',
+                format: 'application/x-x-mpegURL',
+                height: 1080,
+                width: 1920,
+                duration: 662.037,
+              },
+              target: 'https://example.com/lunchroom-manners/manifest/canvas/1',
             },
           ],
         },
@@ -408,7 +415,7 @@ export const manifestWithInvalidStruct = {
               items: [
                 {
                   type: 'Canvas',
-                  id: 'http://example.com/lunchroom-manners/manifest/canvas/1#t=234,157',
+                  id: 'https://example.com/lunchroom-manners/manifest/canvas/1#t=234,157',
                 },
               ],
             },
@@ -617,6 +624,12 @@ export const manifestWithStructure = {
                 },
               ],
             },
+            {
+              type: 'Range',
+              id: 'http://example.com/sample-manifest/manifest/range/5',
+              label: { en: ['Washing Hands'] },
+              items: [],
+            }
           ],
         },
       ]
@@ -719,6 +732,233 @@ export const manifestWEmptyCanvas = {
           }
         ]
       }
+    }
+  ]
+};
+
+// Manifest with nested structures
+export const manifestWNestedStructure = {
+  '@context': ['http://iiif.io/api/presentation/3/context.json'],
+  type: 'Manifest',
+  id: 'http://example.com/deep-nested/manifest',
+  label: { en: ['Deep Nested Structure'] },
+  items: [
+    {
+      id: 'http://example.com/deep-nested/canvas/1',
+      type: 'Canvas',
+      height: 1080,
+      width: 1920,
+      duration: 662.037,
+      items: [
+        {
+          id: 'http://example.com/deep-nested/canvas/1/page',
+          type: 'AnnotationPage',
+          items: [
+            {
+              id: 'http://example.com/deep-nested/canvas/1/page/annotation',
+              type: 'Annotation',
+              motivation: 'painting',
+              body: {
+                id: 'http://example.com/deep-nested/media.mp4',
+                type: 'Sound',
+                format: 'application/x-x-mpegURL',
+                height: 1080,
+                width: 1920,
+                duration: 662.037,
+              },
+              target: 'http://example.com/deep-nested/canvas/1'
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  structures: [
+    {
+      type: 'Range',
+      id: 'http://example.com/deep-nested/range/root',
+      label: { en: ['Table of Content'] },
+      items: [
+        {
+          type: 'Range',
+          id: 'http://example.com/deep-nested/range/level1-div',
+          label: { en: ['Level 1 Div'] },
+          items: [
+            {
+              type: 'Range',
+              id: 'http://example.com/deep-nested/range/level2-span',
+              label: { en: ['Level 2 Span'] },
+              items: [
+                {
+                  type: 'Canvas',
+                  id: 'http://example.com/deep-nested/canvas/1#t=0,100'
+                }
+              ]
+            },
+            {
+              type: 'Range',
+              id: 'http://example.com/deep-nested/range/level2-div',
+              label: { en: ['Level 2 Div'] },
+              items: [
+                {
+                  type: 'Range',
+                  id: 'http://example.com/deep-nested/range/level3-span',
+                  label: { en: ['Level 3 Span'] },
+                  items: [
+                    {
+                      type: 'Canvas',
+                      id: 'http://example.com/deep-nested/canvas/1#t=100,200'
+                    }
+                  ]
+                },
+                {
+                  type: 'Range',
+                  id: 'http://example.com/deep-nested/range/level3-div',
+                  label: { en: ['Level 3 Div'] },
+                  items: [
+                    {
+                      type: 'Range',
+                      id: 'http://example.com/deep-nested/range/level4-span',
+                      label: { en: ['Level 4 Span'] },
+                      items: [
+                        {
+                          type: 'Canvas',
+                          id: 'http://example.com/deep-nested/canvas/1#t=200,300'
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+};
+
+// Manifest with empty Range items
+export const manifestWEmptyRanges = {
+  '@context': ['http://iiif.io/api/presentation/3/context.json'],
+  type: 'Manifest',
+  id: 'http://example.com/empty-ranges/manifest',
+  label: { en: ['Edge Cases'] },
+  items: [
+    {
+      type: 'Canvas',
+      id: 'http://example.com/empty-ranges/canvas/1',
+      width: 1920,
+      height: 1080,
+      duration: 500,
+      items: [
+        {
+          type: 'AnnotationPage',
+          id: 'http://example.com/empty-ranges/canvas/1/page',
+          items: [
+            {
+              type: 'Annotation',
+              motivation: 'painting',
+              body: {
+                id: 'http://example.com/empty-ranges/media.mp4',
+                type: 'Video',
+                format: 'video/mp4',
+                duration: 500
+              },
+              target: 'http://example.com/empty-ranges/canvas/1'
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  structures: [
+    {
+      type: 'Range',
+      id: 'http://example.com/empty-ranges/range/root',
+      label: { en: ['Root'] },
+      items: [
+        {
+          type: 'Range',
+          id: 'http://example.com/empty-ranges/range/valid',
+          label: { en: ['Valid Range'] },
+          items: [
+            {
+              type: 'Canvas',
+              id: 'http://example.com/empty-ranges/canvas/1#t=0,100'
+            }
+          ]
+        },
+        {
+          type: 'Range',
+          id: 'http://example.com/empty-ranges/range/no-canvas',
+          label: { en: ['No Canvas Range'] },
+          items: []
+        },
+        {
+          type: 'Range',
+          id: 'http://example.com/empty-ranges/range/invalid-id',
+          label: { en: ['Range with Invalid Canvas'] },
+          items: [
+            {
+              type: 'Canvas',
+              id: 'http://example.com/empty-ranges/canvas/nonexistent#t=100,200'
+            }
+          ]
+        }
+      ]
+    }
+  ]
+};
+
+// Manifest with a Range that has no items
+export const manifestWoStructItems = {
+  '@context': ['http://iiif.io/api/presentation/3/context.json'],
+  type: 'Manifest',
+  id: 'http://example.com/undefined-items/manifest',
+  label: { en: ['Range with undefined items'] },
+  items: [
+    {
+      type: 'Canvas',
+      id: 'http://example.com/undefined-items/canvas/1',
+      width: 1920,
+      height: 1080,
+      duration: 662.037,
+      items: [
+        {
+          type: 'AnnotationPage',
+          id: 'http://example.com/undefined-items/canvas/1/page',
+          items: [
+            {
+              type: 'Annotation',
+              motivation: 'painting',
+              body: {
+                id: 'http://example.com/undefined-items/media.mp4',
+                type: 'Video',
+                format: 'video/mp4',
+                duration: 662.037,
+                height: 1080,
+                width: 1920,
+              },
+              target: 'http://example.com/undefined-items/canvas/1'
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  structures: [
+    {
+      type: 'Range',
+      id: 'http://example.com/undefined-items/range/root',
+      label: { en: ['Root'] },
+      items: [
+        {
+          type: 'Range',
+          id: 'http://example.com/undefined-items/range/valid',
+          label: { en: ['Valid Range'] },
+        }
+      ]
     }
   ]
 };

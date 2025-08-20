@@ -52,6 +52,8 @@ const TimespanFormContainer = ({ cancelClick, ...restProps }) => {
   return (
     <TimespanForm
       {...restProps}
+      // Unique id for re-rendering each time a new timespan form is opened
+      key={restProps.initSegment?._pid ?? Math.random()}
       cancelClick={cancelClick}
       setIsTyping={setIsTyping}
       isTyping={isTyping}

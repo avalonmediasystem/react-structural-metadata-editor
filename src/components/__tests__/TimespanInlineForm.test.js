@@ -232,14 +232,13 @@ describe('TimespanInlineForm component', () => {
         nextState
       );
 
-      // expects begin value to be the last possible valid value: 00:08:00.001
-      expect(timespanInlineForm.getByTestId('timespan-inline-form-begintime').value).toBe(
-        '00:08:00.001'
-      );
+      // expects begin value to be the end time of the previous timespan
+      expect(timespanInlineForm.getByTestId('timespan-inline-form-begintime').value).toBe('00:08:00.001');
+
       // end time does not change
-      expect(timespanInlineForm.getByTestId('timespan-inline-form-endtime').value).toBe(
-        '00:15:00.001'
-      );
+      expect(timespanInlineForm.getByTestId('timespan-inline-form-endtime').value).toBe('00:15:00.001');
+      expect(timespanInlineForm.getByTestId('timespan-inline-form-endtime').className.includes('is-valid')).toBeTruthy();
+
       expect(timespanInlineForm.getByTestId('inline-form-save-button')).toBeEnabled();
     });
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useErrorBoundary } from 'react-error-boundary';
 import Button from 'react-bootstrap/Button';
@@ -160,6 +160,5 @@ const ButtonSection = () => {
     );
   }
 };
-
 
 export default ButtonSection;

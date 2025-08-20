@@ -221,8 +221,8 @@ function TimespanInlineForm({ cancelFn, item, isInitializing, isTyping, saveFn, 
               style={styles.formControl}
               value={beginTime}
               onChange={handleInputChange}
-              isValid={getValidationBeginState(beginTime, allSpansRef.current)}
-              isInvalid={!getValidationBeginState(beginTime, allSpansRef.current)}
+              isValid={getValidationBeginState(beginTime, endTime)}
+              isInvalid={!getValidationBeginState(beginTime, endTime)}
               data-testid='timespan-inline-form-begintime'
               className='mx-0'
             />
@@ -238,14 +238,12 @@ function TimespanInlineForm({ cancelFn, item, isInitializing, isTyping, saveFn, 
               isValid={getValidationEndState(
                 beginTime,
                 endTime,
-                allSpansRef.current,
                 peaksInstance.duration
               )}
               isInvalid={
                 !getValidationEndState(
                   beginTime,
                   endTime,
-                  allSpansRef.current,
                   peaksInstance.duration
                 )
               }

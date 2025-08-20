@@ -39,6 +39,11 @@ export default class StructuralMetadataUtils {
       label: obj.timespanTitle,
       begin: obj.beginTime,
       end: obj.endTime,
+      items: [],
+      timeRange: {
+        start: this.convertToSeconds(obj.beginTime),
+        end: this.convertToSeconds(obj.endTime)
+      }
     };
   }
 
@@ -60,6 +65,21 @@ export default class StructuralMetadataUtils {
   }
 
   /**
+   * Convert time in hh:mm:ss.ms format to seconds
+   * @param {String} time time in hh:mm:ss.ms format
+   * @returns {Number}
+   */
+  convertToSeconds = (time) => {
+    let timeSeconds = this.toMs(time) / 1000;
+    // When time property is missing
+    if (isNaN(timeSeconds)) {
+      return 0;
+    } else {
+      return timeSeconds;
+    }
+  };
+
+  /**
    * Format the time of the timespans in the structured metadata fetched from the server,
    * so that they can be used in the validation logic and Peaks instance
    * @param {Array} allItems - array of all the items in structured metadata
@@ -67,17 +87,6 @@ export default class StructuralMetadataUtils {
    */
   buildSMUI(allItems, duration) {
     let smDataIsValid = true;
-
-    // Convert time to HH:mm:ss.ms format to use in validation logic
-    let convertToSeconds = (time) => {
-      let timeSeconds = this.toMs(time) / 1000;
-      // When time property is missing
-      if (isNaN(timeSeconds)) {
-        return 0;
-      } else {
-        return timeSeconds;
-      }
-    };
 
     let decodeHTML = (lableText) => {
       return lableText
@@ -95,8 +104,9 @@ export default class StructuralMetadataUtils {
         item.valid = true;
         if (item.type === 'span') {
           const { begin, end } = item;
-          let beginTime = convertToSeconds(begin);
-          let endTime = convertToSeconds(end);
+          let beginTime = this.convertToSeconds(begin);
+          let endTime = this.convertToSeconds(end);
+          item.timeRange = { start: beginTime, end: endTime };
           item.begin = this.toHHmmss(beginTime);
           item.end = this.toHHmmss(endTime);
           if (beginTime > endTime || beginTime > duration) {
@@ -314,26 +324,6 @@ export default class StructuralMetadataUtils {
   }
 
   /**
-   * Check a given timespan overlaps other timespans in the structure
-   * @param {String} beginTime - timespan start time in hh:mm:ss.ms format
-   * @param {String} endTime - timespan end time in hh:mm:ss.ms format
-   * @param {Array} allSpans - list of all timespans in the structure
-   * @returns {Boolean}
-   */
-  doesTimespanOverlap(beginTime, endTime, allSpans) {
-    const { toMs } = this;
-    // Filter out only spans where new begin time is before an existing begin time
-    let filteredSpans = allSpans.filter((span) => {
-      return toMs(beginTime) < toMs(span.begin);
-    });
-    // Return whether new end time overlaps the next begin time, if there are timespans after the current timespan
-    if (filteredSpans.length !== 0) {
-      return toMs(endTime) > toMs(filteredSpans[0].begin);
-    }
-    return false;
-  }
-
-  /**
    * Find an item by it's id
    * @param {String} id - string value to match against
    * @param {Array} items - Array of nested structured metadata objects containing headings and time spans
@@ -471,24 +461,36 @@ export default class StructuralMetadataUtils {
   }
 
   /**
-   * Overall logic is to find existing before and after spans for the new object (time flow), and then
-   * their parent 'divs' would be valid headings.
+   * Overall logic to find possible parent structure items for a newly created timespan.
+   * To find possible parent headings; get existing wrapper timespans for the new timespan, and then
+   * find their parent 'divs'. 
+   * Timespans can have children, so to find possible parent timespans; combine the wrapper timespans with
+   * the parent 'divs' of the wrapper timespans.
    * @param {Object} newSpan - New timespan created with values supplied by the user
    * @param {Object} wrapperSpans Object representing before and after spans of newSpan (if they exist)
    * @param {Array} allItems - All structural metadata items in tree
-   * @return {Array} - of valid <div> objects in structural metadata tree
+   * @param {Array} parentTimespan - Closest possible parent timespan that can contain the new timespan
+   * @return {Array} - of valid <div> and <span> objects in structural metadata tree
    */
-  getValidHeadings(newSpan, wrapperSpans, allItems) {
-    let allValidHeadings = [];
-    let sortedHeadings = [];
-    let uniqueHeadings = [];
+  getValidParents(newSpan, wrapperSpans, allItems, parentTimespan = []) {
+    let possibleValidParents = [];
+    let sortedParents = [];
+    let uniqueParents = [];
     // New timespan falls between timespans in the same parent
     let stuckInMiddle = false;
     const { toMs } = this;
 
+    // If there is a possible parent timespan, then it's the only choice for a parent for the
+    // new timespan, since a timespan cannot span across multiple parent timespans.
+    if (parentTimespan?.length > 0) {
+      return parentTimespan;
+    }
+
     const { before, after } = wrapperSpans;
-    const allHeadings = this.getItemsOfType('root', allItems).concat(
+    const allPossibleParents = this.getItemsOfType('root', allItems).concat(
       this.getItemsOfType('div', allItems)
+    ).concat(
+      this.getItemsOfType('span', allItems)
     );
 
     // Explore possible headings traversing outwards from a suggested heading
@@ -513,7 +515,7 @@ export default class StructuralMetadataUtils {
           }
         });
         if (!invalid) {
-          allValidHeadings.push(parentHeading);
+          possibleValidParents.push(parentHeading);
           exploreOutwards(parentHeading);
         } else {
           return;
@@ -535,27 +537,29 @@ export default class StructuralMetadataUtils {
       } else {
         divsBefore = wrapperParent.items.filter((item, i) => i < spanIndex);
       }
-      const allDivs = this.getItemsOfType('div', divsAfter.concat(divsBefore));
-      return allDivs;
+      const allParents = this.getItemsOfType('div', divsAfter.concat(divsBefore)).concat(
+        this.getItemsOfType('span', divsAfter.concat(divsBefore))
+      );
+      return allParents;
     };
 
     if (!before && !after) {
-      allValidHeadings = allHeadings;
+      possibleValidParents = allPossibleParents;
     }
     if (before) {
       const parentBefore = this.getParentDiv(before, allItems);
-      allValidHeadings.push(parentBefore);
+      possibleValidParents.push(parentBefore);
       if (!after) {
-        let headings = exploreInwards(parentBefore, before, true);
-        allValidHeadings = allValidHeadings.concat(headings);
+        let parents = exploreInwards(parentBefore, before, true);
+        possibleValidParents = possibleValidParents.concat(parents);
       }
     }
     if (after) {
       const parentAfter = this.getParentDiv(after, allItems);
-      allValidHeadings.push(parentAfter);
+      possibleValidParents.push(parentAfter);
       if (!before) {
-        let headings = exploreInwards(parentAfter, after, false);
-        allValidHeadings = allValidHeadings.concat(headings);
+        let parents = exploreInwards(parentAfter, after, false);
+        possibleValidParents = possibleValidParents.concat(parents);
       }
     }
     if (before && after) {
@@ -563,19 +567,19 @@ export default class StructuralMetadataUtils {
       const parentAfter = this.getParentDiv(after, allItems);
       if (parentBefore.id === parentAfter.id) {
         stuckInMiddle = true;
-        allValidHeadings.push(parentBefore);
+        possibleValidParents.push(parentBefore);
       }
     }
 
-    allValidHeadings.map((heading) => exploreOutwards(heading));
+    possibleValidParents.map((heading) => exploreOutwards(heading));
 
     // Sort valid headings to comply with the order in the metadata structure
-    allHeadings.forEach((key) => {
+    allPossibleParents.forEach((key) => {
       let found = false;
-      allValidHeadings.filter((heading) => {
-        if (!found && heading.label === key.label) {
-          const { items, ...cloneWOItems } = heading;
-          sortedHeadings.push(cloneWOItems);
+      possibleValidParents.filter((parent) => {
+        if (!found && parent.label === key.label) {
+          const { items, ...cloneWOItems } = parent;
+          sortedParents.push(cloneWOItems);
           found = true;
           return false;
         } else {
@@ -585,13 +589,13 @@ export default class StructuralMetadataUtils {
     });
 
     // Filter the duplicated headings
-    sortedHeadings.map((heading) => {
-      const indexIn = uniqueHeadings.map((h) => h.id).indexOf(heading.id);
+    sortedParents.map((parent) => {
+      const indexIn = uniqueParents.map((h) => h.id).indexOf(parent.id);
       if (indexIn === -1) {
-        uniqueHeadings.push(heading);
+        uniqueParents.push(parent);
       }
     });
-    return uniqueHeadings;
+    return uniqueParents;
   }
 
   /**
@@ -689,12 +693,14 @@ export default class StructuralMetadataUtils {
       let inFoundDiv = false;
       let closestSibling = null;
       const siblings = foundDiv.items;
-      siblings.map((sibling) => {
-        if (sibling.id === item.id) {
-          inFoundDiv = true;
-          closestSibling = sibling;
-        }
-      });
+      if (siblings?.length > 0) {
+        siblings.map((sibling) => {
+          if (sibling.id === item.id) {
+            inFoundDiv = true;
+            closestSibling = sibling;
+          }
+        });
+      }
       if (!inFoundDiv) {
         let parentItem = this.getParentDiv(item, allItems);
         if (parentItem) {

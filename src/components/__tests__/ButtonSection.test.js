@@ -13,10 +13,10 @@ jest.mock('react-error-boundary', () => ({
 }));
 
 describe('ButtonSection component', () => {
-  // test('does not render when structure/waveform data is not present', () => {
-  //   const { queryByTestId } = renderWithRedux(<ButtonSection />);
-  //   expect(queryByTestId('button-row')).toBeNull();
-  // });
+  test('does not render when structure/waveform data is not present', () => {
+    const { queryByTestId } = renderWithRedux(<ButtonSection />);
+    expect(queryByTestId('button-row')).toBeNull();
+  });
 
   describe('renders', () => {
     let buttonSection = null,

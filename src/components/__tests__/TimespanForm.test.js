@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, fireEvent } from '@testing-library/react';
+import { fireEvent } from '@testing-library/react';
 import TimespanForm from '../TimespanForm';
 import { nestedTestSmData, renderWithRedux, testSmData } from '../../services/testing-helpers';
 import Peaks from 'peaks';

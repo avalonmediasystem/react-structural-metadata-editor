@@ -232,8 +232,8 @@ describe('TimespanInlineForm component', () => {
         nextState
       );
 
-      // expects begin value to be the updated time
-      expect(timespanInlineForm.getByTestId('timespan-inline-form-begintime').value).toBe('00:07:30.001');
+      // expects begin value to be the end time of the previous timespan
+      expect(timespanInlineForm.getByTestId('timespan-inline-form-begintime').value).toBe('00:08:00.001');
 
       // end time does not change
       expect(timespanInlineForm.getByTestId('timespan-inline-form-endtime').value).toBe('00:15:00.001');

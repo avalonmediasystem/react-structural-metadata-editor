@@ -99,7 +99,7 @@ const TimespanForm = ({
         setIsInitializing(false);
       }
       if (!isInitializing) {
-        const { startTime, endTime } = waveformDataUtils.validateSegment(
+        const { startTime, endTime } = waveformDataUtils.validateNestedSegment(
           segment, startTimeChanged, duration,
           {
             previousSibling: prevSiblingRef.current,

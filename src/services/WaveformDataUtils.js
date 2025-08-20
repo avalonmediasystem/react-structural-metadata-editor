@@ -91,7 +91,7 @@ export default class WaveformDataUtils {
             /**
              * When filtering the segments that overlap at the beginning, get the segment that is
              * closest to the rangeBeginTime. This yeilds an accurate rangeEndTime when filtering
-             * through segments with children, where rangeBeginTime falls inside a child segment.
+             * through segments with children, where rangeBeginTime could fall inside a child segment.
              */
             let current_diff = time - segment.startTime;
             if (current_diff < diff) {
@@ -505,24 +505,85 @@ export default class WaveformDataUtils {
   }
 
   /**
-   * Validate segment in the waveform everytime the handles on either side are dragged
-   * to change the start and end times
-   * @param {Object} segment - segement being edited in the waveform
-   * @param {Boolean} startTimeChanged - true -> start time changed, false -> end time changed
-   * @param {Object} peaksInstance - current peaks instance for waveform
-   * @param {Number} duration - file length in seconds
-   */
+  * Validate segment in the waveform everytime the handles on either side are dragged
+  * to change the start and end times
+  * TODO::Rename this to validateSegment in the edit timespans work and remove the other validateSegment
+  * @param {Object} segment - segement being edited in the waveform
+  * @param {Boolean} startTimeChanged - true -> start time changed, false -> end time changed
+  * @param {Number} duration - file length in seconds
+  * @param {Object} neighbors - React refs for sibling and parent timespans
+  */
+  validateNestedSegment(segment, startTimeChanged, duration, neighbors) {
+    const { startTime, endTime } = segment;
+    const { previousSibling, nextSibling, parentTimespan } = neighbors;
+
+    if (startTimeChanged) {
+      if (previousSibling && previousSibling?.timeRange.end > startTime) {
+        // when start handle is dragged over the segment before
+        segment.update({ startTime: previousSibling.timeRange.end });
+      }
+      if (parentTimespan && parentTimespan?.timeRange.start > startTime) {
+        // when start handle is dragged over the start time of parent segment
+        segment.update({ startTime: parentTimespan.timeRange.start });
+      }
+      if (startTime > endTime) {
+        // when start handle is dragged over the end time of the segment
+        segment.update({ startTime: endTime });
+      }
+    } else {
+      if (nextSibling && nextSibling?.timeRange.start < endTime) {
+        // when end handle is dragged over the segment after
+        segment.update({ endTime: nextSibling.timeRange.start });
+      } else if (parentTimespan && parentTimespan?.timeRange.end < endTime) {
+        // when end handle is dragged over the end time of parent segment
+        segment.update({ endTime: parentTimespan.timeRange.end });
+      } else if (endTime < startTime) {
+        // when end handle is dragged over the start time of the segment
+        segment.update({ endTime: startTime });
+      } else if (endTime > duration) {
+        // when end handle is dragged beyond the duration of file
+        segment.update({ endTime: duration });
+      }
+    }
+    return segment;
+  }
+
+  /**
+  * Validate segment in the waveform everytime the handles on either side are dragged
+  * to change the start and end times
+  * @param {Object} segment - segement being edited in the waveform
+  * @param {Boolean} startTimeChanged - true -> start time changed, false -> end time changed
+  * @param {Object} peaksInstance - current peaks instance for waveform
+  * @param {Number} duration - file length in seconds
+  */
   validateSegment(segment, startTimeChanged, peaksInstance, duration) {
     const { startTime, endTime } = segment;
+
+    // Segments before and after the editing segment
+    const { before, after } = this.findWrapperSegments(segment, peaksInstance);
+
+    // Check for margin of +/- 0.02 seconds to be considered
+    let isDuration = (time) => {
+      return (
+        time <= duration + 0.02 && time >= duration - 0.02
+      );
+    };
+
     if (startTimeChanged) {
-      if (startTime > endTime) {
+      if (before && startTime < before.endTime && !isDuration(before.endTime)) {
+        // when start handle is dragged over the segment before
+        segment.update({ startTime: before.endTime });
+      } else if (startTime > endTime) {
         // when start handle is dragged over the end time of the segment
         segment.update({ startTime: segment.endTime - 0.001 });
       }
     } else {
-      if (endTime < startTime) {
+      if (after && endTime > after.startTime) {
+        // when end handle is dragged over the segment after
+        segment.update({ endTime: after.startTime });
+      } else if (endTime < startTime) {
         // when end handle is dragged over the start time of the segment
-        segment.update({ endTime: segment.startTime + 0.001 });
+        segment.update({ endTime: Math.round((segment.startTime + 0.001) * 1000) / 1000 });
       } else if (endTime > duration) {
         // when end handle is dragged beyond the duration of file
         segment.update({ endTime: duration });

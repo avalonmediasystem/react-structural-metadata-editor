@@ -13,10 +13,10 @@ jest.mock('react-error-boundary', () => ({
 }));
 
 describe('ButtonSection component', () => {
-  // test('does not render when structure/waveform data is not present', () => {
-  //   const { queryByTestId } = renderWithRedux(<ButtonSection />);
-  //   expect(queryByTestId('button-row')).toBeNull();
-  // });
+  test('does not render when structure/waveform data is not present', () => {
+    const { queryByTestId } = renderWithRedux(<ButtonSection />);
+    expect(queryByTestId('button-row')).toBeNull();
+  });
 
   describe('renders', () => {
     let buttonSection = null,
@@ -279,7 +279,7 @@ describe('ButtonSection component', () => {
           fireEvent.click(timespanButton);
 
           // Form is filled with time values nested within the current timespan
-          // ranging from 00:00:11.231 -> 00:08.00.001 
+          // ranging from 00:00:11.231 -> 00:01:11.231
           expect(getByTestId('timespan-form-begintime').value).toBe('00:00:11.231');
           expect(getByTestId('timespan-form-endtime').value).toBe('00:01:11.231');
         });
@@ -331,7 +331,7 @@ describe('ButtonSection component', () => {
           // Open the timespan form again to add a timspan
           fireEvent.click(timespanButton);
           // Form is filled with time values that are nested within the current timespan
-          // ranging from 00:00:11.231 -> 00:08.00.001
+          // ranging from 00:07:00.000 -> 00:08.00.000 (60 seconds)
           expect(getByTestId('timespan-form-begintime').value).toBe('00:07:00.000');
           expect(getByTestId('timespan-form-endtime').value).toBe('00:08:00.000');
         });
@@ -367,7 +367,7 @@ describe('ButtonSection component', () => {
 
           // Open the timespan form again to add a timspan
           fireEvent.click(timespanButton);
-          // Form is filled with time values starting at the current playhead time
+          // Form is filled with time values starting at the current playhead time -> + 60 seconds
           expect(getByTestId('timespan-form-begintime').value).toBe('00:15:20.000');
           expect(getByTestId('timespan-form-endtime').value).toBe('00:16:20.000');
         });

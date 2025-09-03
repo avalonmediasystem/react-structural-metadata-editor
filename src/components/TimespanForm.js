@@ -7,15 +7,10 @@ import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
 import { useDispatch, useSelector } from 'react-redux';
 import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
-import {
-  getValidationBeginState,
-  getValidationEndState,
-  getValidationTitleState,
-  isTitleValid,
-  validTimespans,
-} from '../services/form-helper';
+import { isTitleValid, validTimespans } from '../services/form-helper';
 import * as peaksActions from '../actions/peaks-instance';
 import WaveformDataUtils from '../services/WaveformDataUtils';
+import { useFindNeighborSegments, useTimespanFormValidation } from '../services/sme-hooks';
 
 const structuralMetadataUtils = new StructuralMetadataUtils();
 const waveformDataUtils = new WaveformDataUtils();
@@ -27,7 +22,7 @@ const TimespanForm = ({
   // State variables from global state
   const { smData } = useSelector((state) => state.structuralMetadata);
   const peaksInstance = useSelector((state) => state.peaksInstance);
-  const { duration, isDragging, peaks, segment, startTimeChanged } = peaksInstance;
+  const { duration, isDragging, segment, startTimeChanged } = peaksInstance;
 
   // Dispatch actions
   const dispatch = useDispatch();
@@ -40,20 +35,42 @@ const TimespanForm = ({
   const [timespanTitle, setTimespanTitle] = useState('');
   const [validHeadings, setValidHeadings] = useState([]);
 
+  // Update beginTime and endTime on load
+  useEffect(() => {
+    if (initSegment) {
+      setBeginTime(structuralMetadataUtils.toHHmmss(initSegment.startTime));
+      setEndTime(structuralMetadataUtils.toHHmmss(initSegment.endTime));
+    }
+  }, [initSegment]);
+
   const allSpans = useMemo(() => {
     if (smData?.length > 0) {
       return structuralMetadataUtils.getItemsOfType('span', smData);
     }
   }, [smData]);
 
+  // Find neighboring timespans of the currently editing timespan
+  const { prevSiblingRef, nextSiblingRef, parentTimespanRef } = useFindNeighborSegments({ segment });
+
+  // Validate timespan form when editing
+  const { formIsValid, isBeginValid, isEndValid } = useTimespanFormValidation({
+    beginTime,
+    endTime,
+    neighbors: { prevSiblingRef, nextSiblingRef, parentTimespanRef },
+    timespanTitle
+  });
+
   const buildHeadingsOptions = () => {
     let newSpan = { begin: beginTime, end: endTime };
 
-    // Get spans in overall span list which fall before and after the new span
-    let wrapperSpans = structuralMetadataUtils.findWrapperSpans(newSpan, allSpans);
+    // Build wrapperSpans from sibling timespans
+    let wrapperSpans = { before: prevSiblingRef.current, after: nextSiblingRef.current };
 
-    // Get all valid div headings
-    let validHeadings = structuralMetadataUtils.getValidHeadings(newSpan, wrapperSpans, smData);
+    // Possible parent timespan that can fully contain the new span
+    let parentTimespan = parentTimespanRef.current ? [parentTimespanRef.current] : [];
+
+    // Get all valid div headings and potential parent timespans
+    let validHeadings = structuralMetadataUtils.getValidParents(newSpan, wrapperSpans, smData, parentTimespan);
 
     // Update state with valid headings
     setValidHeadings(validHeadings);
@@ -78,14 +95,17 @@ const TimespanForm = ({
   useEffect(() => {
     if (!isTyping) {
       if (initSegment && isInitializing) {
-        setBeginTime(structuralMetadataUtils.toHHmmss(initSegment.startTime));
-        setEndTime(structuralMetadataUtils.toHHmmss(initSegment.endTime));
         // Set isInitializing flag to false
         setIsInitializing(false);
       }
       if (!isInitializing) {
-        const { startTime, endTime } = waveformDataUtils.validateSegment(
-          segment, startTimeChanged, peaks, duration
+        const { startTime, endTime } = waveformDataUtils.validateNestedSegment(
+          segment, startTimeChanged, duration,
+          {
+            previousSibling: prevSiblingRef.current,
+            nextSibling: nextSiblingRef.current,
+            parentTimespan: parentTimespanRef.current
+          },
         );
         setBeginTime(structuralMetadataUtils.toHHmmss(startTime));
         setEndTime(structuralMetadataUtils.toHHmmss(endTime));
@@ -104,12 +124,6 @@ const TimespanForm = ({
     setValidHeadings([]);
     // Reset isTyping flag
     setIsTyping(0);
-  };
-
-  const formIsValid = () => {
-    const titleValid = isTitleValid(timespanTitle);
-    const childOfValid = timespanChildOf.length > 0;
-    return titleValid && childOfValid && isValidTimespan;
   };
 
   const handleInputChange = (e) => {
@@ -188,8 +202,8 @@ const TimespanForm = ({
         <Form.Control
           type='text'
           value={timespanTitle}
-          isValid={getValidationTitleState(timespanTitle)}
-          isInvalid={!getValidationTitleState(timespanTitle)}
+          isValid={isTitleValid(timespanTitle)}
+          isInvalid={!isTitleValid(timespanTitle)}
           onChange={handleInputChange}
           data-testid='timespan-form-title'
         />
@@ -203,8 +217,8 @@ const TimespanForm = ({
             <Form.Control
               type='text'
               value={beginTime}
-              isValid={getValidationBeginState(beginTime, allSpans)}
-              isInvalid={!getValidationBeginState(beginTime, allSpans)}
+              isValid={isBeginValid}
+              isInvalid={!isBeginValid}
               placeholder='00:00:00'
               onChange={handleBeginTimeChange}
               data-testid='timespan-form-begintime'
@@ -218,10 +232,8 @@ const TimespanForm = ({
             <Form.Control
               type='text'
               value={endTime}
-              isValid={getValidationEndState(beginTime, endTime, allSpans, duration)}
-              isInvalid={
-                !getValidationEndState(beginTime, endTime, allSpans, duration)
-              }
+              isValid={isEndValid}
+              isInvalid={!isEndValid}
               placeholder='00:00:00'
               onChange={handleEndTimeChange}
               data-testid='timespan-form-endtime'
@@ -261,7 +273,7 @@ const TimespanForm = ({
             <Button
               variant='primary'
               type='submit'
-              disabled={!formIsValid()}
+              disabled={!(formIsValid && timespanChildOf.length > 0)}
               data-testid='timespan-form-save-button'
             >
               Save

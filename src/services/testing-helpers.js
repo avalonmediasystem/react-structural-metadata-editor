@@ -63,6 +63,7 @@ export const testSmData = [
             begin: '00:00:03.321',
             end: '00:00:10.321',
             valid: true,
+            timeRange: { start: 3.321, end: 10.321 }
           },
           {
             type: 'span',
@@ -71,6 +72,7 @@ export const testSmData = [
             begin: '00:00:11.231',
             end: '00:08:00.001',
             valid: true,
+            timeRange: { start: 11.231, end: 480.001 }
           },
         ],
       },
@@ -97,6 +99,7 @@ export const testSmData = [
                 begin: '00:09:03.241',
                 end: '00:15:00.001',
                 valid: true,
+                timeRange: { start: 543.241, end: 900.001 }
               },
             ],
           },
@@ -259,6 +262,90 @@ export const testInvalidData = [
             valid: true,
           },
         ],
+      },
+    ],
+  },
+];
+
+export const nestedTestSmData = [
+  {
+    type: 'root',
+    label: 'Ima Title',
+    id: '123a-456b-789c-0d',
+    items: [
+      {
+        type: 'div',
+        label: 'First segment',
+        id: '123a-456b-789c-1d',
+        items: [
+          {
+            type: 'span',
+            label: 'Segment 1.1',
+            id: '123a-456b-789c-2d',
+            begin: '00:00:03.321',
+            end: '00:00:10.321',
+            valid: true,
+            timeRange: { start: 3.321, end: 10.321 }
+          },
+          {
+            type: 'span',
+            label: 'Segment 1.2',
+            id: '123a-456b-789c-3d',
+            begin: '00:01:00.231',
+            end: '00:08:00.001',
+            valid: true,
+            timeRange: { start: 60.231, end: 480.001 }
+          },
+        ],
+      },
+      {
+        type: 'div',
+        label: 'Second segment',
+        id: '123a-456b-789c-4d',
+        items: [
+          {
+            type: 'div',
+            label: 'Sub-Segment 2.1',
+            id: '123a-456b-789c-5d',
+            items: [
+              {
+                type: 'span',
+                label: 'Segment 2.1',
+                id: '123a-456b-789c-6d',
+                begin: '00:09:00.241',
+                end: '00:15:00.001',
+                valid: true,
+                timeRange: { start: 540.241, end: 900.001 },
+                items: [
+                  {
+                    type: 'span',
+                    label: 'Segment 2.1.1',
+                    id: '123a-456b-789c-7d',
+                    begin: '00:09:10.241',
+                    end: '00:10:00.321',
+                    valid: true,
+                    timeRange: { start: 550.241, end: 660.321 }
+                  },
+                  {
+                    type: 'span',
+                    label: 'Segment 2.1.2',
+                    id: '123a-456b-789c-8d',
+                    begin: '00:12:00.231',
+                    end: '00:13:00.001',
+                    valid: true,
+                    timeRange: { start: 720.231, end: 790.001 }
+                  },
+                ]
+              },
+            ],
+          },
+        ],
+      },
+      {
+        type: 'div',
+        label: 'A ',
+        id: '123a-456b-789c-9d',
+        items: [],
       },
     ],
   },

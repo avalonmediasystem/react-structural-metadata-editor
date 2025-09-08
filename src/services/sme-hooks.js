@@ -77,6 +77,57 @@ export const useFindNeighborSegments = ({ segment }) => {
 };
 
 /**
+ * Calculate parent and sibling timespans in the structure for the given timespan.
+ * @param {Object} obj 
+ * @param {Object} obj.item currently editing timespan item from structure
+ * @returns {
+ *  prevSiblingRef,
+ *  nextSiblingRef,
+ *  parentTimespanRef
+ * } React refs for sibling and parent timespans
+ */
+export const useFindNeighborTimespans = ({ item }) => {
+  const { smData } = useSelector((state) => state.structuralMetadata);
+
+  // React refs to hold parent timespan, previous and next siblings
+  const parentTimespanRef = useRef(null);
+  const prevSiblingRef = useRef(null);
+  const nextSiblingRef = useRef(null);
+
+  // Find the parent timespan if it exists
+  const parentDiv = useMemo(() => {
+    if (item) {
+      return structuralMetadataUtils.getParentDiv(item, smData);
+    }
+  }, [item, smData]);
+
+  useEffect(() => {
+    if (parentDiv && parentDiv.type === 'span') {
+      parentTimespanRef.current = parentDiv;
+    } else {
+      parentTimespanRef.current = null;
+    }
+
+    // Find previous and next siblings in the hierarchy
+    if (parentDiv && parentDiv.items) {
+      const siblings = parentDiv.items.filter(sibling => sibling.type === 'span');
+      const currentIndex = siblings.findIndex(sibling => sibling.id === item.id);
+
+      prevSiblingRef.current = currentIndex > 0 ? siblings[currentIndex - 1] : null;
+      nextSiblingRef.current = currentIndex < siblings.length - 1 ? siblings[currentIndex + 1] : null;
+    } else if (item) {
+      const siblings = structuralMetadataUtils.getItemsOfType('span', smData);
+      const currentIndex = siblings.findIndex(sibling => sibling.id === item.id);
+
+      prevSiblingRef.current = currentIndex > 0 ? siblings[currentIndex - 1] : null;
+      nextSiblingRef.current = currentIndex < siblings.length - 1 ? siblings[currentIndex + 1] : null;
+    }
+  }, [parentDiv, item]);
+
+  return { prevSiblingRef, nextSiblingRef, parentTimespanRef };
+};
+
+/**
  * Validate a given timespan based on its start/end times with respect to its sibling
  * and parent timespans, and its title.
  * @param {Object} obj 

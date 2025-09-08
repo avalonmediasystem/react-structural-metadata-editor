@@ -172,10 +172,11 @@ export function deleteSegment(item) {
   };
 }
 
-export function activateSegment(id) {
+export function activateSegment(id, neighbors) {
   return {
     type: types.ACTIVATE_SEGMENT,
-    payload: id,
+    id,
+    neighbors,
   };
 }
 

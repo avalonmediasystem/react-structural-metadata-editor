@@ -7,7 +7,7 @@ import PopoverBody from 'react-bootstrap/PopoverBody';
 import PopoverHeader from 'react-bootstrap/PopoverHeader';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { connect, useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import {
   handleEditingTimespans,
   updateStructureStatus,

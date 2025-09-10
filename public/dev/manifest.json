@@ -391,6 +391,36 @@
                         {
                           "id": "http://localhost:3001/dev/lunchroom_manners/canvas/1#t=323,333",
                           "type": "Canvas"
+                        },
+                        {
+                          "id": "http://localhost:3001/dev/lunchroom_manners/canvas/range/2-2-1-1",
+                          "type": "Range",
+                          "label": {
+                            "en": [
+                              "Not Talking Loudly"
+                            ]
+                          },
+                          "items": [
+                            {
+                              "id": "http://localhost:3001/dev/lunchroom_manners/canvas/1#t=323,330",
+                              "type": "Canvas"
+                            },
+                            {
+                              "id": "http://localhost:3001/dev/lunchroom_manners/canvas/range/2-2-1-1-1",
+                              "type": "Range",
+                              "label": {
+                                "en": [
+                                  "Waiting for Friends"
+                                ]
+                              },
+                              "items": [
+                                {
+                                  "id": "http://localhost:3001/dev/lunchroom_manners/canvas/1#t=324,329",
+                                  "type": "Canvas"
+                                }
+                              ]
+                            }
+                          ]
                         }
                       ]
                     },

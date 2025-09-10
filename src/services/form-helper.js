@@ -16,7 +16,7 @@ export function getExistingFormValues(id, smData, peaks = {}) {
 
   // Timespan
   if (item.type === 'span') {
-    let parentDiv = structuralMetadataUtils.getParentDiv(item, smData);
+    let parentDiv = structuralMetadataUtils.getParentItem(item, smData);
     let segment = peaks.segments.getSegment(id);
     segment.valid = true;
     return {

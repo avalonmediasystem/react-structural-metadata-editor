@@ -30,9 +30,10 @@ export default class StructuralMetadataUtils {
   /**
    * Helper function which creates an object with the shape our data structure requires
    * @param {Object} obj
+   * @param {Boolean} nestedSpan flag the new span is nested wihin a timespan
    * @return {Object}
    */
-  createSpanObject(obj) {
+  createSpanObject(obj, nestedSpan = false) {
     return {
       id: uuidv4(),
       type: 'span',
@@ -43,7 +44,8 @@ export default class StructuralMetadataUtils {
       timeRange: {
         start: this.convertToSeconds(obj.beginTime),
         end: this.convertToSeconds(obj.endTime)
-      }
+      },
+      nestedSpan,
     };
   }
 
@@ -56,7 +58,7 @@ export default class StructuralMetadataUtils {
   deleteListItem(id, allItems) {
     let clonedItems = cloneDeep(allItems);
     let item = this.findItem(id, allItems);
-    let parentDiv = this.getParentDiv(item, clonedItems);
+    let parentDiv = this.getParentItem(item, clonedItems);
     let indexToDelete = findIndex(parentDiv.items, { id: item.id });
 
     parentDiv.items.splice(indexToDelete, 1);
@@ -132,105 +134,101 @@ export default class StructuralMetadataUtils {
   }
 
   /**
-   * Update the data structure to represent all possible dropTargets for the provided dragSource
+   * Update the data structure to represent all possible dropTargets for the 
+   * provided dragSource item with type='span'
    * @param {Object} dragSource
    * @param {Object} allItems
-   * @returns {Array} - new computed items
+   * @returns {Array} - newly created items with drop-zones as needed
    */
   determineDropTargets(dragSource, allItems) {
+    if (dragSource == undefined || dragSource == null || allItems?.length === 0) {
+      return allItems;
+    }
     const clonedItems = cloneDeep(allItems);
 
-    if (dragSource.type === 'span') {
-      let wrapperSpans = this.findWrapperSpans(
-        dragSource,
-        this.getItemsOfType('span', clonedItems)
-      );
-      let parentDiv = this.getParentDiv(dragSource, clonedItems);
-      let siblings = parentDiv ? parentDiv.items : [];
-      let spanIndex = siblings
-        .map((sibling) => sibling.id)
-        .indexOf(dragSource.id);
-      let stuckInMiddle = this.dndHelper.stuckInMiddle(
-        spanIndex,
-        siblings,
-        parentDiv
-      );
+    // Set the scope of the drop-zones based on the dragSource
+    let scopedItems = clonedItems;
+    let allSpans = this.getItemsOfType('span', clonedItems);
+    let parent = this.getParentItem(dragSource, clonedItems);
+    let siblings = parent ? parent.items : [];
+    let spanIndex = siblings.map((sibling) => sibling.id).indexOf(dragSource.id);
 
-      // If span falls in the middle of other spans, it can't be moved
+    if (dragSource.nestedSpan) {
+      // Scope the drop-zones to only its parent timespan
+      scopedItems = [parent];
+      // For nested timespans, scope drop target calculation within parent timespan only
+      parent = this.getParentItem(dragSource, clonedItems);
+      allSpans = this.getItemsOfType('span', [parent]);
+      siblings = parent ? parent.items : [];
+      const siblingHeadings = siblings.filter(sib => sib.type === 'div');
+
+      /**
+       * If the parent timespan doesn't have any heading type structre, then it can't be moved.
+       * Assumption: children inside a timespan are not overlapping and are in chronological order,
+       * therefore the timespan cannot able to be moved.
+       */
+      if (siblingHeadings?.length === 0) {
+        return clonedItems;
+      }
+    } else {
+      let stuckInMiddle = this.dndHelper.stuckInMiddle(spanIndex, siblings, parent);
+
+      // If span falls in the middle of its sibling spans, it can't be moved
       if (stuckInMiddle) {
         return clonedItems;
       }
 
-      // Sibling before is a div?
-      if (spanIndex !== 0 && siblings[spanIndex - 1].type === 'div') {
-        let sibling = siblings[spanIndex - 1];
-        if (sibling.items) {
-          sibling.items.push(this.createDropZoneObject());
-        } else {
-          sibling.items = [this.createDropZoneObject()];
-        }
-      }
-
-      // Sibling after is a div?
-      if (
-        spanIndex !== siblings.length - 1 &&
-        siblings[spanIndex + 1].type === 'div'
-      ) {
-        let sibling = siblings[spanIndex + 1];
-        if (sibling.items) {
-          sibling.items.unshift(this.createDropZoneObject());
-        } else {
-          sibling.items = [this.createDropZoneObject()];
-        }
-      }
-
-      let grandParentDiv = this.getParentDiv(parentDiv, clonedItems);
-
+      let grandParentDiv = this.getParentItem(parent, clonedItems);
       // A first/last child of siblings, or an only child
       if (grandParentDiv !== null) {
         let siblingTimespans = this.getItemsOfType('span', siblings);
-        let timespanIndex = siblingTimespans
-          .map((sibling) => sibling.id)
-          .indexOf(dragSource.id);
+        let timespanIndex = siblingTimespans.map((sibling) => sibling.id).indexOf(dragSource.id);
 
-        let parentIndex = grandParentDiv.items
-          .map((item) => item.id)
-          .indexOf(parentDiv.id);
+        let parentIndex = grandParentDiv.items.map((item) => item.id).indexOf(parent.id);
         if (timespanIndex === 0) {
-          grandParentDiv.items.splice(
-            parentIndex,
-            0,
-            this.createDropZoneObject()
-          );
+          grandParentDiv.items.splice(parentIndex, 0, this.createDropZoneObject());
         }
         if (timespanIndex === siblingTimespans.length - 1) {
-          let newPI = grandParentDiv.items
-            .map((item) => item.id)
-            .indexOf(parentDiv.id);
-          grandParentDiv.items.splice(
-            newPI + 1,
-            0,
-            this.createDropZoneObject()
-          );
+          let newPI = grandParentDiv.items.map((item) => item.id).indexOf(parent.id);
+          grandParentDiv.items.splice(newPI + 1, 0, this.createDropZoneObject());
         }
       }
+    }
 
-      // Insert after the "before" wrapper span (if one exists)
-      if (wrapperSpans.before) {
-        this.dndHelper.addSpanBefore(
-          parentDiv,
-          clonedItems,
-          wrapperSpans.before
-        );
+    // Get sibling timespans for the drag source timespan
+    let wrapperSpans = this.findWrapperSpans(dragSource, allSpans);
+
+    // Sibling before is a div?
+    if (spanIndex !== 0 && siblings[spanIndex - 1].type === 'div') {
+      let sibling = siblings[spanIndex - 1];
+      if (sibling.items) {
+        sibling.items.push(this.createDropZoneObject());
+      } else {
+        sibling.items = [this.createDropZoneObject()];
       }
-      // Insert relative to the span after the active span
-      if (wrapperSpans.after) {
-        this.dndHelper.addSpanAfter(parentDiv, clonedItems, wrapperSpans.after);
+    }
+
+    // Sibling after is a div?
+    if (spanIndex !== siblings.length - 1 && siblings[spanIndex + 1].type === 'div') {
+      let sibling = siblings[spanIndex + 1];
+      if (sibling.items) {
+        sibling.items.unshift(this.createDropZoneObject());
+      } else {
+        sibling.items = [this.createDropZoneObject()];
       }
-      // Insert when there is no wrapper span after active span, but empty headers
-      if (!wrapperSpans.after) {
-        this.dndHelper.addSpanToEmptyHeader(parentDiv, clonedItems);
-      }
+    }
+
+    // Insert after the "before" wrapper span (if one exists)
+    if (wrapperSpans.before) {
+      this.dndHelper.addSpanBefore(parent, scopedItems, wrapperSpans.before);
+    }
+    // Insert relative to the span after the active span
+    if (wrapperSpans.after) {
+      this.dndHelper.addSpanAfter(parent, scopedItems, wrapperSpans.after);
+    }
+    // Insert when there is no wrapper span after active span, but empty headers
+    if (!wrapperSpans.after) {
+      this.dndHelper.addSpanToEmptyHeader(parent, scopedItems);
     }
 
     return clonedItems;
@@ -242,7 +240,7 @@ export default class StructuralMetadataUtils {
    */
   dndHelper = {
     addSpanBefore: (parentDiv, allItems, wrapperSpanBefore) => {
-      let beforeParent = this.getParentDiv(wrapperSpanBefore, allItems);
+      let beforeParent = this.getParentItem(wrapperSpanBefore, allItems);
       let beforeSiblings = beforeParent.items;
       let beforeIndex = beforeSiblings
         .map((item) => item.id)
@@ -257,7 +255,7 @@ export default class StructuralMetadataUtils {
       }
     },
     addSpanAfter: (parentDiv, allItems, wrapperSpanAfter) => {
-      let afterParent = this.getParentDiv(wrapperSpanAfter, allItems);
+      let afterParent = this.getParentItem(wrapperSpanAfter, allItems);
       let afterSiblings = afterParent.items;
       let afterIndex = afterSiblings
         .map((item) => item.id)
@@ -352,7 +350,7 @@ export default class StructuralMetadataUtils {
       before: null,
       after: null,
     };
-    let grandParentDiv = this.getParentDiv(parentDiv, allItems);
+    let grandParentDiv = this.getParentItem(parentDiv, allItems);
     if (grandParentDiv != null) {
       let grandParentItems = grandParentDiv.items.filter(
         (item) => item.type !== 'optional'
@@ -401,12 +399,12 @@ export default class StructuralMetadataUtils {
   }
 
   /**
-   * Find the parent heading item (div) of a given item
+   * Find the parent heading item (div/span) of a given item
    * @param {Object} child - item for which parent div needs to be found
    * @param {Array} allItems - list of items in the structure
    * @returns {Object} parent div of the given child item
    */
-  getParentDiv(child, allItems) {
+  getParentItem(child, allItems) {
     let foundDiv = null;
 
     let findItem = (child, items) => {
@@ -466,7 +464,7 @@ export default class StructuralMetadataUtils {
     // Explore possible headings traversing outwards from a suggested heading
     let exploreOutwards = (heading) => {
       let invalid = false;
-      const parentHeading = this.getParentDiv(heading, allItems);
+      const parentHeading = this.getParentItem(heading, allItems);
       const { begin: newBegin, end: newEnd } = newSpan;
       if (parentHeading && !stuckInMiddle) {
         const headingIndex = parentHeading.items
@@ -517,7 +515,7 @@ export default class StructuralMetadataUtils {
       possibleValidParents = allPossibleParents;
     }
     if (before) {
-      const parentBefore = this.getParentDiv(before, allItems);
+      const parentBefore = this.getParentItem(before, allItems);
       possibleValidParents.push(parentBefore);
       if (!after) {
         let parents = exploreInwards(parentBefore, before, true);
@@ -525,7 +523,7 @@ export default class StructuralMetadataUtils {
       }
     }
     if (after) {
-      const parentAfter = this.getParentDiv(after, allItems);
+      const parentAfter = this.getParentItem(after, allItems);
       possibleValidParents.push(parentAfter);
       if (!before) {
         let parents = exploreInwards(parentAfter, after, false);
@@ -533,8 +531,8 @@ export default class StructuralMetadataUtils {
       }
     }
     if (before && after) {
-      const parentBefore = this.getParentDiv(before, allItems);
-      const parentAfter = this.getParentDiv(after, allItems);
+      const parentBefore = this.getParentItem(before, allItems);
+      const parentAfter = this.getParentItem(after, allItems);
       if (parentBefore.id === parentAfter.id) {
         stuckInMiddle = true;
         possibleValidParents.push(parentBefore);
@@ -575,14 +573,14 @@ export default class StructuralMetadataUtils {
    * @param {Array} nextDivs heading items after the current item
    */
   getItemsAfter(currentItem, allItems, nextDivs) {
-    const parentItem = this.getParentDiv(currentItem, allItems);
+    const parentItem = this.getParentItem(currentItem, allItems);
     if (parentItem) {
       const currentIndex = parentItem.items
         .map((item) => item.id)
         .indexOf(currentItem.id);
       const nextItem = parentItem.items.filter((item, i) => i > currentIndex);
       nextDivs = nextDivs.concat(nextItem);
-      if (this.getParentDiv(parentItem, allItems)) {
+      if (this.getParentItem(parentItem, allItems)) {
         return this.getItemsAfter(parentItem, allItems, nextDivs);
       }
     }
@@ -601,14 +599,14 @@ export default class StructuralMetadataUtils {
     let itemToMove = this.findItem(dragSource.id, clonedItems);
 
     // Slice out previous position of itemToMove
-    let itemToMoveParent = this.getParentDiv(itemToMove, clonedItems);
+    let itemToMoveParent = this.getParentItem(itemToMove, clonedItems);
     let itemToMoveItemIndex = itemToMoveParent.items
       .map((item) => item.id)
       .indexOf(itemToMove.id);
     itemToMoveParent.items.splice(itemToMoveItemIndex, 1);
 
     // Place itemToMove right after the placeholder array position
-    let dropTargetParent = this.getParentDiv(dropTarget, clonedItems);
+    let dropTargetParent = this.getParentItem(dropTarget, clonedItems);
     let dropTargetItemIndex = dropTargetParent.items
       .map((item) => item.id)
       .indexOf(dropTarget.id);
@@ -651,10 +649,11 @@ export default class StructuralMetadataUtils {
   insertNewTimespan(obj, allItems) {
     let clonedItems = cloneDeep(allItems);
 
-    let foundDiv = this.findItem(obj.timespanChildOf, clonedItems);
-
+    let parentItem = this.findItem(obj.timespanChildOf, clonedItems);
+    let nestedSpan = false;
+    if (parentItem.type === 'span') { nestedSpan = true; }
     // Timespan related to values
-    const spanObj = this.createSpanObject(obj);
+    const spanObj = this.createSpanObject(obj, nestedSpan);
 
     // Index the new timespan to be inserted
     let insertIndex = 0;
@@ -662,7 +661,7 @@ export default class StructuralMetadataUtils {
     let getParentOfSpan = (item) => {
       let inFoundDiv = false;
       let closestSibling = null;
-      const siblings = foundDiv.items;
+      const siblings = parentItem.items;
       if (siblings?.length > 0) {
         siblings.map((sibling) => {
           if (sibling.id === item.id) {
@@ -672,7 +671,7 @@ export default class StructuralMetadataUtils {
         });
       }
       if (!inFoundDiv) {
-        let parentItem = this.getParentDiv(item, allItems);
+        let parentItem = this.getParentItem(item, allItems);
         if (parentItem) {
           closestSibling = getParentOfSpan(parentItem);
         }
@@ -680,30 +679,30 @@ export default class StructuralMetadataUtils {
       return closestSibling;
     };
 
-    if (foundDiv) {
+    if (parentItem) {
       const allSpans = this.getItemsOfType('span', allItems);
       const { before, after } = this.findWrapperSpans(spanObj, allSpans);
       if (before) {
         let siblingBefore = getParentOfSpan(before);
         if (siblingBefore) {
           insertIndex =
-            foundDiv.items.map((item) => item.id).indexOf(siblingBefore.id) + 1;
+            parentItem.items.map((item) => item.id).indexOf(siblingBefore.id) + 1;
         }
       } else if (after) {
         let siblingAfter = getParentOfSpan(after);
         if (siblingAfter) {
-          let siblingAfterIndex = foundDiv.items
+          let siblingAfterIndex = parentItem.items
             .map((item) => item.id)
             .indexOf(siblingAfter.id);
           insertIndex = siblingAfterIndex === 0 ? 0 : siblingAfterIndex - 1;
         }
       } else {
-        insertIndex = foundDiv.items.length + 1;
+        insertIndex = parentItem.items.length + 1;
       }
     }
 
     // Insert new span at appropriate index
-    foundDiv.items.splice(insertIndex, 0, spanObj);
+    parentItem.items.splice(insertIndex, 0, spanObj);
 
     return { newSpan: spanObj, updatedData: clonedItems };
   }
@@ -715,13 +714,12 @@ export default class StructuralMetadataUtils {
    */
   removeActiveDragSources(allItems) {
     let removeActive = (parent) => {
-      if (!parent.items) {
-        if (parent.active) {
-          parent.active = false;
-        }
-        return parent;
+      if (parent.active) {
+        parent.active = false;
       }
-      parent.items = parent.items.map((child) => removeActive(child));
+      if (parent.items) {
+        parent.items = parent.items.map((child) => removeActive(child));
+      }
 
       return parent;
     };

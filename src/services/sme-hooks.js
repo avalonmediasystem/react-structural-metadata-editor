@@ -97,7 +97,7 @@ export const useFindNeighborTimespans = ({ item }) => {
   // Find the parent timespan if it exists
   const parentDiv = useMemo(() => {
     if (item) {
-      return structuralMetadataUtils.getParentDiv(item, smData);
+      return structuralMetadataUtils.getParentItem(item, smData);
     }
   }, [item, smData]);
 

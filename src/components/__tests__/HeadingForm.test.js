@@ -1,7 +1,7 @@
 import React from 'react';
 import { fireEvent } from '@testing-library/react';
 import HeadingForm from '../HeadingForm';
-import { renderWithRedux, testSmData } from '../../services/testing-helpers';
+import { nestedTestSmData, renderWithRedux, testSmData } from '../../services/testing-helpers';
 
 const initialState = {
   structuralMetadata: {
@@ -54,6 +54,7 @@ describe('HeadingForm component', () => {
       expect(formControl.className.includes('is-valid')).toBeFalsy();
       expect(formControl.className.includes('is-invalid')).toBeTruthy();
     });
+
     test('form with enabling save button', () => {
       const { getByLabelText, getByTestId, debug } = renderWithRedux(
         <HeadingForm />,
@@ -86,6 +87,7 @@ describe('HeadingForm component', () => {
       expect(submitButton).toBeDisabled();
     });
   });
+
   describe('submits the form', () => {
     let utils;
     const onSubmitMock = jest.fn();
@@ -116,5 +118,20 @@ describe('HeadingForm component', () => {
     test('form clears after', () => {
       expect(utils.getByLabelText(/title/i).value).toBe('');
     });
+  });
+
+  test('adds parent timespan to \'Child Of\' dropdown for nested structure', () => {
+    const { container } = renderWithRedux(<HeadingForm />, {
+      initialState: {
+        structuralMetadata: {
+          smData: nestedTestSmData,
+        },
+      },
+    });
+    const el = container.querySelector('#headingChildOf');
+    expect(el.children.length).toBe(7);
+    expect(el.children[1].value).toBe('123a-456b-789c-0d');
+    // Adds parent timespan to the options list
+    expect(el.children[6].value).toBe('123a-456b-789c-6d');
   });
 });

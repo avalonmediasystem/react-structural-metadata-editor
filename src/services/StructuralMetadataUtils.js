@@ -385,7 +385,8 @@ export default class StructuralMetadataUtils {
       for (let item of items) {
         if (item.type === type) {
           let currentObj = { ...item };
-          delete currentObj.items;
+          // Keep items array to identify parent timespans in HeadingForm
+          if (item.type != 'span') { delete currentObj.items; }
           options.push(currentObj);
         }
         if (item.items) {

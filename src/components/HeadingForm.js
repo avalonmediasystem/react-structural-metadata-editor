@@ -44,9 +44,15 @@ const HeadingForm = ({ cancelClick, onSubmit }) => {
   };
 
   const getOptions = () => {
-    const rootHeader = structuralMetadataUtils.getItemsOfType('root', smData);
-    const divHeaders = structuralMetadataUtils.getItemsOfType('div', smData);
-    const allHeaders = rootHeader.concat(divHeaders);
+    /**
+     * Only get type='span' (timespans) items with children as possible headings.
+     * This helps to keep the options list smaller, but allows to add heading
+     * inside timespans. These headings then can be used as drop-zones for child
+     * timespans inside them.
+     */
+    const allHeaders = structuralMetadataUtils
+      .getItemsOfType(['root', 'div', 'span'], smData)
+      .filter(h => h.type !== 'span' || (h.items && h.items.length > 0));
     const options = allHeaders.map((header) => (
       <option value={header.id} key={header.id}>
         {header.label}

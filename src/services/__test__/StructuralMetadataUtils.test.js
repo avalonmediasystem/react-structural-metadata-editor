@@ -206,7 +206,7 @@ describe('StructuralMetadataUtils class', () => {
   describe('findWrapperSpans(), ', () => {
     let allSpans = [];
     beforeEach(() => {
-      allSpans = smu.getItemsOfType('span', testData);
+      allSpans = smu.getItemsOfType(['span'], testData);
     });
     test('for first timespan', () => {
       const obj = {
@@ -337,87 +337,77 @@ describe('StructuralMetadataUtils class', () => {
   });
 
   describe('getItemsOfType()', () => {
-    test('type === div', () => {
-      const allDivs = [
-        {
-          type: 'div',
-          label: 'Title',
-          id: '123a-456b-789c-0d',
-        },
-        {
-          type: 'div',
-          label: 'First segment',
-          id: '123a-456b-789c-1d',
-        },
-        {
-          type: 'div',
-          label: 'Sub-Segment 1.1',
-          id: '123a-456b-789c-2d',
-        },
-        {
-          type: 'div',
-          label: 'Second segment',
-          id: '123a-456b-789c-5d',
-        },
-        {
-          type: 'div',
-          label: 'Sub-Segment 2.1',
-          id: '123a-456b-789c-6d',
-        },
-        {
-          type: 'div',
-          label: 'Sub-Segment 2.1.1',
-          id: '123a-456b-789c-7d',
-        },
-      ];
-      const value = smu.getItemsOfType('div', testData);
-      expect(value).toHaveLength(allDivs.length);
-      expect(value).toContainEqual({
-        type: 'div',
-        label: 'Sub-Segment 2.1',
-        id: '123a-456b-789c-6d',
-      });
-    });
-    test('type === span', () => {
-      const allSpans = [
-        {
-          type: 'span',
-          label: 'Segment 1.1',
-          id: '123a-456b-789c-3d',
-          begin: '00:00:03.321',
-          end: '00:00:10.321',
-          valid: true,
-          timeRange: { start: 3.321, end: 10.321 }
-        },
-        {
-          type: 'span',
-          label: 'Segment 1.2',
-          id: '123a-456b-789c-4d',
-          begin: '00:00:11.231',
-          end: '00:08:00.001',
-          valid: true,
-          timeRange: { start: 11.231, end: 480.001 }
-        },
-        {
-          type: 'span',
-          label: 'Segment 2.1',
-          id: '123a-456b-789c-8d',
-          begin: '00:09:03.241',
-          end: '00:15:00.001',
-          valid: true,
-          timeRange: { start: 543.241, end: 900.001 }
-        },
-      ];
-      const value = smu.getItemsOfType('span', testData);
-      expect(value).toHaveLength(allSpans.length);
-      expect(value).toContainEqual({
-        type: 'span',
-        label: 'Segment 2.1',
-        id: '123a-456b-789c-8d',
-        begin: '00:09:03.241',
-        end: '00:15:00.001',
+    const allDivs = [
+      { type: 'div', label: 'Title', id: '123a-456b-789c-0d' },
+      { type: 'div', label: 'First segment', id: '123a-456b-789c-1d' },
+      { type: 'div', label: 'Sub-Segment 1.1', id: '123a-456b-789c-2d' },
+      { type: 'div', label: 'Second segment', id: '123a-456b-789c-5d' },
+      { type: 'div', label: 'Sub-Segment 2.1', id: '123a-456b-789c-6d' },
+      { type: 'div', label: 'Sub-Segment 2.1.1', id: '123a-456b-789c-7d' },
+    ];
+    const allSpans = [
+      {
+        type: 'span', label: 'Segment 1.1', id: '123a-456b-789c-3d',
+        begin: '00:00:03.321', end: '00:00:10.321',
+        valid: true,
+        timeRange: { start: 3.321, end: 10.321 }
+      },
+      {
+        type: 'span', label: 'Segment 1.2', id: '123a-456b-789c-4d',
+        begin: '00:00:11.231', end: '00:08:00.001',
+        valid: true,
+        timeRange: { start: 11.231, end: 480.001 }
+      },
+      {
+        type: 'span', label: 'Segment 2.1', id: '123a-456b-789c-8d',
+        begin: '00:09:03.241', end: '00:15:00.001',
         valid: true,
         timeRange: { start: 543.241, end: 900.001 }
+      },
+    ];
+    test('itemTypes = []', () => {
+      const value = smu.getItemsOfType([], testData);
+      expect(value).toEqual([]);
+    });
+
+    test('itemTypes = [\'root\']', () => {
+      const value = smu.getItemsOfType(['root'], testData);
+      expect(value).toHaveLength(1);
+      expect(value).toContainEqual({
+        type: 'root', label: 'Ima Title', id: '123a-456b-789c-0d'
+      });
+    });
+
+    test('itemTypes = [\'div\']', () => {
+      const value = smu.getItemsOfType(['div'], testData);
+      expect(value).toHaveLength(allDivs.length);
+      expect(value).toContainEqual({
+        type: 'div', label: 'Sub-Segment 2.1', id: '123a-456b-789c-6d'
+      });
+    });
+
+    test('itemTypes = [\'span\']', () => {
+      const value = smu.getItemsOfType(['span'], testData);
+      expect(value).toHaveLength(allSpans.length);
+      expect(value).toContainEqual({
+        type: 'span', label: 'Segment 2.1', id: '123a-456b-789c-8d',
+        begin: '00:09:03.241', end: '00:15:00.001',
+        valid: true,
+        timeRange: { start: 543.241, end: 900.001 }
+      });
+    });
+
+    test('itemTypes = [\'div\', \'span\']', () => {
+      const value = smu.getItemsOfType(['span', 'div'], testData);
+      expect(value).toHaveLength(allSpans.length + allDivs.length);
+      expect(value).toContainEqual({
+        type: 'span', label: 'Segment 2.1', id: '123a-456b-789c-8d',
+        begin: '00:09:03.241', end: '00:15:00.001',
+        valid: true,
+        timeRange: { start: 543.241, end: 900.001 }
+      });
+      expect(value).toContainEqual({
+        type: 'div', label: 'Sub-Segment 2.1', id: '123a-456b-789c-6d'
       });
     });
   });
@@ -1103,7 +1093,7 @@ describe('StructuralMetadataUtils class', () => {
         smu.determineDropTargets(dragSource, nestedTestSmData);
 
         // getItemsOfType() was called with parent scope for the nested timespan
-        expect(getItemsOfTypeSpy).toHaveBeenCalledWith('span', [parentTimespan]);
+        expect(getItemsOfTypeSpy).toHaveBeenCalledWith(['span'], [parentTimespan]);
         // Clear mock
         getItemsOfTypeSpy.mockRestore();
       });

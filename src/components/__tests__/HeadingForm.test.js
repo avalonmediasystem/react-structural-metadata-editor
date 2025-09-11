@@ -132,6 +132,6 @@ describe('HeadingForm component', () => {
     expect(el.children.length).toBe(7);
     expect(el.children[1].value).toBe('123a-456b-789c-0d');
     // Adds parent timespan to the options list
-    expect(el.children[6].value).toBe('123a-456b-789c-6d');
+    expect(el.children[5].value).toBe('123a-456b-789c-6d');
   });
 });

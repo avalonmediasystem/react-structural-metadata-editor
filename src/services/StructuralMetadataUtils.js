@@ -148,7 +148,7 @@ export default class StructuralMetadataUtils {
 
     // Set the scope of the drop-zones based on the dragSource
     let scopedItems = clonedItems;
-    let allSpans = this.getItemsOfType('span', clonedItems);
+    let allSpans = this.getItemsOfType(['span'], clonedItems);
     let parent = this.getParentItem(dragSource, clonedItems);
     let siblings = parent ? parent.items : [];
     let spanIndex = siblings.map((sibling) => sibling.id).indexOf(dragSource.id);
@@ -158,7 +158,7 @@ export default class StructuralMetadataUtils {
       scopedItems = [parent];
       // For nested timespans, scope drop target calculation within parent timespan only
       parent = this.getParentItem(dragSource, clonedItems);
-      allSpans = this.getItemsOfType('span', [parent]);
+      allSpans = this.getItemsOfType(['span'], [parent]);
       siblings = parent ? parent.items : [];
       const siblingHeadings = siblings.filter(sib => sib.type === 'div');
 
@@ -181,7 +181,7 @@ export default class StructuralMetadataUtils {
       let grandParentDiv = this.getParentItem(parent, clonedItems);
       // A first/last child of siblings, or an only child
       if (grandParentDiv !== null) {
-        let siblingTimespans = this.getItemsOfType('span', siblings);
+        let siblingTimespans = this.getItemsOfType(['span'], siblings);
         let timespanIndex = siblingTimespans.map((sibling) => sibling.id).indexOf(dragSource.id);
 
         let parentIndex = grandParentDiv.items.map((item) => item.id).indexOf(parent.id);
@@ -374,16 +374,20 @@ export default class StructuralMetadataUtils {
 
   /**
    * Get all items in data structure of type 'div' or 'span'
+   * @param {Array} itemTypes types of items to pick
    * @param {Array} json
    * @returns {Array} - all stripped down objects of type in the entire structured metadata collection
    */
-  getItemsOfType(type = 'div', items = []) {
+  getItemsOfType(itemTypes = [], items = []) {
+    if (itemTypes.length === 0) {
+      return [];
+    }
     let options = [];
 
     // Recursive function to search the whole data structure
     let getItems = (items) => {
       for (let item of items) {
-        if (item.type === type) {
+        if (itemTypes.includes(item.type)) {
           let currentObj = { ...item };
           // Keep items array to identify parent timespans in HeadingForm
           if (item.type != 'span') { delete currentObj.items; }
@@ -456,11 +460,7 @@ export default class StructuralMetadataUtils {
     }
 
     const { before, after } = wrapperSpans;
-    const allPossibleParents = this.getItemsOfType('root', allItems).concat(
-      this.getItemsOfType('div', allItems)
-    ).concat(
-      this.getItemsOfType('span', allItems)
-    );
+    const allPossibleParents = this.getItemsOfType(['root', 'div', 'span'], allItems);
 
     // Explore possible headings traversing outwards from a suggested heading
     let exploreOutwards = (heading) => {
@@ -506,9 +506,7 @@ export default class StructuralMetadataUtils {
       } else {
         divsBefore = wrapperParent.items.filter((item, i) => i < spanIndex);
       }
-      const allParents = this.getItemsOfType('div', divsAfter.concat(divsBefore)).concat(
-        this.getItemsOfType('span', divsAfter.concat(divsBefore))
-      );
+      const allParents = this.getItemsOfType(['div', 'span'], [...divsAfter, ...divsBefore]);
       return allParents;
     };
 
@@ -681,7 +679,7 @@ export default class StructuralMetadataUtils {
     };
 
     if (parentItem) {
-      const allSpans = this.getItemsOfType('span', allItems);
+      const allSpans = this.getItemsOfType(['span'], allItems);
       const { before, after } = this.findWrapperSpans(spanObj, allSpans);
       if (before) {
         let siblingBefore = getParentOfSpan(before);

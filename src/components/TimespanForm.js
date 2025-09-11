@@ -45,7 +45,7 @@ const TimespanForm = ({
 
   const allSpans = useMemo(() => {
     if (smData?.length > 0) {
-      return structuralMetadataUtils.getItemsOfType('span', smData);
+      return structuralMetadataUtils.getItemsOfType(['span'], smData);
     }
   }, [smData]);
 

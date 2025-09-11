@@ -89,10 +89,7 @@ function TimespanInlineForm({ cancelFn, item, isInitializing, isTyping, saveFn, 
     );
 
     // Save a reference to all the spans for future calculations
-    allSpansRef.current = structuralMetadataUtils.getItemsOfType(
-      'span',
-      tempSmDataRef.current
-    );
+    allSpansRef.current = structuralMetadataUtils.getItemsOfType(['span'], tempSmDataRef.current);
 
     // Get segment from current peaks instance
     const currentSegment = peaksInstance.peaks.segments.getSegment(item.id);
@@ -136,13 +133,10 @@ function TimespanInlineForm({ cancelFn, item, isInitializing, isTyping, saveFn, 
    */
   const handleInvalidTimespan = () => {
     const itemIndex = structuralMetadataUtils
-      .getItemsOfType('span', smData)
+      .getItemsOfType(['span'], smData)
       .findIndex((i) => i.id === item.id);
 
-    const allSpans = structuralMetadataUtils.getItemsOfType(
-      'span',
-      tempSmDataRef.current
-    );
+    const allSpans = structuralMetadataUtils.getItemsOfType(['span'], tempSmDataRef.current);
 
     const wrapperSpans = { prevSpan: null, nextSpan: null };
     wrapperSpans.prevSpan = allSpans[itemIndex - 1] || null;

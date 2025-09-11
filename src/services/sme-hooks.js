@@ -29,7 +29,7 @@ export const useFindNeighborSegments = ({ segment }) => {
   const nextSiblingRef = useRef(null);
 
   const allSpans = useMemo(() => {
-    return structuralMetadataUtils.getItemsOfType('span', smData);
+    return structuralMetadataUtils.getItemsOfType(['span'], smData);
   }, [smData]);
 
   useEffect(() => {
@@ -116,7 +116,7 @@ export const useFindNeighborTimespans = ({ item }) => {
       prevSiblingRef.current = currentIndex > 0 ? siblings[currentIndex - 1] : null;
       nextSiblingRef.current = currentIndex < siblings.length - 1 ? siblings[currentIndex + 1] : null;
     } else if (item) {
-      const siblings = structuralMetadataUtils.getItemsOfType('span', smData);
+      const siblings = structuralMetadataUtils.getItemsOfType(['span'], smData);
       const currentIndex = siblings.findIndex(sibling => sibling.id === item.id);
 
       prevSiblingRef.current = currentIndex > 0 ? siblings[currentIndex - 1] : null;

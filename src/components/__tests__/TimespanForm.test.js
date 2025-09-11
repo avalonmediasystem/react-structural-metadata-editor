@@ -206,7 +206,7 @@ describe('Timespan component', () => {
               current: {
                 type: 'span', label: 'Segment 1.1', id: '123a-456b-789c-3d',
                 begin: '00:00:03.321', end: '00:00:10.321', valid: true,
-                timeRange: { start: 3.321, end: 10.321 }
+                timeRange: { start: 3.321, end: 10.321 }, items: []
               }
             }
           }));
@@ -412,7 +412,7 @@ describe('Timespan component', () => {
               current: {
                 type: 'span', label: 'Segment 1.1', id: '123a-456b-789c-3d',
                 begin: '00:00:03.321', end: '00:00:10.321', valid: true,
-                timeRange: { start: 3.321, end: 10.321 }
+                timeRange: { start: 3.321, end: 10.321 }, items: []
               }
             }
           }));
@@ -429,25 +429,13 @@ describe('Timespan component', () => {
         test('when begin time is within an existing timespan', () => {
           // Update the neighbor timespan relationships
           jest.spyOn(hooks, 'useFindNeighborSegments').mockImplementation(() => ({
-            prevSiblingRef: {
-              current: {
-                type: 'span', label: 'Segment 2.1.1', id: '123a-456b-789c-7d',
-                begin: '00:09:10.241', end: '00:10:00.321', valid: true,
-                timeRange: { start: 550.241, end: 660.321 }
-              }
-            },
-            nextSiblingRef: {
-              current: {
-                type: 'span', label: 'Segment 2.1.2', id: '123a-456b-789c-8d',
-                begin: '00:12:00.231', end: '00:13:00.001', valid: true,
-                timeRange: { start: 720.231, end: 790.001 }
-              }
-            },
+            prevSiblingRef: { current: { type: 'span', label: 'Segment 2.1.1', id: '123a-456b-789c-7d' } },
+            nextSiblingRef: { current: { type: 'span', label: 'Segment 2.1.2', id: '123a-456b-789c-8d' } },
             parentTimespanRef: {
               current: {
                 type: 'span', label: 'Segment 2.1', id: '123a-456b-789c-6d',
-                begin: '00:09:00.241', end: '00:15:00.001', valid: true,
-                timeRange: { start: 540.241, end: 900.001 },
+                items: [{ type: 'span', label: 'Segment 2.1.1', id: '123a-456b-789c-7d' },
+                { type: 'span', label: 'Segment 2.1.2', id: '123a-456b-789c-8d' }]
               }
             }
           }));
@@ -521,7 +509,7 @@ describe('Timespan component', () => {
     });
   });
 
-  test('with parent element selection', () => {
+  test('changes form state with parent element selection', () => {
     jest.spyOn(hooks, 'useFindNeighborSegments').mockImplementation(() => ({
       prevSiblingRef: { current: null },
       nextSiblingRef: {

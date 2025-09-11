@@ -543,131 +543,121 @@ describe('StructuralMetadataUtils class', () => {
         id: '123a-456b-789c-1d',
       });
     });
-    test('when wrapped by existing timespans', () => {
+
+    test('when new timespan is wrapped by existing timespans', () => {
       const newSpan = { begin: '00:08:00.001', end: '00:09:00.001' };
       const wrapperSpans = {
-        before: {
-          type: 'span',
-          label: 'Segment 1.2',
-          id: '123a-456b-789c-4d',
-          begin: '00:00:11.231',
-          end: '00:08:00.001',
-        },
-        after: {
-          type: 'span',
-          label: 'Segment 2.1',
-          id: '123a-456b-789c-8d',
-          begin: '00:09:03.241',
-          end: '00:15:00.001',
-        },
+        before: { type: 'span', label: 'Segment 1.2', id: '123a-456b-789c-4d' },
+        after: { type: 'span', label: 'Segment 2.1', id: '123a-456b-789c-8d' },
       };
       const expected = [
-        {
-          type: 'div',
-          label: 'First segment',
-          id: '123a-456b-789c-1d',
-        },
-        {
-          type: 'div',
-          label: 'Second segment',
-          id: '123a-456b-789c-5d',
-        },
-        {
-          type: 'div',
-          label: 'Sub-Segment 2.1',
-          id: '123a-456b-789c-6d',
-        },
-        {
-          type: 'div',
-          label: 'Sub-Segment 2.1.1',
-          id: '123a-456b-789c-7d',
-        },
+        { type: 'div', label: 'First segment', id: '123a-456b-789c-1d' },
+        { type: 'div', label: 'Second segment', id: '123a-456b-789c-5d' },
+        { type: 'div', label: 'Sub-Segment 2.1', id: '123a-456b-789c-6d' },
+        { type: 'div', label: 'Sub-Segment 2.1.1', id: '123a-456b-789c-7d' },
       ];
       const value = smu.getValidParents(newSpan, wrapperSpans, testData);
       expect(value).toHaveLength(expected.length);
-      expect(value).toContainEqual({
-        type: 'div',
-        label: 'Sub-Segment 2.1',
-        id: '123a-456b-789c-6d',
-      });
+      expect(value).toContainEqual({ type: 'div', label: 'Sub-Segment 2.1', id: '123a-456b-789c-6d' });
     });
-    test('when there are no timespans after', () => {
+
+    test('when there are no timespans after the new timespan', () => {
       const newSpan = { begin: '00:15:00.001', end: '00:16:00.001' };
       const wrapperSpans = {
-        before: {
-          type: 'span',
-          label: 'Segment 2.1',
-          id: '123a-456b-789c-8d',
-          begin: '00:09:03.241',
-          end: '00:15:00.001',
-        },
+        before: { type: 'span', label: 'Segment 2.1', id: '123a-456b-789c-8d' },
         after: null,
       };
       const expected = [
-        {
-          type: 'div',
-          label: 'Title',
-          id: '123a-456b-789c-0d',
-        },
-        {
-          type: 'div',
-          label: 'Second segment',
-          id: '123a-456b-789c-5d',
-        },
-        {
-          type: 'div',
-          label: 'Sub-Segment 2.1',
-          id: '123a-456b-789c-6d',
-        },
-        {
-          type: 'div',
-          label: 'A ',
-          id: '123a-456b-789c-9d',
-        },
+        { type: 'div', label: 'Title', id: '123a-456b-789c-0d' },
+        { type: 'div', label: 'Second segment', id: '123a-456b-789c-5d' },
+        { type: 'div', label: 'Sub-Segment 2.1', id: '123a-456b-789c-6d' },
+        { type: 'div', label: 'A ', id: '123a-456b-789c-9d' },
       ];
       const value = smu.getValidParents(newSpan, wrapperSpans, testData);
       expect(value).toHaveLength(expected.length);
-      expect(value).toContainEqual({
-        type: 'div',
-        label: 'Sub-Segment 2.1',
-        id: '123a-456b-789c-6d',
-      });
+      expect(value).toContainEqual({ type: 'div', label: 'Sub-Segment 2.1', id: '123a-456b-789c-6d' });
     });
-    test('when there are no timespans before', () => {
+
+    test('when there are no timespans before the new timespan', () => {
       const newSpan = { begin: '00:00:00.000', end: '00:00:03.321' };
       const wrapperSpans = {
         before: null,
-        after: {
-          type: 'span',
-          label: 'Act 1',
-          id: '123a-456b-789c-3d',
-          begin: '00:00:03.321',
-          end: '00:00:10.321',
-        },
+        after: { type: 'span', label: 'Act 1', id: '123a-456b-789c-3d' },
       };
       const expected = [
-        {
-          type: 'div',
-          label: 'Title',
-          id: '123a-456b-789c-0d',
-        },
-        {
-          type: 'div',
-          label: 'First segment',
-          id: '123a-456b-789c-1d',
-        },
-        {
-          type: 'div',
-          label: 'Sub-Segment 1.1',
-          id: '123a-456b-789c-2d',
-        },
+        { type: 'div', label: 'Title', id: '123a-456b-789c-0d' },
+        { type: 'div', label: 'First segment', id: '123a-456b-789c-1d' },
+        { type: 'div', label: 'Sub-Segment 1.1', id: '123a-456b-789c-2d' },
       ];
       const value = smu.getValidParents(newSpan, wrapperSpans, testData);
       expect(value).toHaveLength(expected.length);
-      expect(value).toContainEqual({
-        type: 'div',
-        label: 'Sub-Segment 1.1',
-        id: '123a-456b-789c-2d',
+      expect(value).toContainEqual({ type: 'div', label: 'Sub-Segment 1.1', id: '123a-456b-789c-2d' });
+    });
+
+    describe('when new timespan has a parent timespan', () => {
+      test('without sibling headings', () => {
+        const parentTimespan = nestedTestSmData[0].items[1].items[0].items[0];
+        const newSpan = { begin: '00:10:00.321', end: '00:11:00.321' };
+        const wrapperSpans = {
+          before: { type: 'span', label: 'Segment 2.1.1', id: '123a-456b-789c-7d' },
+          after: { type: 'span', label: 'Segment 2.1.2', id: '123a-456b-789c-8d' },
+        };
+
+        const value = smu.getValidParents(newSpan, wrapperSpans, nestedTestSmData, parentTimespan);
+        expect(value).toHaveLength(1);
+        expect(value.map(h => h.id)).toContain('123a-456b-789c-6d');
+      });
+
+      describe('with a sibling heading', () => {
+        // Get a copy of the parent timeppan to modify as needed
+        const parentTimespan = cloneDeep(nestedTestSmData[0].items[1].items[0].items[0]);
+        beforeEach(() => {
+          parentTimespan.items.splice(0, 0, {
+            type: 'div', label: 'New Sub-segment Title Before', id: 'new-title-before',
+          });
+        });
+
+        test('next to the new timespan', () => {
+          const newSpan = { begin: '00:09:00.241', end: '00:09:10.241' };
+          const wrapperSpans = {
+            before: null,
+            after: { type: 'span', label: 'Segment 2.1.1', id: '123a-456b-789c-7d' }
+          };
+
+          const value = smu.getValidParents(newSpan, wrapperSpans, nestedTestSmData, parentTimespan);
+          expect(value).toHaveLength(2);
+          // Have both parent and sibling heading as valid parents
+          expect(value.map(h => h.id)).toContain('123a-456b-789c-6d');
+          expect(value.map(h => h.id)).toContain('new-title-before');
+        });
+
+        test('before previous sibling timespan (out of order)', () => {
+          const newSpan = { begin: '00:10:00.321', end: '00:11:00.321' };
+          const wrapperSpans = {
+            before: { type: 'span', label: 'Segment 2.1.1', id: '123a-456b-789c-7d' },
+            after: { type: 'span', label: 'Segment 2.1.2', id: '123a-456b-789c-8d' },
+          };
+
+          const value = smu.getValidParents(newSpan, wrapperSpans, nestedTestSmData, parentTimespan);
+          // Only have the parent timespan as a valid parent
+          expect(value).toHaveLength(1);
+          expect(value.map(h => h.id)).toContain('123a-456b-789c-6d');
+        });
+
+        test('after next sibling timespan (out of order)', () => {
+          const newSpan = { begin: '00:10:00.321', end: '00:11:00.321' };
+          const wrapperSpans = {
+            before: { type: 'span', label: 'Segment 2.1.1', id: '123a-456b-789c-7d' },
+            after: { type: 'span', label: 'Segment 2.1.2', id: '123a-456b-789c-8d' },
+          };
+          // Add a title item to the end of the children list
+          parentTimespan.items.push({ type: 'div', label: 'New Sub-segment Title After', id: 'new-title-after' });
+
+          const value = smu.getValidParents(newSpan, wrapperSpans, nestedTestSmData, parentTimespan);
+          // Only have parent timespan as a valid parent
+          expect(value).toHaveLength(1);
+          expect(value.map(h => h.id)).toContain('123a-456b-789c-6d');
+        });
       });
     });
   });

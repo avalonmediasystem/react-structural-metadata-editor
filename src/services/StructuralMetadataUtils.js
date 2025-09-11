@@ -439,13 +439,13 @@ export default class StructuralMetadataUtils {
    * find their parent 'divs'. 
    * Timespans can have children, so to find possible parent timespans; combine the wrapper timespans with
    * the parent 'divs' of the wrapper timespans.
-   * @param {Object} newSpan - New timespan created with values supplied by the user
-   * @param {Object} wrapperSpans Object representing before and after spans of newSpan (if they exist)
-   * @param {Array} allItems - All structural metadata items in tree
-   * @param {Array} parentTimespan - Closest possible parent timespan that can contain the new timespan
+   * @param {Object} newSpan - new timespan created with values supplied by the user
+   * @param {Object} wrapperSpans object representing before and after spans of newSpan (if they exist)
+   * @param {Array} allItems - all structural metadata items in tree
+   * @param {Object} parentTimespan - closest possible parent timespan that can contain the new timespan
    * @return {Array} - of valid <div> and <span> objects in structural metadata tree
    */
-  getValidParents(newSpan, wrapperSpans, allItems, parentTimespan = []) {
+  getValidParents(newSpan, wrapperSpans, allItems, parentTimespan = null) {
     let possibleValidParents = [];
     let sortedParents = [];
     let uniqueParents = [];
@@ -453,10 +453,31 @@ export default class StructuralMetadataUtils {
     let stuckInMiddle = false;
     const { toMs } = this;
 
-    // If there is a possible parent timespan, then it's the only choice for a parent for the
-    // new timespan, since a timespan cannot span across multiple parent timespans.
-    if (parentTimespan?.length > 0) {
-      return parentTimespan;
+    /**
+     * If there is a parent timespan for the new timespan, then the choices for a possible
+     * parent for the new timespan is limited to the parent timespan and any of its children
+     * headings (if exists). Reasoning: a timespan cannot span across multiple parent timespans.
+     */
+    if (parentTimespan) {
+      const { before, after } = wrapperSpans;
+      const prevSiblingIndex = parentTimespan.items.findIndex((c) => c.id === before?.id);
+      const nextSiblingIndex = parentTimespan.items.findIndex((c) => c.id === after?.id);
+
+      let siblingHeadings = parentTimespan.items.filter((sib, index) => {
+        if (sib.type !== 'div') return false;
+        // No siblings
+        if (prevSiblingIndex < 0 && nextSiblingIndex < 0) { return true; }
+        // New timespan is at the start of the sibling list
+        if (prevSiblingIndex < 0) { return index + 1 === nextSiblingIndex; }
+        // New timespan is at the end of the sibling list
+        if (nextSiblingIndex < 0) { return index === prevSiblingIndex + 1; }
+        // New timespan is sandwiched between other siblings
+        if (prevSiblingIndex >= 0 && nextSiblingIndex >= 0) {
+          return index === prevSiblingIndex + 1 && index + 1 === nextSiblingIndex;
+        }
+        return false;
+      });
+      return [parentTimespan, ...siblingHeadings];
     }
 
     const { before, after } = wrapperSpans;

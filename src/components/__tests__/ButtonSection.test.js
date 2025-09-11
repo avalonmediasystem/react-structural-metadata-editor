@@ -271,7 +271,15 @@ describe('ButtonSection component', () => {
               current: {
                 type: 'span', label: 'Segment 1.2', id: '123a-456b-789c-4d',
                 begin: '00:00:11.231', end: '00:08:00.001', valid: true,
-                timeRange: { start: 11.231, end: 480.001 }
+                timeRange: { start: 11.231, end: 480.001 },
+                items: [
+                  { type: 'div', label: 'Sub-Segment 2.1.1', id: '123a-456b-789c-7d' },
+                  {
+                    type: 'span', label: 'Segment 2.1', id: '123a-456b-789c-8d',
+                    begin: '00:09:03.241', end: '00:15:00.001',
+                    valid: true, timeRange: { start: 543.241, end: 900.001 }
+                  }
+                ]
               },
             }
           }));
@@ -323,7 +331,15 @@ describe('ButtonSection component', () => {
               current: {
                 type: 'span', label: 'Segment 1.2', id: '123a-456b-789c-4d',
                 begin: '00:00:11.231', end: '00:08:00.001', valid: true,
-                timeRange: { start: 11.231, end: 480.001 }
+                timeRange: { start: 11.231, end: 480.001 },
+                items: [
+                  { type: 'div', label: 'Sub-Segment 2.1.1', id: '123a-456b-789c-7d' },
+                  {
+                    type: 'span', label: 'Segment 2.1', id: '123a-456b-789c-8d',
+                    begin: '00:09:03.241', end: '00:15:00.001',
+                    valid: true, timeRange: { start: 543.241, end: 900.001 }
+                  }
+                ]
               },
             }
           }));

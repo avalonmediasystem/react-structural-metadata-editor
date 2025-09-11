@@ -167,12 +167,13 @@ describe('iiif-parser', () => {
       expect(level_1.label).toEqual('Level 1 Div');
       expect(level_1.items.length).toBe(2);
 
-      // Level 2 - first item is a timespan
+      // Level 2 - first item is a timespan without children
       const level_2_1 = level_1.items[0];
       expect(level_2_1.type).toEqual('span');
       expect(level_2_1.label).toEqual('Level 2 Span');
       expect(level_2_1.begin).toBe('00:00:00.000');
       expect(level_2_1.end).toBe('00:01:40.000');
+      expect(level_2_1.items).toEqual([]);
 
       // Level 2 - second item is a div with 2 items
       const level_2_2 = level_1.items[1];
@@ -193,13 +194,61 @@ describe('iiif-parser', () => {
       expect(level_3_2.label).toEqual('Level 3 Div');
       expect(level_3_2.items.length).toBe(1);
 
-      // Level 4 - a timespan and has no children
+      // Level 4 - a timespan and has one child
       const level_4 = level_3_2.items[0];
       expect(level_4.type).toEqual('span');
       expect(level_4.label).toEqual('Level 4 Span');
       expect(level_4.begin).toBe('00:03:20.000');
       expect(level_4.end).toBe('00:05:00.000');
-      expect(level_4.items).toEqual([]);
+      expect(level_4.items.length).toBe(1);
+      expect(level_4.items[0].label).toEqual('Level 5 Span');
+    });
+
+    describe('sets nestedSpan property', () => {
+      test('in a nested structure', () => {
+        const structureJSON = iiifParser.parseStructureToJSON(manifestWNestedStructure, 1000);
+
+        const root = structureJSON[0];
+        // Root level sets nestedSpan=false
+        expect(root.nestedSpan).toBeFalsy();
+
+        // Level 1 div, child of root sets nestedSpan=false
+        const level_1 = root.items[0];
+        expect(level_1.nestedSpan).toBeFalsy();
+
+        // Level 2 span, child of a div sets nestedSpan=false
+        const level_2_1 = level_1.items[0];
+        expect(level_2_1.nestedSpan).toBeFalsy();
+
+        // Level 2 div, child of a div sets nestedSpan=false
+        const level_2_2 = level_1.items[1];
+        expect(level_2_2.nestedSpan).toBeFalsy();
+
+        // Level 5 span, child of a span sets nestedSpan=true
+        const level_5 = level_2_2.items[1].items[0].items[0];
+        expect(level_5.label).toEqual('Level 5 Span');
+        expect(level_5.nestedSpan).toBeTruthy();
+      });
+
+      test('in a non-nested structure', () => {
+        const structureJSON = iiifParser.parseStructureToJSON(manifest, 662.037);
+
+        const root = structureJSON[0];
+        expect(root.nestedSpan).toBeDefined();
+        expect(root.nestedSpan).toBe(false);
+
+        const span = root.items[0];
+        expect(span.nestedSpan).toBeDefined();
+        expect(span.nestedSpan).toBe(false);
+      });
+
+      test('for a root without structure items', () => {
+        const structureJSON = iiifParser.parseStructureToJSON(manifestWoStructure, 660);
+
+        const root = structureJSON[0];
+        expect(root.nestedSpan).toBeDefined();
+        expect(root.nestedSpan).toBe(false);
+      });
     });
 
     test('correctly identifies spans and divs', () => {

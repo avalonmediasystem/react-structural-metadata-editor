@@ -314,7 +314,7 @@ export const nestedTestSmData = [
                 id: '123a-456b-789c-6d',
                 begin: '00:09:00.241',
                 end: '00:15:00.001',
-                valid: true,
+                valid: true, nestedSpan: false,
                 timeRange: { start: 540.241, end: 900.001 },
                 items: [
                   {
@@ -323,7 +323,7 @@ export const nestedTestSmData = [
                     id: '123a-456b-789c-7d',
                     begin: '00:09:10.241',
                     end: '00:10:00.321',
-                    valid: true,
+                    valid: true, nestedSpan: true,
                     timeRange: { start: 550.241, end: 660.321 }
                   },
                   {
@@ -332,7 +332,7 @@ export const nestedTestSmData = [
                     id: '123a-456b-789c-8d',
                     begin: '00:12:00.231',
                     end: '00:13:00.001',
-                    valid: true,
+                    valid: true, nestedSpan: true,
                     timeRange: { start: 720.231, end: 790.001 }
                   },
                 ]
@@ -911,6 +911,17 @@ export const manifestWNestedStructure = {
                         {
                           type: 'Canvas',
                           id: 'http://example.com/deep-nested/canvas/1#t=200,300'
+                        },
+                        {
+                          type: 'Range',
+                          id: 'http://example.com/deep-nested/range/level5-span',
+                          label: { en: ['Level 5 Span'] },
+                          items: [
+                            {
+                              type: 'Canvas',
+                              id: 'http://example.com/deep-nested/canvas/1#t=250,275'
+                            }
+                          ]
                         }
                       ]
                     }

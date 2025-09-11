@@ -90,13 +90,11 @@ const ListItem = ({ item, children }) => {
     }
   };
 
-  const { begin, end, items, label, type, active, valid } = item;
+  const { begin, end, nestedSpan, items, label, type, active, valid } = item;
 
   const itemProp = {
     childrenCount: items ? items.length : 0,
-    label: label,
-    type: type,
-    active: active,
+    label, type, active, nestedSpan
   };
 
   /**

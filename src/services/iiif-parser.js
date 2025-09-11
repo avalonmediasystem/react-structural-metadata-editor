@@ -130,19 +130,20 @@ export function parseStructureToJSON(manifest, duration, canvasIndex = 0) {
   let structureJSON = [];
 
   if (!manifest) return [];
-  let buildStructureItems = (items, children) => {
+  let buildStructureItems = (items, children, parent = null) => {
     if (items.length > 0) {
       items.map((i) => {
         const range = parseManifest(manifest)
           .getRangeById(i.id);
         if (range) {
           // Set default type to 'div' and change it as needed for timespans
-          let structItem = { label: getLabelValue(i.label), items: [], type: "div" };
+          let structItem = {
+            label: getLabelValue(i.label),
+            items: [],
+            type: "div",
+            nestedSpan: false
+          };
 
-          // If the structure item has children build them recuresively
-          if (i.items?.length > 0) {
-            buildStructureItems(i.items, structItem.items);
-          }
           // Get canvases associated with the current Range
           const childCanvases = range.getCanvasIds();
           /**
@@ -161,10 +162,17 @@ export function parseStructureToJSON(manifest, duration, canvasIndex = 0) {
               type: "span",
               begin: smUtils.toHHmmss(start),
               end: smUtils.toHHmmss(end),
-              timeRange: { start, end }
+              timeRange: { start, end },
+              // Mark timespan item as nested span if it has parent of type='span'
+              nestedSpan: parent?.type === 'span'
             };
           }
           children.push(structItem);
+
+          // If the structure item has children build them recuresively
+          if (i.items?.length > 0) {
+            buildStructureItems(i.items, structItem.items, structItem);
+          }
         }
       });
     }
@@ -190,13 +198,14 @@ export function parseStructureToJSON(manifest, duration, canvasIndex = 0) {
     let children = [];
 
     // Build the nested JSON object from structure
-    buildStructureItems(root.items, children);
+    buildStructureItems(root.items, children, { type: 'div' });
 
     // Add the root element to the JSON object
     structureJSON.push({
       type: 'div',
       label: getLabelValue(root.label),
       items: children,
+      nestedSpan: false
     });
   }
   // Create an empty structure with manifest information
@@ -205,6 +214,7 @@ export function parseStructureToJSON(manifest, duration, canvasIndex = 0) {
       label: manifestName,
       items: [],
       type: 'div',
+      nestedSpan: false
     });
   }
   const structureWithIDs = smUtils.addUUIds(structureJSON);

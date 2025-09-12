@@ -207,7 +207,7 @@ describe('WaveformDataUtils class', () => {
       });
 
       describe('deleteSegments()', () => {
-        test('timespan', () => {
+        test('deletes timespan without children', () => {
           const item = {
             type: 'span',
             label: 'Segment 1.2',
@@ -219,7 +219,7 @@ describe('WaveformDataUtils class', () => {
           expect(value.segments._segments).toHaveLength(2);
         });
 
-        test('header', () => {
+        test('deletes header without children', () => {
           const item = {
             type: 'div',
             label: 'Sub-Segment 1.1',
@@ -230,9 +230,42 @@ describe('WaveformDataUtils class', () => {
           expect(value.segments._segments).toHaveLength(3);
         });
 
-        test('header with children', () => {
+        test('deletes header and its children', () => {
           const item = {
             type: 'div',
+            label: 'Sub-Segment 2.1',
+            id: '123a-456b-789c-6d',
+            items: [
+              {
+                type: 'div',
+                label: 'Sub-Segment 2.1.1',
+                id: '123a-456b-789c-7d',
+                items: [],
+              },
+              {
+                type: 'span',
+                label: 'Segment 2.1',
+                id: '123a-456b-789c-8d',
+                begin: '00:09:03.241',
+                end: '00:15:00.001',
+              },
+            ],
+          };
+          const value = waveformUtils.deleteSegments(item, peaks);
+          expect(value.segments._segments).toHaveLength(2);
+          expect(value.segments._segments).toEqual(
+            expect.arrayContaining([
+              expect.objectContaining({
+                id: '123a-456b-789c-4d',
+                labelText: 'Segment 1.2',
+              }),
+            ])
+          );
+        });
+
+        test('deletes timespan and its children', () => {
+          const item = {
+            type: 'span',
             label: 'Sub-Segment 2.1',
             id: '123a-456b-789c-6d',
             items: [

@@ -66,11 +66,9 @@ const TimespanForm = ({
     // Build wrapperSpans from sibling timespans
     let wrapperSpans = { before: prevSiblingRef.current, after: nextSiblingRef.current };
 
-    // Possible parent timespan that can fully contain the new span
-    let parentTimespan = parentTimespanRef.current ? [parentTimespanRef.current] : [];
-
     // Get all valid div headings and potential parent timespans
-    let validHeadings = structuralMetadataUtils.getValidParents(newSpan, wrapperSpans, smData, parentTimespan);
+    let validHeadings = structuralMetadataUtils
+      .getValidParents(newSpan, wrapperSpans, smData, parentTimespanRef.current);
 
     // Update state with valid headings
     setValidHeadings(validHeadings);

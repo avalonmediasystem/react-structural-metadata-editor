@@ -235,7 +235,7 @@ export default class WaveformDataUtils {
   }
 
   /**
-   * Delete the corresponding segment when a timespan is deleted
+   * Delete the corresponding segment(s) when a timespan/header is deleted
    * @param {Object} item - item to be deleted
    * @param {Object} peaksInstance - peaks instance for the current waveform
    */
@@ -246,13 +246,14 @@ export default class WaveformDataUtils {
         if (child.type === 'span') {
           peaksInstance.segments.removeById(child.id);
         }
-        if (child.items && child.items.length > 0) {
+        if (child.items?.length > 0) {
           deleteChildren(child);
         }
       }
     };
 
-    if (item.type === 'div') {
+    // Recursively delete item's children regardless of its type
+    if (item.items?.length > 0) {
       deleteChildren(item);
     }
 

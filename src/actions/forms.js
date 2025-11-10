@@ -1,6 +1,6 @@
 import * as types from './types';
 import Hls from 'hls.js';
-import { v4 as uuidv4 } from 'uuid';;
+import { v4 as uuidv4 } from 'uuid';
 
 /**
  * Enable/disable other editing actions when editing a list item

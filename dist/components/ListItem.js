@@ -123,6 +123,7 @@ var ListItem = function ListItem(_ref) {
   };
   var begin = item.begin,
     end = item.end,
+    nestedSpan = item.nestedSpan,
     items = item.items,
     label = item.label,
     type = item.type,
@@ -132,7 +133,8 @@ var ListItem = function ListItem(_ref) {
     childrenCount: items ? items.length : 0,
     label: label,
     type: type,
-    active: active
+    active: active,
+    nestedSpan: nestedSpan
   };
 
   /**

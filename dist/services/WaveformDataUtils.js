@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports["default"] = void 0;
 var _slicedToArray2 = _interopRequireDefault(require("@babel/runtime/helpers/slicedToArray"));
+var _toConsumableArray2 = _interopRequireDefault(require("@babel/runtime/helpers/toConsumableArray"));
 var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/defineProperty"));
 var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
 var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
@@ -89,7 +90,7 @@ var WaveformDataUtils = exports["default"] = /*#__PURE__*/function () {
     }
 
     /**
-     * Add a temporary segment to be edited when adding a new timespan to structure
+     * Add a temporary segment to be edited into Peaks when adding a new timespan to structure
      * @param {Object} peaksInstance - peaks instance for the current waveform
      * @param {Integer} duration - duration of the file in seconds
      * @returns {Object} updated peaksInstance
@@ -97,51 +98,172 @@ var WaveformDataUtils = exports["default"] = /*#__PURE__*/function () {
   }, {
     key: "insertTempSegment",
     value: function insertTempSegment(peaksInstance, duration) {
-      var _this2 = this;
       // Current time of the playhead
       var currentTime = this.roundOff(peaksInstance.player.getCurrentTime());
-      var rangeEndTime,
-        rangeBeginTime = currentTime;
+      var rangeBeginTime = currentTime;
+      // Initially set rangeEndTime to 60 seconds from the current time
+      var rangeEndTime = Math.round((currentTime + 60.0) * 1000) / 1000;
+
+      // Get all segments in Peaks
       var currentSegments = this.sortSegments(peaksInstance, 'startTime');
 
-      // Validate start time of the temporary segment
-      currentSegments.map(function (segment) {
-        if (rangeBeginTime >= segment.startTime && rangeBeginTime <= segment.endTime) {
-          // rounds upto 3 decimal points for accuracy
-          rangeBeginTime = _this2.roundOff(segment.endTime);
-        }
-        return rangeBeginTime;
-      });
+      // Find segments that contain a given time
+      var findContainingSegments = function findContainingSegments(time) {
+        var isBegin = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+        var closestToTime = [];
+        var diff = Infinity;
+        currentSegments.map(function (segment) {
+          if (isBegin) {
+            /**
+             * Consider equality for startTime only when using rangeBeginTime
+             * to create child segments, since this needs to be considered when creating
+             * child timespans.
+             */
+            if (time >= segment.startTime && time < segment.endTime) {
+              /**
+               * When filtering the segments that overlap at the beginning, get the segment that is
+               * closest to the rangeBeginTime. This yeilds an accurate rangeEndTime when filtering
+               * through segments with children, where rangeBeginTime could fall inside a child segment.
+               */
+              var current_diff = time - segment.startTime;
+              if (current_diff < diff) {
+                diff = current_diff;
+                closestToTime = [segment];
+              }
+            }
+          } else {
+            if (time > segment.startTime && time < segment.endTime) {
+              closestToTime.push(segment);
+            }
+          }
+        });
+        return closestToTime;
+      };
 
-      // Set the default end time of the temporary segment
-      if (currentSegments.length === 0) {
-        rangeEndTime = duration < 60 ? duration : Math.round((rangeBeginTime + 60.0) * 1000) / 1000;
-      } else {
-        rangeEndTime = Math.round((rangeBeginTime + 60.0) * 1000) / 1000;
+      // Get children segments within a parent segment
+      var getChildSegments = function getChildSegments(parentSegment) {
+        var startTime = parentSegment.startTime,
+          endTime = parentSegment.endTime;
+        return currentSegments.filter(function (segment) {
+          if (segment.id === parentSegment.id) return false;
+          return segment.startTime >= startTime && segment.endTime <= endTime;
+        });
+      };
+
+      // Find next available end time that doesn't overlap with children
+      var findNonOverlappingEndTime = function findNonOverlappingEndTime(parentSegment, suggestedEndTime) {
+        var children = getChildSegments(parentSegment);
+        if (children.length === 0) {
+          return Math.min(suggestedEndTime, parentSegment.endTime);
+        }
+        // Find the first child that would conflict with the suggested range
+        var _iterator2 = _createForOfIteratorHelper(children),
+          _step2;
+        try {
+          for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+            var child = _step2.value;
+            if (rangeBeginTime < child.startTime && suggestedEndTime > child.startTime) {
+              return child.startTime;
+            }
+          }
+        } catch (err) {
+          _iterator2.e(err);
+        } finally {
+          _iterator2.f();
+        }
+        return Math.min(suggestedEndTime, parentSegment.endTime);
+      };
+      if (currentSegments.length > 0) {
+        var allBeginTimes = currentSegments.map(function (span) {
+          return span.startTime;
+        });
+        var allEndTimes = currentSegments.map(function (span) {
+          return span.endTime;
+        });
+        var earliestBegin = Math.min.apply(Math, (0, _toConsumableArray2["default"])(allBeginTimes));
+        var latestEnd = Math.max.apply(Math, (0, _toConsumableArray2["default"])(allEndTimes));
+
+        // Recursively validate and adjust rangeEndTime until no more conflicts exist
+        var maxIterations = 20;
+        var currentIteration = 0;
+        var rangeChanged = true;
+        var _loop = function _loop() {
+          var previousRangeEndTime = rangeEndTime;
+          rangeChanged = false;
+          currentIteration++;
+
+          // Find containing segments for begin and end times
+          var beginContainers = findContainingSegments(rangeBeginTime, true);
+          var endContainers = findContainingSegments(rangeEndTime);
+
+          // Suggested range for new segment is either before/after all existing segments
+          if (rangeEndTime <= earliestBegin || rangeBeginTime >= latestEnd) {
+            // Do nothing, as the suggested range is already outside existing segments
+          }
+          // Suggested range is partially overlapping the first segment
+          else if (rangeBeginTime < earliestBegin && rangeEndTime > earliestBegin) {
+            // Adjust rangeEndTime to not overlap the first segment
+            rangeEndTime = earliestBegin;
+          }
+          // Suggested range is fully enclosed within an existing segment
+          else if (beginContainers.length > 0 && endContainers.length > 0) {
+            var commonContainer = beginContainers.find(function (beginContainer) {
+              return endContainers.some(function (endContainer) {
+                return endContainer.id === beginContainer.id;
+              });
+            });
+            if (commonContainer) {
+              // Adjust rangeEndTime to not overlap with the children of the common parent segment
+              rangeEndTime = findNonOverlappingEndTime(commonContainer, rangeEndTime);
+            } else {
+              // Adjust rangeEndTime when they don't share a common parent segment
+              rangeEndTime = Math.min(rangeEndTime, beginContainers[0].endTime);
+            }
+          }
+          // Suggested range is not overlapping existing segments at the start/end
+          else if (beginContainers.length === 0 && endContainers.length === 0) {
+            // Find all segments that are fully enclosed within the suggested range
+            var containedSegments = currentSegments.filter(function (seg) {
+              return seg.startTime >= rangeBeginTime && seg.endTime <= rangeEndTime;
+            });
+            if ((containedSegments === null || containedSegments === void 0 ? void 0 : containedSegments.length) > 0) {
+              // Sort contained segments by start time to process them in order
+              var sortedContainedSegments = containedSegments.sort(function (a, b) {
+                return a.startTime - b.startTime;
+              });
+              // Find the best non-overlapping range before the first contained segment
+              // This ensures the new temp segment doesn't overlap any fully enclosed segments
+              rangeEndTime = sortedContainedSegments[0].startTime;
+            }
+          }
+          // Suggested range is overlapping with an existing segment at the end
+          else if (beginContainers.length === 0 && endContainers.length > 0) {
+            // Adjust rangeEndTime to the start of the segment it falls within
+            rangeEndTime = endContainers[0].startTime;
+          }
+          // Suggested range is overlapping with an existing segment at the beginning
+          else if (beginContainers.length > 0 && endContainers.length === 0) {
+            var containingSegment = beginContainers[0];
+            rangeEndTime = findNonOverlappingEndTime(containingSegment, rangeEndTime);
+          }
+
+          // Check if the rangeEndTime is changed in this iteration
+          if (rangeEndTime !== previousRangeEndTime) {
+            rangeChanged = true;
+          }
+        };
+        while (rangeChanged && currentIteration < maxIterations) {
+          _loop();
+        }
       }
 
-      // Validate end time of the temporary segment
-      currentSegments.map(function (segment) {
-        if (rangeBeginTime < segment.startTime) {
-          var segmentLength = segment.endTime - segment.startTime;
-          if (duration < 60) {
-            rangeEndTime = duration;
-          }
-          if (segmentLength < 60 && rangeEndTime >= segment.startTime) {
-            rangeEndTime = segment.startTime;
-          }
-          if (rangeEndTime >= segment.startTime && rangeEndTime < segment.endTime) {
-            rangeEndTime = segment.startTime;
-          }
-        }
-        if (rangeEndTime > duration) {
-          rangeEndTime = duration;
-        }
-        return rangeEndTime;
-      });
+      // Ensure rangeEndTime doesn't exceed duration
+      rangeEndTime = Math.min(rangeEndTime, duration);
+
+      // Only create segment if there's a valid time range
       if (rangeBeginTime < duration && rangeEndTime > rangeBeginTime) {
         var tempSegmentLength = rangeEndTime - rangeBeginTime;
-        // Continue if temporary segment has a length greater than 1ms
+        // Continue if temporary segment has a length greater than 0.1s
         if (tempSegmentLength > 0.1) {
           // Move playhead to start of the temporary segment
           peaksInstance.player.seek(rangeBeginTime);
@@ -158,34 +280,38 @@ var WaveformDataUtils = exports["default"] = /*#__PURE__*/function () {
     }
 
     /**
-     * Delete the corresponding segment when a timespan is deleted
+     * Delete the corresponding segment(s) when a timespan/header is deleted
      * @param {Object} item - item to be deleted
      * @param {Object} peaksInstance - peaks instance for the current waveform
      */
   }, {
     key: "deleteSegments",
     value: function deleteSegments(item, peaksInstance) {
+      var _item$items;
       var _deleteChildren = function deleteChildren(item) {
         var children = item.items;
-        var _iterator2 = _createForOfIteratorHelper(children),
-          _step2;
+        var _iterator3 = _createForOfIteratorHelper(children),
+          _step3;
         try {
-          for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
-            var child = _step2.value;
+          for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
+            var _child$items;
+            var child = _step3.value;
             if (child.type === 'span') {
               peaksInstance.segments.removeById(child.id);
             }
-            if (child.items && child.items.length > 0) {
+            if (((_child$items = child.items) === null || _child$items === void 0 ? void 0 : _child$items.length) > 0) {
               _deleteChildren(child);
             }
           }
         } catch (err) {
-          _iterator2.e(err);
+          _iterator3.e(err);
         } finally {
-          _iterator2.f();
+          _iterator3.f();
         }
       };
-      if (item.type === 'div') {
+
+      // Recursively delete item's children regardless of its type
+      if (((_item$items = item.items) === null || _item$items === void 0 ? void 0 : _item$items.length) > 0) {
         _deleteChildren(item);
       }
       peaksInstance.segments.removeById(item.id);
@@ -199,11 +325,11 @@ var WaveformDataUtils = exports["default"] = /*#__PURE__*/function () {
   }, {
     key: "rebuildPeaks",
     value: function rebuildPeaks(peaksInstance) {
-      var _this3 = this;
+      var _this2 = this;
       var sortedSegments = this.sortSegments(peaksInstance, 'startTime');
       sortedSegments.forEach(function (segment, index) {
         segment.update({
-          color: _this3.isOdd(index) ? COLOR_PALETTE[1] : COLOR_PALETTE[0]
+          color: _this2.isOdd(index) ? COLOR_PALETTE[1] : COLOR_PALETTE[0]
         });
       });
       return peaksInstance;
@@ -214,12 +340,13 @@ var WaveformDataUtils = exports["default"] = /*#__PURE__*/function () {
      * @param {String} id - ID of the segment to be edited
      * @param {Object} peaksInstance - current peaks instance for the waveform
      * @param {Number} duration - file length in milliseconds
+     * @param {Object} neighbors - React refs to parent and sibling segments
      */
   }, {
     key: "activateSegment",
-    value: function activateSegment(id, peaksInstance, duration) {
-      this.initialSegmentValidation(id, peaksInstance, duration);
+    value: function activateSegment(id, peaksInstance, duration, neighbors) {
       var segment = peaksInstance.segments.getSegment(id);
+      this.validateSegment(segment, false, peaksInstance, duration, neighbors);
       // Setting editable: true -> enables handles
       segment.update({
         editable: true,
@@ -278,55 +405,6 @@ var WaveformDataUtils = exports["default"] = /*#__PURE__*/function () {
         peaksInstance.segments.add(tempSegment);
       }
       peaksInstance.player.seek(tempSegment.startTime);
-      return peaksInstance;
-    }
-
-    /**
-     * When an invalid segment is being edited, adjust segment's end time to depict the
-     * valid time range it can be spread before editing starts
-     * @param {String} id - ID of the segment being edited
-     * @param {Object} peaksInstance - current peaks instance for the waveform
-     * @param {Number} duration - file length in seconds
-     */
-  }, {
-    key: "initialSegmentValidation",
-    value: function initialSegmentValidation(id, peaksInstance, duration) {
-      var segment = peaksInstance.segments.getSegment(id);
-      if (!segment) {
-        var newPeaksInstance = this.insertTempSegment(peaksInstance, duration);
-        segment = newPeaksInstance.segments.getSegment('temp-segment');
-        segment.id = id;
-      }
-      // Segments before and after the current segment
-      var _this$findWrapperSegm = this.findWrapperSegments(segment, peaksInstance),
-        before = _this$findWrapperSegm.before,
-        after = _this$findWrapperSegm.after;
-
-      // Check for margin of +/- 0.02 seconds to be considered
-      var isDuration = function isDuration(time) {
-        return time <= duration + 0.02 && time >= duration - 0.02;
-      };
-      if (before && segment.startTime < before.endTime && !isDuration(before.endTime)) {
-        segment.update({
-          startTime: before.endTime
-        });
-      }
-      if (after && segment.endTime > after.startTime && after.startTime != segment.startTime) {
-        segment.update({
-          endTime: after.startTime
-        });
-      }
-      if (isDuration(segment.endTime)) {
-        var allSegments = this.sortSegments(peaksInstance, 'startTime');
-        var afterSegments = allSegments.filter(function (seg) {
-          return seg.startTime > segment.startTime;
-        });
-        if (afterSegments.length > 0) {
-          segment.update({
-            endTime: afterSegments[0].startTime
-          });
-        }
-      }
       return peaksInstance;
     }
 
@@ -463,50 +541,55 @@ var WaveformDataUtils = exports["default"] = /*#__PURE__*/function () {
     }
 
     /**
-     * Validate segment in the waveform everytime the handles on either side are dragged
-     * to change the start and end times
-     * @param {Object} segment - segement being edited in the waveform
-     * @param {Boolean} startTimeChanged - true -> start time changed, false -> end time changed
-     * @param {Object} peaksInstance - current peaks instance for waveform
-     * @param {Number} duration - file length in seconds
-     */
+    * Validate segment in the waveform everytime the handles on either side are dragged
+    * to change the start and end times
+    * @param {Object} segment - segement being edited in the waveform
+    * @param {Boolean} startTimeChanged - true -> start time changed, false -> end time changed
+    * @param {Number} duration - file length in seconds
+    * @param {Object} neighbors - React refs for sibling and parent timespans
+    */
   }, {
     key: "validateSegment",
-    value: function validateSegment(segment, startTimeChanged, peaksInstance, duration) {
+    value: function validateSegment(segment, startTimeChanged, duration, neighbors) {
       var startTime = segment.startTime,
         endTime = segment.endTime;
-
-      // Segments before and after the editing segment
-      var _this$findWrapperSegm2 = this.findWrapperSegments(segment, peaksInstance),
-        before = _this$findWrapperSegm2.before,
-        after = _this$findWrapperSegm2.after;
-
-      // Check for margin of +/- 0.02 seconds to be considered
-      var isDuration = function isDuration(time) {
-        return time <= duration + 0.02 && time >= duration - 0.02;
-      };
+      var previousSibling = neighbors.previousSibling,
+        nextSibling = neighbors.nextSibling,
+        parentTimespan = neighbors.parentTimespan;
       if (startTimeChanged) {
-        if (before && startTime < before.endTime && !isDuration(before.endTime)) {
+        if (previousSibling && (previousSibling === null || previousSibling === void 0 ? void 0 : previousSibling.timeRange.end) > startTime) {
           // when start handle is dragged over the segment before
           segment.update({
-            startTime: before.endTime
+            startTime: previousSibling.timeRange.end
           });
-        } else if (startTime > endTime) {
+        }
+        if (parentTimespan && (parentTimespan === null || parentTimespan === void 0 ? void 0 : parentTimespan.timeRange.start) > startTime) {
+          // when start handle is dragged over the start time of parent segment
+          segment.update({
+            startTime: parentTimespan.timeRange.start
+          });
+        }
+        if (startTime > endTime) {
           // when start handle is dragged over the end time of the segment
           segment.update({
-            startTime: segment.endTime - 0.001
+            startTime: endTime
           });
         }
       } else {
-        if (after && endTime > after.startTime) {
+        if (nextSibling && (nextSibling === null || nextSibling === void 0 ? void 0 : nextSibling.timeRange.start) < endTime) {
           // when end handle is dragged over the segment after
           segment.update({
-            endTime: after.startTime
+            endTime: nextSibling.timeRange.start
+          });
+        } else if (parentTimespan && (parentTimespan === null || parentTimespan === void 0 ? void 0 : parentTimespan.timeRange.end) < endTime) {
+          // when end handle is dragged over the end time of parent segment
+          segment.update({
+            endTime: parentTimespan.timeRange.end
           });
         } else if (endTime < startTime) {
           // when end handle is dragged over the start time of the segment
           segment.update({
-            endTime: segment.startTime + 0.001
+            endTime: startTime
           });
         } else if (endTime > duration) {
           // when end handle is dragged beyond the duration of file
@@ -516,41 +599,6 @@ var WaveformDataUtils = exports["default"] = /*#__PURE__*/function () {
         }
       }
       return segment;
-    }
-
-    /**
-     * Find the before and after segments of a given segment
-     * @param {Object} currentSegment - current segment being added/edited
-     * @param {Object} peaksInstance - current peaks instance
-     */
-  }, {
-    key: "findWrapperSegments",
-    value: function findWrapperSegments(currentSegment, peaksInstance) {
-      var _this4 = this;
-      var wrapperSegments = {
-        before: null,
-        after: null
-      };
-
-      // All segments sorted by start time
-      var allSegments = this.sortSegments(peaksInstance, 'startTime');
-      var otherSegments = allSegments.filter(function (seg) {
-        return seg.id !== currentSegment.id;
-      });
-      var startTime = currentSegment.startTime;
-      var timeFixedSegments = otherSegments.map(function (seg) {
-        return _objectSpread(_objectSpread({}, seg), {}, {
-          startTime: _this4.roundOff(seg.startTime),
-          endTime: _this4.roundOff(seg.endTime)
-        });
-      });
-      wrapperSegments.after = timeFixedSegments.filter(function (seg) {
-        return seg.startTime > startTime;
-      })[0];
-      wrapperSegments.before = timeFixedSegments.filter(function (seg) {
-        return seg.startTime < startTime;
-      }).reverse()[0];
-      return wrapperSegments;
     }
 
     /**
@@ -571,10 +619,13 @@ var WaveformDataUtils = exports["default"] = /*#__PURE__*/function () {
   }, {
     key: "sortSegments",
     value: function sortSegments(peaksInstance, sortBy) {
-      var segments = peaksInstance.segments.getSegments();
-      segments.sort(function (x, y) {
-        return x[sortBy] - y[sortBy];
-      });
+      var _peaksInstance$segmen, _peaksInstance$segmen2;
+      var segments = (_peaksInstance$segmen = (_peaksInstance$segmen2 = peaksInstance.segments) === null || _peaksInstance$segmen2 === void 0 ? void 0 : _peaksInstance$segmen2.getSegments()) !== null && _peaksInstance$segmen !== void 0 ? _peaksInstance$segmen : [];
+      if ((segments === null || segments === void 0 ? void 0 : segments.length) > 0) {
+        segments.sort(function (x, y) {
+          return x[sortBy] - y[sortBy];
+        });
+      }
       return segments;
     }
 

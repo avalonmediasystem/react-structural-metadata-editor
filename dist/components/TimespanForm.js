@@ -19,6 +19,7 @@ var _StructuralMetadataUtils = _interopRequireDefault(require("../services/Struc
 var _formHelper = require("../services/form-helper");
 var peaksActions = _interopRequireWildcard(require("../actions/peaks-instance"));
 var _WaveformDataUtils = _interopRequireDefault(require("../services/WaveformDataUtils"));
+var _smeHooks = require("../services/sme-hooks");
 function _getRequireWildcardCache(e) { if ("function" != typeof WeakMap) return null; var r = new WeakMap(), t = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(e) { return e ? t : r; })(e); }
 function _interopRequireWildcard(e, r) { if (!r && e && e.__esModule) return e; if (null === e || "object" != _typeof(e) && "function" != typeof e) return { "default": e }; var t = _getRequireWildcardCache(r); if (t && t.has(e)) return t.get(e); var n = { __proto__: null }, a = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var u in e) if ("default" !== u && {}.hasOwnProperty.call(e, u)) { var i = a ? Object.getOwnPropertyDescriptor(e, u) : null; i && (i.get || i.set) ? Object.defineProperty(n, u, i) : n[u] = e[u]; } return n["default"] = e, t && t.set(e, n), n; }
 var structuralMetadataUtils = new _StructuralMetadataUtils["default"]();
@@ -41,7 +42,6 @@ var TimespanForm = function TimespanForm(_ref) {
   });
   var duration = peaksInstance.duration,
     isDragging = peaksInstance.isDragging,
-    peaks = peaksInstance.peaks,
     segment = peaksInstance.segment,
     startTimeChanged = peaksInstance.startTimeChanged;
 
@@ -73,22 +73,56 @@ var TimespanForm = function TimespanForm(_ref) {
     _useState10 = (0, _slicedToArray2["default"])(_useState9, 2),
     validHeadings = _useState10[0],
     setValidHeadings = _useState10[1];
+
+  // Update beginTime and endTime on load
+  (0, _react.useEffect)(function () {
+    if (initSegment) {
+      setBeginTime(structuralMetadataUtils.toHHmmss(initSegment.startTime));
+      setEndTime(structuralMetadataUtils.toHHmmss(initSegment.endTime));
+    }
+  }, [initSegment]);
   var allSpans = (0, _react.useMemo)(function () {
     if ((smData === null || smData === void 0 ? void 0 : smData.length) > 0) {
-      return structuralMetadataUtils.getItemsOfType('span', smData);
+      return structuralMetadataUtils.getItemsOfType(['span'], smData);
     }
   }, [smData]);
+
+  // Find neighboring timespans of the currently editing timespan
+  var _useFindNeighborSegme = (0, _smeHooks.useFindNeighborSegments)({
+      segment: segment
+    }),
+    prevSiblingRef = _useFindNeighborSegme.prevSiblingRef,
+    nextSiblingRef = _useFindNeighborSegme.nextSiblingRef,
+    parentTimespanRef = _useFindNeighborSegme.parentTimespanRef;
+
+  // Validate timespan form when editing
+  var _useTimespanFormValid = (0, _smeHooks.useTimespanFormValidation)({
+      beginTime: beginTime,
+      endTime: endTime,
+      neighbors: {
+        prevSiblingRef: prevSiblingRef,
+        nextSiblingRef: nextSiblingRef,
+        parentTimespanRef: parentTimespanRef
+      },
+      timespanTitle: timespanTitle
+    }),
+    formIsValid = _useTimespanFormValid.formIsValid,
+    isBeginValid = _useTimespanFormValid.isBeginValid,
+    isEndValid = _useTimespanFormValid.isEndValid;
   var buildHeadingsOptions = function buildHeadingsOptions() {
     var newSpan = {
       begin: beginTime,
       end: endTime
     };
 
-    // Get spans in overall span list which fall before and after the new span
-    var wrapperSpans = structuralMetadataUtils.findWrapperSpans(newSpan, allSpans);
+    // Build wrapperSpans from sibling timespans
+    var wrapperSpans = {
+      before: prevSiblingRef.current,
+      after: nextSiblingRef.current
+    };
 
-    // Get all valid div headings
-    var validHeadings = structuralMetadataUtils.getValidHeadings(newSpan, wrapperSpans, smData);
+    // Get all valid div headings and potential parent timespans
+    var validHeadings = structuralMetadataUtils.getValidParents(newSpan, wrapperSpans, smData, parentTimespanRef.current);
 
     // Update state with valid headings
     setValidHeadings(validHeadings);
@@ -111,13 +145,15 @@ var TimespanForm = function TimespanForm(_ref) {
   (0, _react.useEffect)(function () {
     if (!isTyping) {
       if (initSegment && isInitializing) {
-        setBeginTime(structuralMetadataUtils.toHHmmss(initSegment.startTime));
-        setEndTime(structuralMetadataUtils.toHHmmss(initSegment.endTime));
         // Set isInitializing flag to false
         setIsInitializing(false);
       }
       if (!isInitializing) {
-        var _waveformDataUtils$va = waveformDataUtils.validateSegment(segment, startTimeChanged, peaks, duration),
+        var _waveformDataUtils$va = waveformDataUtils.validateSegment(segment, startTimeChanged, duration, {
+            previousSibling: prevSiblingRef.current,
+            nextSibling: nextSiblingRef.current,
+            parentTimespan: parentTimespanRef.current
+          }),
           startTime = _waveformDataUtils$va.startTime,
           _endTime = _waveformDataUtils$va.endTime;
         setBeginTime(structuralMetadataUtils.toHHmmss(startTime));
@@ -136,11 +172,6 @@ var TimespanForm = function TimespanForm(_ref) {
     setValidHeadings([]);
     // Reset isTyping flag
     setIsTyping(0);
-  };
-  var formIsValid = function formIsValid() {
-    var titleValid = (0, _formHelper.isTitleValid)(timespanTitle);
-    var childOfValid = timespanChildOf.length > 0;
-    return titleValid && childOfValid && isValidTimespan;
   };
   var handleInputChange = function handleInputChange(e) {
     setTimespanTitle(e.target.value);
@@ -226,8 +257,8 @@ var TimespanForm = function TimespanForm(_ref) {
   }, /*#__PURE__*/_react["default"].createElement(_Form["default"].Label, null, "Title"), /*#__PURE__*/_react["default"].createElement(_Form["default"].Control, {
     type: "text",
     value: timespanTitle,
-    isValid: (0, _formHelper.getValidationTitleState)(timespanTitle),
-    isInvalid: !(0, _formHelper.getValidationTitleState)(timespanTitle),
+    isValid: (0, _formHelper.isTitleValid)(timespanTitle),
+    isInvalid: !(0, _formHelper.isTitleValid)(timespanTitle),
     onChange: handleInputChange,
     "data-testid": "timespan-form-title"
   }), /*#__PURE__*/_react["default"].createElement(_Form["default"].Control.Feedback, null)), /*#__PURE__*/_react["default"].createElement(_Row["default"], null, /*#__PURE__*/_react["default"].createElement(_Col["default"], {
@@ -238,8 +269,8 @@ var TimespanForm = function TimespanForm(_ref) {
   }, /*#__PURE__*/_react["default"].createElement(_Form["default"].Label, null, "Begin Time"), /*#__PURE__*/_react["default"].createElement(_Form["default"].Control, {
     type: "text",
     value: beginTime,
-    isValid: (0, _formHelper.getValidationBeginState)(beginTime, allSpans),
-    isInvalid: !(0, _formHelper.getValidationBeginState)(beginTime, allSpans),
+    isValid: isBeginValid,
+    isInvalid: !isBeginValid,
     placeholder: "00:00:00",
     onChange: handleBeginTimeChange,
     "data-testid": "timespan-form-begintime"
@@ -251,8 +282,8 @@ var TimespanForm = function TimespanForm(_ref) {
   }, /*#__PURE__*/_react["default"].createElement(_Form["default"].Label, null, "End Time"), /*#__PURE__*/_react["default"].createElement(_Form["default"].Control, {
     type: "text",
     value: endTime,
-    isValid: (0, _formHelper.getValidationEndState)(beginTime, endTime, allSpans, duration),
-    isInvalid: !(0, _formHelper.getValidationEndState)(beginTime, endTime, allSpans, duration),
+    isValid: isEndValid,
+    isInvalid: !isEndValid,
     placeholder: "00:00:00",
     onChange: handleEndTimeChange,
     "data-testid": "timespan-form-endtime"
@@ -280,7 +311,7 @@ var TimespanForm = function TimespanForm(_ref) {
   }, "Cancel"), /*#__PURE__*/_react["default"].createElement(_Button["default"], {
     variant: "primary",
     type: "submit",
-    disabled: !formIsValid(),
+    disabled: !(formIsValid && timespanChildOf.length > 0),
     "data-testid": "timespan-form-save-button"
   }, "Save")))));
 };

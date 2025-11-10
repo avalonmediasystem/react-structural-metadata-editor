@@ -19,6 +19,7 @@ var _lodash = require("lodash");
 var _ListItemInlineEditControls = _interopRequireDefault(require("./ListItemInlineEditControls"));
 var peaksActions = _interopRequireWildcard(require("../actions/peaks-instance"));
 var _WaveformDataUtils = _interopRequireDefault(require("../services/WaveformDataUtils"));
+var _smeHooks = require("../services/sme-hooks");
 function _getRequireWildcardCache(e) { if ("function" != typeof WeakMap) return null; var r = new WeakMap(), t = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(e) { return e ? t : r; })(e); }
 function _interopRequireWildcard(e, r) { if (!r && e && e.__esModule) return e; if (null === e || "object" != _typeof(e) && "function" != typeof e) return { "default": e }; var t = _getRequireWildcardCache(r); if (t && t.has(e)) return t.get(e); var n = { __proto__: null }, a = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var u in e) if ("default" !== u && {}.hasOwnProperty.call(e, u)) { var i = a ? Object.getOwnPropertyDescriptor(e, u) : null; i && (i.get || i.set) ? Object.defineProperty(n, u, i) : n[u] = e[u]; } return n["default"] = e, t && t.set(e, n), n; }
 var structuralMetadataUtils = new _StructuralMetadataUtils["default"]();
@@ -44,14 +45,15 @@ function TimespanInlineForm(_ref) {
   var peaksInstance = (0, _reactRedux.useSelector)(function (state) {
     return state.peaksInstance;
   });
-  var isDragging = peaksInstance.isDragging,
+  var duration = peaksInstance.duration,
+    isDragging = peaksInstance.isDragging,
     segment = peaksInstance.segment,
     startTimeChanged = peaksInstance.startTimeChanged;
 
   // Dispatch actions
   var dispatch = (0, _reactRedux.useDispatch)();
-  var activateSegment = function activateSegment(id) {
-    return dispatch(peaksActions.activateSegment(id));
+  var activateSegment = function activateSegment(id, neighbors) {
+    return dispatch(peaksActions.activateSegment(id, neighbors));
   };
   var insertPlaceholderSegment = function insertPlaceholderSegment(item, wrapperSpans) {
     return dispatch(peaksActions.insertPlaceholderSegment(item, wrapperSpans));
@@ -86,6 +88,29 @@ function TimespanInlineForm(_ref) {
     setClonedSegment = _useState8[1];
   var tempSmDataRef = (0, _react.useRef)();
   var allSpansRef = (0, _react.useRef)([]);
+
+  // Find neighboring timespans of the currently editing timespan
+  var _useFindNeighborTimes = (0, _smeHooks.useFindNeighborTimespans)({
+      item: item
+    }),
+    prevSiblingRef = _useFindNeighborTimes.prevSiblingRef,
+    nextSiblingRef = _useFindNeighborTimes.nextSiblingRef,
+    parentTimespanRef = _useFindNeighborTimes.parentTimespanRef;
+
+  // Validate timespan form when editing
+  var _useTimespanFormValid = (0, _smeHooks.useTimespanFormValidation)({
+      beginTime: beginTime,
+      endTime: endTime,
+      neighbors: {
+        prevSiblingRef: prevSiblingRef,
+        nextSiblingRef: nextSiblingRef,
+        parentTimespanRef: parentTimespanRef
+      },
+      timespanTitle: timespanTitle
+    }),
+    formIsValid = _useTimespanFormValid.formIsValid,
+    isBeginValid = _useTimespanFormValid.isBeginValid,
+    isEndValid = _useTimespanFormValid.isEndValid;
   (0, _react.useEffect)(function () {
     // Get a fresh copy of store data
     tempSmDataRef.current = (0, _lodash.cloneDeep)(smData);
@@ -99,7 +124,11 @@ function TimespanInlineForm(_ref) {
       setEndTime(formValues.endTime);
       setTimespanTitle(formValues.timespanTitle);
       setClonedSegment(formValues.clonedSegment);
-      activateSegment(item.id);
+      activateSegment(item.id, {
+        previousSibling: prevSiblingRef.current,
+        nextSibling: nextSiblingRef.current,
+        parentTimespan: parentTimespanRef.current
+      });
     } else {
       handleInvalidTimespan();
     }
@@ -108,7 +137,7 @@ function TimespanInlineForm(_ref) {
     tempSmDataRef.current = structuralMetadataUtils.deleteListItem(item.id, tempSmDataRef.current);
 
     // Save a reference to all the spans for future calculations
-    allSpansRef.current = structuralMetadataUtils.getItemsOfType('span', tempSmDataRef.current);
+    allSpansRef.current = structuralMetadataUtils.getItemsOfType(['span'], tempSmDataRef.current);
 
     // Get segment from current peaks instance
     var currentSegment = peaksInstance.peaks.segments.getSegment(item.id);
@@ -127,7 +156,11 @@ function TimespanInlineForm(_ref) {
       // When handles in waveform are dragged clear out isInitializing and isTyping flags
       if (isInitializing) setIsInitializing(0);
       if (isTyping) setIsTyping(0);
-      var _waveformUtils$valida = waveformUtils.validateSegment(segment, startTimeChanged, peaksInstance.peaks, peaksInstance.duration),
+      var _waveformUtils$valida = waveformUtils.validateSegment(segment, startTimeChanged, duration, {
+          previousSibling: prevSiblingRef.current,
+          nextSibling: nextSiblingRef.current,
+          parentTimespan: parentTimespanRef.current
+        }),
         _startTime = _waveformUtils$valida.startTime,
         _endTime2 = _waveformUtils$valida.endTime;
       setBeginTime(structuralMetadataUtils.toHHmmss(_startTime));
@@ -141,10 +174,10 @@ function TimespanInlineForm(_ref) {
    * they cannot be added at the time Peaks is initialized.
    */
   var handleInvalidTimespan = function handleInvalidTimespan() {
-    var itemIndex = structuralMetadataUtils.getItemsOfType('span', smData).findIndex(function (i) {
+    var itemIndex = structuralMetadataUtils.getItemsOfType(['span'], smData).findIndex(function (i) {
       return i.id === item.id;
     });
-    var allSpans = structuralMetadataUtils.getItemsOfType('span', tempSmDataRef.current);
+    var allSpans = structuralMetadataUtils.getItemsOfType(['span'], tempSmDataRef.current);
     var wrapperSpans = {
       prevSpan: null,
       nextSpan: null
@@ -158,11 +191,6 @@ function TimespanInlineForm(_ref) {
     setBeginTime(structuralMetadataUtils.toHHmmss(placeholderSegment.startTime));
     setEndTime(structuralMetadataUtils.toHHmmss(placeholderSegment.endTime));
     setTimespanTitle(placeholderSegment.labelText);
-  };
-  var formIsValid = function formIsValid() {
-    var titleValid = (0, _formHelper.isTitleValid)(timespanTitle);
-    var timesValidResponse = (0, _formHelper.validTimespans)(beginTime, endTime, peaksInstance.duration, allSpansRef.current);
-    return titleValid && timesValidResponse.valid;
   };
   var handleCancelClick = function handleCancelClick() {
     // Revert to segment to the state prior to editing
@@ -226,8 +254,8 @@ function TimespanInlineForm(_ref) {
     type: "text",
     style: styles.formControl,
     value: timespanTitle,
-    isValid: (0, _formHelper.getValidationTitleState)(timespanTitle),
-    isInvalid: !(0, _formHelper.getValidationTitleState)(timespanTitle),
+    isValid: (0, _formHelper.isTitleValid)(timespanTitle),
+    isInvalid: !(0, _formHelper.isTitleValid)(timespanTitle),
     onChange: handleInputChange,
     "data-testid": "timespan-inline-form-title",
     className: "mx-0"
@@ -248,8 +276,8 @@ function TimespanInlineForm(_ref) {
     style: styles.formControl,
     value: beginTime,
     onChange: handleInputChange,
-    isValid: (0, _formHelper.getValidationBeginState)(beginTime, allSpansRef.current),
-    isInvalid: !(0, _formHelper.getValidationBeginState)(beginTime, allSpansRef.current),
+    isValid: isBeginValid,
+    isInvalid: !isBeginValid,
     "data-testid": "timespan-inline-form-begintime",
     className: "mx-0"
   }))), /*#__PURE__*/_react["default"].createElement(_Form["default"].Group, {
@@ -268,13 +296,13 @@ function TimespanInlineForm(_ref) {
     type: "text",
     style: styles.formControl,
     value: endTime,
-    isValid: (0, _formHelper.getValidationEndState)(beginTime, endTime, allSpansRef.current, peaksInstance.duration),
-    isInvalid: !(0, _formHelper.getValidationEndState)(beginTime, endTime, allSpansRef.current, peaksInstance.duration),
+    isValid: isEndValid,
+    isInvalid: !isEndValid,
     onChange: handleInputChange,
     "data-testid": "timespan-inline-form-endtime",
     className: "mx-0"
   })))), /*#__PURE__*/_react["default"].createElement(_ListItemInlineEditControls["default"], {
-    formIsValid: formIsValid(),
+    formIsValid: formIsValid,
     handleSaveClick: handleSaveClick,
     handleCancelClick: handleCancelClick
   }));

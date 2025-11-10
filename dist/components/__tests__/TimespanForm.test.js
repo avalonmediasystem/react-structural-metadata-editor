@@ -1,8 +1,9 @@
 import React from 'react';
 import { fireEvent } from '@testing-library/react';
 import TimespanForm from '../TimespanForm';
-import { renderWithRedux, testSmData } from '../../services/testing-helpers';
+import { nestedTestSmData, renderWithRedux, testSmData } from '../../services/testing-helpers';
 import Peaks from 'peaks';
+import * as hooks from '../../services/sme-hooks';
 
 // Temporary segment for testing Peaks interactions
 const tempSegment = {
@@ -50,15 +51,9 @@ const onSubmitMock = jest.fn();
 const cancelMock = jest.fn();
 
 const props = {
-  initSegment: {
-    startTime: 0,
-    endTime: 3.321,
-    editable: true,
-    color: '#FBB040',
-    id: 'temp-segment',
-  },
-  isTyping: false,
-  isInitializing: true,
+  initSegment: tempSegment,
+  isInitializing: false,
+  isTyping: true,
   setIsTyping: setTypingMock,
   setIsInitializing: setInitializeMock,
   onSubmit: onSubmitMock,
@@ -67,6 +62,19 @@ const props = {
 
 describe('Timespan component', () => {
   describe('renders', () => {
+    beforeEach(() => {
+      // Mock neighbor calculation from hooks
+      jest.spyOn(hooks, 'useFindNeighborSegments').mockImplementation(() => ({
+        prevSiblingRef: { current: null },
+        nextSiblingRef: {
+          current: {
+            type: 'span', label: 'Segment 1.1', id: '123a-456b-789c-3d',
+            begin: '00:00:03.321', end: '00:00:10.321', valid: true,
+            timeRange: { start: 3.321, end: 10.321 }
+          }
+        }, parentTimespanRef: { current: null }
+      }));
+    });
     test('successfully', () => {
       const { getByTestId } = renderWithRedux(<TimespanForm  {...props} />, {
         initialState,
@@ -94,129 +102,424 @@ describe('Timespan component', () => {
     });
   });
 
-  describe('validates', () => {
-    test('timespan title', () => {
-      const { container, getByTestId, getByLabelText } = renderWithRedux(
-        <TimespanForm {...props} />,
-        { initialState }
-      );
-      const saveButton = getByTestId('timespan-form-save-button');
+  describe('flat (non-nested) timespans', () => {
+    describe('and validates', () => {
+      test('timespan title', () => {
+        const { getByTestId, getByLabelText } = renderWithRedux(
+          <TimespanForm {...props} />,
+          { initialState }
+        );
+        const saveButton = getByTestId('timespan-form-save-button');
 
-      const titleInput = getByLabelText(/title/i);
+        const titleInput = getByLabelText(/title/i);
 
-      fireEvent.change(titleInput, { target: { value: 'N' } });
-      expect(
-        getByTestId('timespan-form-title').className.includes('is-invalid')
-      ).toBeTruthy();
-      expect(saveButton).toBeDisabled();
+        // Initially the title is empty and is invalid
+        expect(titleInput.value).toBe('');
+        expect(getByTestId('timespan-form-title').className.includes('is-invalid')).toBeTruthy();
 
-      fireEvent.change(titleInput, { target: { value: 'New Timespan' } });
-      expect(
-        getByTestId('timespan-form-title').className.includes('is-invalid')
-      ).toBeFalsy();
-      expect(
-        getByTestId('timespan-form-title').className.includes('is-valid')
-      ).toBeTruthy();
-      expect(saveButton).toBeDisabled();
+        // Title is less than 2 characters and is invalid
+        fireEvent.change(titleInput, { target: { value: 'N' } });
+        expect(getByTestId('timespan-form-title').className.includes('is-invalid')).toBeTruthy();
+        expect(saveButton).toBeDisabled();
 
-      const childOfSelect = getByLabelText(/child of/i);
-      fireEvent.change(childOfSelect, {
-        target: {
-          value: '123a-456b-789c-2d',
-        },
-      });
-      expect(saveButton).toBeEnabled();
-    });
+        // Title is more than 2 characters and is valid
+        fireEvent.change(titleInput, { target: { value: 'New Timespan' } });
+        expect(getByTestId('timespan-form-title').className.includes('is-invalid')).toBeFalsy();
+        expect(getByTestId('timespan-form-title').className.includes('is-valid')).toBeTruthy();
+        expect(saveButton).toBeDisabled();
 
-    describe('begin/end times', () => {
-      let timespanForm, saveButton;
-      beforeEach(() => {
-        timespanForm = renderWithRedux(<TimespanForm {...props} />, {
-          initialState,
-        });
-        saveButton = timespanForm.getByTestId('timespan-form-save-button');
-        // Make the other values valid, so that form status depends on the changes to times
-        const titleInput = timespanForm.getByLabelText(/title/i);
-        const childOfSelect = timespanForm.getByLabelText(/child of/i);
-        fireEvent.change(titleInput, { target: { value: 'New timespan' } });
+        const childOfSelect = getByLabelText(/child of/i);
         fireEvent.change(childOfSelect, {
-          target: { value: '123a-456b-789c-2d' },
+          target: {
+            value: '123a-456b-789c-2d',
+          },
         });
-      });
-
-      test('when form opens', () => {
-        expect(
-          timespanForm
-            .getByTestId('timespan-form-begintime')
-            .classList.contains('is-valid')
-        ).toBeTruthy();
-        expect(
-          timespanForm
-            .getByTestId('timespan-form-endtime')
-            .classList.contains('is-valid')
-        ).toBeTruthy();
         expect(saveButton).toBeEnabled();
       });
 
-      test('when end time overlaps next segment', () => {
-        // Change props to allow changes to go through as user input from the forms
-        const updatedProps = {
-          ...props,
-          isInitializing: false,
-          isTyping: true,
-        };
+      describe('begin and end times', () => {
+        let timespanForm, saveButton;
+        let beginTimeInput, endTimeInput;
+        beforeEach(() => {
+          // Mock neighbor calculation from hooks
+          jest.spyOn(hooks, 'useFindNeighborSegments').mockImplementation(() => ({
+            prevSiblingRef: { current: null },
+            nextSiblingRef: {
+              current: {
+                type: 'span', label: 'Segment 1.1', id: '123a-456b-789c-3d',
+                begin: '00:00:03.321', end: '00:00:10.321', valid: true,
+                timeRange: { start: 3.321, end: 10.321 }
+              }
+            }, parentTimespanRef: { current: null }
+          }));
+          timespanForm = renderWithRedux(<TimespanForm {...props} />, {
+            initialState,
+          });
+          saveButton = timespanForm.getByTestId('timespan-form-save-button');
+          // Make the other values valid, so that form status depends on the changes to times
+          const titleInput = timespanForm.getByLabelText(/title/i);
+          const childOfSelect = timespanForm.getByLabelText(/child of/i);
+          fireEvent.change(titleInput, { target: { value: 'New timespan' } });
+          fireEvent.change(childOfSelect, {
+            target: { value: '123a-456b-789c-2d' },
+          });
 
-        timespanForm.rerenderWithRedux(
-          <TimespanForm {...updatedProps} />,
-          initialState
-        );
+          beginTimeInput = timespanForm.getByLabelText(/begin time/i);
+          endTimeInput = timespanForm.getByLabelText(/end time/i);
 
-        const endTimeInput = timespanForm.getByLabelText(/end time/i);
-        fireEvent.change(endTimeInput, {
-          target: { value: '00:00:04.001' },
         });
 
-        expect(
-          timespanForm
-            .getByTestId('timespan-form-endtime')
-            .classList.contains('is-invalid')
-        ).toBeTruthy();
-        expect(saveButton).toBeDisabled();
-      });
+        test('when form opens', () => {
+          // Initial values for begin and end times are valid
+          expect(beginTimeInput.value).toBe('00:00:00.000');
+          expect(endTimeInput.value).toBe('00:00:03.321');
+          expect(beginTimeInput.className.includes('is-valid')).toBeTruthy();
+          expect(endTimeInput.className.includes('is-valid')).toBeTruthy();
 
-      test('when begin time overlaps end time', () => {
-        const updatedProps = {
-          ...props,
-          isInitializing: false,
-          isTyping: true,
-        };
-
-        timespanForm.rerenderWithRedux(
-          <TimespanForm {...updatedProps} />,
-          initialState
-        );
-
-        const beginTimeInput = timespanForm.getByLabelText(/begin time/i);
-        fireEvent.change(beginTimeInput, {
-          target: { value: '00:00:05.001' },
+          expect(saveButton).toBeEnabled();
         });
 
-        expect(
-          timespanForm
-            .getByTestId('timespan-form-endtime')
-            .className.includes('is-invalid')
-        ).toBeTruthy();
-        expect(
-          timespanForm
-            .getByTestId('timespan-form-begintime')
-            .className.includes('is-invalid')
-        ).toBeTruthy();
-        expect(saveButton).toBeDisabled();
+        test('when end time is changed to contain within an existing timespan', () => {
+          // Change end time to be within an existing timespan
+          fireEvent.change(endTimeInput, { target: { value: '00:00:04.001' } });
+
+          expect(beginTimeInput.className.includes('is-valid')).toBeTruthy();
+          expect(endTimeInput.classList.contains('is-invalid')).toBeTruthy();
+          expect(saveButton).toBeDisabled();
+        });
+
+        test('when begin time overlaps end time', () => {
+          // Change begin time to overlap with end time
+          fireEvent.change(beginTimeInput, { target: { value: '00:00:05.001' } });
+
+          expect(endTimeInput.className.includes('is-invalid')).toBeTruthy();
+          expect(beginTimeInput.className.includes('is-invalid')).toBeTruthy();
+          expect(saveButton).toBeDisabled();
+        });
+
+        test('when begin and end times are inside an existing timespan', () => {
+          // Update the neighbor timespan relationships
+          jest.spyOn(hooks, 'useFindNeighborSegments').mockImplementation(() => ({
+            prevSiblingRef: { current: null },
+            nextSiblingRef: { current: null },
+            parentTimespanRef: {
+              current: {
+                type: 'span', label: 'Segment 1.1', id: '123a-456b-789c-3d',
+                begin: '00:00:03.321', end: '00:00:10.321', valid: true,
+                timeRange: { start: 3.321, end: 10.321 }, items: []
+              }
+            }
+          }));
+
+          // Change begin and end times to be inside an existing timespan
+          fireEvent.change(beginTimeInput, { target: { value: '00:00:03.321' } });
+          fireEvent.change(endTimeInput, { target: { value: '00:00:04.321' } });
+
+          expect(beginTimeInput.className.includes('is-valid')).toBeTruthy();
+          expect(endTimeInput.className.includes('is-valid')).toBeTruthy();
+          expect(saveButton).toBeEnabled();
+        });
+
+        test('when begin time is within an existing timespan', () => {
+          // Change begin time to be within an existing timespan
+          fireEvent.change(beginTimeInput, { target: { value: '00:00:09.432' } });
+
+          // Both begin and end times are marked invalid
+          expect(beginTimeInput.value).toBe('00:00:09.432');
+          expect(endTimeInput.value).toBe('00:00:03.321');
+          expect(beginTimeInput.className.includes('is-invalid')).toBeTruthy();
+          expect(endTimeInput.className.includes('is-invalid')).toBeTruthy();
+          expect(saveButton).toBeDisabled();
+        });
+
+        test('when both begin and end times are outside of existing timespans', () => {
+          // Update the neighbor timespan relationships
+          jest.spyOn(hooks, 'useFindNeighborSegments').mockImplementation(() => ({
+            prevSiblingRef: {
+              current: {
+                type: 'span', label: 'Segment 2.1', id: '123a-456b-789c-8d',
+                begin: '00:09:03.241', end: '00:15:00.001', valid: true,
+                timeRange: { start: 543.241, end: 900.001 }
+              }
+            },
+            nextSiblingRef: { current: null },
+            parentTimespanRef: { current: null }
+          }));
+
+          // Change begin time to be outside of existing timespans
+          fireEvent.change(beginTimeInput, { target: { value: '00:15:00.001' } });
+          fireEvent.change(endTimeInput, { target: { value: '00:16:00.001' } });
+
+          expect(beginTimeInput.className.includes('is-valid')).toBeTruthy();
+          expect(endTimeInput.className.includes('is-valid')).toBeTruthy();
+          expect(saveButton).toBeEnabled();
+        });
+
+        test('when end time is greater than duration', () => {
+          // Update the neighbor timespan relationships
+          jest.spyOn(hooks, 'useFindNeighborSegments').mockImplementation(() => ({
+            prevSiblingRef: {
+              current: {
+                type: 'span', label: 'Segment 2.1', id: '123a-456b-789c-8d',
+                begin: '00:09:03.241', end: '00:15:00.001', valid: true,
+                timeRange: { start: 543.241, end: 900.001 }
+              }
+            },
+            nextSiblingRef: { current: null },
+            parentTimespanRef: { current: null }
+          }));
+
+          // Change begin time to be outside of existing timespans
+          fireEvent.change(beginTimeInput, { target: { value: '00:15:00.001' } });
+          fireEvent.change(endTimeInput, { target: { value: '00:32:00.001' } });
+
+          expect(beginTimeInput.className.includes('is-valid')).toBeTruthy();
+          expect(endTimeInput.className.includes('is-invalid')).toBeTruthy();
+          expect(saveButton).toBeDisabled();
+        });
       });
     });
   });
 
-  test('with parent element selection', () => {
+  describe('nested timespans', () => {
+    const nestedState = {
+      structuralMetadata: {
+        smData: nestedTestSmData,
+      },
+      peaksInstance: {
+        peaks: peaksInst,
+        isDragging: false,
+        segment: tempSegment,
+        duration: 1738.945,
+      },
+    };
+
+    describe('and validates', () => {
+      beforeEach(() => {
+        // Mock neighbor calculation from hooks
+        jest.spyOn(hooks, 'useFindNeighborSegments').mockImplementation(() => ({
+          prevSiblingRef: { current: null },
+          nextSiblingRef: {
+            current: {
+              type: 'span', label: 'Segment 1.1', id: '123a-456b-789c-3d',
+              begin: '00:00:03.321', end: '00:00:10.321', valid: true,
+              timeRange: { start: 3.321, end: 10.321 }
+            }
+          }, parentTimespanRef: { current: null }
+        }));
+      });
+
+      test('timespan title', () => {
+        const { getByTestId, getByLabelText } = renderWithRedux(
+          <TimespanForm {...props} />,
+          { initialState: nestedState }
+        );
+        const saveButton = getByTestId('timespan-form-save-button');
+
+        const titleInput = getByLabelText(/title/i);
+
+        // Initially the title is empty and is invalid
+        expect(titleInput.value).toBe('');
+        expect(getByTestId('timespan-form-title').className.includes('is-invalid')).toBeTruthy();
+
+        // Title is less than 2 characters and is invalid
+        fireEvent.change(titleInput, { target: { value: 'N' } });
+        expect(getByTestId('timespan-form-title').className.includes('is-invalid')).toBeTruthy();
+        expect(saveButton).toBeDisabled();
+
+        // Title is more than 2 characters and is valid
+        fireEvent.change(titleInput, { target: { value: 'New Timespan' } });
+        expect(getByTestId('timespan-form-title').className.includes('is-invalid')).toBeFalsy();
+        expect(getByTestId('timespan-form-title').className.includes('is-valid')).toBeTruthy();
+        expect(saveButton).toBeDisabled();
+
+        const childOfSelect = getByLabelText(/child of/i);
+        fireEvent.change(childOfSelect, {
+          target: { value: '123a-456b-789c-2d' },
+        });
+        expect(saveButton).toBeEnabled();
+      });
+
+      describe('begin and end times', () => {
+        let timespanForm, saveButton;
+        let beginTimeInput, endTimeInput;
+        beforeEach(() => {
+          // Mock neighbor calculation from hooks
+          jest.spyOn(hooks, 'useFindNeighborSegments').mockImplementation(() => ({
+            prevSiblingRef: { current: null },
+            nextSiblingRef: {
+              current: {
+                type: 'span', label: 'Segment 1.1', id: '123a-456b-789c-3d',
+                begin: '00:00:03.321', end: '00:00:10.321', valid: true,
+                timeRange: { start: 3.321, end: 10.321 }
+              }
+            }, parentTimespanRef: { current: null }
+          }));
+          const updatedProps = {
+            ...props,
+            isInitializing: false,
+            isTyping: true,
+          };
+          timespanForm = renderWithRedux(<TimespanForm {...updatedProps} />, { initialState: nestedState });
+          saveButton = timespanForm.getByTestId('timespan-form-save-button');
+          // Make the other values valid, so that form status depends on the changes to times
+          const titleInput = timespanForm.getByLabelText(/title/i);
+          const childOfSelect = timespanForm.getByLabelText(/child of/i);
+          fireEvent.change(titleInput, { target: { value: 'New timespan' } });
+          fireEvent.change(childOfSelect, {
+            target: { value: '123a-456b-789c-2d' },
+          });
+
+          beginTimeInput = timespanForm.getByLabelText(/begin time/i);
+          endTimeInput = timespanForm.getByLabelText(/end time/i);
+        });
+
+        test('when form opens', () => {
+          // Initial values for begin and end times are valid
+          expect(beginTimeInput.value).toBe('00:00:00.000');
+          expect(endTimeInput.value).toBe('00:00:03.321');
+          expect(beginTimeInput.className.includes('is-valid')).toBeTruthy();
+          expect(endTimeInput.className.includes('is-valid')).toBeTruthy();
+
+          expect(saveButton).toBeEnabled();
+        });
+
+        test('when end time is changed to contain within an existing timespan', () => {
+          // Change end time to be within an existing timespan
+          fireEvent.change(endTimeInput, { target: { value: '00:00:04.001' } });
+
+          expect(beginTimeInput.className.includes('is-valid')).toBeTruthy();
+          expect(endTimeInput.value).toBe('00:00:04.001');
+          expect(endTimeInput.classList.contains('is-invalid')).toBeTruthy();
+          expect(saveButton).toBeDisabled();
+        });
+
+        test('when begin time overlaps end time', () => {
+          // Change begin time to overlap with end time
+          fireEvent.change(beginTimeInput, { target: { value: '00:00:05.001' } });
+
+          expect(endTimeInput.className.includes('is-invalid')).toBeTruthy();
+          expect(beginTimeInput.className.includes('is-invalid')).toBeTruthy();
+          expect(saveButton).toBeDisabled();
+        });
+
+        test('when begin and end times are inside an existing timespan', () => {
+          // Update the neighbor timespan relationships
+          jest.spyOn(hooks, 'useFindNeighborSegments').mockImplementation(() => ({
+            prevSiblingRef: { current: null },
+            nextSiblingRef: { current: null },
+            parentTimespanRef: {
+              current: {
+                type: 'span', label: 'Segment 1.1', id: '123a-456b-789c-3d',
+                begin: '00:00:03.321', end: '00:00:10.321', valid: true,
+                timeRange: { start: 3.321, end: 10.321 }, items: []
+              }
+            }
+          }));
+
+          // Change begin and end times to be inside an existing timespan
+          fireEvent.change(beginTimeInput, { target: { value: '00:00:03.321' } });
+          fireEvent.change(endTimeInput, { target: { value: '00:00:04.321' } });
+
+          expect(beginTimeInput.className.includes('is-valid')).toBeTruthy();
+          expect(endTimeInput.className.includes('is-valid')).toBeTruthy();
+          expect(saveButton).toBeEnabled();
+        });
+
+        test('when begin time is within an existing timespan', () => {
+          // Update the neighbor timespan relationships
+          jest.spyOn(hooks, 'useFindNeighborSegments').mockImplementation(() => ({
+            prevSiblingRef: { current: { type: 'span', label: 'Segment 2.1.1', id: '123a-456b-789c-7d' } },
+            nextSiblingRef: { current: { type: 'span', label: 'Segment 2.1.2', id: '123a-456b-789c-8d' } },
+            parentTimespanRef: {
+              current: {
+                type: 'span', label: 'Segment 2.1', id: '123a-456b-789c-6d',
+                items: [{ type: 'span', label: 'Segment 2.1.1', id: '123a-456b-789c-7d' },
+                { type: 'span', label: 'Segment 2.1.2', id: '123a-456b-789c-8d' }]
+              }
+            }
+          }));
+          // Change begin time to be within an existing timespan
+          fireEvent.change(beginTimeInput, { target: { value: '00:10:00.432' } });
+
+          // Both begin and end times are marked invalid
+          expect(beginTimeInput.value).toBe('00:10:00.432');
+          expect(endTimeInput.value).toBe('00:00:03.321');
+          expect(beginTimeInput.className.includes('is-invalid')).toBeTruthy();
+          expect(endTimeInput.className.includes('is-invalid')).toBeTruthy();
+          expect(saveButton).toBeDisabled();
+
+          // Change end time to be within the existing timespan
+          fireEvent.change(endTimeInput, { target: { value: '00:11:00.231' } });
+
+          // Both begin and end times are now marked valid
+          expect(beginTimeInput.value).toBe('00:10:00.432');
+          expect(endTimeInput.value).toBe('00:11:00.231');
+          expect(beginTimeInput.className.includes('is-valid')).toBeTruthy();
+          expect(endTimeInput.className.includes('is-valid')).toBeTruthy();
+          expect(saveButton).toBeEnabled();
+        });
+
+        test('when both begin and end times are outside of existing timespans', () => {
+          // Update the neighbor timespan relationships
+          jest.spyOn(hooks, 'useFindNeighborSegments').mockImplementation(() => ({
+            prevSiblingRef: {
+              current: {
+                type: 'span', label: 'Segment 2.1', id: '123a-456b-789c-8d',
+                begin: '00:09:03.241', end: '00:15:00.001', valid: true,
+                timeRange: { start: 543.241, end: 900.001 }
+              }
+            },
+            nextSiblingRef: { current: null },
+            parentTimespanRef: { current: null }
+          }));
+
+          // Change begin time to be outside of existing timespans
+          fireEvent.change(beginTimeInput, { target: { value: '00:15:00.001' } });
+          fireEvent.change(endTimeInput, { target: { value: '00:16:00.001' } });
+
+          expect(beginTimeInput.className.includes('is-valid')).toBeTruthy();
+          expect(endTimeInput.className.includes('is-valid')).toBeTruthy();
+          expect(saveButton).toBeEnabled();
+        });
+
+        test('when end time is greater than duration', () => {
+          // Update the neighbor timespan relationships
+          jest.spyOn(hooks, 'useFindNeighborSegments').mockImplementation(() => ({
+            prevSiblingRef: {
+              current: {
+                type: 'span', label: 'Segment 2.1', id: '123a-456b-789c-8d',
+                begin: '00:09:03.241', end: '00:15:00.001', valid: true,
+                timeRange: { start: 543.241, end: 900.001 }
+              }
+            },
+            nextSiblingRef: { current: null },
+            parentTimespanRef: { current: null }
+          }));
+
+          // Change begin time to be outside of existing timespans
+          fireEvent.change(beginTimeInput, { target: { value: '00:15:00.001' } });
+          fireEvent.change(endTimeInput, { target: { value: '00:32:00.001' } });
+
+          expect(beginTimeInput.className.includes('is-valid')).toBeTruthy();
+          expect(endTimeInput.className.includes('is-invalid')).toBeTruthy();
+          expect(saveButton).toBeDisabled();
+        });
+      });
+    });
+  });
+
+  test('changes form state with parent element selection', () => {
+    jest.spyOn(hooks, 'useFindNeighborSegments').mockImplementation(() => ({
+      prevSiblingRef: { current: null },
+      nextSiblingRef: {
+        current: {
+          type: 'span', label: 'Segment 1.1', id: '123a-456b-789c-3d',
+          begin: '00:00:03.321', end: '00:00:10.321', valid: true,
+          timeRange: { start: 3.321, end: 10.321 }
+        }
+      }, parentTimespanRef: { current: null }
+    }));
     const { getByTestId, getByLabelText } = renderWithRedux(
       <TimespanForm {...props} />,
       { initialState }
@@ -236,6 +539,17 @@ describe('Timespan component', () => {
   describe('closes the form', () => {
     let timespanForm;
     beforeEach(() => {
+      // Mock neighbor calculation from hooks
+      jest.spyOn(hooks, 'useFindNeighborSegments').mockImplementation(() => ({
+        prevSiblingRef: { current: null },
+        nextSiblingRef: {
+          current: {
+            type: 'span', label: 'Segment 1.1', id: '123a-456b-789c-3d',
+            begin: '00:00:03.321', end: '00:00:10.321', valid: true,
+            timeRange: { start: 3.321, end: 10.321 }
+          }
+        }, parentTimespanRef: { current: null }
+      }));
       timespanForm = renderWithRedux(<TimespanForm {...props} />, {
         initialState,
       });

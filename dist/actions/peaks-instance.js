@@ -260,10 +260,11 @@ function deleteSegment(item) {
     payload: item
   };
 }
-function activateSegment(id) {
+function activateSegment(id, neighbors) {
   return {
     type: types.ACTIVATE_SEGMENT,
-    payload: id
+    id: id,
+    neighbors: neighbors
   };
 }
 function insertPlaceholderSegment(item, wrapperSpans) {

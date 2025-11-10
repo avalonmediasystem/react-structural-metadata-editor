@@ -83,8 +83,8 @@ var HeadingInlineForm = function HeadingInlineForm(_ref) {
     type: "text",
     style: styles.formControl,
     value: headingTitle,
-    isValid: (0, _formHelper.getValidationTitleState)(headingTitle),
-    isInvalid: !(0, _formHelper.getValidationTitleState)(headingTitle),
+    isValid: (0, _formHelper.isTitleValid)(headingTitle),
+    isInvalid: !(0, _formHelper.isTitleValid)(headingTitle),
     onChange: handleInputChange,
     "data-testid": "inline-heading-title-form-control"
   })))), /*#__PURE__*/_react["default"].createElement(_ListItemInlineEditControls["default"], {

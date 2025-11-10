@@ -22,6 +22,7 @@ function _getRequireWildcardCache(e) { if ("function" != typeof WeakMap) return 
 function _interopRequireWildcard(e, r) { if (!r && e && e.__esModule) return e; if (null === e || "object" != _typeof(e) && "function" != typeof e) return { "default": e }; var t = _getRequireWildcardCache(r); if (t && t.has(e)) return t.get(e); var n = { __proto__: null }, a = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var u in e) if ("default" !== u && {}.hasOwnProperty.call(e, u)) { var i = a ? Object.getOwnPropertyDescriptor(e, u) : null; i && (i.get || i.set) ? Object.defineProperty(n, u, i) : n[u] = e[u]; } return n["default"] = e, t && t.set(e, n), n; }
 var structuralMetadataUtils = new _StructuralMetadataUtils["default"]();
 var TimespanFormContainer = function TimespanFormContainer(_ref) {
+  var _restProps$initSegmen, _restProps$initSegmen2;
   var cancelClick = _ref.cancelClick,
     restProps = (0, _objectWithoutProperties2["default"])(_ref, _excluded);
   // Dispatch actions from Redux store
@@ -73,6 +74,8 @@ var TimespanFormContainer = function TimespanFormContainer(_ref) {
     }
   };
   return /*#__PURE__*/_react["default"].createElement(_TimespanForm["default"], (0, _extends2["default"])({}, restProps, {
+    // Unique id for re-rendering each time a new timespan form is opened
+    key: (_restProps$initSegmen = (_restProps$initSegmen2 = restProps.initSegment) === null || _restProps$initSegmen2 === void 0 ? void 0 : _restProps$initSegmen2._pid) !== null && _restProps$initSegmen !== void 0 ? _restProps$initSegmen : Math.random(),
     cancelClick: cancelClick,
     setIsTyping: setIsTyping,
     isTyping: isTyping,

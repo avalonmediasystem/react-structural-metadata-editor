@@ -56,7 +56,7 @@ var peaksInstance = function peaksInstance() {
         peaks: waveformUtils.rebuildPeaks(newPeaks)
       });
     case types.ACTIVATE_SEGMENT:
-      newPeaks = waveformUtils.activateSegment(action.payload, _objectSpread({}, state.peaks), state.duration);
+      newPeaks = waveformUtils.activateSegment(action.id, _objectSpread({}, state.peaks), state.duration, action.neighbors);
       return _objectSpread(_objectSpread({}, state), {}, {
         peaks: newPeaks
       });

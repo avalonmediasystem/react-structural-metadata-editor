@@ -9,10 +9,13 @@ exports.getMediaFragment = getMediaFragment;
 exports.getMediaInfo = getMediaInfo;
 exports.getWaveformInfo = getWaveformInfo;
 exports.parseStructureToJSON = parseStructureToJSON;
+var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/defineProperty"));
 var _typeof2 = _interopRequireDefault(require("@babel/runtime/helpers/typeof"));
 var _manifesto = require("manifesto.js");
 var _StructuralMetadataUtils = _interopRequireDefault(require("./StructuralMetadataUtils"));
 var _utils = require("./utils");
+function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
+function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { (0, _defineProperty2["default"])(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
 var smUtils = new _StructuralMetadataUtils["default"]();
 
 /**
@@ -120,6 +123,26 @@ function getWaveformInfo(manifest, canvasIndex) {
 }
 
 /**
+ * Check if a given Canvas exists in the Manifest's items array
+ * @param {String} mediaFragment - media fragment URI
+ * @param {Object} manifest - current IIIF manifest
+ * @returns {Boolean} - true if Canvas exists in Manifest, false otherwise
+ */
+function isCanvasInManifest(mediaFragment, manifest) {
+  if (!mediaFragment || !manifest || !manifest.items) {
+    return false;
+  }
+
+  // Get Canvas ID from mediafragment URL
+  var canvasURL = mediaFragment.split('#')[0];
+
+  // Check if the Canvas ID exists in the Manifest's items list
+  return manifest.items.some(function (item) {
+    return item.type === 'Canvas' && item.id === canvasURL;
+  });
+}
+
+/**
  * Parse the structures within manifest into a nested JSON object
  * structure to be consumed by the ReactJS components to help visualize
  * and edit structure
@@ -134,33 +157,52 @@ function parseStructureToJSON(manifest, duration) {
   var structureJSON = [];
   if (!manifest) return [];
   var _buildStructureItems = function buildStructureItems(items, children) {
+    var parent = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
     if (items.length > 0) {
       items.map(function (i) {
         var range = (0, _manifesto.parseManifest)(manifest).getRangeById(i.id);
         if (range) {
+          var _i$items;
+          // Set default type to 'div' and change it as needed for timespans
+          var structItem = {
+            label: getLabelValue(i.label),
+            items: [],
+            type: "div",
+            nestedSpan: false
+          };
+
+          // Get canvases associated with the current Range
           var childCanvases = range.getCanvasIds();
-          var structItem = {};
-          if (childCanvases.length > 0) {
+          /**
+           * Only mark a structure item as a timespan, when the relevant Canvas is in the current
+           * Manifest.
+           * NOTE::It's possible to have Canvas references to external Manifests in the
+           * structure, but for the purpose of SME only consider Range items with Canvas
+           * references in the Manifest as timespans. This helps with validation in Peaks.js 
+           * when editing timespans.
+           */
+          var canvasIsInManifest = isCanvasInManifest(childCanvases[0], manifest);
+          if (childCanvases.length > 0 && canvasIsInManifest) {
             var _getMediaFragment = getMediaFragment(childCanvases[0], duration),
               start = _getMediaFragment.start,
               end = _getMediaFragment.end;
-            structItem = {
-              label: getLabelValue(i.label),
+            structItem = _objectSpread(_objectSpread({}, structItem), {}, {
               type: "span",
               begin: smUtils.toHHmmss(start),
-              end: smUtils.toHHmmss(end)
-            };
-            children.push(structItem);
-          } else {
-            structItem = {
-              label: getLabelValue(i.label),
-              type: "div",
-              items: []
-            };
-            if (i.items) {
-              _buildStructureItems(i.items, structItem.items);
-            }
-            children.push(structItem);
+              end: smUtils.toHHmmss(end),
+              timeRange: {
+                start: start,
+                end: end
+              },
+              // Mark timespan item as nested span if it has parent of type='span'
+              nestedSpan: (parent === null || parent === void 0 ? void 0 : parent.type) === 'span'
+            });
+          }
+          children.push(structItem);
+
+          // If the structure item has children build them recuresively
+          if (((_i$items = i.items) === null || _i$items === void 0 ? void 0 : _i$items.length) > 0) {
+            _buildStructureItems(i.items, structItem.items, structItem);
           }
         }
       });
@@ -186,13 +228,16 @@ function parseStructureToJSON(manifest, duration) {
     var children = [];
 
     // Build the nested JSON object from structure
-    _buildStructureItems(root.items, children);
+    _buildStructureItems(root.items, children, {
+      type: 'div'
+    });
 
     // Add the root element to the JSON object
     structureJSON.push({
       type: 'div',
       label: getLabelValue(root.label),
-      items: children
+      items: children,
+      nestedSpan: false
     });
   }
   // Create an empty structure with manifest information
@@ -200,7 +245,8 @@ function parseStructureToJSON(manifest, duration) {
     structureJSON.push({
       label: manifestName,
       items: [],
-      type: 'div'
+      type: 'div',
+      nestedSpan: false
     });
   }
   var structureWithIDs = smUtils.addUUIds(structureJSON);

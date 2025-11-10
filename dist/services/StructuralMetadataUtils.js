@@ -7,6 +7,7 @@ Object.defineProperty(exports, "__esModule", {
 exports["default"] = void 0;
 var _slicedToArray2 = _interopRequireDefault(require("@babel/runtime/helpers/slicedToArray"));
 var _objectWithoutProperties2 = _interopRequireDefault(require("@babel/runtime/helpers/objectWithoutProperties"));
+var _toConsumableArray2 = _interopRequireDefault(require("@babel/runtime/helpers/toConsumableArray"));
 var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
 var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
 var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/defineProperty"));
@@ -38,12 +39,26 @@ var StructuralMetadataUtils = exports["default"] = /*#__PURE__*/function () {
     var _this = this;
     (0, _classCallCheck2["default"])(this, StructuralMetadataUtils);
     /**
+     * Convert time in hh:mm:ss.ms format to seconds
+     * @param {String} time time in hh:mm:ss.ms format
+     * @returns {Number}
+     */
+    (0, _defineProperty2["default"])(this, "convertToSeconds", function (time) {
+      var timeSeconds = _this.toMs(time) / 1000;
+      // When time property is missing
+      if (isNaN(timeSeconds)) {
+        return 0;
+      } else {
+        return timeSeconds;
+      }
+    });
+    /**
      * Helper object for drag and drop data structure manipulations
      * This mutates the state of the data structure
      */
     (0, _defineProperty2["default"])(this, "dndHelper", {
       addSpanBefore: function addSpanBefore(parentDiv, allItems, wrapperSpanBefore) {
-        var beforeParent = _this.getParentDiv(wrapperSpanBefore, allItems);
+        var beforeParent = _this.getParentItem(wrapperSpanBefore, allItems);
         var beforeSiblings = beforeParent.items;
         var beforeIndex = beforeSiblings.map(function (item) {
           return item.id;
@@ -54,7 +69,7 @@ var StructuralMetadataUtils = exports["default"] = /*#__PURE__*/function () {
         }
       },
       addSpanAfter: function addSpanAfter(parentDiv, allItems, wrapperSpanAfter) {
-        var afterParent = _this.getParentDiv(wrapperSpanAfter, allItems);
+        var afterParent = _this.getParentItem(wrapperSpanAfter, allItems);
         var afterSiblings = afterParent.items;
         var afterIndex = afterSiblings.map(function (item) {
           return item.id;
@@ -98,17 +113,25 @@ var StructuralMetadataUtils = exports["default"] = /*#__PURE__*/function () {
     /**
      * Helper function which creates an object with the shape our data structure requires
      * @param {Object} obj
+     * @param {Boolean} nestedSpan flag the new span is nested wihin a timespan
      * @return {Object}
      */
   }, {
     key: "createSpanObject",
     value: function createSpanObject(obj) {
+      var nestedSpan = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
       return {
         id: (0, _uuid.v4)(),
         type: 'span',
         label: obj.timespanTitle,
         begin: obj.beginTime,
-        end: obj.endTime
+        end: obj.endTime,
+        items: [],
+        timeRange: {
+          start: this.convertToSeconds(obj.beginTime),
+          end: this.convertToSeconds(obj.endTime)
+        },
+        nestedSpan: nestedSpan
       };
     }
 
@@ -123,36 +146,25 @@ var StructuralMetadataUtils = exports["default"] = /*#__PURE__*/function () {
     value: function deleteListItem(id, allItems) {
       var clonedItems = (0, _lodash.cloneDeep)(allItems);
       var item = this.findItem(id, allItems);
-      var parentDiv = this.getParentDiv(item, clonedItems);
+      var parentDiv = this.getParentItem(item, clonedItems);
       var indexToDelete = (0, _lodash.findIndex)(parentDiv.items, {
         id: item.id
       });
       parentDiv.items.splice(indexToDelete, 1);
       return clonedItems;
     }
-
+  }, {
+    key: "buildSMUI",
+    value:
     /**
      * Format the time of the timespans in the structured metadata fetched from the server,
      * so that they can be used in the validation logic and Peaks instance
      * @param {Array} allItems - array of all the items in structured metadata
      * @param {Float} duration - end time of the media file in seconds
      */
-  }, {
-    key: "buildSMUI",
-    value: function buildSMUI(allItems, duration) {
+    function buildSMUI(allItems, duration) {
       var _this2 = this;
       var smDataIsValid = true;
-
-      // Convert time to HH:mm:ss.ms format to use in validation logic
-      var convertToSeconds = function convertToSeconds(time) {
-        var timeSeconds = _this2.toMs(time) / 1000;
-        // When time property is missing
-        if (isNaN(timeSeconds)) {
-          return 0;
-        } else {
-          return timeSeconds;
-        }
-      };
       var decodeHTML = function decodeHTML(lableText) {
         return lableText.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&apos;/g, "'");
       };
@@ -169,8 +181,12 @@ var StructuralMetadataUtils = exports["default"] = /*#__PURE__*/function () {
             if (item.type === 'span') {
               var begin = item.begin,
                 end = item.end;
-              var beginTime = convertToSeconds(begin);
-              var endTime = convertToSeconds(end);
+              var beginTime = _this2.convertToSeconds(begin);
+              var endTime = _this2.convertToSeconds(end);
+              item.timeRange = {
+                start: beginTime,
+                end: endTime
+              };
               item.begin = _this2.toHHmmss(beginTime);
               item.end = _this2.toHHmmss(endTime);
               if (beginTime > endTime || beginTime > duration) {
@@ -200,150 +216,123 @@ var StructuralMetadataUtils = exports["default"] = /*#__PURE__*/function () {
     }
 
     /**
-     * Update the data structure to represent all possible dropTargets for the provided dragSource
+     * Update the data structure to represent all possible dropTargets for the 
+     * provided dragSource item with type='span'
      * @param {Object} dragSource
      * @param {Object} allItems
-     * @returns {Array} - new computed items
+     * @returns {Array} - newly created items with drop-zones as needed
      */
   }, {
     key: "determineDropTargets",
     value: function determineDropTargets(dragSource, allItems) {
+      if (dragSource == undefined || dragSource == null || (allItems === null || allItems === void 0 ? void 0 : allItems.length) === 0) {
+        return allItems;
+      }
       var clonedItems = (0, _lodash.cloneDeep)(allItems);
-      if (dragSource.type === 'span') {
-        var wrapperSpans = this.findWrapperSpans(dragSource, this.getItemsOfType('span', clonedItems));
-        var parentDiv = this.getParentDiv(dragSource, clonedItems);
-        var siblings = parentDiv ? parentDiv.items : [];
-        var spanIndex = siblings.map(function (sibling) {
-          return sibling.id;
-        }).indexOf(dragSource.id);
-        var stuckInMiddle = this.dndHelper.stuckInMiddle(spanIndex, siblings, parentDiv);
 
-        // If span falls in the middle of other spans, it can't be moved
+      // Set the scope of the drop-zones based on the dragSource
+      var scopedItems = clonedItems;
+      var allSpans = this.getItemsOfType(['span'], clonedItems);
+      var parent = this.getParentItem(dragSource, clonedItems);
+      var siblings = parent ? parent.items : [];
+      var spanIndex = siblings.map(function (sibling) {
+        return sibling.id;
+      }).indexOf(dragSource.id);
+      if (dragSource.nestedSpan) {
+        // Scope the drop-zones to only its parent timespan
+        scopedItems = [parent];
+        // For nested timespans, scope drop target calculation within parent timespan only
+        parent = this.getParentItem(dragSource, clonedItems);
+        allSpans = this.getItemsOfType(['span'], [parent]);
+        siblings = parent ? parent.items : [];
+        var siblingHeadings = siblings.filter(function (sib) {
+          return sib.type === 'div';
+        });
+
+        /**
+         * If the parent timespan doesn't have any heading type structre, then it can't be moved.
+         * Assumption: children inside a timespan are not overlapping and are in chronological order,
+         * therefore the timespan cannot able to be moved.
+         */
+        if ((siblingHeadings === null || siblingHeadings === void 0 ? void 0 : siblingHeadings.length) === 0) {
+          return clonedItems;
+        }
+      } else {
+        var stuckInMiddle = this.dndHelper.stuckInMiddle(spanIndex, siblings, parent);
+
+        // If span falls in the middle of its sibling spans, it can't be moved
         if (stuckInMiddle) {
           return clonedItems;
         }
-
-        // Sibling before is a div?
-        if (spanIndex !== 0 && siblings[spanIndex - 1].type === 'div') {
-          var sibling = siblings[spanIndex - 1];
-          if (sibling.items) {
-            sibling.items.push(this.createDropZoneObject());
-          } else {
-            sibling.items = [this.createDropZoneObject()];
-          }
-        }
-
-        // Sibling after is a div?
-        if (spanIndex !== siblings.length - 1 && siblings[spanIndex + 1].type === 'div') {
-          var _sibling = siblings[spanIndex + 1];
-          if (_sibling.items) {
-            _sibling.items.unshift(this.createDropZoneObject());
-          } else {
-            _sibling.items = [this.createDropZoneObject()];
-          }
-        }
-        var grandParentDiv = this.getParentDiv(parentDiv, clonedItems);
-
+        var grandParentDiv = this.getParentItem(parent, clonedItems);
         // A first/last child of siblings, or an only child
         if (grandParentDiv !== null) {
-          var siblingTimespans = this.getItemsOfType('span', siblings);
+          var siblingTimespans = this.getItemsOfType(['span'], siblings);
           var timespanIndex = siblingTimespans.map(function (sibling) {
             return sibling.id;
           }).indexOf(dragSource.id);
           var parentIndex = grandParentDiv.items.map(function (item) {
             return item.id;
-          }).indexOf(parentDiv.id);
+          }).indexOf(parent.id);
           if (timespanIndex === 0) {
             grandParentDiv.items.splice(parentIndex, 0, this.createDropZoneObject());
           }
           if (timespanIndex === siblingTimespans.length - 1) {
             var newPI = grandParentDiv.items.map(function (item) {
               return item.id;
-            }).indexOf(parentDiv.id);
+            }).indexOf(parent.id);
             grandParentDiv.items.splice(newPI + 1, 0, this.createDropZoneObject());
           }
         }
+      }
 
-        // Insert after the "before" wrapper span (if one exists)
-        if (wrapperSpans.before) {
-          this.dndHelper.addSpanBefore(parentDiv, clonedItems, wrapperSpans.before);
+      // Get sibling timespans for the drag source timespan
+      var wrapperSpans = this.findWrapperSpans(dragSource, allSpans);
+
+      // Sibling before is a div?
+      if (spanIndex !== 0 && siblings[spanIndex - 1].type === 'div') {
+        var sibling = siblings[spanIndex - 1];
+        if (sibling.items) {
+          sibling.items.push(this.createDropZoneObject());
+        } else {
+          sibling.items = [this.createDropZoneObject()];
         }
-        // Insert relative to the span after the active span
-        if (wrapperSpans.after) {
-          this.dndHelper.addSpanAfter(parentDiv, clonedItems, wrapperSpans.after);
+      }
+
+      // Sibling after is a div?
+      if (spanIndex !== siblings.length - 1 && siblings[spanIndex + 1].type === 'div') {
+        var _sibling = siblings[spanIndex + 1];
+        if (_sibling.items) {
+          _sibling.items.unshift(this.createDropZoneObject());
+        } else {
+          _sibling.items = [this.createDropZoneObject()];
         }
-        // Insert when there is no wrapper span after active span, but empty headers
-        if (!wrapperSpans.after) {
-          this.dndHelper.addSpanToEmptyHeader(parentDiv, clonedItems);
-        }
+      }
+
+      // Insert after the "before" wrapper span (if one exists)
+      if (wrapperSpans.before) {
+        this.dndHelper.addSpanBefore(parent, scopedItems, wrapperSpans.before);
+      }
+      // Insert relative to the span after the active span
+      if (wrapperSpans.after) {
+        this.dndHelper.addSpanAfter(parent, scopedItems, wrapperSpans.after);
+      }
+      // Insert when there is no wrapper span after active span, but empty headers
+      if (!wrapperSpans.after) {
+        this.dndHelper.addSpanToEmptyHeader(parent, scopedItems);
       }
       return clonedItems;
     }
   }, {
-    key: "doesTimeOverlap",
+    key: "findItem",
     value:
-    /**
-     * Determine whether a time overlaps (or falls between), an existing timespan's range
-     * @param {String} time - form input value
-     * @param {*} allSpans - all timespans in the data structure
-     * @param {Float} duration - file length in seconds
-     * @return {Boolean}
-     */
-    function doesTimeOverlap(time, allSpans) {
-      var duration = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : Number.MAX_SAFE_INTEGER;
-      var toMs = this.toMs;
-      var valid = true;
-      time = toMs(time);
-      // Loop through all spans
-      for (var i in allSpans) {
-        var spanBegin = toMs(allSpans[i].begin);
-        var spanEnd = toMs(allSpans[i].end);
-
-        // Illegal time (falls between existing start/end times)
-        if (time > spanBegin && time < spanEnd) {
-          valid = false;
-          break;
-        }
-        // Time exceeds the end time of the media file
-        if (time / 1000 > duration) {
-          valid = false;
-          break;
-        }
-      }
-      return valid;
-    }
-
-    /**
-     * Check a given timespan overlaps other timespans in the structure
-     * @param {String} beginTime - timespan start time in hh:mm:ss.ms format
-     * @param {String} endTime - timespan end time in hh:mm:ss.ms format
-     * @param {Array} allSpans - list of all timespans in the structure
-     * @returns {Boolean}
-     */
-  }, {
-    key: "doesTimespanOverlap",
-    value: function doesTimespanOverlap(beginTime, endTime, allSpans) {
-      var toMs = this.toMs;
-      // Filter out only spans where new begin time is before an existing begin time
-      var filteredSpans = allSpans.filter(function (span) {
-        return toMs(beginTime) < toMs(span.begin);
-      });
-      // Return whether new end time overlaps the next begin time, if there are timespans after the current timespan
-      if (filteredSpans.length !== 0) {
-        return toMs(endTime) > toMs(filteredSpans[0].begin);
-      }
-      return false;
-    }
-
     /**
      * Find an item by it's id
      * @param {String} id - string value to match against
      * @param {Array} items - Array of nested structured metadata objects containing headings and time spans
      * @return {Object} - Object found, or null if none
      */
-  }, {
-    key: "findItem",
-    value: function findItem(id, items) {
+    function findItem(id, items) {
       var foundItem = null;
       var _fn = function fn(items) {
         var _iterator2 = _createForOfIteratorHelper(items),
@@ -405,7 +394,7 @@ var StructuralMetadataUtils = exports["default"] = /*#__PURE__*/function () {
         before: null,
         after: null
       };
-      var grandParentDiv = this.getParentDiv(parentDiv, allItems);
+      var grandParentDiv = this.getParentItem(parentDiv, allItems);
       if (grandParentDiv != null) {
         var grandParentItems = grandParentDiv.items.filter(function (item) {
           return item.type !== 'optional';
@@ -421,14 +410,18 @@ var StructuralMetadataUtils = exports["default"] = /*#__PURE__*/function () {
 
     /**
      * Get all items in data structure of type 'div' or 'span'
+     * @param {Array} itemTypes types of items to pick
      * @param {Array} json
      * @returns {Array} - all stripped down objects of type in the entire structured metadata collection
      */
   }, {
     key: "getItemsOfType",
     value: function getItemsOfType() {
-      var type = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'div';
+      var itemTypes = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
       var items = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
+      if (itemTypes.length === 0) {
+        return [];
+      }
       var options = [];
 
       // Recursive function to search the whole data structure
@@ -438,9 +431,12 @@ var StructuralMetadataUtils = exports["default"] = /*#__PURE__*/function () {
         try {
           for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
             var item = _step3.value;
-            if (item.type === type) {
+            if (itemTypes.includes(item.type)) {
               var currentObj = _objectSpread({}, item);
-              delete currentObj.items;
+              // Keep items array to identify parent timespans in HeadingForm
+              if (item.type != 'span') {
+                delete currentObj.items;
+              }
               options.push(currentObj);
             }
             if (item.items) {
@@ -458,14 +454,14 @@ var StructuralMetadataUtils = exports["default"] = /*#__PURE__*/function () {
     }
 
     /**
-     * Find the parent heading item (div) of a given item
+     * Find the parent heading item (div/span) of a given item
      * @param {Object} child - item for which parent div needs to be found
      * @param {Array} allItems - list of items in the structure
      * @returns {Object} parent div of the given child item
      */
   }, {
-    key: "getParentDiv",
-    value: function getParentDiv(child, allItems) {
+    key: "getParentItem",
+    value: function getParentItem(child, allItems) {
       var foundDiv = null;
       var _findItem = function findItem(child, items) {
         if (items && items.length > 0) {
@@ -498,31 +494,73 @@ var StructuralMetadataUtils = exports["default"] = /*#__PURE__*/function () {
     }
 
     /**
-     * Overall logic is to find existing before and after spans for the new object (time flow), and then
-     * their parent 'divs' would be valid headings.
-     * @param {Object} newSpan - New timespan created with values supplied by the user
-     * @param {Object} wrapperSpans Object representing before and after spans of newSpan (if they exist)
-     * @param {Array} allItems - All structural metadata items in tree
-     * @return {Array} - of valid <div> objects in structural metadata tree
+     * Overall logic to find possible parent structure items for a newly created timespan.
+     * To find possible parent headings; get existing wrapper timespans for the new timespan, and then
+     * find their parent 'divs'. 
+     * Timespans can have children, so to find possible parent timespans; combine the wrapper timespans with
+     * the parent 'divs' of the wrapper timespans.
+     * @param {Object} newSpan - new timespan created with values supplied by the user
+     * @param {Object} wrapperSpans object representing before and after spans of newSpan (if they exist)
+     * @param {Array} allItems - all structural metadata items in tree
+     * @param {Object} parentTimespan - closest possible parent timespan that can contain the new timespan
+     * @return {Array} - of valid <div> and <span> objects in structural metadata tree
      */
   }, {
-    key: "getValidHeadings",
-    value: function getValidHeadings(newSpan, wrapperSpans, allItems) {
+    key: "getValidParents",
+    value: function getValidParents(newSpan, wrapperSpans, allItems) {
       var _this3 = this;
-      var allValidHeadings = [];
-      var sortedHeadings = [];
-      var uniqueHeadings = [];
+      var parentTimespan = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
+      var possibleValidParents = [];
+      var sortedParents = [];
+      var uniqueParents = [];
       // New timespan falls between timespans in the same parent
       var stuckInMiddle = false;
       var toMs = this.toMs;
+
+      /**
+       * If there is a parent timespan for the new timespan, then the choices for a possible
+       * parent for the new timespan is limited to the parent timespan and any of its children
+       * headings (if exists). Reasoning: a timespan cannot span across multiple parent timespans.
+       */
+      if (parentTimespan) {
+        var _before = wrapperSpans.before,
+          _after = wrapperSpans.after;
+        var prevSiblingIndex = parentTimespan.items.findIndex(function (c) {
+          return c.id === (_before === null || _before === void 0 ? void 0 : _before.id);
+        });
+        var nextSiblingIndex = parentTimespan.items.findIndex(function (c) {
+          return c.id === (_after === null || _after === void 0 ? void 0 : _after.id);
+        });
+        var siblingHeadings = parentTimespan.items.filter(function (sib, index) {
+          if (sib.type !== 'div') return false;
+          // No siblings
+          if (prevSiblingIndex < 0 && nextSiblingIndex < 0) {
+            return true;
+          }
+          // New timespan is at the start of the sibling list
+          if (prevSiblingIndex < 0) {
+            return index + 1 === nextSiblingIndex;
+          }
+          // New timespan is at the end of the sibling list
+          if (nextSiblingIndex < 0) {
+            return index === prevSiblingIndex + 1;
+          }
+          // New timespan is sandwiched between other siblings
+          if (prevSiblingIndex >= 0 && nextSiblingIndex >= 0) {
+            return index === prevSiblingIndex + 1 && index + 1 === nextSiblingIndex;
+          }
+          return false;
+        });
+        return [parentTimespan].concat((0, _toConsumableArray2["default"])(siblingHeadings));
+      }
       var before = wrapperSpans.before,
         after = wrapperSpans.after;
-      var allHeadings = this.getItemsOfType('root', allItems).concat(this.getItemsOfType('div', allItems));
+      var allPossibleParents = this.getItemsOfType(['root', 'div', 'span'], allItems);
 
       // Explore possible headings traversing outwards from a suggested heading
       var _exploreOutwards = function exploreOutwards(heading) {
         var invalid = false;
-        var parentHeading = _this3.getParentDiv(heading, allItems);
+        var parentHeading = _this3.getParentItem(heading, allItems);
         var newBegin = newSpan.begin,
           newEnd = newSpan.end;
         if (parentHeading && !stuckInMiddle) {
@@ -543,7 +581,7 @@ var StructuralMetadataUtils = exports["default"] = /*#__PURE__*/function () {
             }
           });
           if (!invalid) {
-            allValidHeadings.push(parentHeading);
+            possibleValidParents.push(parentHeading);
             _exploreOutwards(parentHeading);
           } else {
             return;
@@ -569,48 +607,48 @@ var StructuralMetadataUtils = exports["default"] = /*#__PURE__*/function () {
             return i < spanIndex;
           });
         }
-        var allDivs = _this3.getItemsOfType('div', divsAfter.concat(divsBefore));
-        return allDivs;
+        var allParents = _this3.getItemsOfType(['div', 'span'], [].concat((0, _toConsumableArray2["default"])(divsAfter), (0, _toConsumableArray2["default"])(divsBefore)));
+        return allParents;
       };
       if (!before && !after) {
-        allValidHeadings = allHeadings;
+        possibleValidParents = allPossibleParents;
       }
       if (before) {
-        var parentBefore = this.getParentDiv(before, allItems);
-        allValidHeadings.push(parentBefore);
+        var parentBefore = this.getParentItem(before, allItems);
+        possibleValidParents.push(parentBefore);
         if (!after) {
-          var headings = exploreInwards(parentBefore, before, true);
-          allValidHeadings = allValidHeadings.concat(headings);
+          var parents = exploreInwards(parentBefore, before, true);
+          possibleValidParents = possibleValidParents.concat(parents);
         }
       }
       if (after) {
-        var parentAfter = this.getParentDiv(after, allItems);
-        allValidHeadings.push(parentAfter);
+        var parentAfter = this.getParentItem(after, allItems);
+        possibleValidParents.push(parentAfter);
         if (!before) {
-          var _headings = exploreInwards(parentAfter, after, false);
-          allValidHeadings = allValidHeadings.concat(_headings);
+          var _parents = exploreInwards(parentAfter, after, false);
+          possibleValidParents = possibleValidParents.concat(_parents);
         }
       }
       if (before && after) {
-        var _parentBefore = this.getParentDiv(before, allItems);
-        var _parentAfter = this.getParentDiv(after, allItems);
+        var _parentBefore = this.getParentItem(before, allItems);
+        var _parentAfter = this.getParentItem(after, allItems);
         if (_parentBefore.id === _parentAfter.id) {
           stuckInMiddle = true;
-          allValidHeadings.push(_parentBefore);
+          possibleValidParents.push(_parentBefore);
         }
       }
-      allValidHeadings.map(function (heading) {
+      possibleValidParents.map(function (heading) {
         return _exploreOutwards(heading);
       });
 
       // Sort valid headings to comply with the order in the metadata structure
-      allHeadings.forEach(function (key) {
+      allPossibleParents.forEach(function (key) {
         var found = false;
-        allValidHeadings.filter(function (heading) {
-          if (!found && heading.label === key.label) {
-            var items = heading.items,
-              cloneWOItems = (0, _objectWithoutProperties2["default"])(heading, _excluded);
-            sortedHeadings.push(cloneWOItems);
+        possibleValidParents.filter(function (parent) {
+          if (!found && parent.label === key.label) {
+            var items = parent.items,
+              cloneWOItems = (0, _objectWithoutProperties2["default"])(parent, _excluded);
+            sortedParents.push(cloneWOItems);
             found = true;
             return false;
           } else {
@@ -620,15 +658,15 @@ var StructuralMetadataUtils = exports["default"] = /*#__PURE__*/function () {
       });
 
       // Filter the duplicated headings
-      sortedHeadings.map(function (heading) {
-        var indexIn = uniqueHeadings.map(function (h) {
+      sortedParents.map(function (parent) {
+        var indexIn = uniqueParents.map(function (h) {
           return h.id;
-        }).indexOf(heading.id);
+        }).indexOf(parent.id);
         if (indexIn === -1) {
-          uniqueHeadings.push(heading);
+          uniqueParents.push(parent);
         }
       });
-      return uniqueHeadings;
+      return uniqueParents;
     }
 
     /**
@@ -640,7 +678,7 @@ var StructuralMetadataUtils = exports["default"] = /*#__PURE__*/function () {
   }, {
     key: "getItemsAfter",
     value: function getItemsAfter(currentItem, allItems, nextDivs) {
-      var parentItem = this.getParentDiv(currentItem, allItems);
+      var parentItem = this.getParentItem(currentItem, allItems);
       if (parentItem) {
         var currentIndex = parentItem.items.map(function (item) {
           return item.id;
@@ -649,7 +687,7 @@ var StructuralMetadataUtils = exports["default"] = /*#__PURE__*/function () {
           return i > currentIndex;
         });
         nextDivs = nextDivs.concat(nextItem);
-        if (this.getParentDiv(parentItem, allItems)) {
+        if (this.getParentItem(parentItem, allItems)) {
           return this.getItemsAfter(parentItem, allItems, nextDivs);
         }
       }
@@ -670,14 +708,14 @@ var StructuralMetadataUtils = exports["default"] = /*#__PURE__*/function () {
       var itemToMove = this.findItem(dragSource.id, clonedItems);
 
       // Slice out previous position of itemToMove
-      var itemToMoveParent = this.getParentDiv(itemToMove, clonedItems);
+      var itemToMoveParent = this.getParentItem(itemToMove, clonedItems);
       var itemToMoveItemIndex = itemToMoveParent.items.map(function (item) {
         return item.id;
       }).indexOf(itemToMove.id);
       itemToMoveParent.items.splice(itemToMoveItemIndex, 1);
 
       // Place itemToMove right after the placeholder array position
-      var dropTargetParent = this.getParentDiv(dropTarget, clonedItems);
+      var dropTargetParent = this.getParentItem(dropTarget, clonedItems);
       var dropTargetItemIndex = dropTargetParent.items.map(function (item) {
         return item.id;
       }).indexOf(dropTarget.id);
@@ -722,58 +760,63 @@ var StructuralMetadataUtils = exports["default"] = /*#__PURE__*/function () {
     value: function insertNewTimespan(obj, allItems) {
       var _this4 = this;
       var clonedItems = (0, _lodash.cloneDeep)(allItems);
-      var foundDiv = this.findItem(obj.timespanChildOf, clonedItems);
-
+      var parentItem = this.findItem(obj.timespanChildOf, clonedItems);
+      var nestedSpan = false;
+      if (parentItem.type === 'span') {
+        nestedSpan = true;
+      }
       // Timespan related to values
-      var spanObj = this.createSpanObject(obj);
+      var spanObj = this.createSpanObject(obj, nestedSpan);
 
       // Index the new timespan to be inserted
       var insertIndex = 0;
       var _getParentOfSpan = function getParentOfSpan(item) {
         var inFoundDiv = false;
         var closestSibling = null;
-        var siblings = foundDiv.items;
-        siblings.map(function (sibling) {
-          if (sibling.id === item.id) {
-            inFoundDiv = true;
-            closestSibling = sibling;
-          }
-        });
+        var siblings = parentItem.items;
+        if ((siblings === null || siblings === void 0 ? void 0 : siblings.length) > 0) {
+          siblings.map(function (sibling) {
+            if (sibling.id === item.id) {
+              inFoundDiv = true;
+              closestSibling = sibling;
+            }
+          });
+        }
         if (!inFoundDiv) {
-          var parentItem = _this4.getParentDiv(item, allItems);
-          if (parentItem) {
-            closestSibling = _getParentOfSpan(parentItem);
+          var _parentItem = _this4.getParentItem(item, allItems);
+          if (_parentItem) {
+            closestSibling = _getParentOfSpan(_parentItem);
           }
         }
         return closestSibling;
       };
-      if (foundDiv) {
-        var allSpans = this.getItemsOfType('span', allItems);
+      if (parentItem) {
+        var allSpans = this.getItemsOfType(['span'], allItems);
         var _this$findWrapperSpan = this.findWrapperSpans(spanObj, allSpans),
           before = _this$findWrapperSpan.before,
           after = _this$findWrapperSpan.after;
         if (before) {
           var siblingBefore = _getParentOfSpan(before);
           if (siblingBefore) {
-            insertIndex = foundDiv.items.map(function (item) {
+            insertIndex = parentItem.items.map(function (item) {
               return item.id;
             }).indexOf(siblingBefore.id) + 1;
           }
         } else if (after) {
           var siblingAfter = _getParentOfSpan(after);
           if (siblingAfter) {
-            var siblingAfterIndex = foundDiv.items.map(function (item) {
+            var siblingAfterIndex = parentItem.items.map(function (item) {
               return item.id;
             }).indexOf(siblingAfter.id);
             insertIndex = siblingAfterIndex === 0 ? 0 : siblingAfterIndex - 1;
           }
         } else {
-          insertIndex = foundDiv.items.length + 1;
+          insertIndex = parentItem.items.length + 1;
         }
       }
 
       // Insert new span at appropriate index
-      foundDiv.items.splice(insertIndex, 0, spanObj);
+      parentItem.items.splice(insertIndex, 0, spanObj);
       return {
         newSpan: spanObj,
         updatedData: clonedItems
@@ -789,15 +832,14 @@ var StructuralMetadataUtils = exports["default"] = /*#__PURE__*/function () {
     key: "removeActiveDragSources",
     value: function removeActiveDragSources(allItems) {
       var _removeActive = function removeActive(parent) {
-        if (!parent.items) {
-          if (parent.active) {
-            parent.active = false;
-          }
-          return parent;
+        if (parent.active) {
+          parent.active = false;
         }
-        parent.items = parent.items.map(function (child) {
-          return _removeActive(child);
-        });
+        if (parent.items) {
+          parent.items = parent.items.map(function (child) {
+            return _removeActive(child);
+          });
+        }
         return parent;
       };
       var cleanItems = _removeActive(allItems[0]);

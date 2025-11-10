@@ -61,9 +61,15 @@ var HeadingForm = function HeadingForm(_ref) {
     return titleValid && childOfValid;
   };
   var getOptions = function getOptions() {
-    var rootHeader = structuralMetadataUtils.getItemsOfType('root', smData);
-    var divHeaders = structuralMetadataUtils.getItemsOfType('div', smData);
-    var allHeaders = rootHeader.concat(divHeaders);
+    /**
+     * Only get type='span' (timespans) items with children as possible headings.
+     * This helps to keep the options list smaller, but allows to add heading
+     * inside timespans. These headings then can be used as drop-zones for child
+     * timespans inside them.
+     */
+    var allHeaders = structuralMetadataUtils.getItemsOfType(['root', 'div', 'span'], smData).filter(function (h) {
+      return h.type !== 'span' || h.items && h.items.length > 0;
+    });
     var options = allHeaders.map(function (header) {
       return /*#__PURE__*/_react["default"].createElement("option", {
         value: header.id,
@@ -98,8 +104,8 @@ var HeadingForm = function HeadingForm(_ref) {
   }, /*#__PURE__*/_react["default"].createElement(_Form["default"].Label, null, "Title"), /*#__PURE__*/_react["default"].createElement(_Form["default"].Control, {
     type: "text",
     value: headingTitle,
-    isValid: (0, _formHelper.getValidationTitleState)(headingTitle),
-    isInvalid: !(0, _formHelper.getValidationTitleState)(headingTitle),
+    isValid: (0, _formHelper.isTitleValid)(headingTitle),
+    isInvalid: !(0, _formHelper.isTitleValid)(headingTitle),
     onChange: handleHeadingChange,
     "data-testid": "heading-form-title"
   }), /*#__PURE__*/_react["default"].createElement(_Form["default"].Control.Feedback, null)), /*#__PURE__*/_react["default"].createElement(_Form["default"].Group, {

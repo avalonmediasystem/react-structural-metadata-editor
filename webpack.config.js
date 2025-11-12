@@ -45,6 +45,9 @@ module.exports = {
   ],
   resolve: {
     extensions: ['.js', '.jsx'],
+    fallback: {
+      "crypto": require.resolve("crypto-browserify")
+    }
   },
   devServer: {
     port: 3001,

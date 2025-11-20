@@ -6,19 +6,10 @@ import { v4 as uuidv4 } from 'uuid';
  * Enable/disable other editing actions when editing a list item
  * @param {Integer} code - choose from; 1(true) | 0(false)
  */
-export const handleEditingTimespans =
-  (
-    code,
-    valid = true // assumes structure data is valid by default
-  ) =>
-    (dispatch) => {
-      dispatch({ type: types.IS_EDITING_TIMESPAN, code });
-      // Remove dismissible alerts when a CRUD action has been initiated
-      // given editing is starting (code = 1) and structure is validated.
-      if (code == 1 && valid) {
-        dispatch(clearExistingAlerts());
-      }
-    };
+export const handleEditingTimespans = (code) => ({
+  type: types.IS_EDITING_TIMESPAN,
+  code
+});
 
 export const setAlert = (alert) => (dispatch) => {
   const id = uuidv4();

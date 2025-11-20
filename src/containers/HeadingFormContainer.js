@@ -2,18 +2,16 @@ import React from 'react';
 import { useErrorBoundary } from 'react-error-boundary';
 import PropTypes from 'prop-types';
 import HeadingForm from '../components/HeadingForm';
-import { useDispatch, useSelector } from 'react-redux';
-import * as smActions from '../actions/sm-data';
+import { useSelector } from 'react-redux';
 import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
+import { useStructureUpdate } from '../services/sme-hooks';
 
 const structuralMetadataUtils = new StructuralMetadataUtils();
 
 const HeadingFormContainer = ({ cancelClick }) => {
   const { smData } = useSelector((state) => state.structuralMetadata);
-  const { duration } = useSelector((state) => state.peaksInstance);
 
-  const dispatch = useDispatch();
-  const updateSMData = (updatedData, duration) => dispatch(smActions.reBuildSMUI(updatedData, duration));
+  const { updateStructure } = useStructureUpdate();
 
   const { showBoundary } = useErrorBoundary();
 
@@ -28,8 +26,8 @@ const HeadingFormContainer = ({ cancelClick }) => {
       // Update the data structure with new heading
       updatedSmData = structuralMetadataUtils.insertNewHeader(submittedItem, smData);
 
-      // Update redux store
-      updateSMData(updatedSmData, duration);
+      // Update redux store via custom hook
+      updateStructure(updatedSmData);
 
       // Close the form
       cancelClick();

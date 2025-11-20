@@ -43,12 +43,6 @@ const TimespanForm = ({
     }
   }, [initSegment]);
 
-  const allSpans = useMemo(() => {
-    if (smData?.length > 0) {
-      return structuralMetadataUtils.getItemsOfType(['span'], smData);
-    }
-  }, [smData]);
-
   // Find neighboring timespans of the currently editing timespan
   const { prevSiblingRef, nextSiblingRef, parentTimespanRef } = useFindNeighborSegments({ segment });
 
@@ -75,44 +69,41 @@ const TimespanForm = ({
   };
 
   const isValidTimespan = useMemo(() => {
-    const { valid } = validTimespans(beginTime, endTime, duration, allSpans);
+    const { valid } = validTimespans(beginTime, endTime, duration);
     if (valid) {
       buildHeadingsOptions();
     } else {
       setValidHeadings([]);
     }
     return valid;
-  }, [beginTime, endTime, duration, allSpans]);
-
-  useEffect(() => {
-    if (!isInitializing) {
-      setIsInitializing(false);
-    }
-  }, [smData, isInitializing]);
+  }, [beginTime, endTime, duration]);
 
   useEffect(() => {
     if (!isTyping) {
       if (initSegment && isInitializing) {
         // Set isInitializing flag to false
         setIsInitializing(false);
-      }
-      if (!isInitializing) {
-        const { startTime, endTime } = waveformDataUtils.validateSegment(
-          segment, startTimeChanged, duration,
-          {
-            previousSibling: prevSiblingRef.current,
-            nextSibling: nextSiblingRef.current,
-            parentTimespan: parentTimespanRef.current
-          },
-        );
-        setBeginTime(structuralMetadataUtils.toHHmmss(startTime));
-        setEndTime(structuralMetadataUtils.toHHmmss(endTime));
+        validateSegmentInPeaks();
       }
     }
     if (isDragging) {
       setIsTyping(0);
+      validateSegmentInPeaks();
     }
   }, [initSegment, isDragging, isInitializing, peaksInstance]);
+
+  const validateSegmentInPeaks = () => {
+    const { startTime, endTime } = waveformDataUtils.validateSegment(
+      segment, startTimeChanged, duration,
+      {
+        previousSibling: prevSiblingRef.current,
+        nextSibling: nextSiblingRef.current,
+        parentTimespan: parentTimespanRef.current
+      },
+    );
+    setBeginTime(structuralMetadataUtils.toHHmmss(startTime));
+    setEndTime(structuralMetadataUtils.toHHmmss(endTime));
+  };
 
   const clearFormValues = () => {
     setBeginTime('');

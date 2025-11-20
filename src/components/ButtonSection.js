@@ -7,7 +7,8 @@ import HeadingFormContainer from '../containers/HeadingFormContainer';
 import TimespanFormContainer from '../containers/TimespanFormContainer';
 import * as peaksActions from '../actions/peaks-instance';
 import { configureAlert } from '../services/alert-status';
-import { handleEditingTimespans, setAlert } from '../actions/forms';
+import { setAlert } from '../actions/forms';
+import { useStructureUpdate } from '../services/sme-hooks';
 
 const styles = {
   well: {
@@ -27,8 +28,11 @@ const ButtonSection = () => {
   const dispatch = useDispatch();
   const createTempSegment = () => dispatch(peaksActions.insertTempSegment());
   const removeTempSegment = (id) => dispatch(peaksActions.deleteTempSegment(id));
-  const updateEditingTimespans = (value) => dispatch(handleEditingTimespans(value));
   const settingAlert = (alert) => dispatch(setAlert(alert));
+  const dragSegment = (id, startTimeChanged, flag) =>
+    dispatch(peaksActions.dragSegment(id, startTimeChanged, flag));
+
+  const { updateEditingTimespans } = useStructureUpdate();
 
   // Get state variables from Redux store
   const { editingDisabled, structureInfo, streamInfo } = useSelector((state) => state.forms);
@@ -90,7 +94,7 @@ const ButtonSection = () => {
         settingAlert(noSpaceAlert);
       } else {
         // Initialize Redux store with temporary segment
-        dispatch(peaksActions.dragSegment(tempSegment.id, null, 0));
+        dragSegment(tempSegment.id, null, 0);
         setInitSegment(tempSegment);
         setTimespanOpen(true);
         setIsInitializing(true);

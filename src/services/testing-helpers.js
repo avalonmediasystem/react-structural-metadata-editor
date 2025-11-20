@@ -244,6 +244,7 @@ export const testInvalidData = [
             begin: '00:00:03.321',
             end: '00:00:10.321',
             valid: true,
+            timeRange: { start: 3.321, end: 10.321 }
           },
           {
             type: 'span',
@@ -252,6 +253,7 @@ export const testInvalidData = [
             begin: '00:20:21.000',
             end: '00:15:00.001',
             valid: false,
+            timeRange: { start: 261.00, end: 900.001 }
           },
           {
             type: 'span',
@@ -260,6 +262,7 @@ export const testInvalidData = [
             begin: '00:00:11.231',
             end: '00:08:00.001',
             valid: true,
+            timeRange: { start: 11.231, end: 480.001 }
           },
         ],
       },

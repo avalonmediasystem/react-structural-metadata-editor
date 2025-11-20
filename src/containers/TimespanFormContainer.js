@@ -4,20 +4,20 @@ import PropTypes from 'prop-types';
 import TimespanForm from '../components/TimespanForm';
 import { useDispatch, useSelector } from 'react-redux';
 import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
-import * as smActions from '../actions/sm-data';
-import * as peaksActions from '../actions/peaks-instance';
+import { insertNewSegment } from '../actions/peaks-instance';
+import { useStructureUpdate } from '../services/sme-hooks';
 
 const structuralMetadataUtils = new StructuralMetadataUtils();
 
 const TimespanFormContainer = ({ cancelClick, ...restProps }) => {
   // Dispatch actions from Redux store
   const dispatch = useDispatch();
-  const updateSMUI = (data, duration) => dispatch(smActions.reBuildSMUI(data, duration));
-  const addNewSegment = (newSpan) => dispatch(peaksActions.insertNewSegment(newSpan));
+  const addNewSegment = (newSpan) => dispatch(insertNewSegment(newSpan));
+
+  const { updateStructure } = useStructureUpdate();
 
   // State variables from Redux store
   const smData = useSelector((state) => state.structuralMetadata.smData);
-  const duration = useSelector((state) => state.peaksInstance.duration);
 
   const [isTyping, _setIsTyping] = useState(false);
 
@@ -31,8 +31,8 @@ const TimespanFormContainer = ({ cancelClick, ...restProps }) => {
       // Update the waveform segments with new timespan
       addNewSegment(newSpan);
 
-      // Update redux store
-      updateSMUI(updatedData, duration);
+      // Update redux store via custom hook
+      updateStructure(updatedData);
 
       // Close the form
       cancelClick();

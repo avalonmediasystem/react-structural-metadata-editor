@@ -900,4 +900,47 @@ export default class StructuralMetadataUtils {
 
     return clonedItems;
   }
+
+
+  /**
+   * Get siblings and parent timespans for a given structure item.
+   * These values are then used across the component to validate timespan
+   * creation and editing.
+   * @param {Array} smData structure data
+   * @param {Object} item 'span' type object matching structure data
+   * @returns {Object}
+   */
+  calculateAdjacentTimespans(smData, item) {
+    const allSpans = this.getItemsOfType(['span'], smData);
+    // const otherSpans = allSpans.filter((span) => span.id != item.id);
+
+    let possibleParent = null;
+    let closestGapBefore = Infinity; let possiblePrevSibling = null;
+    let closestGapAfter = Infinity; let possibleNextSibling = null;
+
+    const { start, end } = item.timeRange;
+
+    const parentDiv = this.getParentItem(item, smData);
+    if (parentDiv && parentDiv.type === 'span') {
+      possibleParent = parentDiv;
+    } else {
+      possibleParent = null;
+    }
+
+    allSpans.map((span) => {
+      let gapBefore = start - span.timeRange.end;
+      if (gapBefore >= 0 && gapBefore < closestGapBefore) {
+        closestGapBefore = gapBefore;
+        possiblePrevSibling = span;
+      }
+
+      let gapAfter = span.timeRange.start - end;
+      if (gapAfter >= 0 && gapAfter < closestGapAfter) {
+        closestGapAfter = gapAfter;
+        possibleNextSibling = span;
+      }
+    });
+    return { possibleParent, possiblePrevSibling, possibleNextSibling };
+  };
+
 }

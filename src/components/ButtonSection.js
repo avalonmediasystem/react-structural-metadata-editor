@@ -29,6 +29,8 @@ const ButtonSection = () => {
   const createTempSegment = () => dispatch(peaksActions.insertTempSegment());
   const removeTempSegment = (id) => dispatch(peaksActions.deleteTempSegment(id));
   const settingAlert = (alert) => dispatch(setAlert(alert));
+  const dragSegment = (id, startTimeChanged, flag) =>
+    dispatch(peaksActions.dragSegment(id, startTimeChanged, flag));
 
   const { updateEditingTimespans } = useStructureUpdate();
 
@@ -92,7 +94,7 @@ const ButtonSection = () => {
         settingAlert(noSpaceAlert);
       } else {
         // Initialize Redux store with temporary segment
-        dispatch(peaksActions.dragSegment(tempSegment.id, null, 0));
+        dragSegment(tempSegment.id, null, 0);
         setInitSegment(tempSegment);
         setTimespanOpen(true);
         setIsInitializing(true);
@@ -107,7 +109,7 @@ const ButtonSection = () => {
   const deleteTempSegment = () => {
     try {
       if (initSegment != null) {
-        dispatch(removeTempSegment(initSegment.id));
+        removeTempSegment(initSegment.id);
       }
     } catch (error) {
       showBoundary(error);

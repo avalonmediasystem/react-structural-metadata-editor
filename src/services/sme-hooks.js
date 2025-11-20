@@ -1,14 +1,13 @@
 import React, { useEffect, useMemo, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import StructuralMetadataUtils from './StructuralMetadataUtils';
-import WaveformDataUtils from './WaveformDataUtils';
 import { getValidationBeginState, getValidationEndState, isTitleValid } from './form-helper';
 import { updateSMUI } from '../actions/sm-data';
 import { clearExistingAlerts, handleEditingTimespans, updateStructureStatus } from '../actions/forms';
 import { deleteSegment } from '../actions/peaks-instance';
+import { isEmpty } from 'lodash';
 
 const structuralMetadataUtils = new StructuralMetadataUtils();
-const waveformDataUtils = new WaveformDataUtils();
 
 /**
  * Find sibling and parent timespans of the given Peaks segment. The respective timespans
@@ -23,7 +22,7 @@ const waveformDataUtils = new WaveformDataUtils();
  * } React refs for siblings and parent timespans
  */
 export const useFindNeighborSegments = ({ segment }) => {
-  const { peaks, readyPeaks } = useSelector((state) => state.peaksInstance);
+  const { duration, readyPeaks } = useSelector((state) => state.peaksInstance);
   const { smData } = useSelector((state) => state.structuralMetadata);
 
   // React refs to hold parent timespan, previous and next siblings
@@ -36,43 +35,28 @@ export const useFindNeighborSegments = ({ segment }) => {
   }, [smData]);
 
   useEffect(() => {
-    if (readyPeaks && segment) {
-      // All segments sorted by start time
-      const allSegments = waveformDataUtils.sortSegments(peaks, 'startTime');
-      const otherSegments = allSegments.filter(
-        (seg) => seg.id !== segment.id
-      );
-
-      const { startTime, endTime } = segment;
-
-      // Find potential parent segments
-      const potentialParents = otherSegments.filter(seg =>
-        seg.startTime <= startTime && seg.endTime >= endTime
-      );
-      const potentialParentIds = potentialParents?.length > 0
-        ? potentialParents.map((p) => p._id) : [];
-
-      // Get the most immediate parent
-      const parent = potentialParents.reduce((closest, seg) => {
-        if (!closest) return seg;
-        const currentRange = seg.endTime - seg.startTime;
-        const closestRange = closest.endTime - closest.startTime;
-        return currentRange < closestRange ? seg : closest;
-      }, null);
-
-      parentTimespanRef.current = parent ? allSpans.find((span) => span.id === parent._id) : null;
-      // When calculating the previous sibling omit potential parent timespans, as their startTimes are
-      // less than or equal to the current segment's startTime
-      const siblingsBefore = otherSegments
-        .filter(seg => seg.startTime <= startTime && !potentialParentIds?.includes(seg._id));
-      if (siblingsBefore?.length > 0) {
-        prevSiblingRef.current = allSpans.find((span) => span.id === siblingsBefore.at(-1)._id);
-      };
-
-      const siblingsAfter = otherSegments.filter((seg) => seg.startTime >= endTime);
-      if (siblingsAfter?.length > 0) {
-        nextSiblingRef.current = allSpans.find((span) => span.id === siblingsAfter[0]._id);
+    if (readyPeaks && !isEmpty(segment)) {
+      let item;
+      if (segment._id === 'temp-segment') {
+        // Construct a span object from segment when handling timespan creation
+        const { _id, _startTime, _endTime } = segment;
+        item = {
+          type: 'span', label: '', id: _id,
+          begin: structuralMetadataUtils.toHHmmss(_startTime),
+          end: structuralMetadataUtils.toHHmmss(_endTime),
+          valid: _startTime < _endTime && _endTime <= duration,
+          timeRange: { start: _startTime, end: _endTime }
+        };
+      } else {
+        // Find the existing span object from smData
+        item = allSpans.filter((span) => span.id === segment._id)[0];
       }
+
+      const { possibleParent, possiblePrevSibling, possibleNextSibling }
+        = structuralMetadataUtils.calculateAdjacentTimespans(smData, item);
+      parentTimespanRef.current = possibleParent;
+      prevSiblingRef.current = possiblePrevSibling;
+      nextSiblingRef.current = possibleNextSibling;
     }
   }, [segment, readyPeaks]);
 
@@ -97,63 +81,14 @@ export const useFindNeighborTimespans = ({ item }) => {
   const prevSiblingRef = useRef(null);
   const nextSiblingRef = useRef(null);
 
-  // Find the parent timespan if it exists
-  const parentDiv = useMemo(() => {
-    if (item) {
-      return structuralMetadataUtils.getParentItem(item, smData);
-    }
-  }, [item, smData]);
-
   useEffect(() => {
-    if (parentDiv && parentDiv.type === 'span') {
-      parentTimespanRef.current = parentDiv;
-    } else {
-      parentTimespanRef.current = null;
-    }
+    const { possibleParent, possiblePrevSibling, possibleNextSibling }
+      = structuralMetadataUtils.calculateAdjacentTimespans(smData, item);
 
-    let siblings = [];
-    if (parentDiv && parentDiv.items?.length > 1) {
-      /**
-       * Get sibling timespans from the parent has children.
-       * items?.length > 1 check excludes the current item.
-       */
-      siblings = parentDiv.items.filter(sibling => sibling.type === 'span');
-    } else {
-      // When there's no parent, get all timespans in structure
-      siblings = structuralMetadataUtils.getItemsOfType(['span'], smData);
-    }
-
-    // Get possible previous/next siblings from the siblings array
-    const currentIndex = siblings.findIndex(sibling => sibling.id === item.id);
-    let possiblePrevSibling = currentIndex > 0 ? siblings[currentIndex - 1] : null;
-    let possibleNextSibling = currentIndex < siblings.length - 1 ? siblings[currentIndex + 1] : null;
-
-    /**
-     * Iterate through the siblings array, and re-calculate the correct previous/next combo
-     * as needed because, the sibling calculation above based on indexes disregards the nested
-     * nature of the timespans.
-     */
-    siblings.map(sibling => {
-      const siblingParent = structuralMetadataUtils.getParentItem(sibling, smData);
-      if (possiblePrevSibling) {
-        const prevSiblingParent = structuralMetadataUtils.getParentItem(possiblePrevSibling, smData);
-        if (siblingParent.id === prevSiblingParent?.id) {
-          possiblePrevSibling = prevSiblingParent;
-        }
-      }
-
-      if (possibleNextSibling) {
-        const nextSiblingParent = structuralMetadataUtils.getParentItem(possibleNextSibling, smData);
-        if (siblingParent.id === nextSiblingParent?.id) {
-          possibleNextSibling = nextSiblingParent;
-        }
-      }
-    });
-
+    parentTimespanRef.current = possibleParent;
     prevSiblingRef.current = possiblePrevSibling;
     nextSiblingRef.current = possibleNextSibling;
-
-  }, [parentDiv, item, smData]);
+  }, [item, smData]);
   return { prevSiblingRef, nextSiblingRef, parentTimespanRef };
 };
 
@@ -177,25 +112,33 @@ export const useTimespanFormValidation = ({ beginTime, endTime, neighbors, times
   const { prevSiblingRef, nextSiblingRef, parentTimespanRef } = neighbors;
 
   const getBeginTimeConstraint = () => {
-    // Sibling's end time takes precedence over parent's start time
+    let prevSiblingEnd, parentBegin;
     if (prevSiblingRef.current) {
-      return prevSiblingRef.current.end;
+      prevSiblingEnd = structuralMetadataUtils.toMs(prevSiblingRef.current.end);
     }
     if (parentTimespanRef.current) {
-      return parentTimespanRef.current.begin;
+      parentBegin = structuralMetadataUtils.toMs(parentTimespanRef.current.begin);
     }
-    return null;
+    if ((!prevSiblingEnd && parentBegin) || (prevSiblingEnd < parentBegin)) {
+      return parentBegin;
+    } else {
+      return prevSiblingEnd;
+    }
   };
 
   const getEndTimeConstraint = () => {
-    // Sibling's start time takes precedence over parent's end time
+    let nextSiblingStart, parentEnd;
     if (nextSiblingRef.current) {
-      return nextSiblingRef.current.begin;
+      nextSiblingStart = structuralMetadataUtils.toMs(nextSiblingRef.current.begin);
     }
     if (parentTimespanRef.current) {
-      return parentTimespanRef.current.end;
+      parentEnd = structuralMetadataUtils.toMs(parentTimespanRef.current.end);
     }
-    return null;
+    if ((!nextSiblingStart && parentEnd) || (nextSiblingStart > parentEnd)) {
+      return parentEnd;
+    } else {
+      return nextSiblingStart;
+    }
   };
 
   const isBeginValid = useMemo(() => {
@@ -206,7 +149,7 @@ export const useTimespanFormValidation = ({ beginTime, endTime, neighbors, times
     const constraint = getBeginTimeConstraint();
     if (constraint) {
       // Begin time must be >= constraint time
-      return structuralMetadataUtils.toMs(beginTime) >= structuralMetadataUtils.toMs(constraint);
+      return structuralMetadataUtils.toMs(beginTime) >= constraint;
     }
     return true;
   }, [beginTime, endTime]);
@@ -219,7 +162,7 @@ export const useTimespanFormValidation = ({ beginTime, endTime, neighbors, times
     const constraint = getEndTimeConstraint();
     if (constraint) {
       // End time must be <= constraint time
-      return structuralMetadataUtils.toMs(endTime) <= structuralMetadataUtils.toMs(constraint);
+      return structuralMetadataUtils.toMs(endTime) <= constraint;
     }
     return true;
   }, [beginTime, endTime]);

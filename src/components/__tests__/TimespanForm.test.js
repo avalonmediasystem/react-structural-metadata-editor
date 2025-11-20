@@ -429,13 +429,13 @@ describe('Timespan component', () => {
         test('when begin time is within an existing timespan', () => {
           // Update the neighbor timespan relationships
           jest.spyOn(hooks, 'useFindNeighborSegments').mockImplementation(() => ({
-            prevSiblingRef: { current: { type: 'span', label: 'Segment 2.1.1', id: '123a-456b-789c-7d' } },
-            nextSiblingRef: { current: { type: 'span', label: 'Segment 2.1.2', id: '123a-456b-789c-8d' } },
+            prevSiblingRef: { current: { begin: '00:09:10.241', end: '00:10:00.321' } },
+            nextSiblingRef: { current: { begin: '00:12:00.231', end: '00:13:00.001' } },
             parentTimespanRef: {
               current: {
-                type: 'span', label: 'Segment 2.1', id: '123a-456b-789c-6d',
+                id: '123a-456b-789c-6d', begin: '00:09:00.241', end: '00:15:00.001',
                 items: [{ type: 'span', label: 'Segment 2.1.1', id: '123a-456b-789c-7d' },
-                { type: 'span', label: 'Segment 2.1.2', id: '123a-456b-789c-8d' }]
+                { type: 'span', label: 'Segment 2.1.2', id: '123a-456b-789c-8d' }],
               }
             }
           }));

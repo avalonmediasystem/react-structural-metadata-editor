@@ -23,9 +23,6 @@ const ListItem = ({ item, children }) => {
 
   const { deleteStructItem, updateEditingTimespans } = useStructureUpdate();
 
-  // Get state variables from Redux store
-  const { smData, smDataIsValid } = useSelector((state) => state.structuralMetadata);
-
   const [editing, setEditing] = useState(false);
 
   const { showBoundary } = useErrorBoundary();

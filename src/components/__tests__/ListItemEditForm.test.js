@@ -60,11 +60,9 @@ describe('ListItemEditForm component', () => {
 
     test("TimespanInlineForm for item type 'span'", () => {
       const itemProp = {
-        type: 'span',
-        label: 'Segment 1.2',
-        id: '123a-456b-789c-4d',
-        begin: '00:00:11.231',
-        end: '00:08:00.001',
+        type: 'span', label: 'Segment 1.2', id: '123a-456b-789c-4d',
+        begin: '00:00:11.231', end: '00:08:00.001',
+        timeRange: { start: 11.231, end: 480.001 }
       };
 
       const { getByTestId } = renderWithRedux(
@@ -80,11 +78,9 @@ describe('ListItemEditForm component', () => {
 
   test('clicking on cancel button closes the form', async () => {
     const itemProp = {
-      type: 'span',
-      label: 'Segment 1.2',
-      id: '123a-456b-789c-4d',
-      begin: '00:00:11.231',
-      end: '00:08:00.001',
+      type: 'span', label: 'Segment 1.2', id: '123a-456b-789c-4d',
+      begin: '00:00:11.231', end: '00:08:00.001',
+      timeRange: { start: 11.231, end: 480.001 }
     };
 
     const { getByTestId } = renderWithRedux(

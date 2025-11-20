@@ -62,7 +62,7 @@ export const Peaks = jest.fn((opts) => {
   return peaks;
 });
 
-// segements are built in match with timespans from 'testSmData' 
+// segments are built in match with timespans from 'testSmData'
 // in ./testing-helpers.js file
 const peaksSegments = (opts, peaks) => {
   let segments = [
@@ -104,6 +104,12 @@ const peaksSegments = (opts, peaks) => {
 
 export const Segment = jest.fn((opts) => {
   let segment = { ...opts };
+  // Ensure both id and _id are set
+  if (opts._id && !opts.id) {
+    segment.id = opts._id;
+  } else if (opts.id && !opts._id) {
+    segment._id = opts.id;
+  }
   let checkProp = (newOpts, prop) => {
     if (newOpts.hasOwnProperty(prop)) {
       return true;

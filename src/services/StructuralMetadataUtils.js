@@ -86,6 +86,7 @@ export default class StructuralMetadataUtils {
    * so that they can be used in the validation logic and Peaks instance
    * @param {Array} allItems - array of all the items in structured metadata
    * @param {Float} duration - end time of the media file in seconds
+   * @return {Object} { newSmData: Array<Object>, newSmDataStatus: Boolean }
    */
   buildSMUI(allItems, duration) {
     let smDataIsValid = true;
@@ -123,6 +124,13 @@ export default class StructuralMetadataUtils {
             item.end = this.toHHmmss(duration);
           }
         }
+        if (item.type === 'div') {
+          if (item.items.length === 0) {
+            item.valid = false;
+            smDataIsValid = false;
+          }
+        }
+
         if (item.items) {
           formatItems(item.items);
         }
@@ -130,7 +138,7 @@ export default class StructuralMetadataUtils {
     };
 
     formatItems(allItems);
-    return [allItems, smDataIsValid];
+    return { newSmData: allItems, newSmDataStatus: smDataIsValid };
   }
 
   /**

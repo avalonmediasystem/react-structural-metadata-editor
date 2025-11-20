@@ -285,7 +285,7 @@ export default class WaveformDataUtils {
    */
   activateSegment(id, peaksInstance, duration, neighbors) {
     const segment = peaksInstance.segments.getSegment(id);
-    this.validateSegment(segment, false, peaksInstance, duration, neighbors);
+    this.validateSegment(segment, false, duration, neighbors);
     // Setting editable: true -> enables handles
     segment.update({
       editable: true,
@@ -400,9 +400,11 @@ export default class WaveformDataUtils {
       });
     } else {
       // Update the start and end times when labelText has not changed
-      clonedSegment.update({
+      const segment = peaksInstance.segments.getSegment(id);
+      segment.update({
         startTime: this.timeToS(beginTime),
         endTime: this.timeToS(endTime),
+        color: color
       });
     }
     return peaksInstance;

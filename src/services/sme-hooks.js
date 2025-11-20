@@ -1,8 +1,11 @@
 import React, { useEffect, useMemo, useRef } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import StructuralMetadataUtils from './StructuralMetadataUtils';
 import WaveformDataUtils from './WaveformDataUtils';
 import { getValidationBeginState, getValidationEndState, isTitleValid } from './form-helper';
+import { updateSMUI } from '../actions/sm-data';
+import { clearExistingAlerts, handleEditingTimespans, updateStructureStatus } from '../actions/forms';
+import { deleteSegment } from '../actions/peaks-instance';
 
 const structuralMetadataUtils = new StructuralMetadataUtils();
 const waveformDataUtils = new WaveformDataUtils();
@@ -108,22 +111,49 @@ export const useFindNeighborTimespans = ({ item }) => {
       parentTimespanRef.current = null;
     }
 
-    // Find previous and next siblings in the hierarchy
-    if (parentDiv && parentDiv.items) {
-      const siblings = parentDiv.items.filter(sibling => sibling.type === 'span');
-      const currentIndex = siblings.findIndex(sibling => sibling.id === item.id);
-
-      prevSiblingRef.current = currentIndex > 0 ? siblings[currentIndex - 1] : null;
-      nextSiblingRef.current = currentIndex < siblings.length - 1 ? siblings[currentIndex + 1] : null;
-    } else if (item) {
-      const siblings = structuralMetadataUtils.getItemsOfType(['span'], smData);
-      const currentIndex = siblings.findIndex(sibling => sibling.id === item.id);
-
-      prevSiblingRef.current = currentIndex > 0 ? siblings[currentIndex - 1] : null;
-      nextSiblingRef.current = currentIndex < siblings.length - 1 ? siblings[currentIndex + 1] : null;
+    let siblings = [];
+    if (parentDiv && parentDiv.items?.length > 1) {
+      /**
+       * Get sibling timespans from the parent has children.
+       * items?.length > 1 check excludes the current item.
+       */
+      siblings = parentDiv.items.filter(sibling => sibling.type === 'span');
+    } else {
+      // When there's no parent, get all timespans in structure
+      siblings = structuralMetadataUtils.getItemsOfType(['span'], smData);
     }
-  }, [parentDiv, item]);
 
+    // Get possible previous/next siblings from the siblings array
+    const currentIndex = siblings.findIndex(sibling => sibling.id === item.id);
+    let possiblePrevSibling = currentIndex > 0 ? siblings[currentIndex - 1] : null;
+    let possibleNextSibling = currentIndex < siblings.length - 1 ? siblings[currentIndex + 1] : null;
+
+    /**
+     * Iterate through the siblings array, and re-calculate the correct previous/next combo
+     * as needed because, the sibling calculation above based on indexes disregards the nested
+     * nature of the timespans.
+     */
+    siblings.map(sibling => {
+      const siblingParent = structuralMetadataUtils.getParentItem(sibling, smData);
+      if (possiblePrevSibling) {
+        const prevSiblingParent = structuralMetadataUtils.getParentItem(possiblePrevSibling, smData);
+        if (siblingParent.id === prevSiblingParent?.id) {
+          possiblePrevSibling = prevSiblingParent;
+        }
+      }
+
+      if (possibleNextSibling) {
+        const nextSiblingParent = structuralMetadataUtils.getParentItem(possibleNextSibling, smData);
+        if (siblingParent.id === nextSiblingParent?.id) {
+          possibleNextSibling = nextSiblingParent;
+        }
+      }
+    });
+
+    prevSiblingRef.current = possiblePrevSibling;
+    nextSiblingRef.current = possibleNextSibling;
+
+  }, [parentDiv, item, smData]);
   return { prevSiblingRef, nextSiblingRef, parentTimespanRef };
 };
 
@@ -200,4 +230,51 @@ export const useTimespanFormValidation = ({ beginTime, endTime, neighbors, times
   }, [timespanTitle, isBeginValid, isEndValid]);
 
   return { formIsValid, isBeginValid, isEndValid };
+};
+
+/**
+ * Perform Redux state updates during CRUD operations performed on structure
+ * @returns {
+ *  deleteStructItem,
+ *  updateEditingTimespans,
+ *  updateStructure,
+ * }
+ */
+export const useStructureUpdate = () => {
+  const dispatch = useDispatch();
+  const { smData, smDataIsValid } = useSelector(state => state.structuralMetadata);
+  const { duration } = useSelector(state => state.peaksInstance);
+
+  const updateStructure = (items = smData) => {
+    const { newSmData, newSmDataStatus } = structuralMetadataUtils.buildSMUI(items, duration);
+
+    dispatch(updateSMUI(newSmData, newSmDataStatus));
+    // Remove invalid structure alert when data is corrected
+    if (newSmDataStatus) {
+      dispatch(clearExistingAlerts());
+      dispatch(updateStructureStatus(0));
+    }
+  };
+
+  const deleteStructItem = (item) => {
+    // Clone smData and remove the item manually
+    const clonedItems = structuralMetadataUtils.deleteListItem(item.id, smData);
+
+    // Update structure with the item removed
+    updateStructure(clonedItems);
+
+    // Remove the Peaks segment from the peaks instance
+    dispatch(deleteSegment(item));
+  };
+
+  const updateEditingTimespans = (code) => {
+    handleEditingTimespans(code);
+    // Remove dismissible alerts when a CRUD action has been initiated
+    // given editing is starting (code = 1) and structure is validated.
+    if (code == 1 && smDataIsValid) {
+      dispatch(clearExistingAlerts());
+    }
+  };
+
+  return { deleteStructItem, updateEditingTimespans, updateStructure };
 };

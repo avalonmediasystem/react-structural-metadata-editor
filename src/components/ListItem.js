@@ -10,23 +10,21 @@ import ListItemEditForm from './ListItemEditForm';
 import ListItemControls from './ListItemControls';
 import { ItemTypes } from '../services/Constants';
 import * as actions from '../actions/sm-data';
-import { deleteSegment } from '../actions/peaks-instance';
-import { handleEditingTimespans } from '../actions/forms';
+import { useStructureUpdate } from '../services/sme-hooks';
 
 const ListItem = ({ item, children }) => {
   // Dispatch actions to Redux store
   const dispatch = useDispatch();
-  const deleteItem = (id) => dispatch(actions.deleteItem(id));
   const addDropTargets = (item) => dispatch(actions.addDropTargets(item));
   const removeDropTargets = () => dispatch(actions.removeDropTargets());
   const removeActiveDragSources = () => dispatch(actions.removeActiveDragSources());
   const setActiveDragSource = (id) => dispatch(actions.setActiveDragSource(id));
   const handleListItemDrop = (item, dropItem) => dispatch(actions.handleListItemDrop(item, dropItem));
-  const removeSegment = (item) => dispatch(deleteSegment(item));
-  const updateEditingTimespans = (value, smDataIsValid) => dispatch(handleEditingTimespans(value, smDataIsValid));
+
+  const { deleteStructItem, updateEditingTimespans } = useStructureUpdate();
 
   // Get state variables from Redux store
-  const { smDataIsValid } = useSelector((state) => state.structuralMetadata);
+  const { smData, smDataIsValid } = useSelector((state) => state.structuralMetadata);
 
   const [editing, setEditing] = useState(false);
 
@@ -54,21 +52,20 @@ const ListItem = ({ item, children }) => {
 
   const handleDelete = () => {
     try {
-      deleteItem(item.id);
-      removeSegment(item);
+      deleteStructItem(item);
     } catch (error) {
       showBoundary(error);
     }
   };
 
   const handleEditClick = () => {
-    updateEditingTimespans(1, smDataIsValid);
+    updateEditingTimespans(1);
     setEditing(true);
   };
 
   const handleEditFormCancel = () => {
     setEditing(false);
-    updateEditingTimespans(0, smDataIsValid);
+    updateEditingTimespans(0);
   };
 
   const handleShowDropTargetsClick = () => {
@@ -143,6 +140,15 @@ const ListItem = ({ item, children }) => {
               className='structure-title heading'
               data-testid='heading-label'
             >
+              {(!valid && type !== 'root') && (
+                <>
+                  <FontAwesomeIcon
+                    icon={faExclamationTriangle}
+                    className='icon-invalid'
+                    title='Please add at least one timespan or remove this heading.' />
+                  {' '}
+                </>
+              )}
               {label}
             </div>
           )}

@@ -7,12 +7,9 @@ import PopoverBody from 'react-bootstrap/PopoverBody';
 import PopoverHeader from 'react-bootstrap/PopoverHeader';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useDispatch, useSelector } from 'react-redux';
-import {
-  handleEditingTimespans,
-  updateStructureStatus,
-} from '../actions/forms';
+import { useSelector } from 'react-redux';
 import { faPen, faTrash, faDotCircle } from '@fortawesome/free-solid-svg-icons';
+import { useStructureUpdate } from '../services/sme-hooks';
 
 const styles = {
   buttonToolbar: {
@@ -26,10 +23,7 @@ const styles = {
 };
 
 const ListItemControls = ({ handleDelete, handleEditClick, handleShowDropTargetsClick, item }) => {
-  // Dispatch actions to Redux store
-  const dispatch = useDispatch();
-  const updateEditingTimespans = (value) => dispatch(handleEditingTimespans(value));
-  const updateStructStatus = (value) => dispatch(updateStructureStatus(value));
+  const { updateEditingTimespans } = useStructureUpdate();
 
   // Get state variables from Redux store
   const { editingDisabled } = useSelector((state) => state.forms);
@@ -47,8 +41,6 @@ const ListItemControls = ({ handleDelete, handleEditClick, handleShowDropTargets
     enableEditing();
     setDeleteMessage('');
     setShowDeleteConfirm(false);
-    // Change structureIsSaved to false
-    updateStructStatus(0);
   };
 
   const handleDeleteClick = (e) => {

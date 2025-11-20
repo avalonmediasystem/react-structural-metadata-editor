@@ -289,8 +289,9 @@ describe('App component', () => {
         await act(() => Promise.resolve());
 
         expect(app.queryByTestId('waveform-container')).toBeInTheDocument();
-        expect(app.queryByTestId('alert-container')).toBeInTheDocument();
-        expect(app.getByTestId('alert-message').innerHTML).toBe(
+        // Display 2 alerts for empty media and invalid structure
+        expect(app.queryAllByTestId('alert-container').length).toEqual(2);
+        expect(app.getAllByTestId('alert-message')[1].innerHTML).toBe(
           'No available media. Editing structure is disabled.'
         );
       });
@@ -464,7 +465,7 @@ describe('App component', () => {
         expect(app.getAllByTestId('heading-label')[0].innerHTML).toEqual('Lunchroom Manners');
         expect(app.getByTestId('alert-container')).toBeInTheDocument();
         expect(app.getByTestId('alert-message').innerHTML)
-          .toEqual('Please check start/end times of the marked invalid timespan(s).');
+          .toEqual('Please check the marked invalid timespan(s)/heading(s).');
       });
     });
   });

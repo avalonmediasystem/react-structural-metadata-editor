@@ -6,7 +6,7 @@ import Col from 'react-bootstrap/Col';
 import { getExistingFormValues, isTitleValid } from '../services/form-helper';
 import { useDispatch, useSelector } from 'react-redux';
 import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
-import { cloneDeep, isEmpty } from 'lodash';
+import { cloneDeep } from 'lodash';
 import ListItemInlineEditControls from './ListItemInlineEditControls';
 import * as peaksActions from '../actions/peaks-instance';
 import WaveformDataUtils from '../services/WaveformDataUtils';
@@ -70,7 +70,6 @@ function TimespanInlineForm({ cancelFn, item, isInitializing, isTyping, saveFn, 
       setEndTime(formValues.endTime);
       setTimespanTitle(formValues.timespanTitle);
       setClonedSegment(formValues.clonedSegment);
-
       activateSegment(
         item.id,
         {
@@ -99,12 +98,6 @@ function TimespanInlineForm({ cancelFn, item, isInitializing, isTyping, saveFn, 
   }, []);
 
   useEffect(() => {
-    if (!isDragging && isInitializing && !isTyping && !isEmpty(segment)) {
-      const { startTime, endTime } = segment;
-      setBeginTime(structuralMetadataUtils.toHHmmss(startTime));
-      setEndTime(structuralMetadataUtils.toHHmmss(endTime));
-    }
-
     if (isDragging) {
       // When handles in waveform are dragged clear out isInitializing and isTyping flags
       if (isInitializing) setIsInitializing(0);
@@ -124,7 +117,7 @@ function TimespanInlineForm({ cancelFn, item, isInitializing, isTyping, saveFn, 
       setBeginTime(structuralMetadataUtils.toHHmmss(startTime));
       setEndTime(structuralMetadataUtils.toHHmmss(endTime));
     }
-  }, [isDragging, isInitializing, isTyping, segment, peaksInstance]);
+  }, [isDragging, isInitializing, isTyping, peaksInstance]);
 
   /**
    * When there are invalid timespans in the structure, to edit them

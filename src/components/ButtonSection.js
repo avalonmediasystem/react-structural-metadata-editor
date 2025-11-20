@@ -7,7 +7,8 @@ import HeadingFormContainer from '../containers/HeadingFormContainer';
 import TimespanFormContainer from '../containers/TimespanFormContainer';
 import * as peaksActions from '../actions/peaks-instance';
 import { configureAlert } from '../services/alert-status';
-import { handleEditingTimespans, setAlert } from '../actions/forms';
+import { setAlert } from '../actions/forms';
+import { useStructureUpdate } from '../services/sme-hooks';
 
 const styles = {
   well: {
@@ -27,8 +28,9 @@ const ButtonSection = () => {
   const dispatch = useDispatch();
   const createTempSegment = () => dispatch(peaksActions.insertTempSegment());
   const removeTempSegment = (id) => dispatch(peaksActions.deleteTempSegment(id));
-  const updateEditingTimespans = (value) => dispatch(handleEditingTimespans(value));
   const settingAlert = (alert) => dispatch(setAlert(alert));
+
+  const { updateEditingTimespans } = useStructureUpdate();
 
   // Get state variables from Redux store
   const { editingDisabled, structureInfo, streamInfo } = useSelector((state) => state.forms);
@@ -105,7 +107,7 @@ const ButtonSection = () => {
   const deleteTempSegment = () => {
     try {
       if (initSegment != null) {
-        removeTempSegment(initSegment.id);
+        dispatch(removeTempSegment(initSegment.id));
       }
     } catch (error) {
       showBoundary(error);

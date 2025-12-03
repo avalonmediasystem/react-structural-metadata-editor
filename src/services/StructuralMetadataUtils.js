@@ -86,6 +86,7 @@ export default class StructuralMetadataUtils {
    * so that they can be used in the validation logic and Peaks instance
    * @param {Array} allItems - array of all the items in structured metadata
    * @param {Float} duration - end time of the media file in seconds
+   * @return {Object} { newSmData: Array<Object>, newSmDataStatus: Boolean }
    */
   buildSMUI(allItems, duration) {
     let smDataIsValid = true;
@@ -123,6 +124,13 @@ export default class StructuralMetadataUtils {
             item.end = this.toHHmmss(duration);
           }
         }
+        if (item.type === 'div') {
+          if (item.items.length === 0) {
+            item.valid = false;
+            smDataIsValid = false;
+          }
+        }
+
         if (item.items) {
           formatItems(item.items);
         }
@@ -130,7 +138,7 @@ export default class StructuralMetadataUtils {
     };
 
     formatItems(allItems);
-    return [allItems, smDataIsValid];
+    return { newSmData: allItems, newSmDataStatus: smDataIsValid };
   }
 
   /**
@@ -892,4 +900,47 @@ export default class StructuralMetadataUtils {
 
     return clonedItems;
   }
+
+
+  /**
+   * Get siblings and parent timespans for a given structure item.
+   * These values are then used across the component to validate timespan
+   * creation and editing.
+   * @param {Array} smData structure data
+   * @param {Object} item 'span' type object matching structure data
+   * @returns {Object}
+   */
+  calculateAdjacentTimespans(smData, item) {
+    const allSpans = this.getItemsOfType(['span'], smData);
+    // const otherSpans = allSpans.filter((span) => span.id != item.id);
+
+    let possibleParent = null;
+    let closestGapBefore = Infinity; let possiblePrevSibling = null;
+    let closestGapAfter = Infinity; let possibleNextSibling = null;
+
+    const { start, end } = item.timeRange;
+
+    const parentDiv = this.getParentItem(item, smData);
+    if (parentDiv && parentDiv.type === 'span') {
+      possibleParent = parentDiv;
+    } else {
+      possibleParent = null;
+    }
+
+    allSpans.map((span) => {
+      let gapBefore = start - span.timeRange.end;
+      if (gapBefore >= 0 && gapBefore < closestGapBefore) {
+        closestGapBefore = gapBefore;
+        possiblePrevSibling = span;
+      }
+
+      let gapAfter = span.timeRange.start - end;
+      if (gapAfter >= 0 && gapAfter < closestGapAfter) {
+        closestGapAfter = gapAfter;
+        possibleNextSibling = span;
+      }
+    });
+    return { possibleParent, possiblePrevSibling, possibleNextSibling };
+  };
+
 }

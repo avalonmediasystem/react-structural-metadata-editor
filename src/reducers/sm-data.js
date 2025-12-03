@@ -14,27 +14,20 @@ let newState = null;
 const structuralMetadata = (state = initialState, action) => {
   switch (action.type) {
     case types.BUILD_SM_UI:
-      newState = structuralMetadataUtils.buildSMUI(
+      const { newSmData, newSmDataStatus } = structuralMetadataUtils.buildSMUI(
         action.json,
         action.duration
       );
-      return { ...state, smData: newState[0], smDataIsValid: newState[1] };
+      return { ...state, smData: newSmData, smDataIsValid: newSmDataStatus };
 
-    case types.REBUILD_SM_UI:
-      return { ...state, smData: action.items };
+    case types.UPDATE_SM_UI:
+      return { ...state, smData: action.json, smDataIsValid: action.isValid };
 
     case types.SAVE_INIT_SMDATA:
       return {
         ...state,
         initSmData: action.payload,
       };
-
-    case types.DELETE_ITEM:
-      newState = structuralMetadataUtils.deleteListItem(
-        action.id,
-        state.smData
-      );
-      return { ...state, smData: newState };
 
     case types.ADD_DROP_TARGETS:
       newState = structuralMetadataUtils.determineDropTargets(

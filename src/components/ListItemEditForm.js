@@ -1,23 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import { useErrorBoundary } from 'react-error-boundary';
 import PropTypes from 'prop-types';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import TimespanInlineForm from './TimespanInlineForm';
 import HeadingInlineForm from './HeadingInlineForm';
-import { reBuildSMUI } from '../actions/sm-data';
 import { cloneDeep } from 'lodash';
 import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
+import { useStructureUpdate } from '../services/sme-hooks';
 
 const structuralMetadataUtils = new StructuralMetadataUtils();
 
 const ListItemEditForm = ({ item, handleEditFormCancel }) => {
-  // Dispatch actions to Redux store
-  const dispatch = useDispatch();
-  const updateSMUI = (cloned, duration) => dispatch(reBuildSMUI(cloned, duration));
+  const { updateStructure } = useStructureUpdate();
 
   // Get state variables from Redux store
   const { smData } = useSelector((state) => state.structuralMetadata);
-  const { duration } = useSelector((state) => state.peaksInstance);
 
   const [isTyping, _setIsTyping] = useState(false);
   const [isInitializing, _setIsInitializing] = useState(true);
@@ -78,8 +75,8 @@ const ListItemEditForm = ({ item, handleEditFormCancel }) => {
       // Update item values
       item = addUpdatedValues(item, payload);
 
-      // Send updated smData back to redux
-      updateSMUI(clonedItems, duration);
+      // Send updated smData back to redux via custom hook
+      updateStructure(clonedItems);
 
       // Turn off editing state
       handleEditFormCancel();

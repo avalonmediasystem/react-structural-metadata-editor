@@ -75,77 +75,59 @@ describe('form-helper', () => {
   });
 
   describe('validTimespans()', () => {
-    const allSpans = [
-      {
-        type: 'span',
-        label: 'Segment 1.1',
-        id: '123a-456b-789c-3d',
-        begin: '00:00:00.321',
-        end: '00:00:03.321',
-        valid: true,
-      },
-      {
-        type: 'span',
-        label: 'Segment 1.2',
-        id: '123a-456b-789c-4d',
-        begin: '00:00:08.000',
-        end: '00:00:09.001',
-        valid: true,
-      },
-    ];
     test('returns true for correct input', () => {
-      const result = formHelper.validTimespans('00:00:01.000', '00:00:02.000', 10, []);
+      const result = formHelper.validTimespans('00:00:01.000', '00:00:02.000', 10);
       expect(result.valid).toBe(true);
     });
     test('returns true correct input with a comma decimal seperator', () => {
-      const result = formHelper.validTimespans('00:00:01,000', '00:00:02,000', 10, []);
+      const result = formHelper.validTimespans('00:00:01,000', '00:00:02,000', 10);
       expect(result.valid).toBe(true);
     });
     test('returns false for invalid time format without colons', () => {
-      const result = formHelper.validTimespans('000001.000', '000003.000', 10, []);
+      const result = formHelper.validTimespans('000001.000', '000003.000', 10);
       expect(result.valid).toBe(false);
       expect(result.message).toMatch('Invalid begin time format');
     });
     test('returns false for invalid time with correct format with colons', () => {
-      const result = formHelper.validTimespans('.:,:.', '0:0:9', 10, []);
+      const result = formHelper.validTimespans('.:,:.', '0:0:9', 10);
       expect(result.valid).toBe(false);
       expect(result.message).toMatch('Invalid begin time format');
     });
     test('returns true for valid time with correct format with colons', () => {
-      const result = formHelper.validTimespans('0:0:0', '0:0:9', 10, []);
+      const result = formHelper.validTimespans('0:0:0', '0:0:9', 10);
       expect(result.valid).toBe(true);
     });
     test('returns false for invalid non-string time format', () => {
-      const result = formHelper.validTimespans(30, '000003.000', 10, []);
+      const result = formHelper.validTimespans(30, '000003.000', 10);
       expect(result.valid).toBe(false);
       expect(result.message).toMatch('Invalid begin time format');
     });
     test('returns false for invalid time format with a space character', () => {
-      const result = formHelper.validTimespans('00:0 :00.000', '00:00:0a.000', 10, []);
+      const result = formHelper.validTimespans('00:0 :00.000', '00:00:0a.000', 10);
       expect(result.valid).toBe(false);
       expect(result.message).toMatch('Invalid begin time format');
     });
     test('returns false for invalid time format with invalid characters', () => {
-      const result = formHelper.validTimespans('00:0):00.000', '00:00:0a.000', 10, []);
+      const result = formHelper.validTimespans('00:0):00.000', '00:00:0a.000', 10);
       expect(result.valid).toBe(false);
       expect(result.message).toMatch('Invalid begin time format');
     });
     test('returns false for invalid end format', () => {
-      const result = formHelper.validTimespans('00:00:01.000', '00:0s:02.000', 10, []);
+      const result = formHelper.validTimespans('00:00:01.000', '00:0s:02.000', 10);
       expect(result.valid).toBe(false);
       expect(result.message).toMatch('Invalid end time format');
     });
     test('returns false for begin time overlapping end time', () => {
-      const result = formHelper.validTimespans('00:00:02.000', '00:00:01.000', 10, []);
+      const result = formHelper.validTimespans('00:00:02.000', '00:00:01.000', 10);
       expect(result.valid).toBe(false);
       expect(result.message).toMatch('Begin time must start before end time');
     });
     test('returns true for end time overlapping an existing timespan (overlapping now allowed)', () => {
-      const result = formHelper.validTimespans('00:00:07.000', '00:00:08.300', 10, allSpans);
+      const result = formHelper.validTimespans('00:00:07.000', '00:00:08.300', 10);
       expect(result.valid).toBe(true);
     });
     test('returns true for begin time overlapping an existing timespan (overlapping now allowed)', () => {
-      const result = formHelper.validTimespans('00:00:03.000', '00:00:04.000', 10, allSpans);
+      const result = formHelper.validTimespans('00:00:03.000', '00:00:04.000', 10);
       expect(result.valid).toBe(true);
     });
     test('returns false for end time > duration', () => {

@@ -157,8 +157,8 @@ describe('ButtonSection/StructureOutputContainer renders', () => {
 
     // Check the new heading was added to the end of the 'First Segment' div
     expect(
-      app.queryAllByTestId('heading-label')[3].innerHTML).toEqual(
-        'New Heading'
+      app.queryAllByTestId('heading-label')[3].textContent).toEqual(
+        ' New Heading'
       );
   });
 });

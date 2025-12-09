@@ -14,7 +14,7 @@ export const STREAM_MEDIA_ERROR =
 export const MISSING_WAVEFORM_ERROR =
   'No available waveform data.';
 export const INVALID_SEGMENTS_WARNING =
-  'Please check start/end times of the marked invalid timespan(s).';
+  'Please check the marked invalid timespan(s)/heading(s).';
 export const FETCH_MANIFEST_ERROR = 'Error fetching IIIF manifest.';
 export const NO_MEDIA_MESSAGE = 'No available media. Editing structure is disabled.';
 

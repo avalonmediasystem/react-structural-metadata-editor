@@ -57,12 +57,10 @@ describe('TimespanInlineForm component', () => {
     props = {
       ...props,
       item: {
-        type: 'span',
-        label: 'Segment 2.1',
-        id: '123a-456b-789c-8d',
-        begin: '00:09:03.241',
-        end: '00:15:00.001',
+        type: 'span', label: 'Segment 2.1', id: '123a-456b-789c-8d',
+        begin: '00:09:03.241', end: '00:15:00.001',
         valid: true,
+        timeRange: { start: 543.241, end: 900.001 }
       },
     };
     const timespanInlineForm = renderWithRedux(<TimespanInlineForm {...props} />, {
@@ -88,12 +86,10 @@ describe('TimespanInlineForm component', () => {
       props = {
         ...props,
         item: {
-          type: 'span',
-          label: 'Segment 2.1',
-          id: '123a-456b-789c-8d',
-          begin: '00:09:03.241',
-          end: '00:15:00.001',
+          type: 'span', label: 'Segment 2.1', id: '123a-456b-789c-8d',
+          begin: '00:09:03.241', end: '00:15:00.001',
           valid: true,
+          timeRange: { start: 543.241, end: 900.001 }
         },
       };
       timespanInlineForm = renderWithRedux(<TimespanInlineForm {...props} />, {
@@ -147,12 +143,10 @@ describe('TimespanInlineForm component', () => {
     props = {
       ...props,
       item: {
-        type: 'span',
-        label: 'Invalid timespan',
-        id: '123a-456b-789c-5d',
-        begin: '00:20:21.000',
-        end: '00:15:00.001',
+        type: 'span', label: 'Invalid timespan', id: '123a-456b-789c-5d',
+        begin: '00:20:21.000', end: '00:15:00.001',
         valid: false,
+        timeRange: { start: 261.00, end: 900.001 }
       },
     };
     const timespanInlineForm = renderWithRedux(<TimespanInlineForm {...props} />, { initialState });
@@ -274,12 +268,10 @@ describe('TimespanInlineForm component', () => {
       props = {
         ...props,
         item: {
-          type: 'span',
-          label: 'Segment 1.2',
-          id: '123a-456b-789c-4d',
-          begin: '00:00:11.231',
-          end: '00:08:00.001',
+          type: 'span', label: 'Segment 1.2', id: '123a-456b-789c-4d',
+          begin: '00:00:11.231', end: '00:08:00.001',
           valid: true,
+          timeRange: { start: 11.231, end: 480.001 }
         },
       };
       timespanInlineForm = renderWithRedux(

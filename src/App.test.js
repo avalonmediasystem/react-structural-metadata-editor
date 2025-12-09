@@ -10,6 +10,7 @@ import {
   manifestWoStructure,
   manifestWithInvalidStruct,
   manifestWEmptyCanvas,
+  manifestWEmptyRanges,
 } from './services/testing-helpers';
 import mockAxios from 'axios';
 import Peaks from 'peaks.js';
@@ -289,8 +290,9 @@ describe('App component', () => {
         await act(() => Promise.resolve());
 
         expect(app.queryByTestId('waveform-container')).toBeInTheDocument();
-        expect(app.queryByTestId('alert-container')).toBeInTheDocument();
-        expect(app.getByTestId('alert-message').innerHTML).toBe(
+        // Display 2 alerts for empty media and invalid structure
+        expect(app.queryAllByTestId('alert-container').length).toEqual(2);
+        expect(app.getAllByTestId('alert-message')[1].innerHTML).toBe(
           'No available media. Editing structure is disabled.'
         );
       });
@@ -432,39 +434,79 @@ describe('App component', () => {
       });
     });
 
-    test('when structure has invalid timespans', async () => {
-      mockAxios.get.mockImplementationOnce(() => {
-        return Promise.resolve({
-          status: 200,
-          data: manifestWithInvalidStruct
+    describe('when structure has', () => {
+      test('invalid timespans', async () => {
+        mockAxios.get.mockImplementationOnce(() => {
+          return Promise.resolve({
+            status: 200,
+            data: manifestWithInvalidStruct
+          });
         });
-      });
-      mockAxios.head.mockImplementationOnce(() => {
-        return Promise.resolve({
-          status: 200,
-          request: {
-            responseURL: 'https://example.com/lunchroom_manners/waveform.json',
-          },
+        mockAxios.head.mockImplementationOnce(() => {
+          return Promise.resolve({
+            status: 200,
+            request: {
+              responseURL: 'https://example.com/lunchroom_manners/waveform.json',
+            },
+          });
         });
-      });
-      const initialState = {
-        manifest: {
-          manifestFetched: true,
-          manifest: manifestWithInvalidStruct,
-          mediaInfo: {
-            src: 'http://example.com/volleyball-for-boys/high/volleyball-for-boys.mp4',
-            duration: 662.037,
+        const initialState = {
+          manifest: {
+            manifestFetched: true,
+            manifest: manifestWithInvalidStruct,
+            mediaInfo: {
+              src: 'http://example.com/volleyball-for-boys/high/volleyball-for-boys.mp4',
+              duration: 662.037,
+            },
           },
-        },
-      };
-      const app = renderWithRedux(<App {...props} />, { initialState });
+        };
+        const app = renderWithRedux(<App {...props} />, { initialState });
 
-      await waitFor(() => {
-        expect(app.queryAllByTestId('list-item').length).toBeGreaterThan(0);
-        expect(app.getAllByTestId('heading-label')[0].innerHTML).toEqual('Lunchroom Manners');
-        expect(app.getByTestId('alert-container')).toBeInTheDocument();
-        expect(app.getByTestId('alert-message').innerHTML)
-          .toEqual('Please check start/end times of the marked invalid timespan(s).');
+        await waitFor(() => {
+          expect(app.queryAllByTestId('list-item').length).toBeGreaterThan(0);
+          expect(app.getAllByTestId('heading-label')[0].innerHTML).toEqual('Lunchroom Manners');
+          expect(app.getByTestId('alert-container')).toBeInTheDocument();
+          expect(app.getByTestId('alert-message').innerHTML)
+            .toEqual('Please check the marked invalid timespan(s)/heading(s).');
+          expect(app.getByTestId('structure-save-button')).not.toBeEnabled();
+        });
+      });
+
+      test('invalid headings (empty)', async () => {
+        mockAxios.get.mockImplementationOnce(() => {
+          return Promise.resolve({
+            status: 200,
+            data: manifestWEmptyRanges
+          });
+        });
+        mockAxios.head.mockImplementationOnce(() => {
+          return Promise.resolve({
+            status: 200,
+            request: {
+              responseURL: 'https://example.com/lunchroom_manners/waveform.json',
+            },
+          });
+        });
+        const initialState = {
+          manifest: {
+            manifestFetched: true,
+            manifest: manifestWEmptyRanges,
+            mediaInfo: {
+              src: 'http://example.com/volleyball-for-boys/high/volleyball-for-boys.mp4',
+              duration: 662.037,
+            },
+          },
+        };
+        const app = renderWithRedux(<App {...props} />, { initialState });
+
+        await waitFor(() => {
+          expect(app.queryAllByTestId('list-item').length).toBeGreaterThan(0);
+          expect(app.getAllByTestId('heading-label')[0].innerHTML).toEqual('Root');
+          expect(app.getByTestId('alert-container')).toBeInTheDocument();
+          expect(app.getByTestId('alert-message').innerHTML)
+            .toEqual('Please check the marked invalid timespan(s)/heading(s).');
+          expect(app.getByTestId('structure-save-button')).not.toBeEnabled();
+        });
       });
     });
   });

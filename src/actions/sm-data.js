@@ -1,17 +1,5 @@
 import * as types from './types';
-import { updateStructureStatus, clearExistingAlerts } from './forms';
-
-export function reBuildSMUI(items, duration) {
-  return (dispatch, getState) => {
-    dispatch(buildSMUI(items, duration));
-    const { structuralMetadata } = getState();
-    // Remove invalid structure alert when data is corrected
-    if (structuralMetadata.smDataIsValid) {
-      dispatch(clearExistingAlerts());
-    }
-    dispatch(updateStructureStatus(0));
-  };
-}
+import { updateStructureStatus } from './forms';
 
 export function buildSMUI(json, duration) {
   return {
@@ -21,10 +9,11 @@ export function buildSMUI(json, duration) {
   };
 }
 
-export function deleteItem(id) {
+export function updateSMUI(json, isValid) {
   return {
-    type: types.DELETE_ITEM,
-    id,
+    type: types.UPDATE_SM_UI,
+    json,
+    isValid,
   };
 }
 

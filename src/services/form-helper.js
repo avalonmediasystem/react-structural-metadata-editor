@@ -87,10 +87,9 @@ export function isTitleValid(title) {
  * @param {Number} beginTime 
  * @param {Number} endTime 
  * @param {Number} duration duration saved in central state
- * @param {Array} allSpans list of all timespans in peaks
  * @returns {Object} { valid: <Boolean>, message: <String> }
  */
-export function validTimespans(beginTime, endTime, duration, allSpans) {
+export function validTimespans(beginTime, endTime, duration) {
   // Valid formats?
   if (!validTimeFormat(beginTime)) {
     return {

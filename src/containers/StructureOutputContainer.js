@@ -90,7 +90,7 @@ const StructureOutputContainer = ({ disableSave, structureIsSaved, structureURL 
               variant="primary"
               onClick={handleSaveItClick}
               data-testid="structure-save-button"
-              disabled={editingDisabled}
+              disabled={editingDisabled || !smDataIsValid}
               className="float-end"
             >
               Save Structure

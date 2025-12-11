@@ -68,11 +68,11 @@ export default class WaveformDataUtils {
   insertTempSegment(peaksInstance, duration) {
     // Current time of the playhead
     const currentTime = this.roundOff(peaksInstance.player.getCurrentTime());
-
     let rangeBeginTime = currentTime;
+    // Save possible parent's id that corresponds to an element in smData structure
+    let parentId = null;
     // Initially set rangeEndTime to 60 seconds from the current time
     let rangeEndTime = Math.round((currentTime + 60.0) * 1000) / 1000;
-
     // Get all segments in Peaks
     const currentSegments = this.sortSegments(peaksInstance, 'startTime');
 
@@ -173,6 +173,7 @@ export default class WaveformDataUtils {
           if (commonContainer) {
             // Adjust rangeEndTime to not overlap with the children of the common parent segment
             rangeEndTime = findNonOverlappingEndTime(commonContainer, rangeEndTime);
+            parentId = commonContainer._id;
           } else {
             // Adjust rangeEndTime when they don't share a common parent segment
             rangeEndTime = Math.min(rangeEndTime, beginContainers[0].endTime);
@@ -200,6 +201,7 @@ export default class WaveformDataUtils {
         // Suggested range is overlapping with an existing segment at the beginning
         else if (beginContainers.length > 0 && endContainers.length === 0) {
           const containingSegment = beginContainers[0];
+          parentId = containingSegment._id;
           rangeEndTime = findNonOverlappingEndTime(containingSegment, rangeEndTime);
         }
 
@@ -227,6 +229,9 @@ export default class WaveformDataUtils {
           editable: true,
           color: COLOR_PALETTE[2],
           id: 'temp-segment',
+          // Add 'parentId' prop to help identify the parent timespan in next calculations,
+          // as this segment doesn't have a corresponding timespan in the smData structure.
+          parentId,
         });
       }
     }

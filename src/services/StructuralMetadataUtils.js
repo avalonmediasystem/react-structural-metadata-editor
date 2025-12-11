@@ -912,7 +912,6 @@ export default class StructuralMetadataUtils {
    */
   calculateAdjacentTimespans(smData, item) {
     const allSpans = this.getItemsOfType(['span'], smData);
-    // const otherSpans = allSpans.filter((span) => span.id != item.id);
 
     let possibleParent = null;
     let closestGapBefore = Infinity; let possiblePrevSibling = null;
@@ -920,7 +919,10 @@ export default class StructuralMetadataUtils {
 
     const { start, end } = item.timeRange;
 
-    const parentDiv = this.getParentItem(item, smData);
+    let parentDiv = this.getParentItem(item, smData);
+    if (parentDiv == null && item.parentId != undefined) {
+      parentDiv = this.findItem(item.parentId, smData);
+    }
     if (parentDiv && parentDiv.type === 'span') {
       possibleParent = parentDiv;
     } else {

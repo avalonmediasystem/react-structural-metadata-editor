@@ -131,72 +131,147 @@ describe('sme-hooks', () => {
         };
       });
 
-      test('returns prevSibling = null for first segment', () => {
-        const CustomComponent = renderHook({
-          segment: {
-            _startTime: 3.321, _endTime: 10.321,
-            _id: '123a-456b-789c-2d', labelText: 'Segment 1.1',
-          }
+      describe('for existing segments', () => {
+        test('returns prevSibling = null for first segment', () => {
+          const CustomComponent = renderHook({
+            segment: {
+              _startTime: 3.321, _endTime: 10.321,
+              _id: '123a-456b-789c-2d', labelText: 'Segment 1.1',
+            }
+          });
+          renderWithRedux(<CustomComponent />, { initialState });
+          expect(resultRef.current.prevSiblingRef.current).toBeNull();
+          expect(resultRef.current.nextSiblingRef.current).not.toBeNull();
+          expect(resultRef.current.nextSiblingRef.current.label).toEqual('Segment 1.2');
         });
-        renderWithRedux(<CustomComponent />, { initialState });
-        expect(resultRef.current.prevSiblingRef.current).toBeNull();
-        expect(resultRef.current.nextSiblingRef.current).not.toBeNull();
-        expect(resultRef.current.nextSiblingRef.current.label).toEqual('Segment 1.2');
+
+        test('returns nextSibling = null for last segment', () => {
+          const CustomComponent = renderHook({
+            segment: {
+              _startTime: 720.231, _endTime: 790.001,
+              _id: '123a-456b-789c-8d', labelText: 'Segment 2.1.2'
+            }
+          });
+          renderWithRedux(<CustomComponent />, { initialState });
+          expect(resultRef.current.nextSiblingRef.current).toBeNull();
+          expect(resultRef.current.prevSiblingRef.current).not.toBeNull();
+          expect(resultRef.current.prevSiblingRef.current.label).toEqual('Segment 2.1.1');
+        });
+
+        test('returns both siblings for middle segment', () => {
+          const CustomComponent = renderHook({
+            segment: {
+              _startTime: 60.231, _endTime: 480.001,
+              _id: '123a-456b-789c-3d', labelText: 'Segment 1.2'
+            }
+          });
+          renderWithRedux(<CustomComponent />, { initialState });
+          expect(resultRef.current.prevSiblingRef.current.label).toEqual('Segment 1.1');
+          expect(resultRef.current.prevSiblingRef.current).not.toBeNull();
+          expect(resultRef.current.nextSiblingRef.current).not.toBeNull();
+          expect(resultRef.current.nextSiblingRef.current.label).toEqual('Segment 2.1');
+        });
+
+        test('returns both siblings and parent for a nested child segment', () => {
+          // Current segment: first child of 'Segment 2.1' timespan
+          const CustomComponent = renderHook({
+            segment: {
+              _startTime: 550.241, _endTime: 660.321,
+              _id: '123a-456b-789c-7d', labelText: 'Segment 2.1.1',
+            }
+          });
+          renderWithRedux(<CustomComponent />, { initialState });
+          expect(resultRef.current.nextSiblingRef.current).not.toBeNull();
+          expect(resultRef.current.prevSiblingRef.current).not.toBeNull();
+          expect(resultRef.current.parentTimespanRef.current).not.toBeNull();
+          expect(resultRef.current.parentTimespanRef.current.label).toEqual('Segment 2.1');
+        });
+
+        test('returns parentTimespan = null for non-nested segment', () => {
+          const CustomComponent = renderHook({
+            segment: {
+              _startTime: 3.321,
+              _endTime: 10.321,
+              _id: '123a-456b-789c-2d',
+              labelText: 'Segment 1.1',
+            }
+          });
+          renderWithRedux(<CustomComponent />, { initialState });
+          expect(resultRef.current.parentTimespanRef.current).toBeNull();
+        });
       });
 
-      test('returns nextSibling = null for last segment', () => {
-        const CustomComponent = renderHook({
-          segment: {
-            _startTime: 720.231, _endTime: 790.001,
-            _id: '123a-456b-789c-8d', labelText: 'Segment 2.1.2'
-          }
+      describe('for new segments', () => {
+        test('returns prevSibling = null for a temp-segment at the start', () => {
+          const CustomComponent = renderHook({
+            segment: {
+              _startTime: 0.0, _endTime: 3.321,
+              _id: 'temp-segment', labelText: 'First Segment',
+              parentId: null,
+            }
+          });
+          renderWithRedux(<CustomComponent />, { initialState });
+          expect(resultRef.current.prevSiblingRef.current).toBeNull();
+          expect(resultRef.current.nextSiblingRef.current).not.toBeNull();
+          expect(resultRef.current.nextSiblingRef.current.label).toEqual('Segment 1.1');
         });
-        renderWithRedux(<CustomComponent />, { initialState });
-        expect(resultRef.current.nextSiblingRef.current).toBeNull();
-        expect(resultRef.current.prevSiblingRef.current).not.toBeNull();
-        expect(resultRef.current.prevSiblingRef.current.label).toEqual('Segment 2.1.1');
-      });
 
-      test('returns both siblings for middle segment', () => {
-        const CustomComponent = renderHook({
-          segment: {
-            _startTime: 60.231, _endTime: 480.001,
-            _id: '123a-456b-789c-3d', labelText: 'Segment 1.2'
-          }
+        test('returns nextSibling = null for a temp-segment at the end', () => {
+          const CustomComponent = renderHook({
+            segment: {
+              _startTime: 790.002, _endTime: 795.002,
+              _id: 'temp-segment', labelText: 'Last Segment'
+            }
+          });
+          renderWithRedux(<CustomComponent />, { initialState });
+          expect(resultRef.current.nextSiblingRef.current).toBeNull();
+          expect(resultRef.current.prevSiblingRef.current).not.toBeNull();
+          expect(resultRef.current.prevSiblingRef.current.label).toEqual('Segment 2.1.2');
         });
-        renderWithRedux(<CustomComponent />, { initialState });
-        expect(resultRef.current.prevSiblingRef.current.label).toEqual('Segment 1.1');
-        expect(resultRef.current.prevSiblingRef.current).not.toBeNull();
-        expect(resultRef.current.nextSiblingRef.current).not.toBeNull();
-        expect(resultRef.current.nextSiblingRef.current.label).toEqual('Segment 2.1');
-      });
 
-      test('returns both siblings and parent for a nested child segment', () => {
-        // Current segment: first child of 'Segment 2.1' timespan
-        const CustomComponent = renderHook({
-          segment: {
-            _startTime: 550.241, _endTime: 660.321,
-            _id: '123a-456b-789c-7d', labelText: 'Segment 2.1.1',
-          }
+        test('returns both siblings for a temp-segment at the middle', () => {
+          const CustomComponent = renderHook({
+            segment: {
+              _startTime: 10.321, _endTime: 60.231,
+              _id: 'temp-segment', labelText: 'Middle Segment'
+            }
+          });
+          renderWithRedux(<CustomComponent />, { initialState });
+          expect(resultRef.current.prevSiblingRef.current.label).toEqual('Segment 1.1');
+          expect(resultRef.current.prevSiblingRef.current).not.toBeNull();
+          expect(resultRef.current.nextSiblingRef.current).not.toBeNull();
+          expect(resultRef.current.nextSiblingRef.current.label).toEqual('Segment 1.2');
         });
-        renderWithRedux(<CustomComponent />, { initialState });
-        expect(resultRef.current.nextSiblingRef.current).not.toBeNull();
-        expect(resultRef.current.prevSiblingRef.current).not.toBeNull();
-        expect(resultRef.current.parentTimespanRef.current).not.toBeNull();
-        expect(resultRef.current.parentTimespanRef.current.label).toEqual('Segment 2.1');
-      });
 
-      test('returns parentTimespan = null for non-nested segment', () => {
-        const CustomComponent = renderHook({
-          segment: {
-            _startTime: 3.321,
-            _endTime: 10.321,
-            _id: '123a-456b-789c-2d',
-            labelText: 'Segment 1.1',
-          }
+        test('returns both siblings and parent for a temp-segment inside a parent in between its children', () => {
+          // Current segment: middle child of 'Segment 2.1' timespan
+          const CustomComponent = renderHook({
+            segment: {
+              _startTime: 660.321, _endTime: 720.231,
+              _id: 'temp-segment', labelText: 'Middle Child Segment',
+              parentId: '123a-456b-789c-6d'
+            }
+          });
+          renderWithRedux(<CustomComponent />, { initialState });
+          expect(resultRef.current.nextSiblingRef.current).not.toBeNull();
+          expect(resultRef.current.nextSiblingRef.current.label).toEqual('Segment 2.1.2');
+          expect(resultRef.current.prevSiblingRef.current).not.toBeNull();
+          expect(resultRef.current.prevSiblingRef.current.label).toEqual('Segment 2.1.1');
+          expect(resultRef.current.parentTimespanRef.current).not.toBeNull();
+          expect(resultRef.current.parentTimespanRef.current.label).toEqual('Segment 2.1');
         });
-        renderWithRedux(<CustomComponent />, { initialState });
-        expect(resultRef.current.parentTimespanRef.current).toBeNull();
+
+        test('returns parentTimespan = null for non-nested segment', () => {
+          const CustomComponent = renderHook({
+            segment: {
+              _startTime: 480.001, _endTime: 540.241,
+              _id: 'temp-segment', labelText: 'Middle Segment',
+            }
+          });
+          renderWithRedux(<CustomComponent />, { initialState });
+          expect(resultRef.current.parentTimespanRef.current).toBeNull();
+        });
+
       });
     });
   });

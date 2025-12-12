@@ -1,0 +1,31 @@
+.json-editor-container {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  overflow: auto;
+  margin-bottom: 2em;
+  /* Same height as visual editor structure section */
+  max-height: 30vh;
+}
+
+.json-editor-main {
+  flex: 1;
+  overflow: auto;
+  border-right: 1px solid #ddd;
+}
+
+.json-editor-main .cm-editor {
+  height: 100%;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 14px;
+}
+
+.json-editor-buttons {
+  display: flex;
+  gap: 2;
+  padding: 12px;
+  border-top: 1px solid #ddd;
+  background-color: #fff;
+  margin-top: auto;
+}

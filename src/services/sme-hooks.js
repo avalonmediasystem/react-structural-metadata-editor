@@ -39,13 +39,14 @@ export const useFindNeighborSegments = ({ segment }) => {
       let item;
       if (segment._id === 'temp-segment') {
         // Construct a span object from segment when handling timespan creation
-        const { _id, _startTime, _endTime } = segment;
+        const { _id, _startTime, _endTime, parentId } = segment;
         item = {
           type: 'span', label: '', id: _id,
           begin: structuralMetadataUtils.toHHmmss(_startTime),
           end: structuralMetadataUtils.toHHmmss(_endTime),
           valid: _startTime < _endTime && _endTime <= duration,
-          timeRange: { start: _startTime, end: _endTime }
+          timeRange: { start: _startTime, end: _endTime },
+          parentId,
         };
       } else {
         // Find the existing span object from smData

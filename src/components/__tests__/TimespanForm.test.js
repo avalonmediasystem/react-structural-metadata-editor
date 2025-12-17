@@ -13,6 +13,7 @@ const tempSegment = {
   id: 'temp-segment',
   editable: true,
   color: '#FBB040',
+  parentId: null,
 };
 
 // Set up a redux store for the tests

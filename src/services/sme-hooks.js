@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import StructuralMetadataUtils from './StructuralMetadataUtils';
 import { getValidationBeginState, getValidationEndState, isTitleValid } from './form-helper';
@@ -6,6 +6,7 @@ import { updateSMUI } from '../actions/sm-data';
 import { clearExistingAlerts, handleEditingTimespans, updateStructureStatus } from '../actions/forms';
 import { deleteSegment } from '../actions/peaks-instance';
 import { isEmpty } from 'lodash';
+import { v4 as uuidv4 } from 'uuid';
 
 const structuralMetadataUtils = new StructuralMetadataUtils();
 
@@ -220,4 +221,134 @@ export const useStructureUpdate = () => {
   };
 
   return { deleteStructItem, updateEditingTimespans, updateStructure };
+};
+
+export const useTextEditor = () => {
+  /**
+   * Store original id mappings before removing for the text display
+   */
+  const createIdMap = useCallback((data) => {
+    const idMap = new Map();
+
+    const traverse = (obj, path = []) => {
+      if (Array.isArray(obj)) {
+        obj.forEach((item, index) => traverse(item, [...path, index]));
+      } else if (obj && typeof obj === 'object') {
+        if (obj.id) {
+          idMap.set(path.join('.'), obj.id);
+        }
+        if (obj.items) {
+          traverse(obj.items, [...path, 'items']);
+        }
+      }
+    };
+
+    traverse(data);
+    return idMap;
+  }, []);
+
+  /**
+   * Format JSON with 2-space indentation for displaying in the text editor.
+   * Re-arrange properties so that, 'items' property comes last in each 'div'.
+   */
+  const formatJson = useCallback((data) => {
+    try {
+      return JSON.stringify(data, (_key, value) => {
+        if (value && typeof value === 'object' && !Array.isArray(value)) {
+          // Re-order properties to set 'items' last
+          const { items, ...rest } = value;
+          return items !== undefined ? { ...rest, items } : value;
+        }
+        return value;
+      }, 2);
+    } catch (error) {
+      return 'Error formatting JSON structure..';
+    }
+  }, []);
+
+  /**
+   * Remove extra properties in the JSON structure for the text editor display
+   */
+  const sanitizeDisplayedText = useCallback((data) => {
+    if (!data) return data;
+
+    const removeProps = (obj) => {
+      if (Array.isArray(obj)) {
+        return obj.map(removeProps);
+      } else if (obj && typeof obj === 'object') {
+        const { active, id, timeRange, nestedSpan, valid, ...rest } = obj;
+        if (rest.items?.length === 0) delete rest.items;
+        const filtered = {};
+        for (const key in rest) {
+          filtered[key] = removeProps(rest[key]);
+        }
+        return filtered;
+      }
+      return obj;
+    };
+
+    return removeProps(data);
+  }, []);
+
+  /**
+   * Restore ids onto edited data before saving it back to Redux store
+   */
+  const restoreIds = useCallback((editedData, idMap) => {
+    const restore = (obj, path = []) => {
+      if (Array.isArray(obj)) {
+        return obj.map((item, index) => restore(item, [...path, index]));
+      } else if (obj && typeof obj === 'object') {
+        const pathKey = path.join('.');
+        const id = idMap.get(pathKey);
+        const restored = { ...obj };
+
+        // If ID exists in map, use it; otherwise generate a new one
+        if (id) {
+          restored.id = id;
+        } else {
+          // Generate new ID for newly created items
+          restored.id = uuidv4();
+        }
+
+        if (restored.items) {
+          restored.items = restore(restored.items, [...path, 'items']);
+        }
+        return restored;
+      }
+      return obj;
+    };
+
+    return restore(editedData);
+  }, []);
+
+  /**
+   * Insert a given template object to text editor and move the cursor inside the empty label
+   * value field
+   * @param {React.RefObject} editorViewRef React ref for CodeMirror text editor
+   * @param {Object} template injected template object
+   */
+  const injectTemplate = (editorViewRef, template) => {
+    const templateString = JSON.stringify(template, null, 2) + ',';
+    const view = editorViewRef.current;
+    const cursor = view.state.selection.main.head;
+
+    // Insert the template at cursor position
+    view.dispatch({ changes: { from: cursor, insert: templateString } });
+
+    // Find the position of the label value
+    const labelPattern = '"label": "';
+    const labelIndex = templateString.indexOf(labelPattern);
+
+    if (labelIndex !== -1) {
+      // Position cursor inside empty quotes for label property in the new item
+      const labelValuePos = cursor + labelIndex + labelPattern.length;
+      view.dispatch({ selection: { anchor: labelValuePos } });
+    }
+
+    // Focus the editor
+    view.focus();
+  };
+
+
+  return { createIdMap, formatJson, injectTemplate, restoreIds, sanitizeDisplayedText };
 };

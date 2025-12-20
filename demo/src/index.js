@@ -9,7 +9,8 @@ const props = {
   manifestURL: `${config.url}/${config.env}/manifest.json`,
   canvasIndex: 0,
   structureIsSaved: (val) => { },
-  disableSave: true
+  disableSave: true,
+  showTextEditor: true,
 };
 
 const root = createRoot(document.getElementById('root'));

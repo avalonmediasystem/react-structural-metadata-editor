@@ -2,47 +2,46 @@ import React, { useState } from "react";
 import { useSelector } from 'react-redux';
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
-import JsonEditor from "../components/JSONEditor";
+import TextEditor from "../components/TextEditor";
 import StructureOutputContainer from "./StructureOutputContainer";
+import ButtonSection from "../components/ButtonSection";
 
-const StructureTabView = ({ disableSave, structureIsSaved, structureURL }) => {
-  const [viewMode, setViewMode] = useState('visual'); // 'visual', 'json'
-
-  // Get JSON data from Redux store
+const StructureTabView = ({ disableSave, structureIsSaved, structureURL, showTextEditor = false }) => {
   const { smData } = useSelector((state) => state.structuralMetadata);
+
+  const [viewMode, setViewMode] = useState('visual');
 
   return (
     <div className="structural-metadata-editor">
-      {/* Mode Toggle */}
-      <div className="view-mode-tabs mb-3">
-        <ButtonGroup>
-          <Button
-            variant={viewMode === 'visual' ? 'primary' : 'outline-primary'}
-            onClick={() => setViewMode('visual')}
-          >
-            Visual Editor
-          </Button>
-          <Button
-            variant={viewMode === 'json' ? 'primary' : 'outline-primary'}
-            onClick={() => setViewMode('json')}
-          >
-            JSON Editor
-          </Button>
-        </ButtonGroup>
-      </div>
-
-      {/* Conditional Rendering */}
+      {showTextEditor && (
+        <div className="view-mode-tabs mb-3 d-flex justify-content-end">
+          <ButtonGroup>
+            <Button
+              variant={viewMode === 'visual' ? 'primary' : 'outline-primary'}
+              onClick={() => setViewMode('visual')}
+            >
+              Visual Editor
+            </Button>
+            <Button
+              variant={viewMode === 'text' ? 'primary' : 'outline-primary'}
+              onClick={() => setViewMode('text')}
+            >
+              Text Editor
+            </Button>
+          </ButtonGroup>
+        </div>
+      )}
       {viewMode === 'visual' ? (
-        <StructureOutputContainer
-          disableSave={disableSave}
-          structureIsSaved={structureIsSaved}
-          structureURL={structureURL}
-        />
+        <>
+          <ButtonSection />
+          <StructureOutputContainer
+            disableSave={disableSave}
+            structureIsSaved={structureIsSaved}
+            structureURL={structureURL}
+          />
+        </>
       ) : (
-        <JsonEditor
-          initialJson={smData[0]}
-          readOnly={false}
-        />
+        <TextEditor initialJson={smData[0]} />
       )}
     </div>
   );

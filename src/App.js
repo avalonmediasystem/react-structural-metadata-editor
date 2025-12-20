@@ -2,7 +2,6 @@ import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import './App.css';
 import WaveformContainer from './containers/WaveformContainer';
-import ButtonSection from './components/ButtonSection';
 import StructureTabView from './containers/StructureTabView';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
@@ -37,7 +36,6 @@ const App = (props) => {
           <WaveformContainer {...props} />
         </ErrorMessage>
         <AlertContainer removeAlert={deleteAlert} />
-        <ButtonSection />
         {/* Error boundary for structure-related errors */}
         <ErrorMessage>
           <DndProvider backend={HTML5Backend}>
@@ -67,6 +65,7 @@ App.propTypes = {
   structureIsSaved: PropTypes.func,
   withCredentials: PropTypes.bool,
   disableSave: PropTypes.bool,
+  showTextEditor: PropTypes.bool,
 };
 
 export default App;

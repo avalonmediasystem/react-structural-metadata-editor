@@ -1,14 +1,9 @@
 import React from 'react';
-import { fireEvent, waitFor } from '@testing-library/react';
+import { act, fireEvent, waitFor } from '@testing-library/react';
 import TextEditor from '../TextEditor';
 import { renderWithRedux } from '../../services/testing-helpers';
 import * as smeHooks from '../../services/sme-hooks';
-
-// Mock the sme-hooks module
-jest.mock('../../services/sme-hooks', () => ({
-  useStructureUpdate: jest.fn(),
-  useTextEditor: jest.fn(),
-}));
+import { EditorView } from '@codemirror/view';
 
 // Mock navigator.clipboard
 Object.assign(navigator, {
@@ -26,21 +21,29 @@ describe('TextEditor component', () => {
   let mockSanitizeDisplayedText;
 
   const initialJson = {
-    type: 'root',
-    label: 'Test Root',
-    id: 'test-id-1',
+    type: 'root', label: 'Test Root', id: 'test-id-1',
     items: [
       {
-        type: 'div',
-        label: 'Test Heading',
-        id: 'test-id-2',
+        type: 'div', label: 'Test Heading', id: 'test-id-2',
         items: [
           {
-            type: 'span',
-            label: 'Test Timespan',
-            id: 'test-id-3',
-            begin: '00:00:03.342',
-            end: '00:00:10.352',
+            type: 'span', label: 'Test Timespan', id: 'test-id-3',
+            begin: '00:00:03.342', end: '00:00:10.352',
+          }
+        ]
+      }
+    ],
+  };
+  // Sanitized version of initialJson without extra properties
+  const cleanedJson = {
+    type: 'root', label: 'Test Root',
+    items: [
+      {
+        type: 'div', label: 'Test Heading',
+        items: [
+          {
+            type: 'span', label: 'Test Timespan',
+            begin: '00:00:03.342', end: '00:00:10.352',
           }
         ]
       }
@@ -52,14 +55,11 @@ describe('TextEditor component', () => {
 
     // Set up mock implementations
     mockUpdateStructure = jest.fn();
-    mockCreateIdMap = jest.fn(() => new Map([['0', '123a-456b-789c-0d']]));
+    mockCreateIdMap = jest.fn(() => new Map([['0', 'test-id-1'], ['1', 'test-id-2'], ['2', 'test-id-3']]));
     mockFormatJson = jest.fn((data) => JSON.stringify(data, null, 2));
     mockInjectTemplate = jest.fn();
-    mockRestoreIds = jest.fn((data) => ({ ...data, id: '123a-456b-789c-0d' }));
-    mockSanitizeDisplayedText = jest.fn((data) => {
-      const { id, active, timeRange, nestedSpan, valid, ...rest } = data;
-      return rest;
-    });
+    mockRestoreIds = jest.fn(() => initialJson);
+    mockSanitizeDisplayedText = jest.fn(() => cleanedJson);
 
     jest.spyOn(smeHooks, 'useStructureUpdate').mockImplementation(() => ({
       updateStructure: mockUpdateStructure,
@@ -96,7 +96,7 @@ describe('TextEditor component', () => {
 
     test('info alert about saving', () => {
       const { getByText } = renderWithRedux(<TextEditor />);
-      expect(getByText(/Please save JSON to reflect these changes/)).toBeInTheDocument();
+      expect(getByText(/Please save edited structure to reflect these changes in the visual editor. Use the template buttons to insert new headings\/timespans./)).toBeInTheDocument();
     });
 
     test('validation state element in sidebar', () => {
@@ -119,14 +119,14 @@ describe('TextEditor component', () => {
     });
 
     test('does not process JSON when initialJson is null', () => {
-      renderWithRedux(<TextEditor initialJson={null} />);
+      renderWithRedux(<TextEditor />);
 
       expect(mockCreateIdMap).not.toHaveBeenCalled();
       expect(mockSanitizeDisplayedText).not.toHaveBeenCalled();
     });
   });
 
-  test('clicking \'Save JSON\' attempts to parse and save JSON', () => {
+  test('attempts to parse and save JSON when clicking \'Save JSON\' ', () => {
     const { getByTestId } = renderWithRedux(<TextEditor initialJson={initialJson} />);
 
     const saveButton = getByTestId('save-text');
@@ -136,8 +136,8 @@ describe('TextEditor component', () => {
     expect(mockUpdateStructure).toHaveBeenCalledTimes(1);
   });
 
-  describe('copy JSON functionality', () => {
-    test('calls clipboard.writeText', async () => {
+  describe('has \'Copy JSON\' button that', () => {
+    test('calls clipboard.writeText on click', async () => {
       const { getByTestId } = renderWithRedux(<TextEditor />);
       const copyButton = getByTestId('copy-text');
 
@@ -183,8 +183,8 @@ describe('TextEditor component', () => {
     });
   });
 
-  describe('create new item functionality with template buttons', () => {
-    test('calls injectTemplate when \'New Heading Template\' is clicked', () => {
+  describe('creates new items with template buttons', () => {
+    test('calling injectTemplate when \'New Heading Template\' is clicked', () => {
       const { getByTestId } = renderWithRedux(<TextEditor initialJson={initialJson} />);
       const addHeadingButton = getByTestId('add-heading-template');
 
@@ -196,7 +196,7 @@ describe('TextEditor component', () => {
       );
     });
 
-    test('calls injectTemplate when \'New Timespan Template\' is clicked', () => {
+    test('calling injectTemplate when \'New Timespan Template\' is clicked', () => {
       const { getByTestId } = renderWithRedux(<TextEditor initialJson={initialJson} />);
       const addTimespanButton = getByTestId('add-timespan-template');
 
@@ -209,4 +209,82 @@ describe('TextEditor component', () => {
     });
   });
 
+  describe('has validation status that', () => {
+    test('does not display initially', () => {
+      const { container } = renderWithRedux(<TextEditor />);
+      const successAlert = container.querySelector('.alert-success');
+      expect(successAlert).not.toBeInTheDocument();
+    });
+
+    test('shows validation errors for invalid JSON', async () => {
+      const originalError = console.error;
+      console.error = jest.fn();
+
+      const { container } = renderWithRedux(<TextEditor initialJson={initialJson} />);
+
+      const editorElement = container.querySelector('.cm-editor');
+      const view = EditorView.findFromDOM(editorElement);
+
+      const invalidJson = { type: 'div', label: '', items: [] };
+      act(() => {
+        view.dispatch({
+          changes: { from: 0, to: view.state.doc.length, insert: JSON.stringify(invalidJson, null, 2) }
+        });
+      });
+
+      // Wait for debounced validation (300ms debounce time + buffer)
+      await waitFor(() => {
+        const lintMarkers = container.querySelectorAll('.cm-lint-marker-error');
+        expect(lintMarkers.length).toBeGreaterThan(0);
+        const errorAlert = container.querySelector('.alert-danger');
+        expect(errorAlert).toBeInTheDocument();
+        expect(errorAlert).toHaveTextContent('Validation Errors');
+      });
+      console.error = originalError;
+    });
+  });
+
+  describe('has a CodeMirror editor', () => {
+    test('that is editable', () => {
+      const { container } = renderWithRedux(<TextEditor />);
+
+      const cmEditor = container.querySelector('.cm-editor');
+      expect(cmEditor).toBeInTheDocument();
+      expect(cmEditor).not.toHaveAttribute('contenteditable', 'false');
+    });
+
+    test('with line numbers', () => {
+      const { container } = renderWithRedux(<TextEditor />);
+
+      const lineNumbers = container.querySelector('.cm-lineNumbers');
+      expect(lineNumbers).toBeInTheDocument();
+    });
+
+    test('with a lint gutter', () => {
+      const { container } = renderWithRedux(<TextEditor />);
+
+      const gutters = container.querySelector('.cm-gutters');
+      expect(gutters).toBeInTheDocument();
+    });
+  });
+
+  describe('ID Restoration', () => {
+    test('save action restored IDs correctly', () => {
+      const { getByText } = renderWithRedux(<TextEditor initialJson={initialJson} />);
+
+      const saveButton = getByText('Save JSON');
+      fireEvent.click(saveButton);
+
+      expect(saveButton).toBeInTheDocument();
+      expect(mockRestoreIds).toHaveBeenCalledTimes(1);
+
+      expect(mockRestoreIds).toHaveBeenCalledWith(cleanedJson, new Map([['0', 'test-id-1'], ['1', 'test-id-2'], ['2', 'test-id-3']]));
+    });
+
+    test('uses the JSON passed to the component', () => {
+      renderWithRedux(<TextEditor initialJson={initialJson} />);
+
+      expect(mockCreateIdMap).toHaveBeenCalledWith(initialJson);
+    });
+  });
 });

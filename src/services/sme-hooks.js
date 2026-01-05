@@ -223,6 +223,17 @@ export const useStructureUpdate = () => {
   return { deleteStructItem, updateEditingTimespans, updateStructure };
 };
 
+/**
+ * Manage TextEditor related operations to clean, format, update and restore
+ * JSON structure
+ * @returns {
+ *   createIdMap,
+ *   formatJson,
+ *   injectTemplate,
+ *   restoreIds,
+ *   sanitizeDisplayedText
+ * }
+ */
 export const useTextEditor = () => {
   /**
    * Store original id mappings before removing for the text display

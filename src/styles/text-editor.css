@@ -1,10 +1,13 @@
 .text-editor {
-  display: flex;
-  flex-direction: row;
   border: 1px solid #ddd;
   border-radius: 4px;
-  overflow: auto;
   margin-bottom: 2em;
+}
+
+.text-editor-body {
+  display: flex;
+  flex-direction: row;
+  overflow: auto;
   /* Same height as visual editor structure section */
   max-height: 30vh;
 }

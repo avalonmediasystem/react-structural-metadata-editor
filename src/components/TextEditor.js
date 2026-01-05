@@ -4,7 +4,6 @@ import { json } from '@codemirror/lang-json';
 import { lineNumbers, EditorView } from '@codemirror/view';
 import { defaultHighlightStyle, syntaxHighlighting } from '@codemirror/language';
 import { linter, lintGutter } from '@codemirror/lint';
-import { debounce } from 'lodash';
 import Ajv from 'ajv';
 import jsonSourceMap from '@mischnic/json-sourcemap';
 import { useStructureUpdate, useTextEditor } from '../services/sme-hooks';
@@ -156,13 +155,11 @@ const TextEditor = ({ initialJson = null }) => {
   /**
    * Debounced validation state update function using lodash
    */
-  const updateValidationStateRef = useRef(
-    debounce((isValidResult, errorMessages) => {
-      setIsValid(isValidResult);
-      setValidationErrors(errorMessages);
-      isValidating.current = false;
-    }, 300)
-  );
+  const updateValidationState = (isValidResult, errorMessages) => {
+    setIsValid(isValidResult);
+    setValidationErrors(errorMessages);
+    isValidating.current = false;
+  };
 
   /**
    * Custom linter extension for CodeMirror for JSON validation using AJV schema validator.
@@ -177,7 +174,7 @@ const TextEditor = ({ initialJson = null }) => {
       JSON.parse(content);
     } catch (error) {
       const errorMessage = error && error.message ? error.message : 'Invalid JSON';
-      updateValidationStateRef.current(false, [`JSON Syntax Error: ${errorMessage}`]);
+      updateValidationState(false, [`JSON Syntax Error: ${errorMessage}`]);
       return [];
     }
 
@@ -255,12 +252,12 @@ const TextEditor = ({ initialJson = null }) => {
 
         // Update validation state with debouncing
         const isValidResult = uniqueDiagnostics.length === 0;
-        updateValidationStateRef.current(isValidResult, errorMessages);
+        updateValidationState(isValidResult, errorMessages);
 
         return uniqueDiagnostics;
       } else {
         // Valid JSON with no schema errors
-        updateValidationStateRef.current(true, []);
+        updateValidationState(true, []);
         return [];
       }
     } catch (error) {
@@ -273,95 +270,98 @@ const TextEditor = ({ initialJson = null }) => {
 
   return (
     <section className="text-editor">
-      <div className="codemirror-text-editor">
-        <CodeMirror
-          value={jsonContent}
-          theme={"light"}
-          extensions={[
-            json(),
-            lineNumbers(),
-            syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
-            EditorView.lineWrapping,
-            EditorView.editable.of(true),
-            customJsonLinter,
-            lintGutter()
-          ]}
-          onChange={handleChange}
-          onCreateEditor={(view) => {
-            editorViewRef.current = view;
-          }}
-          readOnly={false}
-          data-testid="codemirror-editor"
-        />
-      </div>
-
-      <div className="text-editor-sidebar">
+      <div className="text-editor-header">
         <Alert variant="info" className="p-2 m-2">
-          <strong>Note:</strong> Please save JSON to reflect these changes in the visual editor.
+          <strong>Note:</strong>Please save edited structure to reflect these changes in the visual editor. Use the template buttons to insert new headings/timespans.
         </Alert>
-        <div className="text-editor-status">
-          {/* Display validation success/errors only adter an edit has been made */}
-          {(hasBeenEdited && !isValidating.current) && (
-            <>
-              {(!isValid && validationErrors.length > 0) ? (
-                <Alert variant="danger" className="validation-errors my-0 p-2">
-                  <strong>Validation Errors:</strong>
-                  <ul className="mb-0 mt-2">
-                    {validationErrors.map((error, index) => (
-                      <li key={index}>{error}</li>
-                    ))}
-                  </ul>
-                </Alert>
-              ) : (
-                <Alert variant="success" className="my-0 p-2">
-                  ✓ Valid structure!
-                </Alert>
-              )}
-            </>
-          )}
+      </div>
+      <div className="text-editor-body">
+        <div className="codemirror-text-editor">
+          <CodeMirror
+            value={jsonContent}
+            theme={"light"}
+            extensions={[
+              json(),
+              lineNumbers(),
+              syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
+              EditorView.lineWrapping,
+              EditorView.editable.of(true),
+              customJsonLinter,
+              lintGutter()
+            ]}
+            onChange={handleChange}
+            onCreateEditor={(view) => {
+              editorViewRef.current = view;
+            }}
+            readOnly={false}
+            data-testid="codemirror-editor"
+          />
         </div>
-        <div className="text-editor-buttons">
-          <div className="d-flex mb-2">
-            <Button
-              variant="info"
-              onClick={handleAddHeading}
-              title="Insert heading template at cursor"
-              className="w-100 mx-1 mt-2"
-              data-testid="add-heading-template"
-            >
-              New Heading Template
-            </Button>
-            <Button
-              variant="info"
-              onClick={handleAddTimespan}
-              title="Insert timespan template at cursor"
-              className="w-100 mx-1 mt-2"
-              data-testid="add-timespan-template"
-            >
-              New Timespan Template
-            </Button>
+        <div className="text-editor-sidebar">
+          <div className="text-editor-status">
+            {/* Display validation success/errors only after an edit has been made */}
+            {(hasBeenEdited && !isValidating.current) && (
+              <>
+                {(!isValid && validationErrors.length > 0) ? (
+                  <Alert variant="danger" className="validation-errors my-0 p-2">
+                    <strong>Validation Errors:</strong>
+                    <ul className="mb-0 mt-2">
+                      {validationErrors.map((error, index) => (
+                        <li key={index}>{error}</li>
+                      ))}
+                    </ul>
+                  </Alert>
+                ) : (
+                  <Alert variant="success" className="my-0 p-2">
+                    ✓ Valid structure!
+                  </Alert>
+                )}
+              </>
+            )}
           </div>
-          <div className="d-flex">
-            <Button
-              variant="primary"
-              onClick={handleSave}
-              disabled={!isValid}
-              title="Save JSON changes"
-              className="w-100 mx-1"
-              data-testid="save-text"
-            >
-              Save JSON
-            </Button>
-            <Button
-              variant={copySuccess ? "success" : "secondary"}
-              onClick={handleCopy}
-              disabled={!isValid}
-              title="Copy JSON to clipboard"
-              className="w-100 mx-1"
-              data-testid="copy-text"
-            >
-              {copySuccess ? "Copied!" : "Copy JSON"}
-            </Button>
+          <div className="text-editor-buttons">
+            <div className="d-flex mb-2">
+              <Button
+                variant="info"
+                onClick={handleAddHeading}
+                title="Insert heading template at cursor"
+                className="w-100 mx-1 mt-2"
+                data-testid="add-heading-template"
+              >
+                New Heading Template
+              </Button>
+              <Button
+                variant="info"
+                onClick={handleAddTimespan}
+                title="Insert timespan template at cursor"
+                className="w-100 mx-1 mt-2"
+                data-testid="add-timespan-template"
+              >
+                New Timespan Template
+              </Button>
+            </div>
+            <div className="d-flex">
+              <Button
+                variant="primary"
+                onClick={handleSave}
+                disabled={!isValid}
+                title="Save JSON changes"
+                className="w-100 mx-1"
+                data-testid="save-text"
+              >
+                Save JSON
+              </Button>
+              <Button
+                variant={copySuccess ? "success" : "secondary"}
+                onClick={handleCopy}
+                disabled={!isValid}
+                title="Copy JSON to clipboard"
+                className="w-100 mx-1"
+                data-testid="copy-text"
+              >
+                {copySuccess ? "Copied!" : "Copy JSON"}
+              </Button>
+            </div>
           </div>
         </div>
       </div>

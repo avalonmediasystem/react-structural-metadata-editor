@@ -62,14 +62,6 @@ jest.mock('react-dnd', () => ({
 jest.mock('react-dnd-html5-backend', () => ({
   HTML5Backend: jest.fn(),
 }));
-jest.mock('react-error-boundary', () => ({
-  ErrorBoundary: ({ children }) => {
-    return <>{children}</>;
-  },
-  useErrorBoundary: jest.fn(() => ({
-    showBoundary: jest.fn(),
-  }))
-}));
 
 describe('App component', () => {
   let originalError, originalLogger;

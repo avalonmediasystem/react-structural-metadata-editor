@@ -43,11 +43,6 @@ jest.mock('react-dnd', () => ({
 jest.mock('react-dnd-html5-backend', () => ({
   HTML5Backend: jest.fn(),
 }));
-jest.mock('react-error-boundary', () => ({
-  useErrorBoundary: jest.fn(() => ({
-    showBoundary: jest.fn(),
-  }))
-}));
 
 describe('StructureOutputContainer component', () => {
   test('renders successfully', () => {

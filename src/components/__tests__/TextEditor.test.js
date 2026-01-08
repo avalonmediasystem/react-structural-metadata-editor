@@ -14,10 +14,9 @@ Object.assign(navigator, {
 
 describe('TextEditor component', () => {
   let mockUpdateStructure;
-  let mockCreateIdMap;
   let mockFormatJson;
   let mockInjectTemplate;
-  let mockRestoreIds;
+  let mockRestoreRemovedProps;
   let mockSanitizeDisplayedText;
 
   const initialJson = {
@@ -55,20 +54,18 @@ describe('TextEditor component', () => {
 
     // Set up mock implementations
     mockUpdateStructure = jest.fn();
-    mockCreateIdMap = jest.fn(() => new Map([['0', 'test-id-1'], ['1', 'test-id-2'], ['2', 'test-id-3']]));
     mockFormatJson = jest.fn((data) => JSON.stringify(data, null, 2));
     mockInjectTemplate = jest.fn();
-    mockRestoreIds = jest.fn(() => initialJson);
+    mockRestoreRemovedProps = jest.fn(() => initialJson);
     mockSanitizeDisplayedText = jest.fn(() => cleanedJson);
 
     jest.spyOn(smeHooks, 'useStructureUpdate').mockImplementation(() => ({
       updateStructure: mockUpdateStructure,
     }));
     jest.spyOn(smeHooks, 'useTextEditor').mockImplementation(() => ({
-      createIdMap: mockCreateIdMap,
       formatJson: mockFormatJson,
       injectTemplate: mockInjectTemplate,
-      restoreIds: mockRestoreIds,
+      restoreRemovedProps: mockRestoreRemovedProps,
       sanitizeDisplayedText: mockSanitizeDisplayedText,
     }));
   });
@@ -96,7 +93,7 @@ describe('TextEditor component', () => {
 
     test('info alert about saving', () => {
       const { getByText } = renderWithRedux(<TextEditor />);
-      expect(getByText(/Please save edited structure to reflect these changes in the visual editor. Use the template buttons to insert new headings\/timespans./)).toBeInTheDocument();
+      expect(getByText(/The "id" fields are read-only. Please save edited structure to reflect these changes in the visual editor and the waveform./)).toBeInTheDocument();
     });
 
     test('validation state element in sidebar', () => {
@@ -113,7 +110,7 @@ describe('TextEditor component', () => {
     test('processes and displays initial JSON', () => {
       renderWithRedux(<TextEditor initialJson={initialJson} />);
 
-      expect(mockCreateIdMap).toHaveBeenCalledWith(initialJson);
+
       expect(mockSanitizeDisplayedText).toHaveBeenCalledWith(initialJson);
       expect(mockFormatJson).toHaveBeenCalled();
     });
@@ -121,7 +118,7 @@ describe('TextEditor component', () => {
     test('does not process JSON when initialJson is null', () => {
       renderWithRedux(<TextEditor />);
 
-      expect(mockCreateIdMap).not.toHaveBeenCalled();
+
       expect(mockSanitizeDisplayedText).not.toHaveBeenCalled();
     });
   });
@@ -132,7 +129,7 @@ describe('TextEditor component', () => {
     const saveButton = getByTestId('save-text');
     fireEvent.click(saveButton);
 
-    expect(mockRestoreIds).toHaveBeenCalledTimes(1);
+    expect(mockRestoreRemovedProps).toHaveBeenCalledTimes(1);
     expect(mockUpdateStructure).toHaveBeenCalledTimes(1);
   });
 
@@ -265,26 +262,6 @@ describe('TextEditor component', () => {
 
       const gutters = container.querySelector('.cm-gutters');
       expect(gutters).toBeInTheDocument();
-    });
-  });
-
-  describe('ID Restoration', () => {
-    test('save action restored IDs correctly', () => {
-      const { getByText } = renderWithRedux(<TextEditor initialJson={initialJson} />);
-
-      const saveButton = getByText('Save JSON');
-      fireEvent.click(saveButton);
-
-      expect(saveButton).toBeInTheDocument();
-      expect(mockRestoreIds).toHaveBeenCalledTimes(1);
-
-      expect(mockRestoreIds).toHaveBeenCalledWith(cleanedJson, new Map([['0', 'test-id-1'], ['1', 'test-id-2'], ['2', 'test-id-3']]));
-    });
-
-    test('uses the JSON passed to the component', () => {
-      renderWithRedux(<TextEditor initialJson={initialJson} />);
-
-      expect(mockCreateIdMap).toHaveBeenCalledWith(initialJson);
     });
   });
 });

@@ -2,7 +2,8 @@ import React, { useState, useCallback, useEffect, useMemo, useRef } from 'react'
 import CodeMirror from '@uiw/react-codemirror';
 import { json } from '@codemirror/lang-json';
 import { lineNumbers, EditorView } from '@codemirror/view';
-import { defaultHighlightStyle, syntaxHighlighting } from '@codemirror/language';
+import { EditorState } from '@codemirror/state';
+import { defaultHighlightStyle, syntaxHighlighting, syntaxTree } from '@codemirror/language';
 import { linter, lintGutter } from '@codemirror/lint';
 import Ajv from 'ajv';
 import jsonSourceMap from '@mischnic/json-sourcemap';
@@ -70,23 +71,20 @@ const TextEditor = ({ initialJson = null }) => {
   // Track in-progress validation to show/hide validation status
   const isValidating = useRef(false);
 
-  const idMapRef = useRef(new Map());
   const editorViewRef = useRef(null);
 
   const { updateStructure } = useStructureUpdate();
-  const { createIdMap, formatJson, injectTemplate, restoreIds, sanitizeDisplayedText } = useTextEditor();
+  const { formatJson, injectTemplate, restoreRemovedProps, sanitizeDisplayedText } = useTextEditor();
 
   useEffect(() => {
     if (initialJson) {
-      // Create id map before filtering
-      idMapRef.current = createIdMap(initialJson);
       // Filter ids and other extra properties from displayed text
       const sanitizedText = sanitizeDisplayedText(initialJson);
       // Format filtered data
       const formatted = formatJson(sanitizedText);
       setJsonContent(formatted);
     }
-  }, [initialJson, formatJson, createIdMap, sanitizeDisplayedText]);
+  }, [initialJson, formatJson, sanitizeDisplayedText]);
 
   /**
    * Handle save action in editor. This updates the Redux store with the latest
@@ -97,9 +95,9 @@ const TextEditor = ({ initialJson = null }) => {
     if (isValid) {
       try {
         const parsedData = JSON.parse(jsonContent);
-        // Restore ids to the edited data
-        const withIds = restoreIds(parsedData, idMapRef.current);
-        updateStructure([withIds]);
+        // Restore removed properties on to the edited data
+        const withOtherProps = restoreRemovedProps(parsedData);
+        updateStructure([withOtherProps]);
       } catch (error) {
         console.error('Failed to parse JSON:', error);
       }
@@ -268,11 +266,75 @@ const TextEditor = ({ initialJson = null }) => {
     }
   }), []);
 
+  /**
+   * Find all positions of "id" properties in the JSON document using syntax tree
+   * @param {EditorState} state CodeMirror editor state
+   * @returns {Array<number>} flat array of [from1, to1, from2, to2, ...] for read-only ranges
+   */
+  const findIdPropertyRanges = (doc) => {
+    const readOnlyProperties = ["id"];
+    const ranges = [];
+    const text = doc.toString();
+
+    // Regex to find property keys in JSON
+    const propRegex = /"(\w+)"\s*:/g;
+    let match;
+    while ((match = propRegex.exec(text)) !== null) {
+      if (readOnlyProperties.includes(match[1])) {
+        // Mark the text index range for the property key and value as read-only
+        const line = doc.lineAt(match.index);
+        ranges.push(line.from, line.to);
+      }
+    }
+    // This a flat array of [from1, to1, from2, to2,..]
+    return ranges;
+  };
+
+  /**
+   * Custom extension to make "id" fields read-only.
+   * Implements an EditorState.changeFilter function that checks if the attempted user
+   * change (transaction) overlaps with any of the defined read-only text ranges.
+   */
+  const readOnlyIdExtension = useMemo(() => {
+    return EditorState.changeFilter.of((tr) => {
+      // Only filter user-generated changes, not programmatic ones
+      if (!tr.docChanged) return true;
+
+      // Get all id property key/value text index ranges
+      const readOnlyRanges = findIdPropertyRanges(tr.startState.doc);
+
+      // Check if the current change overlaps with a read-only text index range
+      let hasConflict = false;
+      tr.changes.iterChangedRanges((chFrom, chTo) => {
+        // Calculate if this is a multi-line item removal
+        const startLine = tr.startState.doc.lineAt(chFrom);
+        const startChars = startLine.text.trim();
+        const endLine = tr.startState.doc.lineAt(chTo);
+        const endChars = endLine.text.trim();
+        const isItemDeletion = endLine.number > startLine.number
+          && startChars.endsWith('{') && endChars.endsWith('},');
+        // Skip conflict check for removing an entire item
+        if (isItemDeletion) return;
+
+        for (let i = 0; i < readOnlyRanges.length; i += 2) {
+          const roFrom = readOnlyRanges[i];
+          const roTo = readOnlyRanges[i + 1];
+          if (chTo > roFrom && chFrom < roTo) {
+            hasConflict = true;
+            break;
+          }
+        }
+      });
+      return !hasConflict;
+    });
+  }, []);
+
   return (
     <section className="text-editor">
       <div className="text-editor-header">
         <Alert variant="info" className="p-2 m-2">
-          <strong>Note:</strong>Please save edited structure to reflect these changes in the visual editor. Use the template buttons to insert new headings/timespans.
+          <strong>Info:</strong> The "id" fields are read-only. Please save edited structure to reflect
+          these changes in the visual editor and the waveform.
         </Alert>
       </div>
       <div className="text-editor-body">
@@ -287,7 +349,8 @@ const TextEditor = ({ initialJson = null }) => {
               EditorView.lineWrapping,
               EditorView.editable.of(true),
               customJsonLinter,
-              lintGutter()
+              lintGutter(),
+              readOnlyIdExtension
             ]}
             onChange={handleChange}
             onCreateEditor={(view) => {
@@ -298,27 +361,6 @@ const TextEditor = ({ initialJson = null }) => {
           />
         </div>
         <div className="text-editor-sidebar">
-          <div className="text-editor-status">
-            {/* Display validation success/errors only after an edit has been made */}
-            {(hasBeenEdited && !isValidating.current) && (
-              <>
-                {(!isValid && validationErrors.length > 0) ? (
-                  <Alert variant="danger" className="validation-errors my-0 p-2">
-                    <strong>Validation Errors:</strong>
-                    <ul className="mb-0 mt-2">
-                      {validationErrors.map((error, index) => (
-                        <li key={index}>{error}</li>
-                      ))}
-                    </ul>
-                  </Alert>
-                ) : (
-                  <Alert variant="success" className="my-0 p-2">
-                    ✓ Valid structure!
-                  </Alert>
-                )}
-              </>
-            )}
-          </div>
           <div className="text-editor-buttons">
             <div className="d-flex mb-2">
               <Button
@@ -362,6 +404,27 @@ const TextEditor = ({ initialJson = null }) => {
                 {copySuccess ? "Copied!" : "Copy JSON"}
               </Button>
             </div>
+          </div>
+          <div className="text-editor-status">
+            {/* Display validation success/errors only after an edit has been made */}
+            {(hasBeenEdited && !isValidating.current) && (
+              <>
+                {(!isValid && validationErrors.length > 0) ? (
+                  <Alert variant="danger" className="validation-errors my-0 p-2">
+                    <strong>Validation Errors:</strong>
+                    <ul className="mb-0 mt-2">
+                      {validationErrors.map((error, index) => (
+                        <li key={index}>{error}</li>
+                      ))}
+                    </ul>
+                  </Alert>
+                ) : (
+                  <Alert variant="success" className="my-0 p-2">
+                    ✓ Valid structure!
+                  </Alert>
+                )}
+              </>
+            )}
           </div>
         </div>
       </div>

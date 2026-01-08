@@ -4,7 +4,7 @@ import StructuralMetadataUtils from './StructuralMetadataUtils';
 import { getValidationBeginState, getValidationEndState, isTitleValid } from './form-helper';
 import { updateSMUI } from '../actions/sm-data';
 import { clearExistingAlerts, handleEditingTimespans, updateStructureStatus } from '../actions/forms';
-import { deleteSegment } from '../actions/peaks-instance';
+import { deleteSegment, insertNewSegment } from '../actions/peaks-instance';
 import { isEmpty } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -213,12 +213,15 @@ export const useStructureUpdate = () => {
 
   const updateEditingTimespans = (code) => {
     handleEditingTimespans(code);
-    // Remove dismissible alerts when a CRUD action has been initiated
-    // given editing is starting (code = 1) and structure is validated.
+    /**
+     * Remove dismissible alerts when a CRUD action has been initiated
+     * given editing is starting (code = 1) and structure is validated.
+     */
     if (code == 1 && smDataIsValid) {
       dispatch(clearExistingAlerts());
     }
   };
+
 
   return { deleteStructItem, updateEditingTimespans, updateStructure };
 };
@@ -227,36 +230,19 @@ export const useStructureUpdate = () => {
  * Manage TextEditor related operations to clean, format, update and restore
  * JSON structure
  * @returns {
- *   createIdMap,
  *   formatJson,
  *   injectTemplate,
- *   restoreIds,
+ *   restoreRemovedProps,
  *   sanitizeDisplayedText
  * }
  */
 export const useTextEditor = () => {
-  /**
-   * Store original id mappings before removing for the text display
-   */
-  const createIdMap = useCallback((data) => {
-    const idMap = new Map();
+  // Dispatch actions to Redux store
+  const dispatch = useDispatch();
+  const createNewSegment = (span) => dispatch(insertNewSegment(span));
+  const removeSegment = (item) => dispatch(deleteSegment(item));
 
-    const traverse = (obj, path = []) => {
-      if (Array.isArray(obj)) {
-        obj.forEach((item, index) => traverse(item, [...path, index]));
-      } else if (obj && typeof obj === 'object') {
-        if (obj.id) {
-          idMap.set(path.join('.'), obj.id);
-        }
-        if (obj.items) {
-          traverse(obj.items, [...path, 'items']);
-        }
-      }
-    };
-
-    traverse(data);
-    return idMap;
-  }, []);
+  const { peaks } = useSelector((state) => state.peaksInstance);
 
   /**
    * Format JSON with 2-space indentation for displaying in the text editor.
@@ -287,7 +273,7 @@ export const useTextEditor = () => {
       if (Array.isArray(obj)) {
         return obj.map(removeProps);
       } else if (obj && typeof obj === 'object') {
-        const { active, id, timeRange, nestedSpan, valid, ...rest } = obj;
+        const { active, timeRange, nestedSpan, valid, ...rest } = obj;
         if (rest.items?.length === 0) delete rest.items;
         const filtered = {};
         for (const key in rest) {
@@ -302,23 +288,27 @@ export const useTextEditor = () => {
   }, []);
 
   /**
-   * Restore ids onto edited data before saving it back to Redux store
+   * Restore removed properties onto edited data before saving it back to Redux store
    */
-  const restoreIds = useCallback((editedData, idMap) => {
+  const restoreRemovedProps = useCallback((editedData) => {
+    const textEditorIds = [];
     const restore = (obj, path = []) => {
       if (Array.isArray(obj)) {
         return obj.map((item, index) => restore(item, [...path, index]));
       } else if (obj && typeof obj === 'object') {
-        const pathKey = path.join('.');
-        const id = idMap.get(pathKey);
         const restored = { ...obj };
 
-        // If ID exists in map, use it; otherwise generate a new one
-        if (id) {
-          restored.id = id;
-        } else {
-          // Generate new ID for newly created items
+        // Generate a new ID if one doesn't exists
+        if (!restored.id) {
           restored.id = uuidv4();
+        }
+        textEditorIds.push(restored.id);
+
+        // If the item is a timespan, verify a corresponding Peaks segment exists
+        if (restored.type === 'span') {
+          // Create a new segment in Peaks instance if not found
+          const segment = peaks.segments.getSegment(restored.id);
+          if (!segment) createNewSegment(restored);
         }
 
         if (restored.items) {
@@ -329,7 +319,18 @@ export const useTextEditor = () => {
       return obj;
     };
 
-    return restore(editedData);
+    const restoredData = restore(editedData);
+    if (textEditorIds?.length > 0) {
+      // Delete segments from Peaks instance that were removed in text editor
+      const allSegments = peaks.segments.getSegments();
+      allSegments.forEach((seg) => {
+        if (!textEditorIds.includes(seg.id)) {
+          removeSegment({ id: seg.id });
+        }
+      });
+    }
+
+    return restoredData;
   }, []);
 
   /**
@@ -339,6 +340,8 @@ export const useTextEditor = () => {
    * @param {Object} template injected template object
    */
   const injectTemplate = (editorViewRef, template) => {
+    // Create a new id for the template item
+    template.id = uuidv4();
     const templateString = JSON.stringify(template, null, 2) + ',';
     const view = editorViewRef.current;
     const cursor = view.state.selection.main.head;
@@ -360,6 +363,5 @@ export const useTextEditor = () => {
     view.focus();
   };
 
-
-  return { createIdMap, formatJson, injectTemplate, restoreIds, sanitizeDisplayedText };
+  return { formatJson, injectTemplate, restoreRemovedProps, sanitizeDisplayedText };
 };

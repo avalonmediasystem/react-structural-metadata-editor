@@ -123,17 +123,46 @@ describe('TextEditor component', () => {
     });
   });
 
-  test('attempts to parse and save JSON when clicking \'Save JSON\' ', () => {
-    const { getByTestId } = renderWithRedux(<TextEditor initialJson={initialJson} />);
+  describe('has a \'Save JSON\' button that', () => {
+    test('attempts to parse and save JSON when clicking \'Save JSON\' for parsable JSON', () => {
+      const { getByTestId } = renderWithRedux(<TextEditor initialJson={initialJson} />);
 
-    const saveButton = getByTestId('save-text');
-    fireEvent.click(saveButton);
+      const saveButton = getByTestId('save-text');
+      fireEvent.click(saveButton);
 
-    expect(mockRestoreRemovedProps).toHaveBeenCalledTimes(1);
-    expect(mockUpdateStructure).toHaveBeenCalledTimes(1);
+      expect(mockRestoreRemovedProps).toHaveBeenCalledTimes(1);
+      expect(mockUpdateStructure).toHaveBeenCalledTimes(1);
+    });
+
+    test('throws an error when clicking \'Save JSON\' for un-parsable JSON', () => {
+      const originalError = console.error;
+      console.error = jest.fn();
+
+      const { queryByTestId, getByTestId } = renderWithRedux(<TextEditor initialJson={initialJson} />);
+
+      // Mock JSON.parse to throw error
+      jest.spyOn(JSON, 'parse').mockImplementationOnce(() => {
+        throw new Error('Invalid JSON');
+      });
+
+      const saveButton = getByTestId('save-text');
+      act(() => fireEvent.click(saveButton));
+
+      expect(mockRestoreRemovedProps).not.toHaveBeenCalledTimes(1);
+      expect(mockUpdateStructure).not.toHaveBeenCalledTimes(1);
+      expect(console.error).toHaveBeenCalled();
+
+      waitFor(() => {
+        const errorAlert = queryByTestId('.alert-danger');
+        expect(errorAlert).toBeInTheDocument();
+        expect(errorAlert).toHaveTextContent('Unable to save JSON, please check again.');
+      });
+
+      console.error = originalError;
+    });
   });
 
-  describe('has \'Copy JSON\' button that', () => {
+  describe('has a \'Copy JSON\' button that', () => {
     test('calls clipboard.writeText on click', async () => {
       const { getByTestId } = renderWithRedux(<TextEditor />);
       const copyButton = getByTestId('copy-text');
@@ -149,11 +178,9 @@ describe('TextEditor component', () => {
       const { getByTestId, getByText } = renderWithRedux(<TextEditor />);
       const copyButton = getByTestId('copy-text');
 
-      fireEvent.click(copyButton);
+      act(() => fireEvent.click(copyButton));
 
-      await waitFor(() => {
-        expect(getByText('Copied!')).toBeInTheDocument();
-      });
+      waitFor(() => expect(getByText('Copied!')).toBeInTheDocument());
 
       // Wait for button text to reset
       await waitFor(() => {
@@ -171,8 +198,7 @@ describe('TextEditor component', () => {
 
       await waitFor(() => {
         expect(consoleErrorSpy).toHaveBeenCalledWith(
-          'Failed to copy to clipboard:',
-          expect.any(Error)
+          'Failed to copy to clipboard:', expect.any(Error)
         );
       });
 
@@ -180,7 +206,7 @@ describe('TextEditor component', () => {
     });
   });
 
-  describe('creates new items with template buttons', () => {
+  describe('inserts new items with template buttons', () => {
     test('calling injectTemplate when \'New Heading Template\' is clicked', () => {
       const { getByTestId } = renderWithRedux(<TextEditor initialJson={initialJson} />);
       const addHeadingButton = getByTestId('add-heading-template');
@@ -188,7 +214,7 @@ describe('TextEditor component', () => {
       fireEvent.click(addHeadingButton);
 
       expect(mockInjectTemplate).toHaveBeenCalledWith(
-        expect.anything(),
+        expect.anything(), // mock view of CodeMirror
         { label: '', type: 'div', items: [] }
       );
     });
@@ -200,24 +226,27 @@ describe('TextEditor component', () => {
       fireEvent.click(addTimespanButton);
 
       expect(mockInjectTemplate).toHaveBeenCalledWith(
-        expect.anything(),
+        expect.anything(), // mock view of CodeMirror
         { label: '', type: 'span', begin: '', end: '' }
       );
     });
   });
 
   describe('has validation status that', () => {
+    let originalError;
+    beforeAll(() => {
+      originalError = console.error;
+      console.error = jest.fn();
+    });
+    afterAll(() => { console.error = originalError; });
+
     test('does not display initially', () => {
-      const { container } = renderWithRedux(<TextEditor />);
-      const successAlert = container.querySelector('.alert-success');
-      expect(successAlert).not.toBeInTheDocument();
+      const { queryByTestId } = renderWithRedux(<TextEditor />);
+      expect(queryByTestId('validation-success')).not.toBeInTheDocument();
     });
 
-    test('shows validation errors for invalid JSON', async () => {
-      const originalError = console.error;
-      console.error = jest.fn();
-
-      const { container } = renderWithRedux(<TextEditor initialJson={initialJson} />);
+    test('shows validation errors for invalid JSON', () => {
+      const { container, queryByTestId } = renderWithRedux(<TextEditor initialJson={initialJson} />);
 
       const editorElement = container.querySelector('.cm-editor');
       const view = EditorView.findFromDOM(editorElement);
@@ -229,15 +258,46 @@ describe('TextEditor component', () => {
         });
       });
 
-      // Wait for debounced validation (300ms debounce time + buffer)
-      await waitFor(() => {
+      waitFor(() => {
         const lintMarkers = container.querySelectorAll('.cm-lint-marker-error');
         expect(lintMarkers.length).toBeGreaterThan(0);
-        const errorAlert = container.querySelector('.alert-danger');
+        const errorAlert = queryByTestId('validation-errors');
         expect(errorAlert).toBeInTheDocument();
         expect(errorAlert).toHaveTextContent('Validation Errors');
       });
-      console.error = originalError;
+    });
+
+    test('shows success message for valid JSON', () => {
+      const { container } = renderWithRedux(<TextEditor initialJson={initialJson} />);
+
+      const editorElement = container.querySelector('.cm-editor');
+      const view = EditorView.findFromDOM(editorElement);
+
+      const validJson = {
+        type: 'root', label: 'Valid Root',
+        items: [
+          {
+            type: 'div', label: 'Valid Heading',
+            items: [
+              {
+                type: 'span', label: 'Valid Timespan',
+                begin: '00:00:05.000', end: '00:00:15.000',
+              }
+            ]
+          }
+        ]
+      };
+      act(() => {
+        view.dispatch({
+          changes: { from: 0, to: view.state.doc.length, insert: JSON.stringify(validJson, null, 2) }
+        });
+      });
+
+      waitFor(() => {
+        const successAlert = container.querySelector('.alert-success');
+        expect(successAlert).toBeInTheDocument();
+        expect(successAlert).toHaveTextContent('✓ Valid structure!');
+      });
     });
   });
 

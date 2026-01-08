@@ -4,7 +4,7 @@ import StructuralMetadataUtils from './StructuralMetadataUtils';
 import { getValidationBeginState, getValidationEndState, isTitleValid } from './form-helper';
 import { updateSMUI } from '../actions/sm-data';
 import { clearExistingAlerts, handleEditingTimespans, updateStructureStatus } from '../actions/forms';
-import { deleteSegment, insertNewSegment } from '../actions/peaks-instance';
+import { deleteSegment, insertNewSegment, saveSegment } from '../actions/peaks-instance';
 import { isEmpty } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -240,6 +240,7 @@ export const useTextEditor = () => {
   // Dispatch actions to Redux store
   const dispatch = useDispatch();
   const createNewSegment = (span) => dispatch(insertNewSegment(span));
+  const updateSegment = (state) => dispatch(saveSegment(state));
   const removeSegment = (item) => dispatch(deleteSegment(item));
 
   const { peaks } = useSelector((state) => state.peaksInstance);
@@ -290,8 +291,8 @@ export const useTextEditor = () => {
   /**
    * Restore removed properties onto edited data before saving it back to Redux store
    */
-  const restoreRemovedProps = useCallback((editedData) => {
-    const textEditorIds = [];
+  const restoreRemovedProps = (editedData) => {
+    const textTimespanIds = [];
     const restore = (obj, path = []) => {
       if (Array.isArray(obj)) {
         return obj.map((item, index) => restore(item, [...path, index]));
@@ -302,13 +303,20 @@ export const useTextEditor = () => {
         if (!restored.id) {
           restored.id = uuidv4();
         }
-        textEditorIds.push(restored.id);
 
         // If the item is a timespan, verify a corresponding Peaks segment exists
         if (restored.type === 'span') {
-          // Create a new segment in Peaks instance if not found
           const segment = peaks.segments.getSegment(restored.id);
-          if (!segment) createNewSegment(restored);
+          if (!segment) {
+            // Create a new segment in Peaks instance if not found
+            createNewSegment(restored);
+          } else {
+            // Update existing segment with the changes in the text editor
+            const { begin, end, label } = restored;
+            updateSegment({ beginTime: begin, endTime: end, clonedSegment: segment, timespanTitle: label });
+          }
+
+          textTimespanIds.push(restored.id);
         }
 
         if (restored.items) {
@@ -320,18 +328,20 @@ export const useTextEditor = () => {
     };
 
     const restoredData = restore(editedData);
-    if (textEditorIds?.length > 0) {
-      // Delete segments from Peaks instance that were removed in text editor
-      const allSegments = peaks.segments.getSegments();
+
+    // Delete segments from Peaks instance that were removed in text editor
+    const allSegments = peaks.segments.getSegments().map(seg => ({ id: seg._id, segment: seg }));
+    if (textTimespanIds?.length > 0) {
       allSegments.forEach((seg) => {
-        if (!textEditorIds.includes(seg.id)) {
-          removeSegment({ id: seg.id });
+        const { id, segment } = seg;
+        if (!textTimespanIds.includes(id)) {
+          removeSegment({ id, label: segment._labelText, type: 'span' });
         }
       });
     }
 
     return restoredData;
-  }, []);
+  };
 
   /**
    * Insert a given template object to text editor and move the cursor inside the empty label

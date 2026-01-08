@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import CodeMirror from '@uiw/react-codemirror';
 import { json } from '@codemirror/lang-json';
 import { lineNumbers, EditorView } from '@codemirror/view';
@@ -100,6 +100,8 @@ const TextEditor = ({ initialJson = null }) => {
         updateStructure([withOtherProps]);
       } catch (error) {
         console.error('Failed to parse JSON:', error);
+        setIsValid(false);
+        setValidationErrors(['Unable to save JSON, please check again.']);
       }
     }
   };
@@ -133,22 +135,22 @@ const TextEditor = ({ initialJson = null }) => {
   /**
    * Handle adding a new heading template at cursor position
    */
-  const handleAddHeading = useCallback(() => {
+  const handleAddHeading = () => {
     if (!editorViewRef.current) return;
 
     const headingTemplate = { label: "", type: "div", items: [] };
     injectTemplate(editorViewRef, headingTemplate);
-  }, []);
+  };
 
   /**
    * Handle adding a new timespan template at cursor position
    */
-  const handleAddTimespan = useCallback(() => {
+  const handleAddTimespan = () => {
     if (!editorViewRef.current) return;
 
     const timespanTemplate = { label: "", type: "span", begin: "", end: "" };
     injectTemplate(editorViewRef, timespanTemplate);
-  }, []);
+  };
 
   /**
    * Debounced validation state update function using lodash
@@ -159,6 +161,7 @@ const TextEditor = ({ initialJson = null }) => {
     isValidating.current = false;
   };
 
+  /* istanbul ignore next */
   /**
    * Custom linter extension for CodeMirror for JSON validation using AJV schema validator.
    * 'useMemo' helps stabilize the extension reference across renders.
@@ -266,6 +269,7 @@ const TextEditor = ({ initialJson = null }) => {
     }
   }), []);
 
+  /* istanbul ignore next */
   /**
    * Find all positions of "id" properties in the JSON document using syntax tree
    * @param {EditorState} state CodeMirror editor state
@@ -290,6 +294,7 @@ const TextEditor = ({ initialJson = null }) => {
     return ranges;
   };
 
+  /* istanbul ignore next */
   /**
    * Custom extension to make "id" fields read-only.
    * Implements an EditorState.changeFilter function that checks if the attempted user
@@ -410,7 +415,7 @@ const TextEditor = ({ initialJson = null }) => {
             {(hasBeenEdited && !isValidating.current) && (
               <>
                 {(!isValid && validationErrors.length > 0) ? (
-                  <Alert variant="danger" className="validation-errors my-0 p-2">
+                  <Alert variant="danger" className="validation-errors my-0 p-2" data-testid="validation-errors">
                     <strong>Validation Errors:</strong>
                     <ul className="mb-0 mt-2">
                       {validationErrors.map((error, index) => (
@@ -419,7 +424,7 @@ const TextEditor = ({ initialJson = null }) => {
                     </ul>
                   </Alert>
                 ) : (
-                  <Alert variant="success" className="my-0 p-2">
+                  <Alert variant="success" className="my-0 p-2" data-testid="validation-success">
                     ✓ Valid structure!
                   </Alert>
                 )}

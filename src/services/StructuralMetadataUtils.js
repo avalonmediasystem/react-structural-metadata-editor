@@ -101,12 +101,14 @@ export default class StructuralMetadataUtils {
     };
 
     // Recursive function to traverse whole data structure
-    let formatItems = (items) => {
+    let formatItems = (items, hasParentSpan) => {
       for (let item of items) {
         item.label = decodeHTML(item.label);
         item.valid = true;
         if (item.type === 'span') {
-          const { begin, end } = item;
+          const { begin, end, items, nestedSpan } = item;
+          if (items == undefined) item.items = [];
+          if (nestedSpan == undefined) item.nestedSpan = hasParentSpan;
           let beginTime = this.convertToSeconds(begin);
           let endTime = this.convertToSeconds(end);
           item.timeRange = { start: beginTime, end: endTime };
@@ -132,12 +134,12 @@ export default class StructuralMetadataUtils {
         }
 
         if (item.items) {
-          formatItems(item.items);
+          formatItems(item.items, item.type === 'span');
         }
       }
     };
 
-    formatItems(allItems);
+    formatItems(allItems, false);
     return { newSmData: allItems, newSmDataStatus: smDataIsValid };
   }
 

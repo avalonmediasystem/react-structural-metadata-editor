@@ -77,7 +77,8 @@ const Waveform = forwardRef(({ }, ref) => {
   }, [editingDisabled]);
 
   const handleKeyPress = (event) => {
-    if (event.target.nodeName == 'INPUT') return;
+    // Ignore keypress when focus is on an input field or CodeMirror text editor
+    if (event.target.nodeName == 'INPUT' || event.target.className.includes('cm-content')) return;
     // When structure is not being edited play/pause audio when spacebar is pressed
     if (event.keyCode == 32 && !editingRef.current) {
       event.preventDefault();

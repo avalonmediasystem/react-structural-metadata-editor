@@ -54,6 +54,7 @@ const App = (props) => {
           structureIsSaved={(val) => { }}
           disableSave={props.disableSave}
           key={manifestUrl}
+          showTextEditor={props.showTextEditor}
         />
       }
     </Container>

@@ -2,8 +2,7 @@ import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import './App.css';
 import WaveformContainer from './containers/WaveformContainer';
-import ButtonSection from './components/ButtonSection';
-import StructureOutputContainer from './containers/StructureOutputContainer';
+import StructureTabView from './containers/StructureTabView';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { useDispatch } from 'react-redux';
@@ -29,7 +28,7 @@ const App = (props) => {
     <div className="sme-container">
       {/* Error boundary for the entire component: this is in place as a fallback if
       there's an error emitted from outside of the following zoned error boundaries.
-      WaveformContainer and StructureOutputContainer are placed inside their own error
+      WaveformContainer and StructureTabView are placed inside their own error
       boundaries, because they are likely to encounter errors. */}
       <ErrorMessage>
         {/* Error boundary for waveform-related errors */}
@@ -37,11 +36,10 @@ const App = (props) => {
           <WaveformContainer {...props} />
         </ErrorMessage>
         <AlertContainer removeAlert={deleteAlert} />
-        <ButtonSection />
         {/* Error boundary for structure-related errors */}
         <ErrorMessage>
           <DndProvider backend={HTML5Backend}>
-            <StructureOutputContainer {...props} />
+            <StructureTabView {...props} />
           </DndProvider>
         </ErrorMessage>
       </ErrorMessage>
@@ -67,6 +65,7 @@ App.propTypes = {
   structureIsSaved: PropTypes.func,
   withCredentials: PropTypes.bool,
   disableSave: PropTypes.bool,
+  showTextEditor: PropTypes.bool,
 };
 
 export default App;

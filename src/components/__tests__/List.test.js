@@ -13,12 +13,6 @@ jest.mock('react-dnd', () => ({
   useDrag: jest.fn(() => [{ isDragging: false }, jest.fn()]),
   useDrop: jest.fn(() => [{ isOver: false }, jest.fn()]),
 }));
-// Mock react-error-boundary library
-jest.mock('react-error-boundary', () => ({
-  useErrorBoundary: jest.fn(() => ({
-    showBoundary: jest.fn(),
-  }))
-}));
 
 describe('List component', () => {
   test('renders successfully', () => {

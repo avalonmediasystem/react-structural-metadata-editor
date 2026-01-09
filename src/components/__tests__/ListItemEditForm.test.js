@@ -31,13 +31,6 @@ const initialState = {
 
 const handleCancelMock = jest.fn();
 
-// Mock react-error-boundary library
-jest.mock('react-error-boundary', () => ({
-  useErrorBoundary: jest.fn(() => ({
-    showBoundary: jest.fn(),
-  }))
-}));
-
 describe('ListItemEditForm component', () => {
   describe('renders', () => {
     test("HeadingInlineForm for item type 'div'", () => {

@@ -102,12 +102,6 @@ const divItemWithChildren = {
 jest.mock('react-dnd', () => ({
   useDrag: jest.fn(() => [{ isDragging: false }, jest.fn()]),
 }));
-// Mock react-error-boundary library
-jest.mock('react-error-boundary', () => ({
-  useErrorBoundary: jest.fn(() => ({
-    showBoundary: jest.fn(),
-  }))
-}));
 
 describe('ListItem component', () => {
   describe('renders', () => {

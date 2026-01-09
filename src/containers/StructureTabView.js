@@ -19,12 +19,14 @@ const StructureTabView = ({ disableSave, structureIsSaved, structureURL, showTex
             <Button
               variant={viewMode === 'visual' ? 'primary' : 'outline-primary'}
               onClick={() => setViewMode('visual')}
+              data-testid="visual-editor-button"
             >
               Visual Editor
             </Button>
             <Button
               variant={viewMode === 'text' ? 'primary' : 'outline-primary'}
               onClick={() => setViewMode('text')}
+              data-testid="text-editor-button"
             >
               Text Editor
             </Button>
@@ -32,14 +34,14 @@ const StructureTabView = ({ disableSave, structureIsSaved, structureURL, showTex
         </div>
       )}
       {viewMode === 'visual' ? (
-        <>
+        <section data-testid="visual-editor-section">
           <ButtonSection />
           <StructureOutputContainer
             disableSave={disableSave}
             structureIsSaved={structureIsSaved}
             structureURL={structureURL}
           />
-        </>
+        </section>
       ) : (
         <TextEditor initialJson={smData[0]} />
       )}

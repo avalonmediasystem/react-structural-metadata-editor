@@ -18,18 +18,13 @@ var _ListItemEditForm = _interopRequireDefault(require("./ListItemEditForm"));
 var _ListItemControls = _interopRequireDefault(require("./ListItemControls"));
 var _Constants = require("../services/Constants");
 var actions = _interopRequireWildcard(require("../actions/sm-data"));
-var _peaksInstance = require("../actions/peaks-instance");
-var _forms = require("../actions/forms");
-function _getRequireWildcardCache(e) { if ("function" != typeof WeakMap) return null; var r = new WeakMap(), t = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(e) { return e ? t : r; })(e); }
-function _interopRequireWildcard(e, r) { if (!r && e && e.__esModule) return e; if (null === e || "object" != _typeof(e) && "function" != typeof e) return { "default": e }; var t = _getRequireWildcardCache(r); if (t && t.has(e)) return t.get(e); var n = { __proto__: null }, a = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var u in e) if ("default" !== u && {}.hasOwnProperty.call(e, u)) { var i = a ? Object.getOwnPropertyDescriptor(e, u) : null; i && (i.get || i.set) ? Object.defineProperty(n, u, i) : n[u] = e[u]; } return n["default"] = e, t && t.set(e, n), n; }
+var _smeHooks = require("../services/sme-hooks");
+function _interopRequireWildcard(e, t) { if ("function" == typeof WeakMap) var r = new WeakMap(), n = new WeakMap(); return (_interopRequireWildcard = function _interopRequireWildcard(e, t) { if (!t && e && e.__esModule) return e; var o, i, f = { __proto__: null, "default": e }; if (null === e || "object" != _typeof(e) && "function" != typeof e) return f; if (o = t ? n : r) { if (o.has(e)) return o.get(e); o.set(e, f); } for (var _t in e) "default" !== _t && {}.hasOwnProperty.call(e, _t) && ((i = (o = Object.defineProperty) && Object.getOwnPropertyDescriptor(e, _t)) && (i.get || i.set) ? o(f, _t, i) : f[_t] = e[_t]); return f; })(e, t); }
 var ListItem = function ListItem(_ref) {
   var item = _ref.item,
     children = _ref.children;
   // Dispatch actions to Redux store
   var dispatch = (0, _reactRedux.useDispatch)();
-  var deleteItem = function deleteItem(id) {
-    return dispatch(actions.deleteItem(id));
-  };
   var addDropTargets = function addDropTargets(item) {
     return dispatch(actions.addDropTargets(item));
   };
@@ -45,18 +40,9 @@ var ListItem = function ListItem(_ref) {
   var handleListItemDrop = function handleListItemDrop(item, dropItem) {
     return dispatch(actions.handleListItemDrop(item, dropItem));
   };
-  var removeSegment = function removeSegment(item) {
-    return dispatch((0, _peaksInstance.deleteSegment)(item));
-  };
-  var updateEditingTimespans = function updateEditingTimespans(value, smDataIsValid) {
-    return dispatch((0, _forms.handleEditingTimespans)(value, smDataIsValid));
-  };
-
-  // Get state variables from Redux store
-  var _useSelector = (0, _reactRedux.useSelector)(function (state) {
-      return state.structuralMetadata;
-    }),
-    smDataIsValid = _useSelector.smDataIsValid;
+  var _useStructureUpdate = (0, _smeHooks.useStructureUpdate)(),
+    deleteStructItem = _useStructureUpdate.deleteStructItem,
+    updateEditingTimespans = _useStructureUpdate.updateEditingTimespans;
   var _useState = (0, _react.useState)(false),
     _useState2 = (0, _slicedToArray2["default"])(_useState, 2),
     editing = _useState2[0],
@@ -91,19 +77,18 @@ var ListItem = function ListItem(_ref) {
     drag = _useDrag2[1];
   var handleDelete = function handleDelete() {
     try {
-      deleteItem(item.id);
-      removeSegment(item);
+      deleteStructItem(item);
     } catch (error) {
       showBoundary(error);
     }
   };
   var handleEditClick = function handleEditClick() {
-    updateEditingTimespans(1, smDataIsValid);
+    updateEditingTimespans(1);
     setEditing(true);
   };
   var handleEditFormCancel = function handleEditFormCancel() {
     setEditing(false);
-    updateEditingTimespans(0, smDataIsValid);
+    updateEditingTimespans(0);
   };
   var handleShowDropTargetsClick = function handleShowDropTargetsClick() {
     try {
@@ -167,7 +152,11 @@ var ListItem = function ListItem(_ref) {
   }), ' ', label, " (", begin, " - ", end, ")"), (type === 'div' || type === 'root') && /*#__PURE__*/_react["default"].createElement("div", {
     className: "structure-title heading",
     "data-testid": "heading-label"
-  }, label), /*#__PURE__*/_react["default"].createElement(_ListItemControls["default"], {
+  }, !valid && type !== 'root' && /*#__PURE__*/_react["default"].createElement(_react["default"].Fragment, null, /*#__PURE__*/_react["default"].createElement(_reactFontawesome.FontAwesomeIcon, {
+    icon: _freeSolidSvgIcons.faExclamationTriangle,
+    className: "icon-invalid",
+    title: "Please add at least one timespan or remove this heading."
+  }), ' '), label), /*#__PURE__*/_react["default"].createElement(_ListItemControls["default"], {
     handleDelete: handleDelete,
     handleEditClick: handleEditClick,
     item: itemProp,

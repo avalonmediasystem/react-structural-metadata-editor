@@ -20,8 +20,7 @@ var _ListItemInlineEditControls = _interopRequireDefault(require("./ListItemInli
 var peaksActions = _interopRequireWildcard(require("../actions/peaks-instance"));
 var _WaveformDataUtils = _interopRequireDefault(require("../services/WaveformDataUtils"));
 var _smeHooks = require("../services/sme-hooks");
-function _getRequireWildcardCache(e) { if ("function" != typeof WeakMap) return null; var r = new WeakMap(), t = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(e) { return e ? t : r; })(e); }
-function _interopRequireWildcard(e, r) { if (!r && e && e.__esModule) return e; if (null === e || "object" != _typeof(e) && "function" != typeof e) return { "default": e }; var t = _getRequireWildcardCache(r); if (t && t.has(e)) return t.get(e); var n = { __proto__: null }, a = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var u in e) if ("default" !== u && {}.hasOwnProperty.call(e, u)) { var i = a ? Object.getOwnPropertyDescriptor(e, u) : null; i && (i.get || i.set) ? Object.defineProperty(n, u, i) : n[u] = e[u]; } return n["default"] = e, t && t.set(e, n), n; }
+function _interopRequireWildcard(e, t) { if ("function" == typeof WeakMap) var r = new WeakMap(), n = new WeakMap(); return (_interopRequireWildcard = function _interopRequireWildcard(e, t) { if (!t && e && e.__esModule) return e; var o, i, f = { __proto__: null, "default": e }; if (null === e || "object" != _typeof(e) && "function" != typeof e) return f; if (o = t ? n : r) { if (o.has(e)) return o.get(e); o.set(e, f); } for (var _t in e) "default" !== _t && {}.hasOwnProperty.call(e, _t) && ((i = (o = Object.defineProperty) && Object.getOwnPropertyDescriptor(e, _t)) && (i.get || i.set) ? o(f, _t, i) : f[_t] = e[_t]); return f; })(e, t); }
 var structuralMetadataUtils = new _StructuralMetadataUtils["default"]();
 var waveformUtils = new _WaveformDataUtils["default"]();
 var styles = {
@@ -146,12 +145,6 @@ function TimespanInlineForm(_ref) {
     dragSegment(currentSegment.id, startTimeChanged, 0);
   }, []);
   (0, _react.useEffect)(function () {
-    if (!isDragging && isInitializing && !isTyping && !(0, _lodash.isEmpty)(segment)) {
-      var startTime = segment.startTime,
-        _endTime = segment.endTime;
-      setBeginTime(structuralMetadataUtils.toHHmmss(startTime));
-      setEndTime(structuralMetadataUtils.toHHmmss(_endTime));
-    }
     if (isDragging) {
       // When handles in waveform are dragged clear out isInitializing and isTyping flags
       if (isInitializing) setIsInitializing(0);
@@ -161,12 +154,12 @@ function TimespanInlineForm(_ref) {
           nextSibling: nextSiblingRef.current,
           parentTimespan: parentTimespanRef.current
         }),
-        _startTime = _waveformUtils$valida.startTime,
-        _endTime2 = _waveformUtils$valida.endTime;
-      setBeginTime(structuralMetadataUtils.toHHmmss(_startTime));
-      setEndTime(structuralMetadataUtils.toHHmmss(_endTime2));
+        startTime = _waveformUtils$valida.startTime,
+        _endTime = _waveformUtils$valida.endTime;
+      setBeginTime(structuralMetadataUtils.toHHmmss(startTime));
+      setEndTime(structuralMetadataUtils.toHHmmss(_endTime));
     }
-  }, [isDragging, isInitializing, isTyping, segment, peaksInstance]);
+  }, [isDragging, isInitializing, isTyping, peaksInstance]);
 
   /**
    * When there are invalid timespans in the structure, to edit them

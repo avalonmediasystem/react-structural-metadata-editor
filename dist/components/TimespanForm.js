@@ -20,8 +20,7 @@ var _formHelper = require("../services/form-helper");
 var peaksActions = _interopRequireWildcard(require("../actions/peaks-instance"));
 var _WaveformDataUtils = _interopRequireDefault(require("../services/WaveformDataUtils"));
 var _smeHooks = require("../services/sme-hooks");
-function _getRequireWildcardCache(e) { if ("function" != typeof WeakMap) return null; var r = new WeakMap(), t = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(e) { return e ? t : r; })(e); }
-function _interopRequireWildcard(e, r) { if (!r && e && e.__esModule) return e; if (null === e || "object" != _typeof(e) && "function" != typeof e) return { "default": e }; var t = _getRequireWildcardCache(r); if (t && t.has(e)) return t.get(e); var n = { __proto__: null }, a = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var u in e) if ("default" !== u && {}.hasOwnProperty.call(e, u)) { var i = a ? Object.getOwnPropertyDescriptor(e, u) : null; i && (i.get || i.set) ? Object.defineProperty(n, u, i) : n[u] = e[u]; } return n["default"] = e, t && t.set(e, n), n; }
+function _interopRequireWildcard(e, t) { if ("function" == typeof WeakMap) var r = new WeakMap(), n = new WeakMap(); return (_interopRequireWildcard = function _interopRequireWildcard(e, t) { if (!t && e && e.__esModule) return e; var o, i, f = { __proto__: null, "default": e }; if (null === e || "object" != _typeof(e) && "function" != typeof e) return f; if (o = t ? n : r) { if (o.has(e)) return o.get(e); o.set(e, f); } for (var _t in e) "default" !== _t && {}.hasOwnProperty.call(e, _t) && ((i = (o = Object.defineProperty) && Object.getOwnPropertyDescriptor(e, _t)) && (i.get || i.set) ? o(f, _t, i) : f[_t] = e[_t]); return f; })(e, t); }
 var structuralMetadataUtils = new _StructuralMetadataUtils["default"]();
 var waveformDataUtils = new _WaveformDataUtils["default"]();
 var TimespanForm = function TimespanForm(_ref) {
@@ -70,9 +69,9 @@ var TimespanForm = function TimespanForm(_ref) {
     timespanTitle = _useState8[0],
     setTimespanTitle = _useState8[1];
   var _useState9 = (0, _react.useState)([]),
-    _useState10 = (0, _slicedToArray2["default"])(_useState9, 2),
-    validHeadings = _useState10[0],
-    setValidHeadings = _useState10[1];
+    _useState0 = (0, _slicedToArray2["default"])(_useState9, 2),
+    validHeadings = _useState0[0],
+    setValidHeadings = _useState0[1];
 
   // Update beginTime and endTime on load
   (0, _react.useEffect)(function () {
@@ -81,11 +80,6 @@ var TimespanForm = function TimespanForm(_ref) {
       setEndTime(structuralMetadataUtils.toHHmmss(initSegment.endTime));
     }
   }, [initSegment]);
-  var allSpans = (0, _react.useMemo)(function () {
-    if ((smData === null || smData === void 0 ? void 0 : smData.length) > 0) {
-      return structuralMetadataUtils.getItemsOfType(['span'], smData);
-    }
-  }, [smData]);
 
   // Find neighboring timespans of the currently editing timespan
   var _useFindNeighborSegme = (0, _smeHooks.useFindNeighborSegments)({
@@ -128,7 +122,7 @@ var TimespanForm = function TimespanForm(_ref) {
     setValidHeadings(validHeadings);
   };
   var isValidTimespan = (0, _react.useMemo)(function () {
-    var _validTimespans = (0, _formHelper.validTimespans)(beginTime, endTime, duration, allSpans),
+    var _validTimespans = (0, _formHelper.validTimespans)(beginTime, endTime, duration),
       valid = _validTimespans.valid;
     if (valid) {
       buildHeadingsOptions();
@@ -136,34 +130,31 @@ var TimespanForm = function TimespanForm(_ref) {
       setValidHeadings([]);
     }
     return valid;
-  }, [beginTime, endTime, duration, allSpans]);
-  (0, _react.useEffect)(function () {
-    if (!isInitializing) {
-      setIsInitializing(false);
-    }
-  }, [smData, isInitializing]);
+  }, [beginTime, endTime, duration]);
   (0, _react.useEffect)(function () {
     if (!isTyping) {
       if (initSegment && isInitializing) {
         // Set isInitializing flag to false
         setIsInitializing(false);
-      }
-      if (!isInitializing) {
-        var _waveformDataUtils$va = waveformDataUtils.validateSegment(segment, startTimeChanged, duration, {
-            previousSibling: prevSiblingRef.current,
-            nextSibling: nextSiblingRef.current,
-            parentTimespan: parentTimespanRef.current
-          }),
-          startTime = _waveformDataUtils$va.startTime,
-          _endTime = _waveformDataUtils$va.endTime;
-        setBeginTime(structuralMetadataUtils.toHHmmss(startTime));
-        setEndTime(structuralMetadataUtils.toHHmmss(_endTime));
+        validateSegmentInPeaks();
       }
     }
     if (isDragging) {
       setIsTyping(0);
+      validateSegmentInPeaks();
     }
   }, [initSegment, isDragging, isInitializing, peaksInstance]);
+  var validateSegmentInPeaks = function validateSegmentInPeaks() {
+    var _waveformDataUtils$va = waveformDataUtils.validateSegment(segment, startTimeChanged, duration, {
+        previousSibling: prevSiblingRef.current,
+        nextSibling: nextSiblingRef.current,
+        parentTimespan: parentTimespanRef.current
+      }),
+      startTime = _waveformDataUtils$va.startTime,
+      endTime = _waveformDataUtils$va.endTime;
+    setBeginTime(structuralMetadataUtils.toHHmmss(startTime));
+    setEndTime(structuralMetadataUtils.toHHmmss(endTime));
+  };
   var clearFormValues = function clearFormValues() {
     setBeginTime('');
     setEndTime('');

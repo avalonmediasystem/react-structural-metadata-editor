@@ -15,11 +15,10 @@ var _propTypes = _interopRequireDefault(require("prop-types"));
 var _TimespanForm = _interopRequireDefault(require("../components/TimespanForm"));
 var _reactRedux = require("react-redux");
 var _StructuralMetadataUtils = _interopRequireDefault(require("../services/StructuralMetadataUtils"));
-var smActions = _interopRequireWildcard(require("../actions/sm-data"));
-var peaksActions = _interopRequireWildcard(require("../actions/peaks-instance"));
+var _peaksInstance = require("../actions/peaks-instance");
+var _smeHooks = require("../services/sme-hooks");
 var _excluded = ["cancelClick"];
-function _getRequireWildcardCache(e) { if ("function" != typeof WeakMap) return null; var r = new WeakMap(), t = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(e) { return e ? t : r; })(e); }
-function _interopRequireWildcard(e, r) { if (!r && e && e.__esModule) return e; if (null === e || "object" != _typeof(e) && "function" != typeof e) return { "default": e }; var t = _getRequireWildcardCache(r); if (t && t.has(e)) return t.get(e); var n = { __proto__: null }, a = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var u in e) if ("default" !== u && {}.hasOwnProperty.call(e, u)) { var i = a ? Object.getOwnPropertyDescriptor(e, u) : null; i && (i.get || i.set) ? Object.defineProperty(n, u, i) : n[u] = e[u]; } return n["default"] = e, t && t.set(e, n), n; }
+function _interopRequireWildcard(e, t) { if ("function" == typeof WeakMap) var r = new WeakMap(), n = new WeakMap(); return (_interopRequireWildcard = function _interopRequireWildcard(e, t) { if (!t && e && e.__esModule) return e; var o, i, f = { __proto__: null, "default": e }; if (null === e || "object" != _typeof(e) && "function" != typeof e) return f; if (o = t ? n : r) { if (o.has(e)) return o.get(e); o.set(e, f); } for (var _t in e) "default" !== _t && {}.hasOwnProperty.call(e, _t) && ((i = (o = Object.defineProperty) && Object.getOwnPropertyDescriptor(e, _t)) && (i.get || i.set) ? o(f, _t, i) : f[_t] = e[_t]); return f; })(e, t); }
 var structuralMetadataUtils = new _StructuralMetadataUtils["default"]();
 var TimespanFormContainer = function TimespanFormContainer(_ref) {
   var _restProps$initSegmen, _restProps$initSegmen2;
@@ -27,19 +26,15 @@ var TimespanFormContainer = function TimespanFormContainer(_ref) {
     restProps = (0, _objectWithoutProperties2["default"])(_ref, _excluded);
   // Dispatch actions from Redux store
   var dispatch = (0, _reactRedux.useDispatch)();
-  var updateSMUI = function updateSMUI(data, duration) {
-    return dispatch(smActions.reBuildSMUI(data, duration));
-  };
   var addNewSegment = function addNewSegment(newSpan) {
-    return dispatch(peaksActions.insertNewSegment(newSpan));
+    return dispatch((0, _peaksInstance.insertNewSegment)(newSpan));
   };
+  var _useStructureUpdate = (0, _smeHooks.useStructureUpdate)(),
+    updateStructure = _useStructureUpdate.updateStructure;
 
   // State variables from Redux store
   var smData = (0, _reactRedux.useSelector)(function (state) {
     return state.structuralMetadata.smData;
-  });
-  var duration = (0, _reactRedux.useSelector)(function (state) {
-    return state.peaksInstance.duration;
   });
   var _useState = (0, _react.useState)(false),
     _useState2 = (0, _slicedToArray2["default"])(_useState, 2),
@@ -57,8 +52,8 @@ var TimespanFormContainer = function TimespanFormContainer(_ref) {
       // Update the waveform segments with new timespan
       addNewSegment(newSpan);
 
-      // Update redux store
-      updateSMUI(updatedData, duration);
+      // Update redux store via custom hook
+      updateStructure(updatedData);
 
       // Close the form
       cancelClick();

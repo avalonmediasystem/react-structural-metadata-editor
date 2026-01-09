@@ -1,20 +1,30 @@
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
-var _typeof = require("@babel/runtime/helpers/typeof");
+var _typeof3 = require("@babel/runtime/helpers/typeof");
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.useTimespanFormValidation = exports.useFindNeighborTimespans = exports.useFindNeighborSegments = void 0;
+exports.useTimespanFormValidation = exports.useTextEditor = exports.useStructureUpdate = exports.useFindNeighborTimespans = exports.useFindNeighborSegments = void 0;
+var _toConsumableArray2 = _interopRequireDefault(require("@babel/runtime/helpers/toConsumableArray"));
+var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/defineProperty"));
+var _objectWithoutProperties2 = _interopRequireDefault(require("@babel/runtime/helpers/objectWithoutProperties"));
+var _typeof2 = _interopRequireDefault(require("@babel/runtime/helpers/typeof"));
 var _react = _interopRequireWildcard(require("react"));
 var _reactRedux = require("react-redux");
 var _StructuralMetadataUtils = _interopRequireDefault(require("./StructuralMetadataUtils"));
-var _WaveformDataUtils = _interopRequireDefault(require("./WaveformDataUtils"));
 var _formHelper = require("./form-helper");
-function _getRequireWildcardCache(e) { if ("function" != typeof WeakMap) return null; var r = new WeakMap(), t = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(e) { return e ? t : r; })(e); }
-function _interopRequireWildcard(e, r) { if (!r && e && e.__esModule) return e; if (null === e || "object" != _typeof(e) && "function" != typeof e) return { "default": e }; var t = _getRequireWildcardCache(r); if (t && t.has(e)) return t.get(e); var n = { __proto__: null }, a = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var u in e) if ("default" !== u && {}.hasOwnProperty.call(e, u)) { var i = a ? Object.getOwnPropertyDescriptor(e, u) : null; i && (i.get || i.set) ? Object.defineProperty(n, u, i) : n[u] = e[u]; } return n["default"] = e, t && t.set(e, n), n; }
+var _smData = require("../actions/sm-data");
+var _forms = require("../actions/forms");
+var _peaksInstance = require("../actions/peaks-instance");
+var _lodash = require("lodash");
+var _uuid = require("uuid");
+var _excluded = ["items"],
+  _excluded2 = ["active", "timeRange", "nestedSpan", "valid"];
+function _interopRequireWildcard(e, t) { if ("function" == typeof WeakMap) var r = new WeakMap(), n = new WeakMap(); return (_interopRequireWildcard = function _interopRequireWildcard(e, t) { if (!t && e && e.__esModule) return e; var o, i, f = { __proto__: null, "default": e }; if (null === e || "object" != _typeof3(e) && "function" != typeof e) return f; if (o = t ? n : r) { if (o.has(e)) return o.get(e); o.set(e, f); } for (var _t in e) "default" !== _t && {}.hasOwnProperty.call(e, _t) && ((i = (o = Object.defineProperty) && Object.getOwnPropertyDescriptor(e, _t)) && (i.get || i.set) ? o(f, _t, i) : f[_t] = e[_t]); return f; })(e, t); }
+function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
+function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { (0, _defineProperty2["default"])(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
 var structuralMetadataUtils = new _StructuralMetadataUtils["default"]();
-var waveformDataUtils = new _WaveformDataUtils["default"]();
 
 /**
  * Find sibling and parent timespans of the given Peaks segment. The respective timespans
@@ -33,7 +43,7 @@ var useFindNeighborSegments = exports.useFindNeighborSegments = function useFind
   var _useSelector = (0, _reactRedux.useSelector)(function (state) {
       return state.peaksInstance;
     }),
-    peaks = _useSelector.peaks,
+    duration = _useSelector.duration,
     readyPeaks = _useSelector.readyPeaks;
   var _useSelector2 = (0, _reactRedux.useSelector)(function (state) {
       return state.structuralMetadata;
@@ -48,52 +58,40 @@ var useFindNeighborSegments = exports.useFindNeighborSegments = function useFind
     return structuralMetadataUtils.getItemsOfType(['span'], smData);
   }, [smData]);
   (0, _react.useEffect)(function () {
-    if (readyPeaks && segment) {
-      // All segments sorted by start time
-      var allSegments = waveformDataUtils.sortSegments(peaks, 'startTime');
-      var otherSegments = allSegments.filter(function (seg) {
-        return seg.id !== segment.id;
-      });
-      var startTime = segment.startTime,
-        endTime = segment.endTime;
-
-      // Find potential parent segments
-      var potentialParents = otherSegments.filter(function (seg) {
-        return seg.startTime <= startTime && seg.endTime >= endTime;
-      });
-      var potentialParentIds = (potentialParents === null || potentialParents === void 0 ? void 0 : potentialParents.length) > 0 ? potentialParents.map(function (p) {
-        return p._id;
-      }) : [];
-
-      // Get the most immediate parent
-      var parent = potentialParents.reduce(function (closest, seg) {
-        if (!closest) return seg;
-        var currentRange = seg.endTime - seg.startTime;
-        var closestRange = closest.endTime - closest.startTime;
-        return currentRange < closestRange ? seg : closest;
-      }, null);
-      parentTimespanRef.current = parent ? allSpans.find(function (span) {
-        return span.id === parent._id;
-      }) : null;
-      // When calculating the previous sibling omit potential parent timespans, as their startTimes are
-      // less than or equal to the current segment's startTime
-      var siblingsBefore = otherSegments.filter(function (seg) {
-        return seg.startTime <= startTime && !(potentialParentIds !== null && potentialParentIds !== void 0 && potentialParentIds.includes(seg._id));
-      });
-      if ((siblingsBefore === null || siblingsBefore === void 0 ? void 0 : siblingsBefore.length) > 0) {
-        prevSiblingRef.current = allSpans.find(function (span) {
-          return span.id === siblingsBefore.at(-1)._id;
-        });
+    if (readyPeaks && !(0, _lodash.isEmpty)(segment)) {
+      var item;
+      if (segment._id === 'temp-segment') {
+        // Construct a span object from segment when handling timespan creation
+        var _id = segment._id,
+          _startTime = segment._startTime,
+          _endTime = segment._endTime,
+          parentId = segment.parentId;
+        item = {
+          type: 'span',
+          label: '',
+          id: _id,
+          begin: structuralMetadataUtils.toHHmmss(_startTime),
+          end: structuralMetadataUtils.toHHmmss(_endTime),
+          valid: _startTime < _endTime && _endTime <= duration,
+          timeRange: {
+            start: _startTime,
+            end: _endTime
+          },
+          parentId: parentId
+        };
+      } else {
+        // Find the existing span object from smData
+        item = allSpans.filter(function (span) {
+          return span.id === segment._id;
+        })[0];
       }
-      ;
-      var siblingsAfter = otherSegments.filter(function (seg) {
-        return seg.startTime >= endTime;
-      });
-      if ((siblingsAfter === null || siblingsAfter === void 0 ? void 0 : siblingsAfter.length) > 0) {
-        nextSiblingRef.current = allSpans.find(function (span) {
-          return span.id === siblingsAfter[0]._id;
-        });
-      }
+      var _structuralMetadataUt = structuralMetadataUtils.calculateAdjacentTimespans(smData, item),
+        possibleParent = _structuralMetadataUt.possibleParent,
+        possiblePrevSibling = _structuralMetadataUt.possiblePrevSibling,
+        possibleNextSibling = _structuralMetadataUt.possibleNextSibling;
+      parentTimespanRef.current = possibleParent;
+      prevSiblingRef.current = possiblePrevSibling;
+      nextSiblingRef.current = possibleNextSibling;
     }
   }, [segment, readyPeaks]);
   return {
@@ -124,39 +122,15 @@ var useFindNeighborTimespans = exports.useFindNeighborTimespans = function useFi
   var parentTimespanRef = (0, _react.useRef)(null);
   var prevSiblingRef = (0, _react.useRef)(null);
   var nextSiblingRef = (0, _react.useRef)(null);
-
-  // Find the parent timespan if it exists
-  var parentDiv = (0, _react.useMemo)(function () {
-    if (item) {
-      return structuralMetadataUtils.getParentItem(item, smData);
-    }
-  }, [item, smData]);
   (0, _react.useEffect)(function () {
-    if (parentDiv && parentDiv.type === 'span') {
-      parentTimespanRef.current = parentDiv;
-    } else {
-      parentTimespanRef.current = null;
-    }
-
-    // Find previous and next siblings in the hierarchy
-    if (parentDiv && parentDiv.items) {
-      var siblings = parentDiv.items.filter(function (sibling) {
-        return sibling.type === 'span';
-      });
-      var currentIndex = siblings.findIndex(function (sibling) {
-        return sibling.id === item.id;
-      });
-      prevSiblingRef.current = currentIndex > 0 ? siblings[currentIndex - 1] : null;
-      nextSiblingRef.current = currentIndex < siblings.length - 1 ? siblings[currentIndex + 1] : null;
-    } else if (item) {
-      var _siblings = structuralMetadataUtils.getItemsOfType(['span'], smData);
-      var _currentIndex = _siblings.findIndex(function (sibling) {
-        return sibling.id === item.id;
-      });
-      prevSiblingRef.current = _currentIndex > 0 ? _siblings[_currentIndex - 1] : null;
-      nextSiblingRef.current = _currentIndex < _siblings.length - 1 ? _siblings[_currentIndex + 1] : null;
-    }
-  }, [parentDiv, item]);
+    var _structuralMetadataUt2 = structuralMetadataUtils.calculateAdjacentTimespans(smData, item),
+      possibleParent = _structuralMetadataUt2.possibleParent,
+      possiblePrevSibling = _structuralMetadataUt2.possiblePrevSibling,
+      possibleNextSibling = _structuralMetadataUt2.possibleNextSibling;
+    parentTimespanRef.current = possibleParent;
+    prevSiblingRef.current = possiblePrevSibling;
+    nextSiblingRef.current = possibleNextSibling;
+  }, [item, smData]);
   return {
     prevSiblingRef: prevSiblingRef,
     nextSiblingRef: nextSiblingRef,
@@ -191,24 +165,32 @@ var useTimespanFormValidation = exports.useTimespanFormValidation = function use
     nextSiblingRef = neighbors.nextSiblingRef,
     parentTimespanRef = neighbors.parentTimespanRef;
   var getBeginTimeConstraint = function getBeginTimeConstraint() {
-    // Sibling's end time takes precedence over parent's start time
+    var prevSiblingEnd, parentBegin;
     if (prevSiblingRef.current) {
-      return prevSiblingRef.current.end;
+      prevSiblingEnd = structuralMetadataUtils.toMs(prevSiblingRef.current.end);
     }
     if (parentTimespanRef.current) {
-      return parentTimespanRef.current.begin;
+      parentBegin = structuralMetadataUtils.toMs(parentTimespanRef.current.begin);
     }
-    return null;
+    if (!prevSiblingEnd && parentBegin || prevSiblingEnd < parentBegin) {
+      return parentBegin;
+    } else {
+      return prevSiblingEnd;
+    }
   };
   var getEndTimeConstraint = function getEndTimeConstraint() {
-    // Sibling's start time takes precedence over parent's end time
+    var nextSiblingStart, parentEnd;
     if (nextSiblingRef.current) {
-      return nextSiblingRef.current.begin;
+      nextSiblingStart = structuralMetadataUtils.toMs(nextSiblingRef.current.begin);
     }
     if (parentTimespanRef.current) {
-      return parentTimespanRef.current.end;
+      parentEnd = structuralMetadataUtils.toMs(parentTimespanRef.current.end);
     }
-    return null;
+    if (!nextSiblingStart && parentEnd || nextSiblingStart > parentEnd) {
+      return parentEnd;
+    } else {
+      return nextSiblingStart;
+    }
   };
   var isBeginValid = (0, _react.useMemo)(function () {
     // First check for format and ordering validation
@@ -217,7 +199,7 @@ var useTimespanFormValidation = exports.useTimespanFormValidation = function use
     var constraint = getBeginTimeConstraint();
     if (constraint) {
       // Begin time must be >= constraint time
-      return structuralMetadataUtils.toMs(beginTime) >= structuralMetadataUtils.toMs(constraint);
+      return structuralMetadataUtils.toMs(beginTime) >= constraint;
     }
     return true;
   }, [beginTime, endTime]);
@@ -228,7 +210,7 @@ var useTimespanFormValidation = exports.useTimespanFormValidation = function use
     var constraint = getEndTimeConstraint();
     if (constraint) {
       // End time must be <= constraint time
-      return structuralMetadataUtils.toMs(endTime) <= structuralMetadataUtils.toMs(constraint);
+      return structuralMetadataUtils.toMs(endTime) <= constraint;
     }
     return true;
   }, [beginTime, endTime]);
@@ -240,5 +222,255 @@ var useTimespanFormValidation = exports.useTimespanFormValidation = function use
     formIsValid: formIsValid,
     isBeginValid: isBeginValid,
     isEndValid: isEndValid
+  };
+};
+
+/**
+ * Perform Redux state updates during CRUD operations performed on structure
+ * @returns {
+ *  deleteStructItem,
+ *  updateEditingTimespans,
+ *  updateStructure,
+ * }
+ */
+var useStructureUpdate = exports.useStructureUpdate = function useStructureUpdate() {
+  var dispatch = (0, _reactRedux.useDispatch)();
+  var _useSelector5 = (0, _reactRedux.useSelector)(function (state) {
+      return state.structuralMetadata;
+    }),
+    smData = _useSelector5.smData,
+    smDataIsValid = _useSelector5.smDataIsValid;
+  var _useSelector6 = (0, _reactRedux.useSelector)(function (state) {
+      return state.peaksInstance;
+    }),
+    duration = _useSelector6.duration;
+  var updateStructure = function updateStructure() {
+    var items = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : smData;
+    var _structuralMetadataUt3 = structuralMetadataUtils.buildSMUI(items, duration),
+      newSmData = _structuralMetadataUt3.newSmData,
+      newSmDataStatus = _structuralMetadataUt3.newSmDataStatus;
+    dispatch((0, _smData.updateSMUI)(newSmData, newSmDataStatus));
+    // Remove invalid structure alert when data is corrected
+    if (newSmDataStatus) {
+      dispatch((0, _forms.clearExistingAlerts)());
+      dispatch((0, _forms.updateStructureStatus)(0));
+    }
+  };
+  var deleteStructItem = function deleteStructItem(item) {
+    // Clone smData and remove the item manually
+    var clonedItems = structuralMetadataUtils.deleteListItem(item.id, smData);
+
+    // Update structure with the item removed
+    updateStructure(clonedItems);
+
+    // Remove the Peaks segment from the peaks instance
+    dispatch((0, _peaksInstance.deleteSegment)(item));
+  };
+  var updateEditingTimespans = function updateEditingTimespans(code) {
+    (0, _forms.handleEditingTimespans)(code);
+    /**
+     * Remove dismissible alerts when a CRUD action has been initiated
+     * given editing is starting (code = 1) and structure is validated.
+     */
+    if (code == 1 && smDataIsValid) {
+      dispatch((0, _forms.clearExistingAlerts)());
+    }
+  };
+  return {
+    deleteStructItem: deleteStructItem,
+    updateEditingTimespans: updateEditingTimespans,
+    updateStructure: updateStructure
+  };
+};
+
+/**
+ * Manage TextEditor related operations to clean, format, update and restore
+ * JSON structure
+ * @returns {
+ *   formatJson,
+ *   injectTemplate,
+ *   restoreRemovedProps,
+ *   sanitizeDisplayedText
+ * }
+ */
+var useTextEditor = exports.useTextEditor = function useTextEditor() {
+  // Dispatch actions to Redux store
+  var dispatch = (0, _reactRedux.useDispatch)();
+  var createNewSegment = function createNewSegment(span) {
+    return dispatch((0, _peaksInstance.insertNewSegment)(span));
+  };
+  var updateSegment = function updateSegment(state) {
+    return dispatch((0, _peaksInstance.saveSegment)(state));
+  };
+  var removeSegment = function removeSegment(item) {
+    return dispatch((0, _peaksInstance.deleteSegment)(item));
+  };
+  var _useSelector7 = (0, _reactRedux.useSelector)(function (state) {
+      return state.peaksInstance;
+    }),
+    peaks = _useSelector7.peaks;
+
+  /**
+   * Format JSON with 2-space indentation for displaying in the text editor.
+   * Re-arrange properties so that, 'items' property comes last in each 'div'.
+   */
+  var formatJson = (0, _react.useCallback)(function (data) {
+    try {
+      return JSON.stringify(data, function (_key, value) {
+        if (value && (0, _typeof2["default"])(value) === 'object' && !Array.isArray(value)) {
+          // Re-order properties to set 'items' last
+          var items = value.items,
+            rest = (0, _objectWithoutProperties2["default"])(value, _excluded);
+          return items !== undefined ? _objectSpread(_objectSpread({}, rest), {}, {
+            items: items
+          }) : value;
+        }
+        return value;
+      }, 2);
+    } catch (error) {
+      return 'Error formatting JSON structure..';
+    }
+  }, []);
+
+  /**
+   * Remove extra properties in the JSON structure for the text editor display
+   */
+  var sanitizeDisplayedText = (0, _react.useCallback)(function (data) {
+    if (!data) return data;
+    var _removeProps = function removeProps(obj) {
+      if (Array.isArray(obj)) {
+        return obj.map(_removeProps);
+      } else if (obj && (0, _typeof2["default"])(obj) === 'object') {
+        var _rest$items;
+        var active = obj.active,
+          timeRange = obj.timeRange,
+          nestedSpan = obj.nestedSpan,
+          valid = obj.valid,
+          rest = (0, _objectWithoutProperties2["default"])(obj, _excluded2);
+        if (((_rest$items = rest.items) === null || _rest$items === void 0 ? void 0 : _rest$items.length) === 0) delete rest.items;
+        var filtered = {};
+        for (var key in rest) {
+          filtered[key] = _removeProps(rest[key]);
+        }
+        return filtered;
+      }
+      return obj;
+    };
+    return _removeProps(data);
+  }, []);
+
+  /**
+   * Restore removed properties onto edited data before saving it back to Redux store
+   */
+  var restoreRemovedProps = function restoreRemovedProps(editedData) {
+    var textTimespanIds = [];
+    var _restore = function restore(obj) {
+      var path = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
+      if (Array.isArray(obj)) {
+        return obj.map(function (item, index) {
+          return _restore(item, [].concat((0, _toConsumableArray2["default"])(path), [index]));
+        });
+      } else if (obj && (0, _typeof2["default"])(obj) === 'object') {
+        var restored = _objectSpread({}, obj);
+
+        // Generate a new ID if one doesn't exists
+        if (!restored.id) {
+          restored.id = (0, _uuid.v4)();
+        }
+
+        // If the item is a timespan, verify a corresponding Peaks segment exists
+        if (restored.type === 'span') {
+          var segment = peaks.segments.getSegment(restored.id);
+          if (!segment) {
+            // Create a new segment in Peaks instance if not found
+            createNewSegment(restored);
+          } else {
+            // Update existing segment with the changes in the text editor
+            var begin = restored.begin,
+              end = restored.end,
+              label = restored.label;
+            updateSegment({
+              beginTime: begin,
+              endTime: end,
+              clonedSegment: segment,
+              timespanTitle: label
+            });
+          }
+          textTimespanIds.push(restored.id);
+        }
+        if (restored.items) {
+          restored.items = _restore(restored.items, [].concat((0, _toConsumableArray2["default"])(path), ['items']));
+        }
+        return restored;
+      }
+      return obj;
+    };
+    var restoredData = _restore(editedData);
+
+    // Delete segments from Peaks instance that were removed in text editor
+    var allSegments = peaks.segments.getSegments().map(function (seg) {
+      return {
+        id: seg._id,
+        segment: seg
+      };
+    });
+    if ((textTimespanIds === null || textTimespanIds === void 0 ? void 0 : textTimespanIds.length) > 0) {
+      allSegments.forEach(function (seg) {
+        var id = seg.id,
+          segment = seg.segment;
+        if (!textTimespanIds.includes(id)) {
+          removeSegment({
+            id: id,
+            label: segment._labelText,
+            type: 'span'
+          });
+        }
+      });
+    }
+    return restoredData;
+  };
+
+  /**
+   * Insert a given template object to text editor and move the cursor inside the empty label
+   * value field
+   * @param {React.RefObject} editorViewRef React ref for CodeMirror text editor
+   * @param {Object} template injected template object
+   */
+  var injectTemplate = function injectTemplate(editorViewRef, template) {
+    // Create a new id for the template item
+    template.id = (0, _uuid.v4)();
+    var templateString = JSON.stringify(template, null, 2) + ',';
+    var view = editorViewRef.current;
+    var cursor = view.state.selection.main.head;
+
+    // Insert the template at cursor position
+    view.dispatch({
+      changes: {
+        from: cursor,
+        insert: templateString
+      }
+    });
+
+    // Find the position of the label value
+    var labelPattern = '"label": "';
+    var labelIndex = templateString.indexOf(labelPattern);
+    if (labelIndex !== -1) {
+      // Position cursor inside empty quotes for label property in the new item
+      var labelValuePos = cursor + labelIndex + labelPattern.length;
+      view.dispatch({
+        selection: {
+          anchor: labelValuePos
+        }
+      });
+    }
+
+    // Focus the editor
+    view.focus();
+  };
+  return {
+    formatJson: formatJson,
+    injectTemplate: injectTemplate,
+    restoreRemovedProps: restoreRemovedProps,
+    sanitizeDisplayedText: sanitizeDisplayedText
   };
 };

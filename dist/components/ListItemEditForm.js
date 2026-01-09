@@ -13,30 +13,22 @@ var _propTypes = _interopRequireDefault(require("prop-types"));
 var _reactRedux = require("react-redux");
 var _TimespanInlineForm = _interopRequireDefault(require("./TimespanInlineForm"));
 var _HeadingInlineForm = _interopRequireDefault(require("./HeadingInlineForm"));
-var _smData = require("../actions/sm-data");
 var _lodash = require("lodash");
 var _StructuralMetadataUtils = _interopRequireDefault(require("../services/StructuralMetadataUtils"));
-function _getRequireWildcardCache(e) { if ("function" != typeof WeakMap) return null; var r = new WeakMap(), t = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(e) { return e ? t : r; })(e); }
-function _interopRequireWildcard(e, r) { if (!r && e && e.__esModule) return e; if (null === e || "object" != _typeof(e) && "function" != typeof e) return { "default": e }; var t = _getRequireWildcardCache(r); if (t && t.has(e)) return t.get(e); var n = { __proto__: null }, a = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var u in e) if ("default" !== u && {}.hasOwnProperty.call(e, u)) { var i = a ? Object.getOwnPropertyDescriptor(e, u) : null; i && (i.get || i.set) ? Object.defineProperty(n, u, i) : n[u] = e[u]; } return n["default"] = e, t && t.set(e, n), n; }
+var _smeHooks = require("../services/sme-hooks");
+function _interopRequireWildcard(e, t) { if ("function" == typeof WeakMap) var r = new WeakMap(), n = new WeakMap(); return (_interopRequireWildcard = function _interopRequireWildcard(e, t) { if (!t && e && e.__esModule) return e; var o, i, f = { __proto__: null, "default": e }; if (null === e || "object" != _typeof(e) && "function" != typeof e) return f; if (o = t ? n : r) { if (o.has(e)) return o.get(e); o.set(e, f); } for (var _t in e) "default" !== _t && {}.hasOwnProperty.call(e, _t) && ((i = (o = Object.defineProperty) && Object.getOwnPropertyDescriptor(e, _t)) && (i.get || i.set) ? o(f, _t, i) : f[_t] = e[_t]); return f; })(e, t); }
 var structuralMetadataUtils = new _StructuralMetadataUtils["default"]();
 var ListItemEditForm = function ListItemEditForm(_ref) {
   var item = _ref.item,
     handleEditFormCancel = _ref.handleEditFormCancel;
-  // Dispatch actions to Redux store
-  var dispatch = (0, _reactRedux.useDispatch)();
-  var updateSMUI = function updateSMUI(cloned, duration) {
-    return dispatch((0, _smData.reBuildSMUI)(cloned, duration));
-  };
+  var _useStructureUpdate = (0, _smeHooks.useStructureUpdate)(),
+    updateStructure = _useStructureUpdate.updateStructure;
 
   // Get state variables from Redux store
   var _useSelector = (0, _reactRedux.useSelector)(function (state) {
       return state.structuralMetadata;
     }),
     smData = _useSelector.smData;
-  var _useSelector2 = (0, _reactRedux.useSelector)(function (state) {
-      return state.peaksInstance;
-    }),
-    duration = _useSelector2.duration;
   var _useState = (0, _react.useState)(false),
     _useState2 = (0, _slicedToArray2["default"])(_useState, 2),
     isTyping = _useState2[0],
@@ -97,8 +89,8 @@ var ListItemEditForm = function ListItemEditForm(_ref) {
       // Update item values
       _item = addUpdatedValues(_item, payload);
 
-      // Send updated smData back to redux
-      updateSMUI(clonedItems, duration);
+      // Send updated smData back to redux via custom hook
+      updateStructure(clonedItems);
 
       // Turn off editing state
       handleEditFormCancel();

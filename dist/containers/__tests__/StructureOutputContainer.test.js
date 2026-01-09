@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent } from '@testing-library/react';
+import { fireEvent, waitFor } from '@testing-library/react';
 import StructureOutputContainer from '../StructureOutputContainer';
 import { renderWithRedux, testSmData } from '../../services/testing-helpers';
 import Peaks from 'peaks';
@@ -43,11 +43,6 @@ jest.mock('react-dnd', () => ({
 jest.mock('react-dnd-html5-backend', () => ({
   HTML5Backend: jest.fn(),
 }));
-jest.mock('react-error-boundary', () => ({
-  useErrorBoundary: jest.fn(() => ({
-    showBoundary: jest.fn(),
-  }))
-}));
 
 describe('StructureOutputContainer component', () => {
   test('renders successfully', () => {
@@ -73,8 +68,8 @@ describe('StructureOutputContainer component', () => {
   });
 
   describe('displays updated structure tree after', () => {
-    test('deleting a timespan', () => {
-      const { getByTestId, queryAllByTestId } = renderWithRedux(
+    test('deleting a timespan', async () => {
+      const { getByTestId, queryAllByTestId, queryByText } = renderWithRedux(
         <StructureOutputContainer structureIsSaved={mockStructureIsSaved} />,
         { initialState }
       );
@@ -96,10 +91,14 @@ describe('StructureOutputContainer component', () => {
         );
       // Confirm delete action
       fireEvent.click(getByTestId('delete-confirmation-confirm-btn'));
-      expect(timespanToDelete).not.toBeInTheDocument();
+
+      // Wait for the Redux state updates and verify the timespan was deleted
+      await waitFor(() => {
+        expect(timespanToDelete).not.toBeInTheDocument();
+      });
     });
 
-    test('deleting a heading without children', () => {
+    test('deleting a heading without children', async () => {
       const { getByTestId, queryAllByTestId } = renderWithRedux(
         <StructureOutputContainer structureIsSaved={mockStructureIsSaved} />,
         { initialState }
@@ -107,10 +106,8 @@ describe('StructureOutputContainer component', () => {
 
       expect(getByTestId('structure-output-list')).toBeInTheDocument();
       let headingToDelete = queryAllByTestId('list-item')[2];
-      expect(
-        headingToDelete.children[0].innerHTML).toEqual(
-          'Sub-Segment 1.1'
-        );
+      expect(headingToDelete.children[0].textContent).toEqual(' Sub-Segment 1.1');
+
       // Get the delete button from the list item controls
       let deleteButton = headingToDelete.children[1].children[1];
       fireEvent.click(deleteButton);
@@ -122,21 +119,23 @@ describe('StructureOutputContainer component', () => {
         );
       // Confirm delete action
       fireEvent.click(getByTestId('delete-confirmation-confirm-btn'));
-      expect(headingToDelete).not.toBeInTheDocument();
+
+      // Wait for the Redux state updates and verify the heading was deleted
+      await waitFor(() => {
+        expect(headingToDelete).not.toBeInTheDocument();
+      });
     });
 
-    test('deleting a heading with children', () => {
-      const { getByTestId, queryAllByTestId } = renderWithRedux(
+    test('deleting a heading with children', async () => {
+      const { getByTestId, getByTitle, queryAllByTestId } = renderWithRedux(
         <StructureOutputContainer structureIsSaved={mockStructureIsSaved} />,
         { initialState }
       );
 
       expect(getByTestId('structure-output-list')).toBeInTheDocument();
       let headingToDelete = queryAllByTestId('list-item')[5];
-      expect(
-        headingToDelete.children[0].innerHTML).toEqual(
-          'Second segment'
-        );
+      expect(headingToDelete.children[0].textContent).toEqual(' Second segment');
+
       // Get the delete button from the list item controls
       let deleteButton = headingToDelete.children[1].children[1];
       fireEvent.click(deleteButton);
@@ -148,7 +147,11 @@ describe('StructureOutputContainer component', () => {
         );
       // Confirm delete action
       fireEvent.click(getByTestId('delete-confirmation-confirm-btn'));
-      expect(headingToDelete).not.toBeInTheDocument();
+
+      // Wait for the Redux state updates and verify the heading was deleted
+      await waitFor(() => {
+        expect(headingToDelete).not.toBeInTheDocument();
+      });
     });
   });
 });

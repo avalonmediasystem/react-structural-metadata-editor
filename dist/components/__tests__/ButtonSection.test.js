@@ -5,13 +5,6 @@ import { renderWithRedux, testSmData } from '../../services/testing-helpers';
 import ButtonSection from '../ButtonSection';
 import * as hooks from '../../services/sme-hooks';
 
-// Mock react-error-boundary library
-jest.mock('react-error-boundary', () => ({
-  useErrorBoundary: jest.fn(() => ({
-    showBoundary: jest.fn(),
-  }))
-}));
-
 describe('ButtonSection component', () => {
   test('does not render when structure/waveform data is not present', () => {
     const { queryByTestId } = renderWithRedux(<ButtonSection />);

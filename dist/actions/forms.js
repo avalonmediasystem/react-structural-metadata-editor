@@ -11,24 +11,15 @@ exports.updateStructureStatus = exports.streamMediaSuccess = exports.setStreamMe
 var types = _interopRequireWildcard(require("./types"));
 var _hls = _interopRequireDefault(require("hls.js"));
 var _uuid = require("uuid");
-function _getRequireWildcardCache(e) { if ("function" != typeof WeakMap) return null; var r = new WeakMap(), t = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(e) { return e ? t : r; })(e); }
-function _interopRequireWildcard(e, r) { if (!r && e && e.__esModule) return e; if (null === e || "object" != _typeof(e) && "function" != typeof e) return { "default": e }; var t = _getRequireWildcardCache(r); if (t && t.has(e)) return t.get(e); var n = { __proto__: null }, a = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var u in e) if ("default" !== u && {}.hasOwnProperty.call(e, u)) { var i = a ? Object.getOwnPropertyDescriptor(e, u) : null; i && (i.get || i.set) ? Object.defineProperty(n, u, i) : n[u] = e[u]; } return n["default"] = e, t && t.set(e, n), n; }
+function _interopRequireWildcard(e, t) { if ("function" == typeof WeakMap) var r = new WeakMap(), n = new WeakMap(); return (_interopRequireWildcard = function _interopRequireWildcard(e, t) { if (!t && e && e.__esModule) return e; var o, i, f = { __proto__: null, "default": e }; if (null === e || "object" != _typeof(e) && "function" != typeof e) return f; if (o = t ? n : r) { if (o.has(e)) return o.get(e); o.set(e, f); } for (var _t in e) "default" !== _t && {}.hasOwnProperty.call(e, _t) && ((i = (o = Object.defineProperty) && Object.getOwnPropertyDescriptor(e, _t)) && (i.get || i.set) ? o(f, _t, i) : f[_t] = e[_t]); return f; })(e, t); }
 /**
  * Enable/disable other editing actions when editing a list item
  * @param {Integer} code - choose from; 1(true) | 0(false)
  */
 var handleEditingTimespans = exports.handleEditingTimespans = function handleEditingTimespans(code) {
-  var valid = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
-  return function (dispatch) {
-    dispatch({
-      type: types.IS_EDITING_TIMESPAN,
-      code: code
-    });
-    // Remove dismissible alerts when a CRUD action has been initiated
-    // given editing is starting (code = 1) and structure is validated.
-    if (code == 1 && valid) {
-      dispatch(clearExistingAlerts());
-    }
+  return {
+    type: types.IS_EDITING_TIMESPAN,
+    code: code
   };
 };
 var setAlert = exports.setAlert = function setAlert(alert) {

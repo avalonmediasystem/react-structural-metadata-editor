@@ -1,0 +1,71 @@
+.text-editor {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-bottom: 2em;
+}
+
+.text-editor-body {
+  display: flex;
+  flex-direction: row;
+  overflow: auto;
+  /* Same height as visual editor structure section */
+  max-height: 30vh;
+}
+
+.codemirror-text-editor {
+  flex: 1;
+  overflow: auto;
+  border-right: 1px solid #ddd;
+}
+
+.codemirror-text-editor .cm-editor {
+  height: 100%;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 14px;
+  border-top: 1px solid #ddd;
+}
+
+.text-editor-sidebar {
+  width: 35%;
+  display: flex;
+  flex-direction: column;
+  background-color: #f5f5f5;
+}
+
+.text-editor-status {
+  padding: 12px;
+  overflow: auto;
+}
+
+.text-editor-actions {
+  padding: 12px;
+  border-top: 1px solid #ddd;
+}
+
+.text-editor-actions h6 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.text-editor-buttons {
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  border-top: 1px solid #ddd;
+  background-color: #fff;
+}
+
+.text-editor-status .validation-errors {
+  font-size: 14px;
+}
+
+.text-editor-status .validation-errors ul {
+  padding-left: 20px;
+  margin-top: 8px;
+}
+
+.text-editor-status .validation-errors li {
+  margin-bottom: 4px;
+}

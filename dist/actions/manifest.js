@@ -16,25 +16,24 @@ var _alertStatus = require("../services/alert-status");
 var _smData = require("./sm-data");
 var _iiifParser = require("../services/iiif-parser");
 var _forms = require("./forms");
-function _getRequireWildcardCache(e) { if ("function" != typeof WeakMap) return null; var r = new WeakMap(), t = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(e) { return e ? t : r; })(e); }
-function _interopRequireWildcard(e, r) { if (!r && e && e.__esModule) return e; if (null === e || "object" != _typeof(e) && "function" != typeof e) return { "default": e }; var t = _getRequireWildcardCache(r); if (t && t.has(e)) return t.get(e); var n = { __proto__: null }, a = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var u in e) if ("default" !== u && {}.hasOwnProperty.call(e, u)) { var i = a ? Object.getOwnPropertyDescriptor(e, u) : null; i && (i.get || i.set) ? Object.defineProperty(n, u, i) : n[u] = e[u]; } return n["default"] = e, t && t.set(e, n), n; }
+function _interopRequireWildcard(e, t) { if ("function" == typeof WeakMap) var r = new WeakMap(), n = new WeakMap(); return (_interopRequireWildcard = function _interopRequireWildcard(e, t) { if (!t && e && e.__esModule) return e; var o, i, f = { __proto__: null, "default": e }; if (null === e || "object" != _typeof(e) && "function" != typeof e) return f; if (o = t ? n : r) { if (o.has(e)) return o.get(e); o.set(e, f); } for (var _t2 in e) "default" !== _t2 && {}.hasOwnProperty.call(e, _t2) && ((i = (o = Object.defineProperty) && Object.getOwnPropertyDescriptor(e, _t2)) && (i.get || i.set) ? o(f, _t2, i) : f[_t2] = e[_t2]); return f; })(e, t); }
 var apiUtils = new _Utils["default"]();
 var structuralMetadataUtils = new _StructuralMetadataUtils["default"]();
 var initManifest = exports.initManifest = function initManifest(manifestURL, canvasIndex) {
   return /*#__PURE__*/function () {
     var _ref = (0, _asyncToGenerator2["default"])(/*#__PURE__*/_regenerator["default"].mark(function _callee(dispatch, getState) {
-      var smData, duration, mediaInfo, waveformInfo, response, alert, status, _alert;
-      return _regenerator["default"].wrap(function _callee$(_context) {
+      var smData, duration, mediaInfo, waveformInfo, response, alert, status, _alert, _t;
+      return _regenerator["default"].wrap(function (_context) {
         while (1) switch (_context.prev = _context.next) {
           case 0:
             smData = [];
             duration = 0;
             mediaInfo = {};
             waveformInfo = '';
-            _context.prev = 4;
-            _context.next = 7;
+            _context.prev = 1;
+            _context.next = 2;
             return apiUtils.getRequest(manifestURL);
-          case 7:
+          case 2:
             response = _context.sent;
             if (!(0, _lodash.isEmpty)(response.data)) {
               mediaInfo = (0, _iiifParser.getMediaInfo)(response.data, canvasIndex);
@@ -62,22 +61,22 @@ var initManifest = exports.initManifest = function initManifest(manifestURL, can
 
             // Mark the top element as 'root'
             structuralMetadataUtils.markRootElement(smData);
-            _context.next = 23;
+            _context.next = 4;
             break;
-          case 16:
-            _context.prev = 16;
-            _context.t0 = _context["catch"](4);
-            console.log('TCL: manifest -> initManifest() -> error', _context.t0);
+          case 3:
+            _context.prev = 3;
+            _t = _context["catch"](1);
+            console.log('TCL: manifest -> initManifest() -> error', _t);
             // Update manifest error in the redux store
             status = -9;
             dispatch(handleManifestError(1, status));
             _alert = (0, _alertStatus.configureAlert)(status);
             dispatch((0, _forms.setAlert)(_alert));
-          case 23:
+          case 4:
           case "end":
             return _context.stop();
         }
-      }, _callee, null, [[4, 16]]);
+      }, _callee, null, [[1, 3]]);
     }));
     return function (_x, _x2) {
       return _ref.apply(this, arguments);

@@ -44,7 +44,7 @@ var getMimetype = exports.getMimetype = function getMimetype() {
 var generateWaveformData = /*#__PURE__*/function () {
   var _ref = (0, _asyncToGenerator2["default"])(/*#__PURE__*/_regenerator["default"].mark(function _callee(src) {
     var waveformJSON;
-    return _regenerator["default"].wrap(function _callee$(_context) {
+    return _regenerator["default"].wrap(function (_context) {
       while (1) switch (_context.prev = _context.next) {
         case 0:
           waveformJSON = fetch(src).then(function (response) {
@@ -69,7 +69,7 @@ var generateWaveformData = /*#__PURE__*/function () {
             return waveform.toJSON();
           });
           return _context.abrupt("return", waveformJSON);
-        case 2:
+        case 1:
         case "end":
           return _context.stop();
       }
@@ -121,35 +121,35 @@ var createEmptyWaveform = function createEmptyWaveform(duration) {
 var buildWaveformOpt = exports.buildWaveformOpt = /*#__PURE__*/function () {
   var _ref2 = (0, _asyncToGenerator2["default"])(/*#__PURE__*/_regenerator["default"].mark(function _callee2(mediaInfo, peaksOptions) {
     var duration, src, isStream, alertStatus, wdJSON;
-    return _regenerator["default"].wrap(function _callee2$(_context2) {
+    return _regenerator["default"].wrap(function (_context2) {
       while (1) switch (_context2.prev = _context2.next) {
         case 0:
           duration = mediaInfo.duration, src = mediaInfo.src, isStream = mediaInfo.isStream;
           alertStatus = null; // for non-streaming shorter media files
           if (!(duration < 300 && isStream === false && (src === null || src === void 0 ? void 0 : src.length) > 0)) {
-            _context2.next = 9;
+            _context2.next = 2;
             break;
           }
-          _context2.next = 5;
+          _context2.next = 1;
           return generateWaveformData(src);
-        case 5:
+        case 1:
           wdJSON = _context2.sent;
           peaksOptions.waveformData = {
             json: wdJSON
           };
-          _context2.next = 11;
+          _context2.next = 3;
           break;
-        case 9:
+        case 2:
           peaksOptions.waveformData = {
             json: createEmptyWaveform(duration)
           };
           alertStatus = -7;
-        case 11:
+        case 3:
           return _context2.abrupt("return", {
             opts: peaksOptions,
             alertStatus: alertStatus
           });
-        case 12:
+        case 4:
         case "end":
           return _context2.stop();
       }

@@ -28,8 +28,7 @@ var _alertStatus = require("../services/alert-status");
 var _WaveformDataUtils = _interopRequireDefault(require("../services/WaveformDataUtils"));
 var _utils = require("../services/utils");
 var _forms = require("./forms");
-function _getRequireWildcardCache(e) { if ("function" != typeof WeakMap) return null; var r = new WeakMap(), t = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(e) { return e ? t : r; })(e); }
-function _interopRequireWildcard(e, r) { if (!r && e && e.__esModule) return e; if (null === e || "object" != _typeof(e) && "function" != typeof e) return { "default": e }; var t = _getRequireWildcardCache(r); if (t && t.has(e)) return t.get(e); var n = { __proto__: null }, a = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var u in e) if ("default" !== u && {}.hasOwnProperty.call(e, u)) { var i = a ? Object.getOwnPropertyDescriptor(e, u) : null; i && (i.get || i.set) ? Object.defineProperty(n, u, i) : n[u] = e[u]; } return n["default"] = e, t && t.set(e, n), n; }
+function _interopRequireWildcard(e, t) { if ("function" == typeof WeakMap) var r = new WeakMap(), n = new WeakMap(); return (_interopRequireWildcard = function _interopRequireWildcard(e, t) { if (!t && e && e.__esModule) return e; var o, i, f = { __proto__: null, "default": e }; if (null === e || "object" != _typeof(e) && "function" != typeof e) return f; if (o = t ? n : r) { if (o.has(e)) return o.get(e); o.set(e, f); } for (var _t2 in e) "default" !== _t2 && {}.hasOwnProperty.call(e, _t2) && ((i = (o = Object.defineProperty) && Object.getOwnPropertyDescriptor(e, _t2)) && (i.get || i.set) ? o(f, _t2, i) : f[_t2] = e[_t2]); return f; })(e, t); }
 var waveformUtils = new _WaveformDataUtils["default"]();
 var apiUtils = new _Utils["default"]();
 
@@ -42,7 +41,7 @@ function initializePeaks(peaksOptions, smData) {
   return /*#__PURE__*/function () {
     var _ref = (0, _asyncToGenerator2["default"])(/*#__PURE__*/_regenerator["default"].mark(function _callee(dispatch, getState) {
       var duration, _getState, manifest, mediaInfo, waveformInfo, _yield$buildWaveformO, opts, alertStatus, alert;
-      return _regenerator["default"].wrap(function _callee$(_context) {
+      return _regenerator["default"].wrap(function (_context) {
         while (1) switch (_context.prev = _context.next) {
           case 0:
             duration = 0;
@@ -59,19 +58,19 @@ function initializePeaks(peaksOptions, smData) {
               peaksOptions.zoomLevels = [512, 1024, 2048, 4096];
             }
             if (!(waveformInfo != null)) {
-              _context.next = 11;
+              _context.next = 2;
               break;
             }
-            _context.next = 8;
+            _context.next = 1;
             return setWaveformInfo(waveformInfo, mediaInfo, peaksOptions, dispatch);
-          case 8:
+          case 1:
             peaksOptions = _context.sent;
-            _context.next = 18;
+            _context.next = 4;
             break;
-          case 11:
-            _context.next = 13;
+          case 2:
+            _context.next = 3;
             return (0, _utils.buildWaveformOpt)(mediaInfo, peaksOptions);
-          case 13:
+          case 3:
             _yield$buildWaveformO = _context.sent;
             opts = _yield$buildWaveformO.opts;
             alertStatus = _yield$buildWaveformO.alertStatus;
@@ -80,9 +79,9 @@ function initializePeaks(peaksOptions, smData) {
               alert = (0, _alertStatus.configureAlert)(alertStatus);
               dispatch((0, _forms.setAlert)(alert));
             }
-          case 18:
+          case 4:
             buildPeaksInstance(peaksOptions, smData, duration, dispatch, getState);
-          case 19:
+          case 5:
           case "end":
             return _context.stop();
         }
@@ -103,76 +102,77 @@ function _setWaveformInfo() {
       opts,
       alertStatus,
       alert,
-      _args2 = arguments;
-    return _regenerator["default"].wrap(function _callee2$(_context2) {
+      _args2 = arguments,
+      _t;
+    return _regenerator["default"].wrap(function (_context2) {
       while (1) switch (_context2.prev = _context2.next) {
         case 0:
           status = _args2.length > 4 && _args2[4] !== undefined ? _args2[4] : null;
           _context2.prev = 1;
-          _context2.next = 4;
+          _context2.next = 2;
           return apiUtils.headRequest(waveformURL);
-        case 4:
+        case 2:
           // Set waveform URI
           peaksOptions.dataUri = {
             json: waveformURL
           };
           // Update redux-store flag for waveform file retrieval
           dispatch((0, _forms.retrieveWaveformSuccess)());
-          _context2.next = 24;
+          _context2.next = 6;
           break;
-        case 8:
-          _context2.prev = 8;
-          _context2.t0 = _context2["catch"](1);
+        case 3:
+          _context2.prev = 3;
+          _t = _context2["catch"](1);
           // Enable the flash message alert
-          console.log('TCL: peaks-instance -> setWaveformInfo() -> error', _context2.t0);
+          console.log('TCL: peaks-instance -> setWaveformInfo() -> error', _t);
           // Pull status code out of error response/request
-          if (!(_context2.t0.response !== undefined)) {
-            _context2.next = 16;
+          if (!(_t.response !== undefined)) {
+            _context2.next = 4;
             break;
           }
-          status = _context2.t0.response.status;
+          status = _t.response.status;
           if (status == 404) {
             peaksOptions.dataUri = {
               json: "".concat(waveformURL, "?empty=true")
             };
             status = -7;
           }
-          _context2.next = 24;
+          _context2.next = 6;
           break;
-        case 16:
-          if (!(_context2.t0.request !== undefined)) {
-            _context2.next = 24;
+        case 4:
+          if (!(_t.request !== undefined)) {
+            _context2.next = 6;
             break;
           }
-          _context2.next = 19;
+          _context2.next = 5;
           return (0, _utils.buildWaveformOpt)(mediaInfo, peaksOptions);
-        case 19:
+        case 5:
           _yield$buildWaveformO2 = _context2.sent;
           opts = _yield$buildWaveformO2.opts;
           alertStatus = _yield$buildWaveformO2.alertStatus;
           peaksOptions = opts;
           status = alertStatus;
-        case 24:
+        case 6:
           if (status != null) {
             alert = (0, _alertStatus.configureAlert)(status);
             dispatch((0, _forms.setAlert)(alert));
           }
           return _context2.abrupt("return", peaksOptions);
-        case 26:
+        case 7:
         case "end":
           return _context2.stop();
       }
-    }, _callee2, null, [[1, 8]]);
+    }, _callee2, null, [[1, 3]]);
   }));
   return _setWaveformInfo.apply(this, arguments);
 }
-function buildPeaksInstance(_x7, _x8, _x9, _x10, _x11) {
+function buildPeaksInstance(_x7, _x8, _x9, _x0, _x1) {
   return _buildPeaksInstance.apply(this, arguments);
 }
 function _buildPeaksInstance() {
   _buildPeaksInstance = (0, _asyncToGenerator2["default"])(/*#__PURE__*/_regenerator["default"].mark(function _callee3(peaksOptions, smData, duration, dispatch, getState) {
     var _getState3, manifest;
-    return _regenerator["default"].wrap(function _callee3$(_context3) {
+    return _regenerator["default"].wrap(function (_context3) {
       while (1) switch (_context3.prev = _context3.next) {
         case 0:
           _getState3 = getState(), manifest = _getState3.manifest; // Initialize Peaks intance with the given options
@@ -194,7 +194,7 @@ function _buildPeaksInstance() {
             }
             handlePeaksSuccess(peaks, smData, duration, dispatch, getState);
           });
-        case 2:
+        case 1:
         case "end":
           return _context3.stop();
       }

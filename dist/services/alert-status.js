@@ -14,7 +14,7 @@ var WAVEFORM_INITIALIZE_ERROR = exports.WAVEFORM_INITIALIZE_ERROR = 'There was a
 var PEAKSJS_REACHED_END_OF_FILE = exports.PEAKSJS_REACHED_END_OF_FILE = 'There is no space available to insert a new timespan.';
 var STREAM_MEDIA_ERROR = exports.STREAM_MEDIA_ERROR = 'There was an error retrieving the media stream.';
 var MISSING_WAVEFORM_ERROR = exports.MISSING_WAVEFORM_ERROR = 'No available waveform data.';
-var INVALID_SEGMENTS_WARNING = exports.INVALID_SEGMENTS_WARNING = 'Please check start/end times of the marked invalid timespan(s).';
+var INVALID_SEGMENTS_WARNING = exports.INVALID_SEGMENTS_WARNING = 'Please check the marked invalid timespan(s)/heading(s).';
 var FETCH_MANIFEST_ERROR = exports.FETCH_MANIFEST_ERROR = 'Error fetching IIIF manifest.';
 var NO_MEDIA_MESSAGE = exports.NO_MEDIA_MESSAGE = 'No available media. Editing structure is disabled.';
 

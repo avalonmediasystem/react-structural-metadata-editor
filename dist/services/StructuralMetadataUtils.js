@@ -159,6 +159,7 @@ var StructuralMetadataUtils = exports["default"] = /*#__PURE__*/function () {
      * so that they can be used in the validation logic and Peaks instance
      * @param {Array} allItems - array of all the items in structured metadata
      * @param {Float} duration - end time of the media file in seconds
+     * @return {Object} { newSmData: Array<Object>, newSmDataStatus: Boolean }
      */
     function buildSMUI(allItems, duration) {
       var _this2 = this;
@@ -168,7 +169,7 @@ var StructuralMetadataUtils = exports["default"] = /*#__PURE__*/function () {
       };
 
       // Recursive function to traverse whole data structure
-      var _formatItems = function formatItems(items) {
+      var _formatItems = function formatItems(items, hasParentSpan) {
         var _iterator = _createForOfIteratorHelper(items),
           _step;
         try {
@@ -178,7 +179,11 @@ var StructuralMetadataUtils = exports["default"] = /*#__PURE__*/function () {
             item.valid = true;
             if (item.type === 'span') {
               var begin = item.begin,
-                end = item.end;
+                end = item.end,
+                _items = item.items,
+                nestedSpan = item.nestedSpan;
+              if (_items == undefined) item.items = [];
+              if (nestedSpan == undefined) item.nestedSpan = hasParentSpan;
               var beginTime = _this2.convertToSeconds(begin);
               var endTime = _this2.convertToSeconds(end);
               item.timeRange = {
@@ -199,8 +204,14 @@ var StructuralMetadataUtils = exports["default"] = /*#__PURE__*/function () {
                 item.end = _this2.toHHmmss(duration);
               }
             }
+            if (item.type === 'div') {
+              if (item.items.length === 0) {
+                item.valid = false;
+                smDataIsValid = false;
+              }
+            }
             if (item.items) {
-              _formatItems(item.items);
+              _formatItems(item.items, item.type === 'span');
             }
           }
         } catch (err) {
@@ -209,8 +220,11 @@ var StructuralMetadataUtils = exports["default"] = /*#__PURE__*/function () {
           _iterator.f();
         }
       };
-      _formatItems(allItems);
-      return [allItems, smDataIsValid];
+      _formatItems(allItems, false);
+      return {
+        newSmData: allItems,
+        newSmDataStatus: smDataIsValid
+      };
     }
 
     /**
@@ -1021,6 +1035,54 @@ var StructuralMetadataUtils = exports["default"] = /*#__PURE__*/function () {
       };
       _removeKey(clonedItems, key);
       return clonedItems;
+    }
+
+    /**
+     * Get siblings and parent timespans for a given structure item.
+     * These values are then used across the component to validate timespan
+     * creation and editing.
+     * @param {Array} smData structure data
+     * @param {Object} item 'span' type object matching structure data
+     * @returns {Object}
+     */
+  }, {
+    key: "calculateAdjacentTimespans",
+    value: function calculateAdjacentTimespans(smData, item) {
+      var allSpans = this.getItemsOfType(['span'], smData);
+      var possibleParent = null;
+      var closestGapBefore = Infinity;
+      var possiblePrevSibling = null;
+      var closestGapAfter = Infinity;
+      var possibleNextSibling = null;
+      var _item$timeRange = item.timeRange,
+        start = _item$timeRange.start,
+        end = _item$timeRange.end;
+      var parentDiv = this.getParentItem(item, smData);
+      if (parentDiv == null && item.parentId != undefined) {
+        parentDiv = this.findItem(item.parentId, smData);
+      }
+      if (parentDiv && parentDiv.type === 'span') {
+        possibleParent = parentDiv;
+      } else {
+        possibleParent = null;
+      }
+      allSpans.map(function (span) {
+        var gapBefore = start - span.timeRange.end;
+        if (gapBefore >= 0 && gapBefore < closestGapBefore) {
+          closestGapBefore = gapBefore;
+          possiblePrevSibling = span;
+        }
+        var gapAfter = span.timeRange.start - end;
+        if (gapAfter >= 0 && gapAfter < closestGapAfter) {
+          closestGapAfter = gapAfter;
+          possibleNextSibling = span;
+        }
+      });
+      return {
+        possibleParent: possibleParent,
+        possiblePrevSibling: possiblePrevSibling,
+        possibleNextSibling: possibleNextSibling
+      };
     }
   }]);
 }();

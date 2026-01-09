@@ -9,13 +9,6 @@ const initialState = {
   peaksInstance: { duration: 100 }
 };
 
-// Mock react-error-boundary library
-jest.mock('react-error-boundary', () => ({
-  useErrorBoundary: jest.fn(() => ({
-    showBoundary: jest.fn(),
-  }))
-}));
-
 describe('HeadingFormContainer', () => {
   test('renders without props', () => {
     const { getByTestId } = renderWithRedux(<HeadingFormContainer />);

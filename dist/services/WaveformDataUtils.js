@@ -101,9 +101,10 @@ var WaveformDataUtils = exports["default"] = /*#__PURE__*/function () {
       // Current time of the playhead
       var currentTime = this.roundOff(peaksInstance.player.getCurrentTime());
       var rangeBeginTime = currentTime;
+      // Save possible parent's id that corresponds to an element in smData structure
+      var parentId = null;
       // Initially set rangeEndTime to 60 seconds from the current time
       var rangeEndTime = Math.round((currentTime + 60.0) * 1000) / 1000;
-
       // Get all segments in Peaks
       var currentSegments = this.sortSegments(peaksInstance, 'startTime');
 
@@ -215,6 +216,7 @@ var WaveformDataUtils = exports["default"] = /*#__PURE__*/function () {
             if (commonContainer) {
               // Adjust rangeEndTime to not overlap with the children of the common parent segment
               rangeEndTime = findNonOverlappingEndTime(commonContainer, rangeEndTime);
+              parentId = commonContainer._id;
             } else {
               // Adjust rangeEndTime when they don't share a common parent segment
               rangeEndTime = Math.min(rangeEndTime, beginContainers[0].endTime);
@@ -244,6 +246,7 @@ var WaveformDataUtils = exports["default"] = /*#__PURE__*/function () {
           // Suggested range is overlapping with an existing segment at the beginning
           else if (beginContainers.length > 0 && endContainers.length === 0) {
             var containingSegment = beginContainers[0];
+            parentId = containingSegment._id;
             rangeEndTime = findNonOverlappingEndTime(containingSegment, rangeEndTime);
           }
 
@@ -272,7 +275,10 @@ var WaveformDataUtils = exports["default"] = /*#__PURE__*/function () {
             endTime: rangeEndTime,
             editable: true,
             color: COLOR_PALETTE[2],
-            id: 'temp-segment'
+            id: 'temp-segment',
+            // Add 'parentId' prop to help identify the parent timespan in next calculations,
+            // as this segment doesn't have a corresponding timespan in the smData structure.
+            parentId: parentId
           });
         }
       }
@@ -346,7 +352,7 @@ var WaveformDataUtils = exports["default"] = /*#__PURE__*/function () {
     key: "activateSegment",
     value: function activateSegment(id, peaksInstance, duration, neighbors) {
       var segment = peaksInstance.segments.getSegment(id);
-      this.validateSegment(segment, false, peaksInstance, duration, neighbors);
+      this.validateSegment(segment, false, duration, neighbors);
       // Setting editable: true -> enables handles
       segment.update({
         editable: true,
@@ -470,9 +476,11 @@ var WaveformDataUtils = exports["default"] = /*#__PURE__*/function () {
         });
       } else {
         // Update the start and end times when labelText has not changed
-        clonedSegment.update({
+        var segment = peaksInstance.segments.getSegment(id);
+        segment.update({
           startTime: this.timeToS(beginTime),
-          endTime: this.timeToS(endTime)
+          endTime: this.timeToS(endTime),
+          color: color
         });
       }
       return peaksInstance;

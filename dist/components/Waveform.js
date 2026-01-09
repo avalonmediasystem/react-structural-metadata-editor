@@ -19,8 +19,7 @@ var _reactRedux = require("react-redux");
 var _forms = require("../actions/forms");
 var _Slider = _interopRequireDefault(require("./Slider"));
 var _LoadingSpinner = _interopRequireDefault(require("../services/LoadingSpinner"));
-function _getRequireWildcardCache(e) { if ("function" != typeof WeakMap) return null; var r = new WeakMap(), t = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(e) { return e ? t : r; })(e); }
-function _interopRequireWildcard(e, r) { if (!r && e && e.__esModule) return e; if (null === e || "object" != _typeof(e) && "function" != typeof e) return { "default": e }; var t = _getRequireWildcardCache(r); if (t && t.has(e)) return t.get(e); var n = { __proto__: null }, a = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var u in e) if ("default" !== u && {}.hasOwnProperty.call(e, u)) { var i = a ? Object.getOwnPropertyDescriptor(e, u) : null; i && (i.get || i.set) ? Object.defineProperty(n, u, i) : n[u] = e[u]; } return n["default"] = e, t && t.set(e, n), n; }
+function _interopRequireWildcard(e, t) { if ("function" == typeof WeakMap) var r = new WeakMap(), n = new WeakMap(); return (_interopRequireWildcard = function _interopRequireWildcard(e, t) { if (!t && e && e.__esModule) return e; var o, i, f = { __proto__: null, "default": e }; if (null === e || "object" != _typeof(e) && "function" != typeof e) return f; if (o = t ? n : r) { if (o.has(e)) return o.get(e); o.set(e, f); } for (var _t in e) "default" !== _t && {}.hasOwnProperty.call(e, _t) && ((i = (o = Object.defineProperty) && Object.getOwnPropertyDescriptor(e, _t)) && (i.get || i.set) ? o(f, _t, i) : f[_t] = e[_t]); return f; })(e, t); }
 // Content of aria-label for UI components
 var waveformLabel = "Two interactive waveforms, plotted one after the other using data from a masterfile in a back-end server.\nThere are time-based visual sections plotted in these 2 waveforms representing each timespan in the structure below.";
 var zoomViewLabel = "A detailed portion of the waveform data, the level of details shown can be changed with zoom in/out buttons in the waveform toolbar";
@@ -96,7 +95,8 @@ var Waveform = /*#__PURE__*/(0, _react.forwardRef)(function (_ref, ref) {
     setEditing(editingDisabled);
   }, [editingDisabled]);
   var handleKeyPress = function handleKeyPress(event) {
-    if (event.target.nodeName == 'INPUT') return;
+    // Ignore keypress when focus is on an input field or CodeMirror text editor
+    if (event.target.nodeName == 'INPUT' || event.target.className.includes('cm-content')) return;
     // When structure is not being edited play/pause audio when spacebar is pressed
     if (event.keyCode == 32 && !editingRef.current) {
       event.preventDefault();

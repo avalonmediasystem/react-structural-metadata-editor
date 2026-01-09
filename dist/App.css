@@ -25,7 +25,8 @@
 /* START - Structure Section */
 .structure-section>.structure-lists {
   overflow-y: auto;
-  height: 25vh;
+  /* Same height as JSON editor structure section */
+  height: 30vh;
 }
 
 .structure-lists ul {

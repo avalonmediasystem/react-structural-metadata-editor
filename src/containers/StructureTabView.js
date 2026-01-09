@@ -17,14 +17,14 @@ const StructureTabView = ({ disableSave, structureIsSaved, structureURL, showTex
         <div className="view-mode-tabs mb-3 d-flex justify-content-end">
           <ButtonGroup>
             <Button
-              variant={viewMode === 'visual' ? 'primary' : 'outline-primary'}
+              variant={viewMode === 'visual' ? 'primary' : 'outline-secondary'}
               onClick={() => setViewMode('visual')}
               data-testid="visual-editor-button"
             >
               Visual Editor
             </Button>
             <Button
-              variant={viewMode === 'text' ? 'primary' : 'outline-primary'}
+              variant={viewMode === 'text' ? 'primary' : 'outline-secondary'}
               onClick={() => setViewMode('text')}
               data-testid="text-editor-button"
             >

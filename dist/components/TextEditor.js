@@ -215,13 +215,13 @@ var TextEditor = function TextEditor(_ref) {
   }, /*#__PURE__*/_react["default"].createElement("div", {
     className: "d-flex mb-2"
   }, /*#__PURE__*/_react["default"].createElement(_Button["default"], {
-    variant: "info",
+    variant: "outline-secondary",
     onClick: handleAddHeading,
     title: "Insert heading template at cursor",
     className: "w-100 mx-1 mt-2",
     "data-testid": "add-heading-template"
   }, "New Heading Template"), /*#__PURE__*/_react["default"].createElement(_Button["default"], {
-    variant: "info",
+    variant: "outline-secondary",
     onClick: handleAddTimespan,
     title: "Insert timespan template at cursor",
     className: "w-100 mx-1 mt-2",
@@ -236,7 +236,7 @@ var TextEditor = function TextEditor(_ref) {
     className: "w-100 mx-1",
     "data-testid": "save-text"
   }, "Save JSON"), /*#__PURE__*/_react["default"].createElement(_Button["default"], {
-    variant: copySuccess ? "success" : "secondary",
+    variant: copySuccess ? "secondary" : "success",
     onClick: handleCopy,
     disabled: !isValid,
     title: "Copy JSON to clipboard",

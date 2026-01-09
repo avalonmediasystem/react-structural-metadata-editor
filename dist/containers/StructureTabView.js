@@ -34,13 +34,13 @@ var StructureTabView = function StructureTabView(_ref) {
   }, showTextEditor && /*#__PURE__*/_react["default"].createElement("div", {
     className: "view-mode-tabs mb-3 d-flex justify-content-end"
   }, /*#__PURE__*/_react["default"].createElement(_ButtonGroup["default"], null, /*#__PURE__*/_react["default"].createElement(_Button["default"], {
-    variant: viewMode === 'visual' ? 'primary' : 'outline-primary',
+    variant: viewMode === 'visual' ? 'primary' : 'outline-secondary',
     onClick: function onClick() {
       return setViewMode('visual');
     },
     "data-testid": "visual-editor-button"
   }, "Visual Editor"), /*#__PURE__*/_react["default"].createElement(_Button["default"], {
-    variant: viewMode === 'text' ? 'primary' : 'outline-primary',
+    variant: viewMode === 'text' ? 'primary' : 'outline-secondary',
     onClick: function onClick() {
       return setViewMode('text');
     },

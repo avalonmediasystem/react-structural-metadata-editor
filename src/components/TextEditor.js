@@ -155,7 +155,7 @@ const TextEditor = ({ initialJson = null }) => {
           <div className="text-editor-buttons">
             <div className="d-flex mb-2">
               <Button
-                variant="info"
+                variant="outline-secondary"
                 onClick={handleAddHeading}
                 title="Insert heading template at cursor"
                 className="w-100 mx-1 mt-2"
@@ -164,7 +164,7 @@ const TextEditor = ({ initialJson = null }) => {
                 New Heading Template
               </Button>
               <Button
-                variant="info"
+                variant="outline-secondary"
                 onClick={handleAddTimespan}
                 title="Insert timespan template at cursor"
                 className="w-100 mx-1 mt-2"
@@ -185,7 +185,7 @@ const TextEditor = ({ initialJson = null }) => {
                 Save JSON
               </Button>
               <Button
-                variant={copySuccess ? "success" : "secondary"}
+                variant={copySuccess ? "secondary" : "success"}
                 onClick={handleCopy}
                 disabled={!isValid}
                 title="Copy JSON to clipboard"

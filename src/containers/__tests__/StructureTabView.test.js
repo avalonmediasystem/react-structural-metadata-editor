@@ -99,7 +99,7 @@ describe('StructureTabView component', () => {
         { initialState }
       );
       expect(getByTestId('visual-editor-button')).toHaveClass('btn-primary');
-      expect(getByTestId('text-editor-button')).toHaveClass('btn-outline-primary');
+      expect(getByTestId('text-editor-button')).toHaveClass('btn-outline-secondary');
     });
 
     test('switches to text-editor when \'Text Editor\' button is clicked', () => {
@@ -110,12 +110,12 @@ describe('StructureTabView component', () => {
 
       // Initially, Visual Editor button is active
       expect(visualEditorButton).toHaveClass('btn-primary');
-      expect(textEditorButton).toHaveClass('btn-outline-primary');
+      expect(textEditorButton).toHaveClass('btn-outline-secondary');
 
       fireEvent.click(textEditorButton);
 
       // Text Editor button is active
-      expect(visualEditorButton).toHaveClass('btn-outline-primary');
+      expect(visualEditorButton).toHaveClass('btn-outline-secondary');
       expect(textEditorButton).toHaveClass('btn-primary');
 
       // Displays the TextEditor component not the visual components

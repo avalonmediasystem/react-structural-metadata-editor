@@ -104,16 +104,15 @@ export const createCustomJsonLinter = (updateValidationState) => linter((view) =
         if (error.keyword === 'required') {
           const missingProp = error.params.missingProperty;
           message = `Missing required "${missingProp}" field`;
-        } else if (error.keyword === 'minLength' && error.instancePath.endsWith('/label')) {
+        } else if (error.keyword === 'minLength' && error.schemaPath.includes('label')) {
           message = 'Label needs to be at least 2 characters long';
         } else if (error.keyword === 'pattern') {
-          const fieldName = error.instancePath.split('/').pop();
+          const [_, __, fieldName,] = error.schemaPath.split('/');
           message = `Invalid "${fieldName}" time format (expected HH:MM:SS.mmm or similar)`;
         } else if (error.keyword === 'minItems') {
-          // For minItems error, the instancePath points to the items array itself
           message = 'Must have at least one child item';
         } else if (error.keyword === 'enum') {
-          const fieldName = error.instancePath.split('/').pop();
+          const [_, __, fieldName,] = error.schemaPath.split('/');
           message = `Invalid value for "${fieldName}". Must be one of: ${error.params.allowedValues.join(', ')}`;
         }
 

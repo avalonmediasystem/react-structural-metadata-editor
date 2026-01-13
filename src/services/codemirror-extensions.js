@@ -92,8 +92,13 @@ export const createCustomJsonLinter = (updateValidationState) => linter((view) =
         }
         let message = error.message;
 
-        // Get the JSON pointer for the error location using error's instancePath
-        const pointer = pointers[error.instancePath];
+        // Get the JSON pointer for the error location
+        let errorPath = error.instancePath;
+        if (errorPath === undefined && error.dataPath !== undefined) {
+          // Fallback to 'dataPath' for post ajv v8 compatibility
+          errorPath = convertDataPathToInstancePath(error.dataPath);
+        }
+        const pointer = pointers[errorPath];
         // Initialize lineNumber to current line with the cursor or 1
         let lineNumber = view.state.doc.lineAt(view.state.selection.main.head).number || 1;
         // Read line number from source map if it exists. These line numbers are 0-indexed
@@ -107,12 +112,12 @@ export const createCustomJsonLinter = (updateValidationState) => linter((view) =
         } else if (error.keyword === 'minLength' && error.schemaPath.includes('label')) {
           message = 'Label needs to be at least 2 characters long';
         } else if (error.keyword === 'pattern') {
-          const [_, __, fieldName,] = error.schemaPath.split('/');
+          const fieldName = errorPath.split('/').pop();
           message = `Invalid "${fieldName}" time format (expected HH:MM:SS.mmm or similar)`;
         } else if (error.keyword === 'minItems') {
           message = 'Must have at least one child item';
         } else if (error.keyword === 'enum') {
-          const [_, __, fieldName,] = error.schemaPath.split('/');
+          const fieldName = errorPath.split('/').pop();
           message = `Invalid value for "${fieldName}". Must be one of: ${error.params.allowedValues.join(', ')}`;
         }
 
@@ -159,6 +164,31 @@ export const createCustomJsonLinter = (updateValidationState) => linter((view) =
     return [];
   }
 });
+
+/**
+ * Convert legacy property 'dataPath' value for the location of the failing data in the schema
+ * from array bracket format to JSON pointer format, which aligns with the newer property
+ * 'instancePath' format in ajv v8+.
+ * Pre v8 uses dot notation with array brackets: .items[0].label and
+ * ajv v8+ uses JSON Pointer format: /items/0/label
+ * @param {String} dataPath pre ajv@8.x 'dataPath' (e.g., ".items[0].label")
+ * @returns {String} JSON Pointer format (e.g., "/items/0/label")
+ */
+function convertDataPathToInstancePath(dataPath) {
+  if (!dataPath || dataPath === '') {
+    return '';
+  }
+
+  let path = dataPath.startsWith('.') ? dataPath.slice(1) : dataPath;
+  // Replace array bracket notation [N] with /N
+  path = path.replace(/\[(\d+)\]/g, '/$1');
+  path = path.replace(/\./g, '/');
+  if (path && !path.startsWith('/')) {
+    path = '/' + path;
+  }
+
+  return path;
+}
 
 /**
  * Find all positions of "id" properties in the JSON document using syntax tree

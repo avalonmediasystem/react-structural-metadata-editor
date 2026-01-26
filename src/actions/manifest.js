@@ -45,12 +45,12 @@ export const initManifest = (manifestURL, canvasIndex) => {
       }
       dispatch(fetchManifestSuccess());
 
+      // Mark the top element as 'root'
+      structuralMetadataUtils.markRootElement(smData);
+
       // Initialize Redux state variable with structure
       dispatch(buildSMUI(smData, duration));
       dispatch(saveInitialStructure(smData));
-
-      // Mark the top element as 'root'
-      structuralMetadataUtils.markRootElement(smData);
     } catch (error) {
       console.log('TCL: manifest -> initManifest() -> error', error);
       // Update manifest error in the redux store

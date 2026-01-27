@@ -113,6 +113,22 @@ describe('App component', () => {
     });
   });
 
+  test('does not render alert for structure with only root', () => {
+    const updatedProps = {
+      ...baseState,
+      structuralMetadata: {
+        smData: [{
+          id: "id-root", items: [], label: "Table of Content", nestedSpan: false, type: "root", valid: true
+        }],
+        smDataIsValid: true,
+      },
+    };
+
+    renderWithRedux(<App {...props} />, updatedProps);
+
+    expect(screen.queryByTestId('alert-container')).not.toBeInTheDocument();
+  });
+
   describe('renders alerts', () => {
     describe('with valid manifest', () => {
       describe('without waveform information', () => {
@@ -283,8 +299,8 @@ describe('App component', () => {
 
         expect(app.queryByTestId('waveform-container')).toBeInTheDocument();
         // Display 2 alerts for empty media and invalid structure
-        expect(app.queryAllByTestId('alert-container').length).toEqual(2);
-        expect(app.getAllByTestId('alert-message')[1].innerHTML).toBe(
+        expect(app.queryAllByTestId('alert-container').length).toEqual(1);
+        expect(app.getAllByTestId('alert-message')[0].innerHTML).toBe(
           'No available media. Editing structure is disabled.'
         );
       });

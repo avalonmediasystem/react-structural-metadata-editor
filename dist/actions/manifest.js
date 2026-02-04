@@ -55,12 +55,12 @@ var initManifest = exports.initManifest = function initManifest(manifestURL, can
             }
             dispatch(fetchManifestSuccess());
 
+            // Mark the top element as 'root'
+            structuralMetadataUtils.markRootElement(smData);
+
             // Initialize Redux state variable with structure
             dispatch((0, _smData.buildSMUI)(smData, duration));
             dispatch((0, _smData.saveInitialStructure)(smData));
-
-            // Mark the top element as 'root'
-            structuralMetadataUtils.markRootElement(smData);
             _context.next = 4;
             break;
           case 3:

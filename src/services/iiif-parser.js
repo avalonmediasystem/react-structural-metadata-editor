@@ -1,4 +1,5 @@
 import { parseManifest } from "manifesto.js";
+import { v4 as uuidv4 } from 'uuid';
 import StructuralMetadataUtils from "./StructuralMetadataUtils";
 import { getMimetype, readAnnotations } from "./utils";
 
@@ -131,17 +132,21 @@ export function parseStructureToJSON(manifest, duration, canvasIndex = 0) {
 
   if (!manifest) return [];
   let buildStructureItems = (items, children, parent = null) => {
-    if (items.length > 0) {
+    if (items?.length > 0) {
       items.map((i) => {
         const range = parseManifest(manifest)
           .getRangeById(i.id);
+        // Mark a Canvas/section item as a 'div' with a Canvas reference
+        let isCanvasSection = false;
+        if (i.items?.length > 0 && i.items[0].type === 'Canvas') isCanvasSection = true;
         if (range) {
           // Set default type to 'div' and change it as needed for timespans
           let structItem = {
             label: getLabelValue(i.label),
             items: [],
             type: "div",
-            nestedSpan: false
+            nestedSpan: false,
+            isCanvasSection,
           };
 
           // Get canvases associated with the current Range
@@ -183,38 +188,58 @@ export function parseStructureToJSON(manifest, duration, canvasIndex = 0) {
 
   if (manifest != undefined && manifest != null) {
     structures = manifest.structures != undefined ? manifest.structures : [];
-    // Ignore the top element, this gets injected in the manifest generation in Avalon.
-    // `iiif_manifest` gem keeps wrapping the structure with a root element with 
-    // behavior set to 'top' without a label every time structure
-    // is saved in SME.
-    const behavior = structures.length > 0 ? structures[0]?.behavior : '';
-    structures = behavior === 'top' ? structures[0].items : structures;
     manifestName = getLabelValue(manifest.label);
   }
 
-  // Check for empty structures in manifest
-  if (structures.length > 0) {
-    const root = structures[canvasIndex];
+  const behavior = structures.length > 0 ? structures[0]?.behavior : '';
+  const canvasCount = parseManifest(manifest).getSequences()[0].getCanvases().length;
+
+  let root;
+  if (behavior === 'top') {
+    /**
+     * Ignore the top element, this gets injected in the manifest generation in Avalon.
+     * `iiif_manifest` gem keeps wrapping the structure with a root element with
+     * behavior set to 'top' without a label every time structure
+     * is saved in SME.
+     */
+    const structureItems = structures[0].items;
+    root = structureItems?.length > 0 ? structureItems[canvasIndex] : [];
+  } else if (structures.length > 0 && structures.length != canvasCount) {
+    /**
+     * When the root doesn't have behavior='top' then look into the structures array
+     * and check if the root level has structures for each Canvas/section in the Manifest.
+     * E.g. https://iiif.io/api/cookbook/recipe/0065-opera-multiple-canvases/
+     */
+    const structureSections = structures[0].items;
+    root = structureSections.length === canvasCount ? structureSections[canvasIndex] : structures;
+  } else {
+    root = structures[canvasIndex];
+  }
+
+  if (root) {
     let children = [];
+    let isCanvasSection = false;
+
+    // Mark the root is a Canvas/section item -> a 'div' with a Canvas reference
+    if (root.items?.length > 0 && root.items[0]?.type === 'Canvas') {
+      isCanvasSection = true;
+    }
 
     // Build the nested JSON object from structure
     buildStructureItems(root.items, children, { type: 'div' });
 
     // Add the root element to the JSON object
     structureJSON.push({
-      type: 'div',
+      type: 'div', items: children, nestedSpan: false,
       label: getLabelValue(root.label),
-      items: children,
-      nestedSpan: false
+      isCanvasSection,
     });
   }
   // Create an empty structure with manifest information
   else if (manifestName != undefined) {
     structureJSON.push({
-      label: manifestName,
-      items: [],
-      type: 'div',
-      nestedSpan: false
+      label: manifestName, items: [], type: 'div', nestedSpan: false,
+      isCanvasSection: true
     });
   }
   const structureWithIDs = smUtils.addUUIds(structureJSON);
@@ -272,4 +297,123 @@ export function getLabelValue(label) {
     return decodeHTML(label);
   }
   return 'Label could not be parsed';
+}
+
+/**
+ * Convert the internal 'smData' structure back to a IIIF Presentation API 3.0
+ * 'structures' array of Range objects. This is the inverse of 'parseStructureToJSON'
+ * @param {Array} smData - internal structure tree from state
+ * @param {Object} manifest - raw IIIF manifest object
+ * @param {Number} canvasIndex - index of the current Canvas(defaults to 0)
+ * @returns {Array} IIIF 'structures' array
+ */
+export function parseJSONToStructure(manifest, smData, canvasIndex = 0) {
+  if (!smData || smData?.length === 0) {
+    if (!manifest) return [];
+    else return manifest.structures;
+  }
+
+  const smu = new StructuralMetadataUtils();
+  let canvasId, manifestId, structureBehavior, structures;
+  let structureItems = [];
+  // 'structures' property has a root Range surrounding sections
+  let hasWrapperRange = false;
+
+  if (manifest != undefined && manifest != null) {
+    // Get the canvasId to build the Canvas reference for Range items as needed
+    canvasId = manifest.items?.[canvasIndex]?.id ?? manifest.items?.[0]?.id;
+    if (!canvasId) return [];
+
+    // Number of items under the Manifest's 'items' property
+    const canvasCount = parseManifest(manifest).getSequences()[0]
+      .getCanvases().length;
+
+    structures = manifest.structures != undefined ? manifest.structures : [];
+    // Remove the '.json' suffix in the Manifest label
+    manifestId = manifest.id.replace(/\.json$/, "");
+
+    structureBehavior = structures.length > 0 ? structures[0]?.behavior : '';
+    if (structureBehavior === 'top') {
+      /**
+       * When there is a root Range with behavior='top' avoid it and retrieve the
+       * relevant structure item for the current Canvas from its 'items'.
+       * Update the top Range's id to match the new hierarchical format starting with 0.
+       * E.g. Avalon manifests -> https://media.dlib.indiana.edu/media_objects/qn59qp839/
+       */
+      structures[0].id = `${manifestId}/range/0`;
+      structureItems = structures[0].items;
+      hasWrapperRange = true;
+    } else if (structures.length > 0 && structures.length != canvasCount) {
+      /**
+       * When the root doesn't have behavior='top' then look into the structures array
+       * and check if the root level has structures for each Canvas/section in the Manifest.
+       * E.g. https://iiif.io/api/cookbook/recipe/0065-opera-multiple-canvases/
+       */
+      const structureSections = structures[0].items;
+      if (structureSections.length === canvasCount) {
+        structures[0].id = `${manifestId}/range/0`;
+      }
+      structureItems = structureSections.length === canvasCount ? structureSections : structures;
+      hasWrapperRange = true;
+    } else {
+      structureItems = structures;
+    }
+  }
+
+  const buildRange = (item, pathKey) => {
+    const range = {
+      id: `${manifestId}/range/${pathKey}`,
+      type: 'Range',
+      label: { en: [item.label] },
+      items: [],
+    };
+
+    if (item.isCanvasSection) {
+      const canvasDuration = manifest.items?.[canvasIndex]?.duration ?? 0;
+      range.items.push({ id: `${canvasId}#t=0,${canvasDuration}`, type: 'Canvas' });
+    } else if (item.type === 'span') {
+      const start = smu.convertToSeconds(item.begin);
+      const end = smu.convertToSeconds(item.end);
+      range.items.push({ id: `${canvasId}#t=${start},${end}`, type: 'Canvas' });
+    }
+
+    (item.items || []).forEach((child, i) => {
+      range.items.push(buildRange(child, `${pathKey}-${i + 1}`));
+    });
+
+    return range;
+  };
+  const buildIds = (item, pathKey) => {
+    item.id = `${manifestId}/range/${pathKey}`;
+
+    (item.items || []).forEach((child, i) => {
+      if (child.type === 'Range') buildIds(child, `${pathKey}-${i + 1}`);
+    });
+
+    return item;
+  };
+
+  if (structureItems.length > 0) {
+    let updatedRanges = [];
+    // Build the updated Range items from the internal structure tree
+    const changedRange = buildRange(smData[0], `${canvasIndex + 1}`);
+    // Update the Range ids for the rest of the structure items for multi-Canvas Manifest
+    for (let i = 0; i < structureItems.length; i++) {
+      if (i === canvasIndex) {
+        // Use the updated Range for the edited Canvas
+        updatedRanges.push(changedRange);
+        continue;
+      } else {
+        // Update the Range ids for the rest
+        const updated = buildIds(JSON.parse(JSON.stringify(structureItems[i])), i + 1);
+        updatedRanges.push(updated);
+      }
+    }
+
+    if (hasWrapperRange) {
+      return [{ ...structures[0], items: updatedRanges }];
+    } else {
+      return updatedRanges;
+    }
+  }
 }

@@ -10,6 +10,7 @@ const props = {
   canvasIndex: 0,
   structureIsSaved: (val) => { },
   disableSave: true,
+  enableDownload: true,
   showTextEditor: true,
 };
 

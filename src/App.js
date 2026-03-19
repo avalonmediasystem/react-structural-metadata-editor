@@ -52,6 +52,7 @@ App.defaultProps = {
   structureIsSaved: (val) => { },
   withCredentials: false,
   disableSave: false,
+  enableDownload: false,
 };
 
 App.propTypes = {
@@ -65,6 +66,7 @@ App.propTypes = {
   structureIsSaved: PropTypes.func,
   withCredentials: PropTypes.bool,
   disableSave: PropTypes.bool,
+  enableDownload: PropTypes.bool,
   showTextEditor: PropTypes.bool,
 };
 

@@ -10,13 +10,14 @@ import { configureAlert } from '../services/alert-status';
 import { setAlert, updateStructureStatus } from '../actions/forms';
 import { isEqual } from 'lodash';
 import StructuralMetadataUtils from '../services/StructuralMetadataUtils';
+import { getLabelValue, parseJSONToStructure } from '../services/iiif-parser';
 
-const StructureOutputContainer = ({ disableSave, structureIsSaved, structureURL }) => {
+const StructureOutputContainer = ({ disableSave, enableDownload, structureIsSaved, structureURL }) => {
   const smu = new StructuralMetadataUtils();
   const apiUtils = new APIUtils();
 
   // State variables from Redux store
-  const { manifestFetched } = useSelector((state) => state.manifest);
+  const { manifestFetched, manifest } = useSelector((state) => state.manifest);
   const { smData, initSmData, smDataIsValid } = useSelector((state) => state.structuralMetadata);
   const { structureInfo, editingDisabled } = useSelector((state) => state.forms);
 
@@ -71,6 +72,25 @@ const StructureOutputContainer = ({ disableSave, structureIsSaved, structureURL 
     }
   };
 
+  const handleDownload = () => {
+    if (!manifest || !smData?.length) return;
+    const updatedManifest = {
+      ...manifest,
+      structures: parseJSONToStructure(manifest, smData, 0),
+    };
+    // Use Manifest name as file name
+    let manifestName = getLabelValue(manifest.label);
+    const json = JSON.stringify(updatedManifest, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = manifestName == 'Label could not be parsed'
+      ? 'manifest.json' : `${manifestName}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <section
       className="structure-section"
@@ -94,6 +114,20 @@ const StructureOutputContainer = ({ disableSave, structureIsSaved, structureURL 
               className="float-end"
             >
               Save Structure
+            </Button>
+          </Col>
+        </Row>)
+      }
+      {enableDownload && (
+        <Row>
+          <Col className="pt-2">
+            <Button
+              variant="outline-secondary"
+              onClick={handleDownload}
+              data-testid="download-manifest-button"
+              className="float-end"
+            >
+              Download Manifest
             </Button>
           </Col>
         </Row>)

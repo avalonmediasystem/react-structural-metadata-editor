@@ -683,7 +683,7 @@ export const manifestWithStructure = {
         {
           type: 'Range',
           id: 'http://example.com/sample-manifest/manifest/range/1',
-          label: 'Volleyball for Boys',
+          label: { en: ['Volleyball for Boys'] },
           items: [
             {
               type: 'Range',
@@ -1012,52 +1012,94 @@ export const manifestWEmptyRanges = {
   ]
 };
 
-// Manifest with a Range that has no items
-export const manifestWoStructItems = {
+// Manifest with Canvas attached to section-level structures (Avalon)
+export const manifestWithSectionCanvas = {
   '@context': ['http://iiif.io/api/presentation/3/context.json'],
   type: 'Manifest',
-  id: 'http://example.com/undefined-items/manifest',
-  label: { en: ['Range with undefined items'] },
+  id: 'http://example.com/canvas-ranges/manifest',
+  label: { en: ['Canvas Range Sections'] },
   items: [
     {
       type: 'Canvas',
-      id: 'http://example.com/undefined-items/canvas/1',
+      id: 'http://example.com/canvas-ranges/canvas/1',
       width: 1920,
       height: 1080,
-      duration: 662.037,
+      duration: 500,
       items: [
         {
           type: 'AnnotationPage',
-          id: 'http://example.com/undefined-items/canvas/1/page',
+          id: 'http://example.com/canvas-ranges/canvas/1/page',
           items: [
             {
               type: 'Annotation',
               motivation: 'painting',
               body: {
-                id: 'http://example.com/undefined-items/media.mp4',
+                id: 'http://example.com/canvas-ranges/media.mp4',
                 type: 'Video',
                 format: 'video/mp4',
-                duration: 662.037,
-                height: 1080,
-                width: 1920,
+                duration: 500
               },
-              target: 'http://example.com/undefined-items/canvas/1'
+              target: 'http://example.com/canvas-ranges/canvas/1'
+            }
+          ],
+          label: { none: ["Media"] }
+        }
+      ]
+    },
+    {
+      type: 'Canvas',
+      id: 'http://example.com/canvas-ranges/canvas/2',
+      width: 1920,
+      height: 1080,
+      duration: 660,
+      items: [
+        {
+          type: 'AnnotationPage',
+          id: 'http://example.com/canvas-ranges/canvas/2/page',
+          items: [
+            {
+              type: 'Annotation',
+              motivation: 'painting',
+              body: {
+                id: 'http://example.com/canvas-ranges/media_2.mp4',
+                type: 'Video',
+                format: 'video/mp4',
+                duration: 660
+              },
+              target: 'http://example.com/canvas-ranges/canvas/2'
             }
           ]
         }
-      ]
+      ],
+      label: { none: ["Media 2"] }
     }
   ],
   structures: [
     {
       type: 'Range',
-      id: 'http://example.com/undefined-items/range/root',
+      id: 'http://example.com/canvas-ranges/range/0',
       label: { en: ['Root'] },
       items: [
         {
           type: 'Range',
-          id: 'http://example.com/undefined-items/range/valid',
-          label: { en: ['Valid Range'] },
+          id: 'http://example.com/canvas-ranges/range/1',
+          label: { en: ['Media'] },
+          items: [
+            {
+              type: 'Canvas',
+              id: 'http://example.com/canvas-ranges/canvas/1#t=0,500'
+            }
+          ]
+        },
+        {
+          type: 'Range',
+          id: 'http://example.com/canvas-ranges/range/2',
+          label: { en: ['Media 2'] },
+          items: [
+            {
+              type: 'Canvas',
+              id: 'http://example.com/canvas-ranges/canvas/2#t=0,660'
+            }]
         }
       ]
     }

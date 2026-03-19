@@ -6,7 +6,7 @@ import TextEditor from "../components/TextEditor";
 import StructureOutputContainer from "./StructureOutputContainer";
 import ButtonSection from "../components/ButtonSection";
 
-const StructureTabView = ({ disableSave, structureIsSaved, structureURL, showTextEditor = false }) => {
+const StructureTabView = ({ disableSave, enableDownload, structureIsSaved, structureURL, showTextEditor = false }) => {
   const { smData } = useSelector((state) => state.structuralMetadata);
 
   const [viewMode, setViewMode] = useState('visual');
@@ -38,6 +38,7 @@ const StructureTabView = ({ disableSave, structureIsSaved, structureURL, showTex
           <ButtonSection />
           <StructureOutputContainer
             disableSave={disableSave}
+            enableDownload={enableDownload}
             structureIsSaved={structureIsSaved}
             structureURL={structureURL}
           />

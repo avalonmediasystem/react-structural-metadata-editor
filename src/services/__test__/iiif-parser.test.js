@@ -6,7 +6,7 @@ import {
   manifestWoChoice,
   manifestWNestedStructure,
   manifestWEmptyRanges,
-  manifestWoStructItems
+  manifestWithSectionCanvas,
 } from '../testing-helpers';
 
 describe('iiif-parser', () => {
@@ -80,8 +80,13 @@ describe('iiif-parser', () => {
   });
 
   describe('getWaveformInfo()', () => {
-    test('when given manifest is invalid', () => {
+    test('when given manifest is undefined', () => {
       const waveform = iiifParser.getWaveformInfo(undefined, 0);
+      expect(waveform).toEqual(null);
+    });
+
+    test('when given manifest is null', () => {
+      const waveform = iiifParser.getWaveformInfo(null, 0);
       expect(waveform).toEqual(null);
     });
 
@@ -119,25 +124,29 @@ describe('iiif-parser', () => {
       expect(items.length).toBe(0);
     });
 
-    test('omits root element with behavior: \'top\'', () => {
-      const structureJSON = iiifParser.parseStructureToJSON(manifestWithStructure, 660);
-      expect(structureJSON.length).toEqual(1);
+    describe('parses structures with root Range with behavior=\'top\'', () => {
+      test('and omits root Range', () => {
+        const structureJSON = iiifParser.parseStructureToJSON(manifestWithStructure, 660);
+        expect(structureJSON.length).toEqual(1);
 
-      const { type, label, items } = structureJSON[0];
-      expect(label).toEqual('Volleyball for Boys');
-      expect(type).toEqual('div');
-      expect(items.length).toBe(1);
-    });
+        const { type, label, items } = structureJSON[0];
+        // Has the label of the first section at the root level
+        expect(label).not.toBe(null);
+        expect(label).toEqual('Volleyball for Boys');
+        expect(type).toEqual('div');
+        expect(items.length).toBe(1);
+      });
 
-    test('returns corrrect structure in a multi-canvas manifest', () => {
-      const structureJSON = iiifParser.parseStructureToJSON(manifestWithStructure, 660, 1);
-      expect(structureJSON.length).toEqual(1);
+      test('and returns structure for the current Canvas', () => {
+        const structureJSON = iiifParser.parseStructureToJSON(manifestWithStructure, 660, 1);
+        expect(structureJSON.length).toEqual(1);
 
-      const { type, label, items } = structureJSON[0];
-      expect(label).toEqual('Lunchroom Manners');
-      expect(type).toEqual('div');
-      expect(items.length).toBe(2);
-      expect(items[0].label).toBe('Introduction');
+        const { type, label, items } = structureJSON[0];
+        expect(label).toEqual('Lunchroom Manners');
+        expect(type).toEqual('div');
+        expect(items.length).toBe(2);
+        expect(items[0].label).toBe('Introduction');
+      });
     });
 
     test('builds structure for childless divs', () => {
@@ -279,15 +288,31 @@ describe('iiif-parser', () => {
       expect(invalidRange.items).toEqual([]);
     });
 
-    test('handles structures with undefined items property', () => {
-      const structureJSON = iiifParser.parseStructureToJSON(manifestWoStructItems, 500);
-      expect(structureJSON.length).toEqual(1);
+    describe('correctly identifies section items', () => {
+      test('with Canvas reference in structures', () => {
+        const structureJSON = iiifParser.parseStructureToJSON(manifestWithSectionCanvas, 660, 1);
+        expect(structureJSON.length).toEqual(1);
 
-      const root = structureJSON[0];
-      expect(root.items.length).toBe(1);
-      expect(root.items[0].label).toEqual('Valid Range');
-      expect(root.items[0].type).toEqual('div');
-      expect(root.items[0].items).toEqual([]);
+        const root = structureJSON[0];
+        expect(root.label).toEqual('Media 2');
+        expect(root.type).toEqual('div');
+        expect(root.items).toHaveLength(0);
+        expect(root.isCanvasSection).toBeTruthy();
+        expect(root.nestedSpan).toBeFalsy();
+      });
+
+      test('without Canvas reference in structures', () => {
+        const structureJSON = iiifParser.parseStructureToJSON(manifestWithStructure, 660, 1);
+        expect(structureJSON.length).toEqual(1);
+
+        const root = structureJSON[0];
+        expect(root.label).toEqual('Lunchroom Manners');
+        expect(root.type).toEqual('div');
+        expect(root.isCanvasSection).toBeFalsy();
+        expect(root.items).toHaveLength(2);
+        expect(root.items[0].label).toBe('Introduction');
+        expect(root.items[1].label).toBe('Washing Hands');
+      });
     });
   });
 
@@ -325,6 +350,405 @@ describe('iiif-parser', () => {
     test('returns \'Label could not be parsed\' for null/undefined labels', () => {
       expect(iiifParser.getLabelValue(null)).toBe('Label could not be parsed');
       expect(iiifParser.getLabelValue(undefined)).toBe('Label could not be parsed');
+    });
+  });
+
+  describe('parseJSONToStructure()', () => {
+    describe('returns original structures from Manifest', () => {
+      test('when smData is empty', () => {
+        const structures = iiifParser.parseJSONToStructure(manifest, [], 0);
+        expect(structures).toEqual(manifest.structures);
+      });
+      test('when smData is undefined', () => {
+        const structures = iiifParser.parseJSONToStructure(manifest, undefined, 0);
+        expect(structures).toEqual(manifest.structures);
+      });
+      test('when smData is undefined', () => {
+        const structures = iiifParser.parseJSONToStructure(manifest, null, 0);
+        expect(structures).toEqual(manifest.structures);
+      });
+    });
+
+    test('returns [] when both smData and manifest are undefined', () => {
+      const structures = iiifParser.parseJSONToStructure(undefined, undefined, 0);
+      expect(structures).toEqual([]);
+    });
+
+    describe('parses structures with sections with Canvas reference and', () => {
+      const sectionSmData = [
+        {
+          type: 'root', label: 'Media 2 - Edited', nestedSpan: false, id: '1', items: [],
+          isCanvasSection: true,
+        }
+      ];
+      const manifestId = 'http://example.com/canvas-ranges/manifest';
+      const canvasId = 'http://example.com/canvas-ranges/canvas/2';
+      const otherCanvasId = 'http://example.com/canvas-ranges/canvas/1';
+
+      test('preserves root element without \'top\' behavior in structures', () => {
+        const ogRootRange = manifestWithSectionCanvas.structures[0];
+        expect(ogRootRange.label).toStrictEqual({ 'en': ['Root'] });
+
+        const structures = iiifParser.parseJSONToStructure(manifestWithSectionCanvas, sectionSmData, 1);
+        const editedRootRange = structures[0];
+        expect(editedRootRange.behavior).not.toBe('top');
+        expect(editedRootRange.label).toStrictEqual({ 'en': ['Root'] });
+      });
+
+      test('updates Range labels for edited structure items', () => {
+        const ogSecondSection = manifestWithSectionCanvas.structures[0].items[1];
+        expect(ogSecondSection.label).toStrictEqual({ 'en': ['Media 2'] });
+
+        const structures = iiifParser.parseJSONToStructure(manifestWithSectionCanvas, sectionSmData, 1);
+        const editedRootRange = structures[0];
+        expect(editedRootRange.items.length).toBe(2);
+        expect(editedRootRange.items[1].label).toStrictEqual({ 'en': ['Media 2 - Edited'] });
+      });
+
+      test('preserves Range labels for structure items in other canvases', () => {
+        const structures = iiifParser.parseJSONToStructure(manifestWithSectionCanvas, sectionSmData, 1);
+        const editedRootRange = structures[0];
+        expect(editedRootRange.items.length).toBe(2);
+
+        expect(editedRootRange.items[0].label).toStrictEqual({ 'en': ['Media'] });
+      });
+
+      test('builds Canvas references for edited section items', () => {
+        const ogSecondSection = manifestWithSectionCanvas.structures[0].items[1];
+        expect(ogSecondSection.label).toStrictEqual({ 'en': ['Media 2'] });
+        expect(ogSecondSection.items.length).toBe(1);
+        expect(ogSecondSection.items[0].type).toBe('Canvas');
+        expect(ogSecondSection.items[0].id).toBe(`${canvasId}#t=0,660`);
+
+        const structures = iiifParser.parseJSONToStructure(manifestWithSectionCanvas, sectionSmData, 1);
+
+        const editedRootRange = structures[0];
+        expect(editedRootRange.items.length).toBe(2);
+
+        const editedSecondSection = editedRootRange.items[1];
+        expect(editedSecondSection.items.length).toBe(1);
+        expect(editedSecondSection.items[0].type).toBe('Canvas');
+        expect(editedSecondSection.items[0].id).toBe(`${canvasId}#t=0,660`);
+      });
+
+      test('preserves Canvas references for other section items', () => {
+        const ogFirstSection = manifestWithSectionCanvas.structures[0].items[0];
+        expect(ogFirstSection.label).toStrictEqual({ 'en': ['Media'] });
+        expect(ogFirstSection.items.length).toBe(1);
+        expect(ogFirstSection.items[0].type).toBe('Canvas');
+        expect(ogFirstSection.items[0].id).toBe(`${otherCanvasId}#t=0,500`);
+
+        const structures = iiifParser.parseJSONToStructure(manifestWithSectionCanvas, sectionSmData, 1);
+
+        const editedRootRange = structures[0];
+        expect(editedRootRange.items.length).toBe(2);
+
+        const firstSection = editedRootRange.items[0];
+        expect(firstSection.items.length).toBe(1);
+        expect(firstSection.items[0].type).toBe('Canvas');
+        expect(firstSection.items[0].id).toBe(`${otherCanvasId}#t=0,500`);
+      });
+
+      test('assigns hierarchical Range ids at each level', () => {
+        const structures = iiifParser.parseJSONToStructure(manifestWithSectionCanvas, sectionSmData, 1);
+
+        const rootRange = structures[0];
+        expect(rootRange.id).toBe(`${manifestId}/range/0`);
+
+        const firstSection = rootRange.items[0];
+        expect(firstSection.id).toBe(`${manifestId}/range/1`);
+
+        const secondSection = rootRange.items[1];
+        expect(secondSection.id).toBe(`${manifestId}/range/2`);
+      });
+
+      test('does not include internal smData properties in structures', () => {
+        const structures = iiifParser.parseJSONToStructure(manifestWithSectionCanvas, sectionSmData, 1);
+
+        const editedRootRange = structures[0];
+        const firstSection = editedRootRange.items[0];
+        const secondSection = editedRootRange.items[1];
+
+        [editedRootRange, firstSection, secondSection].forEach(range => {
+          expect(range).not.toHaveProperty('nestedSpan');
+          expect(range).not.toHaveProperty('timeRange');
+          expect(range).not.toHaveProperty('begin');
+          expect(range).not.toHaveProperty('end');
+          expect(range).not.toHaveProperty('valid');
+          expect(range).not.toHaveProperty('isCanvasSection');
+        });
+      });
+
+      test('all Range ids are unique in structures', () => {
+        const structures = iiifParser.parseJSONToStructure(manifestWithSectionCanvas, sectionSmData, 1);
+        const allIds = [];
+        const collect = (items) => {
+          for (const item of items ?? []) {
+            if (item.id) allIds.push(item.id);
+            if (Array.isArray(item.items)) collect(item.items);
+          }
+        };
+        collect(structures);
+        expect(new Set(allIds).size).toBe(allIds.length);
+      });
+    });
+
+    describe('parses normal structures and', () => {
+      const smData = [
+        {
+          type: 'div', label: 'Volleyball for Boys - First Section', nestedSpan: false, id: '1',
+          items: [
+            {
+              label: 'Volleyball for Boys - Introduction', timeRange: { start: 0, end: 2.37 }, id: '2',
+              items: [], type: 'span', nestedSpan: false, begin: '00:00:00.000', end: '00:02:37.000'
+            }
+          ]
+        }
+      ];
+      const manifestId = 'http://example.com/sample-manifest/manifest';
+      const canvasId = 'http://example.com/sample-manifest/manifest/canvas/1';
+      const otherCanvasId = 'http://example.com/sample-manifest/manifest/canvas/2';
+
+      test('preserves root element with behavior: \'top\' in structures', () => {
+        const originalStructRoot = manifestWithStructure.structures[0];
+        expect(originalStructRoot.behavior).toBe('top');
+        expect(originalStructRoot.label).toBe(null);
+
+        const structures = iiifParser.parseJSONToStructure(manifestWithStructure, smData);
+        const editedRootRange = structures[0];
+        expect(editedRootRange.behavior).toBe('top');
+        expect(editedRootRange.label).toBe(null);
+      });
+
+      test('updates Range labels for edited structure items', () => {
+        const originalFirstStruct = manifestWithStructure.structures[0].items[0];
+        expect(originalFirstStruct.label).toStrictEqual({ 'en': ['Volleyball for Boys'] });
+        expect(originalFirstStruct.items[0].label).toStrictEqual({ 'en': ['Volleyball for Boys'] });
+
+        const structures = iiifParser.parseJSONToStructure(manifestWithStructure, smData);
+        const editedRootRange = structures[0];
+        expect(editedRootRange.items.length).toBe(2);
+        const firstSection = editedRootRange.items[0];
+        expect(firstSection.label).toStrictEqual({ 'en': ['Volleyball for Boys - First Section'] });
+        expect(firstSection.items[0].label).toStrictEqual({ 'en': ['Volleyball for Boys - Introduction'] });
+      });
+
+      test('preserves Range labels for structure items in other canvases', () => {
+        const structures = iiifParser.parseJSONToStructure(manifestWithStructure, smData);
+        const editedRootRange = structures[0];
+        expect(editedRootRange.items.length).toBe(2);
+
+        const secondSection = editedRootRange.items[1];
+        expect(secondSection.label).toStrictEqual({ 'en': ['Lunchroom Manners'] });
+        expect(secondSection.items[0].label).toStrictEqual({ 'en': ['Introduction'] });
+      });
+
+      test('builds Canvas references for edited span items', () => {
+        const structures = iiifParser.parseJSONToStructure(manifestWithStructure, smData);
+
+        const editedRootRange = structures[0];
+        const firstSection = editedRootRange.items[0];
+        expect(firstSection.items.length).toBe(1);
+        const firstSectionStructure = firstSection.items[0];
+
+        expect(firstSectionStructure.items).toHaveLength(1);
+        expect(firstSectionStructure.items[0].type).toBe('Canvas');
+        expect(firstSectionStructure.items[0].id).toBe(`${canvasId}#t=0,157`);
+      });
+
+      test('preserves Canvas references for for span items in other canvases', () => {
+        const structures = iiifParser.parseJSONToStructure(manifestWithStructure, smData);
+
+        const editedRootRange = structures[0];
+        expect(editedRootRange.items.length).toBe(2);
+
+        const secondSection = editedRootRange.items[1];
+        expect(secondSection.items.length).toBe(2);
+        const secondSectionStructure = secondSection.items[0];
+
+        expect(secondSectionStructure.items).toHaveLength(1);
+        expect(secondSectionStructure.items[0].type).toBe('Canvas');
+        expect(secondSectionStructure.items[0].id).toBe(`${otherCanvasId}#t=0,23`);
+      });
+
+      test('assigns hierarchical Range ids at each level', () => {
+        const structures = iiifParser.parseJSONToStructure(manifestWithStructure, smData);
+
+        const rootRange = structures[0];
+        expect(rootRange.behavior).toBe('top');
+        expect(rootRange.id).toBe(`${manifestId}/range/0`);
+
+        const firstSection = rootRange.items[0];
+        expect(firstSection.id).toBe(`${manifestId}/range/1`);
+        expect(firstSection.items[0].id).toBe(`${manifestId}/range/1-1`);
+
+        const secondSection = rootRange.items[1];
+        expect(secondSection.id).toBe(`${manifestId}/range/2`);
+        expect(secondSection.items[0].id).toBe(`${manifestId}/range/2-1`);
+      });
+
+      test('does not include internal smData properties in structures', () => {
+        const structures = iiifParser.parseJSONToStructure(manifestWithStructure, smData);
+
+        const editedRootRange = structures[0];
+        const firstSection = editedRootRange.items[0];
+        const firstSectionStructureItem = firstSection.items[0];
+
+        [editedRootRange, firstSection, firstSectionStructureItem].forEach(range => {
+          expect(range).not.toHaveProperty('nestedSpan');
+          expect(range).not.toHaveProperty('timeRange');
+          expect(range).not.toHaveProperty('begin');
+          expect(range).not.toHaveProperty('end');
+          expect(range).not.toHaveProperty('valid');
+        });
+      });
+
+      test('all Range ids are unique in structures', () => {
+        const structures = iiifParser.parseJSONToStructure(manifestWithStructure, smData);
+        const allIds = [];
+        const collect = (items) => {
+          for (const item of items ?? []) {
+            if (item.id) allIds.push(item.id);
+            if (Array.isArray(item.items)) collect(item.items);
+          }
+        };
+        collect(structures);
+        expect(new Set(allIds).size).toBe(allIds.length);
+      });
+    });
+
+    describe('parses nested structures and', () => {
+      const manifestId = 'http://example.com/deep-nested/manifest';
+      const canvasId = 'http://example.com/deep-nested/canvas/1';
+
+      // nested smData representing structures in 'manifestWNestedStructure' in testing-helpers.js
+      const nestedSmData = [
+        {
+          type: 'root', label: 'Table of Content - Root', nestedSpan: false, id: '1',
+          items: [
+            {
+              type: 'div', label: 'Level 1 Div - Edited', nestedSpan: false, id: '2',
+              items: [
+                {
+                  type: 'span', label: 'Level 2 Span - Edited', nestedSpan: false, id: '3',
+                  begin: '00:00:00.000', end: '00:01:40.000',
+                  timeRange: { start: 0, end: 100 }, items: []
+                },
+                {
+                  type: 'div', label: 'Level 2 Div', nestedSpan: false, id: '4',
+                  items: [
+                    {
+                      type: 'span', label: 'Level 3 Span', nestedSpan: false, id: '5',
+                      begin: '00:01:40.000', end: '00:03:20.000',
+                      timeRange: { start: 100, end: 200 }, items: []
+                    },
+                    {
+                      type: 'div', label: 'Level 3 Div', nestedSpan: false, id: '6',
+                      items: [
+                        {
+                          type: 'span', label: 'Level 4 Span', nestedSpan: false, id: '7',
+                          begin: '00:03:20.000', end: '00:05:00.000',
+                          timeRange: { start: 200, end: 300 }, items: [
+
+                            {
+                              type: 'span', label: 'Level 5 Span', nestedSpan: false, id: '8',
+                              begin: '00:04:10.000', end: '00:04:35.000',
+                              timeRange: { start: 250, end: 275 }, items: []
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ];
+
+      test('updates nested Range labels', () => {
+        const structures = iiifParser.parseJSONToStructure(manifestWNestedStructure, nestedSmData);
+
+        expect(structures).toHaveLength(1);
+        const rootRange = structures[0];
+        expect(rootRange.type).toBe('Range');
+        expect(rootRange.label).toStrictEqual({ en: ['Table of Content - Root'] });
+
+        const level_1 = rootRange.items[0];
+        expect(level_1.type).toBe('Range');
+        expect(level_1.label).toStrictEqual({ en: ['Level 1 Div - Edited'] });
+        expect(level_1.items).toHaveLength(2);
+
+        expect(level_1.items[0].label).toStrictEqual({ en: ['Level 2 Span - Edited'] });
+        expect(level_1.items[1].label).toStrictEqual({ en: ['Level 2 Div'] });
+      });
+
+      test('builds Canvas references for nested span items', () => {
+        const structures = iiifParser.parseJSONToStructure(manifestWNestedStructure, nestedSmData);
+
+        const rootRange = structures[0];
+        const level_1 = rootRange.items[0];
+
+        // Level 2 span
+        const level_2_span = level_1.items[0];
+        expect(level_2_span.items).toHaveLength(1);
+        expect(level_2_span.items[0].type).toBe('Canvas');
+        expect(level_2_span.items[0].id).toBe(`${canvasId}#t=0,100`);
+
+        // Level 2 div
+        const level_2_div = level_1.items[1];
+        const level_3_span = level_2_div.items[0];
+        expect(level_3_span.items).toHaveLength(1);
+        expect(level_3_span.items[0].type).toBe('Canvas');
+        expect(level_3_span.items[0].id).toBe(`${canvasId}#t=100,200`);
+      });
+
+      test('assigns hierarchical Range ids at each level', () => {
+        const structures = iiifParser.parseJSONToStructure(manifestWNestedStructure, nestedSmData);
+
+        const rootRange = structures[0];
+        expect(rootRange.id).toBe(`${manifestId}/range/1`);
+
+        const level_1 = rootRange.items[0];
+        expect(level_1.id).toBe(`${manifestId}/range/1-1`);
+        // Level 2 span 
+        expect(level_1.items[0].id).toBe(`${manifestId}/range/1-1-1`);
+
+        const level_2_div = level_1.items[1];
+        expect(level_2_div.id).toBe(`${manifestId}/range/1-1-2`);
+        // Level 3 span 
+        expect(level_2_div.items[0].id).toBe(`${manifestId}/range/1-1-2-1`);
+      });
+
+      test('does not include internal smData properties in structures', () => {
+        const structures = iiifParser.parseJSONToStructure(manifestWNestedStructure, nestedSmData);
+
+        const rootRange = structures[0];
+        const level_1 = rootRange.items[0];
+        const level_2_span = level_1.items[0];
+
+        [rootRange, level_1, level_2_span].forEach(range => {
+          expect(range).not.toHaveProperty('nestedSpan');
+          expect(range).not.toHaveProperty('timeRange');
+          expect(range).not.toHaveProperty('begin');
+          expect(range).not.toHaveProperty('end');
+          expect(range).not.toHaveProperty('valid');
+        });
+      });
+
+      test('all Range ids are unique across deeply nested output', () => {
+        const structures = iiifParser.parseJSONToStructure(manifestWNestedStructure, nestedSmData);
+        const allIds = [];
+        const collect = (items) => {
+          for (const item of items ?? []) {
+            if (item.id) allIds.push(item.id);
+            if (Array.isArray(item.items)) collect(item.items);
+          }
+        };
+        collect(structures);
+        expect(new Set(allIds).size).toBe(allIds.length);
+      });
     });
   });
 

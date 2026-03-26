@@ -169,6 +169,7 @@ A consuming application is expected to provide the following configuration `prop
 | `structureIsSaved` | function | Function to keep track of the status of the structure changes in the editor| Optional |
 | `disableSave` | boolean | Boolean flag to remove `Save Structure` functionality in the UI. Value of this flag defaults to `false`. When saving is disabled in the editor, 'Save Structure' button will not be displayed. | Optional |
 | `showTextEditor` | boolean | Boolean flag to enable display of a text-based editor for the JSON structure. Value of this flag defauls to `false`. When this is enabled a toggle button is displayed to enable to toggle views. | Optional |
+| `enableDownload` | boolean | Boolean flag to show/hide `Download Manifest` functionality in the demo site. Value of this flag defaults to `false`. This allows a user to download the IIIF Manifest with the edited structure from the demo site. This is meant to be used as a replacement for `Save Structure` button in the demo site, because the demo site is not able to facilitate a save end point. _**IMPORTANT** Demo site only displays the structure for the first Canvas in the current implementation._ | Optional |
 
 #### Example usage
 

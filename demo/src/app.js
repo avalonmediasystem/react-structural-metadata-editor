@@ -53,6 +53,7 @@ const App = (props) => {
           canvasIndex={0}
           structureIsSaved={(val) => { }}
           disableSave={props.disableSave}
+          enableDownload={props.enableDownload}
           key={manifestUrl}
           showTextEditor={props.showTextEditor}
         />

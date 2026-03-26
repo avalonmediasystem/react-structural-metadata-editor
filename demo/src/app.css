@@ -7,6 +7,12 @@
   color: #7e7e7e;
 }
 
+/* Remove space between structure and download button */
+.structure-section>.structure-lists {
+    height: fit-content;
+    max-height: 28vh;
+  }
+
 /* Reference: https://loading.io/css/ */
 .loading-app {
   display: inline-block;

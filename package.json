@@ -1,6 +1,6 @@
 {
   "name": "react-structural-metadata-editor",
-  "version": "4.0.1",
+  "version": "4.1.0",
   "description": "React Structural Metadata Editor for Avalon Media System",
   "main": "dist/index.js",
   "scripts": {

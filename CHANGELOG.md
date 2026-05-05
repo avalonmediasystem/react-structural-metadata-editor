@@ -1,6 +1,71 @@
 ## Structural Metadata Editor
 
-### v2.0.0 (02/15/2024)
+### v4.1.0 / avalon-8.2 (05/05/2026)
+
+* Change structure parsing to read/parse nested timespans by @Dananji in https://github.com/avalonmediasystem/react-structural-metadata-editor/pull/243
+* Create nested timespans by @Dananji in https://github.com/avalonmediasystem/react-structural-metadata-editor/pull/245
+* Edit nested timespans by @Dananji in https://github.com/avalonmediasystem/react-structural-metadata-editor/pull/247
+* Fix DnD drop-zone calculation for nested timespans by @Dananji in https://github.com/avalonmediasystem/react-structural-metadata-editor/pull/248
+* Add support for creating headings inside timespans with children by @Dananji in https://github.com/avalonmediasystem/react-structural-metadata-editor/pull/249
+* Show heading inside timespan as a possible parent for a new child timespan by @Dananji in https://github.com/avalonmediasystem/react-structural-metadata-editor/pull/250
+* Delete nested timespans and respective peaks segments by @Dananji in https://github.com/avalonmediasystem/react-structural-metadata-editor/pull/251
+* Bump axios from 1.8.4 to 1.12.0 by @dependabot in https://github.com/avalonmediasystem/react-structural-metadata-editor/pull/252
+* Fix crypto module error in build by @Dananji in https://github.com/avalonmediasystem/react-structural-metadata-editor/pull/253
+* Validate empty div creation and save by @Dananji in https://github.com/avalonmediasystem/react-structural-metadata-editor/pull/254
+* Bump node-forge from 1.3.1 to 1.3.2 by @dependabot in https://github.com/avalonmediasystem/react-structural-metadata-editor/pull/255
+* Bump js-yaml from 3.14.1 to 3.14.2 by @dependabot in https://github.com/avalonmediasystem/react-structural-metadata-editor/pull/256
+* Fix broken nested timespan creation by @Dananji in https://github.com/avalonmediasystem/react-structural-metadata-editor/pull/258
+* Add JSON editor with CodeMirror support by @Dananji in https://github.com/avalonmediasystem/react-structural-metadata-editor/pull/259
+* Bump qs from 6.14.0 to 6.14.1 by @dependabot in https://github.com/avalonmediasystem/react-structural-metadata-editor/pull/260
+* Fix button styling for Avalon in the text-editor implementation by @Dananji in https://github.com/avalonmediasystem/react-structural-metadata-editor/pull/261
+* Fix schema validation error path by @Dananji in https://github.com/avalonmediasystem/react-structural-metadata-editor/pull/262
+* Bump lodash from 4.17.21 to 4.17.23 by @dependabot in https://github.com/avalonmediasystem/react-structural-metadata-editor/pull/263
+* Identify structure with only root element as valid by @Dananji in https://github.com/avalonmediasystem/react-structural-metadata-editor/pull/265
+* Bump webpack from 5.103.0 to 5.104.1 by @dependabot in https://github.com/avalonmediasystem/react-structural-metadata-editor/pull/266
+* Bump axios from 1.13.2 to 1.13.5 by @dependabot in https://github.com/avalonmediasystem/react-structural-metadata-editor/pull/267
+* Bump qs from 6.14.1 to 6.14.2 by @dependabot in https://github.com/avalonmediasystem/react-structural-metadata-editor/pull/268
+* Test on latest node versions by @cjcolvar in https://github.com/avalonmediasystem/react-structural-metadata-editor/pull/269
+* Add download button for demo site by @Dananji in https://github.com/avalonmediasystem/react-structural-metadata-editor/pull/270
+* Bump node-forge from 1.3.3 to 1.4.0 by @dependabot in https://github.com/avalonmediasystem/react-structural-metadata-editor/pull/271
+* Bump lodash from 4.17.23 to 4.18.1 by @dependabot in https://github.com/avalonmediasystem/react-structural-metadata-editor/pull/272
+* Bump axios from 1.13.5 to 1.15.0 by @dependabot in https://github.com/avalonmediasystem/react-structural-metadata-editor/pull/273
+* Bump follow-redirects from 1.15.11 to 1.16.0 by @dependabot in https://github.com/avalonmediasystem/react-structural-metadata-editor/pull/274
+
+### v4.0.1 / avalon-8.1 (07/24/2025)
+
+* Bump form-data from 4.0.2 to 4.0.4 by @dependabot in https://github.com/avalonmediasystem/react-structural-metadata-editor/pull/241
+* Heading form bugfix by @Dananji in https://github.com/avalonmediasystem/react-structural-metadata-editor/pull/242
+
+### v4.0.0 (07/15/2025)
+
+* Upgrade React to version 19 and relevant dependencies by @Dananji in https://github.com/avalonmediasystem/react-structural-metadata-editor/pull/224
+* Add CI with CircleCI by @Dananji in https://github.com/avalonmediasystem/react-structural-metadata-editor/pull/226
+* Convert some of the form and listitem controls components to functional components by @Dananji in https://github.com/avalonmediasystem/react-structural-metadata-editor/pull/227
+* Refactor timespan edit forms with Peaks interactions via rxjs by @Dananji in https://github.com/avalonmediasystem/react-structural-metadata-editor/pull/228
+* Convert container components from class to functional format by @Dananji in https://github.com/avalonmediasystem/react-structural-metadata-editor/pull/229
+* Bump http-proxy-middleware from 2.0.6 to 2.0.9 by @dependabot in https://github.com/avalonmediasystem/react-structural-metadata-editor/pull/230
+* Use Ramp's error management mechanism instead of error class component by @Dananji in https://github.com/avalonmediasystem/react-structural-metadata-editor/pull/233
+* Validate time inputs against invalid punctuation/letter characters by @Dananji in https://github.com/avalonmediasystem/react-structural-metadata-editor/pull/237
+* Update labelText in Peaks when timespan title is changed by @Dananji in https://github.com/avalonmediasystem/react-structural-metadata-editor/pull/238
+* Fix tandem forms in buttons section by @Dananji in https://github.com/avalonmediasystem/react-structural-metadata-editor/pull/239
+* Move Bootstrap to peerDeps, cleanup Bootstrap 4 refs and classes by @Dananji in https://github.com/avalonmediasystem/react-structural-metadata-editor/pull/240
+* Bump express from 4.18.1 to 4.19.2 by @dependabot in https://github.com/avalonmediasystem/react-structural-metadata-editor/pull/211
+* Bump ws from 8.8.0 to 8.17.1 by @dependabot in https://github.com/avalonmediasystem/react-structural-metadata-editor/pull/212
+* Bump webpack from 5.76.0 to 5.94.0 by @dependabot in https://github.com/avalonmediasystem/react-structural-metadata-editor/pull/213
+* Bump http-proxy-middleware from 2.0.6 to 2.0.7 by @dependabot in https://github.com/avalonmediasystem/react-structural-metadata-editor/pull/217
+* Bump axios from 1.6.0 to 1.7.4 by @dependabot in https://github.com/avalonmediasystem/react-structural-metadata-editor/pull/218
+* Bump express from 4.19.2 to 4.21.1 by @dependabot in https://github.com/avalonmediasystem/react-structural-metadata-editor/pull/219
+* Bump serialize-javascript from 6.0.0 to 6.0.2 by @dependabot in https://github.com/avalonmediasystem/react-structural-metadata-editor/pull/220
+
+### avalon-7.7.1 (03/29/2024)
+
+* Bump follow-redirects from 1.15.4 to 1.15.6 by @dependabot in https://github.com/avalonmediasystem/react-structural-metadata-editor/pull/206
+* Disable save structure button when editing structure by @Dananji in https://github.com/avalonmediasystem/react-structural-metadata-editor/pull/207
+* Stop infinite loading spinner when HLS fails or no media present by @Dananji in https://github.com/avalonmediasystem/react-structural-metadata-editor/pull/205
+* Fix editing inline form submission by @Dananji in https://github.com/avalonmediasystem/react-structural-metadata-editor/pull/209
+* Bump webpack-dev-middleware from 5.3.3 to 5.3.4 by @dependabot in https://github.com/avalonmediasystem/react-structural-metadata-editor/pull/210
+
+### avalon-7.7 / v2.0.0 (02/14/2024)
 
 * Demo site with external manifests by @Dananji in https://github.com/avalonmediasystem/react-structural-metadata-editor/pull/174
 * Fix childOf options list for new timespans with duration as end time by @Dananji in https://github.com/avalonmediasystem/react-structural-metadata-editor/pull/179
@@ -20,7 +85,7 @@
 * Handle manifests missing waveform information (seeAlso) by @masaball in https://github.com/avalonmediasystem/react-structural-metadata-editor/pull/201
 * Bump follow-redirects from 1.15.3 to 1.15.4 by @dependabot in https://github.com/avalonmediasystem/react-structural-metadata-editor/pull/202
 
-## Tag: avalon-7.6 (03/14/2023)
+### avalon-7.6 (03/14/2023)
 
 * Fix missing headings when adding new timespans by @Dananji in https://github.com/avalonmediasystem/react-structural-metadata-editor/pull/32
 * Update axios package by @Dananji in https://github.com/avalonmediasystem/react-structural-metadata-editor/pull/33

@@ -17,6 +17,7 @@ var _ButtonSection = _interopRequireDefault(require("../components/ButtonSection
 function _interopRequireWildcard(e, t) { if ("function" == typeof WeakMap) var r = new WeakMap(), n = new WeakMap(); return (_interopRequireWildcard = function _interopRequireWildcard(e, t) { if (!t && e && e.__esModule) return e; var o, i, f = { __proto__: null, "default": e }; if (null === e || "object" != _typeof(e) && "function" != typeof e) return f; if (o = t ? n : r) { if (o.has(e)) return o.get(e); o.set(e, f); } for (var _t in e) "default" !== _t && {}.hasOwnProperty.call(e, _t) && ((i = (o = Object.defineProperty) && Object.getOwnPropertyDescriptor(e, _t)) && (i.get || i.set) ? o(f, _t, i) : f[_t] = e[_t]); return f; })(e, t); }
 var StructureTabView = function StructureTabView(_ref) {
   var disableSave = _ref.disableSave,
+    enableDownload = _ref.enableDownload,
     structureIsSaved = _ref.structureIsSaved,
     structureURL = _ref.structureURL,
     _ref$showTextEditor = _ref.showTextEditor,
@@ -49,6 +50,7 @@ var StructureTabView = function StructureTabView(_ref) {
     "data-testid": "visual-editor-section"
   }, /*#__PURE__*/_react["default"].createElement(_ButtonSection["default"], null), /*#__PURE__*/_react["default"].createElement(_StructureOutputContainer["default"], {
     disableSave: disableSave,
+    enableDownload: enableDownload,
     structureIsSaved: structureIsSaved,
     structureURL: structureURL
   })) : /*#__PURE__*/_react["default"].createElement(_TextEditor["default"], {

@@ -7,6 +7,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports["default"] = void 0;
 var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
+var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/defineProperty"));
 var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
 var _slicedToArray2 = _interopRequireDefault(require("@babel/runtime/helpers/slicedToArray"));
 var _react = _interopRequireWildcard(require("react"));
@@ -20,9 +21,13 @@ var _alertStatus = require("../services/alert-status");
 var _forms = require("../actions/forms");
 var _lodash = require("lodash");
 var _StructuralMetadataUtils = _interopRequireDefault(require("../services/StructuralMetadataUtils"));
+var _iiifParser = require("../services/iiif-parser");
 function _interopRequireWildcard(e, t) { if ("function" == typeof WeakMap) var r = new WeakMap(), n = new WeakMap(); return (_interopRequireWildcard = function _interopRequireWildcard(e, t) { if (!t && e && e.__esModule) return e; var o, i, f = { __proto__: null, "default": e }; if (null === e || "object" != _typeof(e) && "function" != typeof e) return f; if (o = t ? n : r) { if (o.has(e)) return o.get(e); o.set(e, f); } for (var _t2 in e) "default" !== _t2 && {}.hasOwnProperty.call(e, _t2) && ((i = (o = Object.defineProperty) && Object.getOwnPropertyDescriptor(e, _t2)) && (i.get || i.set) ? o(f, _t2, i) : f[_t2] = e[_t2]); return f; })(e, t); }
+function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
+function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { (0, _defineProperty2["default"])(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
 var StructureOutputContainer = function StructureOutputContainer(_ref) {
   var disableSave = _ref.disableSave,
+    enableDownload = _ref.enableDownload,
     structureIsSaved = _ref.structureIsSaved,
     structureURL = _ref.structureURL;
   var smu = new _StructuralMetadataUtils["default"]();
@@ -32,7 +37,8 @@ var StructureOutputContainer = function StructureOutputContainer(_ref) {
   var _useSelector = (0, _reactRedux.useSelector)(function (state) {
       return state.manifest;
     }),
-    manifestFetched = _useSelector.manifestFetched;
+    manifestFetched = _useSelector.manifestFetched,
+    manifest = _useSelector.manifest;
   var _useSelector2 = (0, _reactRedux.useSelector)(function (state) {
       return state.structuralMetadata;
     }),
@@ -117,6 +123,24 @@ var StructureOutputContainer = function StructureOutputContainer(_ref) {
       return _ref2.apply(this, arguments);
     };
   }();
+  var handleDownload = function handleDownload() {
+    if (!manifest || !(smData !== null && smData !== void 0 && smData.length)) return;
+    var updatedManifest = _objectSpread(_objectSpread({}, manifest), {}, {
+      structures: (0, _iiifParser.parseJSONToStructure)(manifest, smData, 0)
+    });
+    // Use Manifest name as file name
+    var manifestName = (0, _iiifParser.getLabelValue)(manifest.label);
+    var json = JSON.stringify(updatedManifest, null, 2);
+    var blob = new Blob([json], {
+      type: 'application/json'
+    });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = manifestName == 'Label could not be parsed' ? 'manifest.json' : "".concat(manifestName, ".json");
+    a.click();
+    URL.revokeObjectURL(url);
+  };
   return /*#__PURE__*/_react["default"].createElement("section", {
     className: "structure-section",
     "data-testid": "structure-output-section"
@@ -135,6 +159,13 @@ var StructureOutputContainer = function StructureOutputContainer(_ref) {
     "data-testid": "structure-save-button",
     disabled: editingDisabled || !smDataIsValid,
     className: "float-end"
-  }, "Save Structure"))));
+  }, "Save Structure"))), enableDownload && /*#__PURE__*/_react["default"].createElement(_Row["default"], null, /*#__PURE__*/_react["default"].createElement(_Col["default"], {
+    className: "pt-2"
+  }, /*#__PURE__*/_react["default"].createElement(_Button["default"], {
+    variant: "outline-secondary",
+    onClick: handleDownload,
+    "data-testid": "download-manifest-button",
+    className: "float-end"
+  }, "Download Manifest"))));
 };
 var _default = exports["default"] = StructureOutputContainer;

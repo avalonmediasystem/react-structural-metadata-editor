@@ -46,7 +46,8 @@ App.defaultProps = {
   canvasIndex: 0,
   structureIsSaved: function structureIsSaved(val) {},
   withCredentials: false,
-  disableSave: false
+  disableSave: false,
+  enableDownload: false
 };
 App.propTypes = {
   canvasIndex: _propTypes["default"].number,
@@ -59,6 +60,7 @@ App.propTypes = {
   structureIsSaved: _propTypes["default"].func,
   withCredentials: _propTypes["default"].bool,
   disableSave: _propTypes["default"].bool,
+  enableDownload: _propTypes["default"].bool,
   showTextEditor: _propTypes["default"].bool
 };
 var _default = exports["default"] = App;

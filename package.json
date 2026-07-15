@@ -3,6 +3,9 @@
   "version": "4.1.0",
   "description": "React Structural Metadata Editor for Avalon Media System",
   "main": "dist/index.js",
+  "engines": {
+    "node": "^20.19 || ^22.12 || >=24"
+  },
   "scripts": {
     "clean": "rimraf dist",
     "dev": "webpack serve --mode=development",

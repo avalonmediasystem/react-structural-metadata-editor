@@ -451,14 +451,12 @@ export default class WaveformDataUtils {
     let endSeconds = this.timeToS(endTime);
     let changeSegment = peaksInstance.segments.getSegment(segment.id);
 
-    // Update segment only when the entered times are valid
-    if (beginSeconds < segment.endTime && segment.startTime !== beginSeconds) {
-      changeSegment.update({ startTime: beginSeconds });
-      return peaksInstance;
-    }
-    if (endSeconds > segment.startTime && segment.endTime !== endSeconds) {
-      changeSegment.update({ endTime: endSeconds });
-      return peaksInstance;
+    const isChanged = segment.startTime !== beginSeconds || segment.endTime !== endSeconds;
+
+    /* Update both boundaries together, so that a range that is being updated entirely
+    outside of the current range is validated in one stage. */
+    if (beginSeconds < endSeconds && isChanged) {
+      changeSegment.update({ startTime: beginSeconds, endTime: endSeconds });
     }
     return peaksInstance;
   }

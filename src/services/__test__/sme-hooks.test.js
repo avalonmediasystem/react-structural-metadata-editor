@@ -273,6 +273,50 @@ describe('sme-hooks', () => {
           expect(resultRef.current.parentTimespanRef.current).toBeNull();
         });
 
+        test('ignores a stale parentId when the temp-segment is moved out of its parent', () => {
+          const CustomComponent = renderHook({
+            segment: {
+              _startTime: 480.001, _endTime: 540.241,
+              _id: 'temp-segment', labelText: 'Moved Segment',
+              parentId: '123a-456b-789c-6d'
+            }
+          });
+          renderWithRedux(<CustomComponent />, { initialState });
+          expect(resultRef.current.parentTimespanRef.current).toBeNull();
+          expect(resultRef.current.prevSiblingRef.current.label).toEqual('Segment 1.2');
+          expect(resultRef.current.nextSiblingRef.current.label).toEqual('Segment 2.1');
+        });
+
+        test('derives parent when temp-segment is moved into a different timespan', () => {
+          const CustomComponent = renderHook({
+            segment: {
+              _startTime: 100, _endTime: 200,
+              _id: 'temp-segment', labelText: 'Moved Segment',
+              parentId: null
+            }
+          });
+          renderWithRedux(<CustomComponent />, { initialState });
+          expect(resultRef.current.parentTimespanRef.current).not.toBeNull();
+          expect(resultRef.current.parentTimespanRef.current.label).toEqual('Segment 1.2');
+        });
+
+        test('does not re-compute neighbors while the temp-segment waveform handles are being dragged', () => {
+          const CustomComponent = renderHook({
+            segment: {
+              _startTime: 100, _endTime: 200,
+              _id: 'temp-segment', labelText: 'Moved Segment',
+              parentId: null
+            }
+          });
+          renderWithRedux(<CustomComponent />, {
+            initialState: {
+              ...initialState, peaksInstance: { ...initialState.peaksInstance, isDragging: true }
+            }
+          });
+          expect(resultRef.current.parentTimespanRef.current).toBeNull();
+          expect(resultRef.current.prevSiblingRef.current).toBeNull();
+          expect(resultRef.current.nextSiblingRef.current).toBeNull();
+        });
       });
     });
   });

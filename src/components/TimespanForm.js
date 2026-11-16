@@ -66,16 +66,41 @@ const TimespanForm = ({
 
     // Update state with valid headings
     setValidHeadings(validHeadings);
+
+    // Clear any selected parent that is no longer valid for the updated times
+    setTimespanChildOf((prev) => validHeadings.some((h) => h.id === prev) ? prev : '');
   };
 
-  const isValidTimespan = useMemo(() => {
+  /**
+   * Check whether a given time range overlaps with an existing timespan without being
+   * fully contained in it. Such a range cannot be placed in the structure.
+   * @param {String} begin begin time in hh:mm:ss.ms format
+   * @param {String} end end time in hh:mm:ss.ms format
+   * @returns {Boolean}
+   */
+  const overlapsExistingTimespan = (begin, end) => {
+    const { overlaps } = structuralMetadataUtils.getTempSpanPlacement(
+      smData,
+      structuralMetadataUtils.toMs(begin) / 1000,
+      structuralMetadataUtils.toMs(end) / 1000,
+    );
+    return overlaps;
+  };
+
+  const isOverlapping = useMemo(() => {
+    if (!validTimespans(beginTime, endTime, duration).valid) {
+      return false;
+    }
+    return overlapsExistingTimespan(beginTime, endTime);
+  }, [beginTime, endTime, duration, smData]);
+
+  useEffect(() => {
     const { valid } = validTimespans(beginTime, endTime, duration);
     if (valid) {
       buildHeadingsOptions();
     } else {
       setValidHeadings([]);
     }
-    return valid;
   }, [beginTime, endTime, duration]);
 
   useEffect(() => {
@@ -148,7 +173,9 @@ const TimespanForm = ({
     // Set isTyping flag in props to true
     setIsTyping(1);
 
-    if (isValidTimespan) {
+    // Validate the new values, as state updates for them are not yet applied
+    const { valid } = validTimespans(start, end, duration);
+    if (valid && !overlapsExistingTimespan(start, end)) {
       updateSegment(segment, { beginTime: start, endTime: end });
     }
   };
@@ -221,8 +248,8 @@ const TimespanForm = ({
             <Form.Control
               type='text'
               value={endTime}
-              isValid={isEndValid}
-              isInvalid={!isEndValid}
+              isValid={isEndValid && !isOverlapping}
+              isInvalid={!isEndValid || isOverlapping}
               placeholder='00:00:00'
               onChange={handleEndTimeChange}
               data-testid='timespan-form-endtime'
@@ -262,7 +289,7 @@ const TimespanForm = ({
             <Button
               variant='primary'
               type='submit'
-              disabled={!(formIsValid && timespanChildOf.length > 0)}
+              disabled={!(formIsValid && !isOverlapping && timespanChildOf.length > 0)}
               data-testid='timespan-form-save-button'
             >
               Save

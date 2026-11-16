@@ -503,6 +503,22 @@ describe('WaveformDataUtils class', () => {
             ])
           );
         });
+
+        test('updates the segment when the new range is after the current range', () => {
+          const currentState = { beginTime: '00:10:00.000', endTime: '00:11:00.000' };
+          const value = waveformUtils.updateSegment(segment, currentState, peaks);
+          expect(value.segments.getSegment('123a-456b-789c-4d')).toEqual(
+            expect.objectContaining({ startTime: 600, endTime: 660 })
+          );
+        });
+
+        test('does not update the segment when begin time > end time', () => {
+          const currentState = { beginTime: '00:09:00.000', endTime: '00:08:00.001' };
+          const value = waveformUtils.updateSegment(segment, currentState, peaks);
+          expect(value.segments.getSegment('123a-456b-789c-4d')).toEqual(
+            expect.objectContaining({ startTime: 11.231, endTime: 480.001 })
+          );
+        });
       });
     });
 

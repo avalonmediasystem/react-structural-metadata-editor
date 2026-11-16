@@ -947,4 +947,38 @@ export default class StructuralMetadataUtils {
     return { possibleParent, possiblePrevSibling, possibleNextSibling };
   };
 
+  /**
+   * Find where a given temporary timespan fits in the existing structure. When times
+   * are are updated  manually in the timespan form when creating a new timespan,
+   * re-calculate the closest parent timespan with respect to the updated times instead
+   * of sticking with the old parent which the temporary timespan was initially created
+   * with.
+   * @param {Array} smData structure data
+   * @param {Number} start begin time in seconds
+   * @param {Number} end end time in seconds
+   * @returns {Object}
+   */
+  getTempSpanPlacement(smData, start, end) {
+    const allSpans = this.getItemsOfType(['span'], smData);
+    let parentId = null;
+    let parentRange = Infinity;
+    let overlaps = false;
+
+    for (const span of allSpans) {
+      if (!span.timeRange) continue;
+      const { start: spanStart, end: spanEnd } = span.timeRange;
+      const contains = spanStart <= start && end <= spanEnd;
+      if (contains) {
+        // Derive the innermost (shortest range) span as the parent timespan
+        if (spanEnd - spanStart < parentRange) {
+          parentRange = spanEnd - spanStart;
+          parentId = span.id;
+        }
+      } else if (start < spanEnd && end > spanStart) {
+        overlaps = true;
+      }
+    }
+    return { parentId, overlaps };
+  }
 }
+

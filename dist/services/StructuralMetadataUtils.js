@@ -1084,5 +1084,54 @@ var StructuralMetadataUtils = exports["default"] = /*#__PURE__*/function () {
         possibleNextSibling: possibleNextSibling
       };
     }
+  }, {
+    key: "getTempSpanPlacement",
+    value:
+    /**
+     * Find where a given temporary timespan fits in the existing structure. When times
+     * are are updated  manually in the timespan form when creating a new timespan,
+     * re-calculate the closest parent timespan with respect to the updated times instead
+     * of sticking with the old parent which the temporary timespan was initially created
+     * with.
+     * @param {Array} smData structure data
+     * @param {Number} start begin time in seconds
+     * @param {Number} end end time in seconds
+     * @returns {Object}
+     */
+    function getTempSpanPlacement(smData, start, end) {
+      var allSpans = this.getItemsOfType(['span'], smData);
+      var parentId = null;
+      var parentRange = Infinity;
+      var overlaps = false;
+      var _iterator7 = _createForOfIteratorHelper(allSpans),
+        _step7;
+      try {
+        for (_iterator7.s(); !(_step7 = _iterator7.n()).done;) {
+          var span = _step7.value;
+          if (!span.timeRange) continue;
+          var _span$timeRange = span.timeRange,
+            spanStart = _span$timeRange.start,
+            spanEnd = _span$timeRange.end;
+          var contains = spanStart <= start && end <= spanEnd;
+          if (contains) {
+            // Derive the innermost (shortest range) span as the parent timespan
+            if (spanEnd - spanStart < parentRange) {
+              parentRange = spanEnd - spanStart;
+              parentId = span.id;
+            }
+          } else if (start < spanEnd && end > spanStart) {
+            overlaps = true;
+          }
+        }
+      } catch (err) {
+        _iterator7.e(err);
+      } finally {
+        _iterator7.f();
+      }
+      return {
+        parentId: parentId,
+        overlaps: overlaps
+      };
+    }
   }]);
 }();

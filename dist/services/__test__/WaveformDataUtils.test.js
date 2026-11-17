@@ -7,7 +7,7 @@ const waveformUtils = new WaveformDataUtils();
 describe('WaveformDataUtils class', () => {
   describe('initSegments()', () => {
     test('with non-empty structure', () => {
-      const expected = [
+      const segments = [
         {
           startTime: 3.321,
           endTime: 10.321,
@@ -34,7 +34,7 @@ describe('WaveformDataUtils class', () => {
       const value = waveformUtils.initSegments(testSmData, 1738.945);
       expect(value).toBeDefined();
       expect(value).toHaveLength(3);
-      expect(value).toEqual(expected);
+      expect(value).toEqual(segments);
     });
 
     test('with empty structure', () => {
@@ -203,6 +203,65 @@ describe('WaveformDataUtils class', () => {
               }),
             ])
           );
+        });
+      });
+
+      describe('seekToNextEmptySpace()', () => {
+        describe('when current time is', () => {
+          test('in an empty space, does not move the playhead', () => {
+            peaks.player.seek(540.34);
+            const value = waveformUtils.seekToNextEmptySpace(peaks, 1738.945);
+            expect(value.player.getCurrentTime()).toEqual(540.34);
+          });
+
+          test('at the start of an existing segment, moves the playhead to its end time', () => {
+            peaks.player.seek(11.231);
+            const value = waveformUtils.seekToNextEmptySpace(peaks, 1738.945);
+            expect(value.player.getCurrentTime()).toEqual(480.001);
+          });
+
+          test('inside an existing segment, moves the playhead to its end time', () => {
+            peaks.player.seek(450.43);
+            const value = waveformUtils.seekToNextEmptySpace(peaks, 1738.945);
+            expect(value.player.getCurrentTime()).toEqual(480.001);
+          });
+
+          test('at the end of an existing segment, moves the playhead to its end time', () => {
+            peaks.player.seek(480);
+            const value = waveformUtils.seekToNextEmptySpace(peaks, 1738.945);
+            expect(value.player.getCurrentTime()).toEqual(480.001);
+          });
+        });
+
+        test('when the next segment starts within 0.1s, skips the next segment', () => {
+          // Seek to 0.1s within the start time of first segment (3.321 -> 10.321)
+          peaks.player.seek(3.222);
+          const value = waveformUtils.seekToNextEmptySpace(peaks, 1738.945);
+          expect(value.player.getCurrentTime()).toEqual(10.321);
+        });
+
+        test('when there is not empty space after the current time, wraps around to the start', () => {
+          // Add a segment to fill the space until the end of the file
+          peaks.segments.add({
+            startTime: 900.001, endTime: 1738.945, id: '123a-456b-789c-9d', color: '#2A5459',
+            labelText: 'Test segment'
+          });
+          peaks.player.seek(544.54);
+          const value = waveformUtils.seekToNextEmptySpace(peaks, 1738.945);
+          expect(value.player.getCurrentTime()).toEqual(0);
+        });
+
+        test('when there is no empty space in the file, playhead is not moved', () => {
+          // Add a segments to fill the empty space in the file
+          peaks.segments.add([
+            { startTime: 0, endTime: 3.321, id: '123a-456b-789c-ad', labelText: 'Test segment 1' },
+            { startTime: 10.321, endTime: 11.231, id: '123a-456b-789c-bd', labelText: 'Test segment 2' },
+            { startTime: 480.001, endTime: 543.241, id: '123a-456b-789c-cd', labelText: 'Test segment 3' },
+            { startTime: 900.001, endTime: 1738.945, id: '123a-456b-789c-9d', labelText: 'Test segment 4' }
+          ]);
+          peaks.player.seek(544.54);
+          const value = waveformUtils.seekToNextEmptySpace(peaks, 1738.945);
+          expect(value.player.getCurrentTime()).toEqual(544.54);
         });
       });
 
@@ -503,6 +562,22 @@ describe('WaveformDataUtils class', () => {
             ])
           );
         });
+
+        test('updates the segment when the new range is after the current range', () => {
+          const currentState = { beginTime: '00:10:00.000', endTime: '00:11:00.000' };
+          const value = waveformUtils.updateSegment(segment, currentState, peaks);
+          expect(value.segments.getSegment('123a-456b-789c-4d')).toEqual(
+            expect.objectContaining({ startTime: 600, endTime: 660 })
+          );
+        });
+
+        test('does not update the segment when begin time > end time', () => {
+          const currentState = { beginTime: '00:09:00.000', endTime: '00:08:00.001' };
+          const value = waveformUtils.updateSegment(segment, currentState, peaks);
+          expect(value.segments.getSegment('123a-456b-789c-4d')).toEqual(
+            expect.objectContaining({ startTime: 11.231, endTime: 480.001 })
+          );
+        });
       });
     });
 
@@ -673,6 +748,60 @@ describe('WaveformDataUtils class', () => {
             );
             expect(value.player.getCurrentTime()).toEqual(850.001);
           });
+        });
+      });
+
+      describe('seekToNextEmptySpace()', () => {
+        describe('when current time is', () => {
+          test('in an empty space, does not move the playhead', () => {
+            peaks.player.seek(500.34);
+            const value = waveformUtils.seekToNextEmptySpace(peaks, 1738.945);
+            expect(value.player.getCurrentTime()).toEqual(500.34);
+          });
+
+          test('at the start of an existing segment, moves the playhead to its end time', () => {
+            peaks.player.seek(60.231);
+            const value = waveformUtils.seekToNextEmptySpace(peaks, 1738.945);
+            expect(value.player.getCurrentTime()).toEqual(480.001);
+          });
+
+          test('inside an existing segment with children, moves the playhead to its end time', () => {
+            // Seek to the gap in-between children of 'Segment 2.1'
+            peaks.player.seek(665.43);
+            const value = waveformUtils.seekToNextEmptySpace(peaks, 1738.945);
+            expect(value.player.getCurrentTime()).toEqual(900.001);
+          });
+
+          test('inside an existing nested segment, moves the playhead to its root parent\'s end time', () => {
+            // Seek inside the nested segment 'Segment 2.1.1' 
+            peaks.player.seek(555.241);
+            const value = waveformUtils.seekToNextEmptySpace(peaks, 1738.945);
+            expect(value.player.getCurrentTime()).toEqual(900.001);
+          });
+
+          test('at the end of an existing segment, moves the playhead to its end time', () => {
+            peaks.player.seek(480);
+            const value = waveformUtils.seekToNextEmptySpace(peaks, 1738.945);
+            expect(value.player.getCurrentTime()).toEqual(480.001);
+          });
+        });
+
+        test('when the next segment starts within 0.1s, skips the next segment', () => {
+          // Seek to 0.1s within the start time of first segment (3.321 -> 10.321)
+          peaks.player.seek(3.222);
+          const value = waveformUtils.seekToNextEmptySpace(peaks, 1738.945);
+          expect(value.player.getCurrentTime()).toEqual(10.321);
+        });
+
+        test('when there is not empty space after the current time, wraps around to the start', () => {
+          // Add a segment to fill the space until the end of the file
+          peaks.segments.add({
+            startTime: 900.001, endTime: 1738.945, id: '123a-456b-789c-9d', color: '#2A5459',
+            labelText: 'Test segment'
+          });
+          peaks.player.seek(544.54);
+          const value = waveformUtils.seekToNextEmptySpace(peaks, 1738.945);
+          expect(value.player.getCurrentTime()).toEqual(0);
         });
       });
     });

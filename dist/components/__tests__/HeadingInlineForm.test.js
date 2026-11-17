@@ -126,7 +126,7 @@ describe('HeadingInlineForm component', () => {
 
     test('by saving the correct values', () => {
       fireEvent.click(utils.getByTestId('inline-form-save-button'));
-      expect(saveFnMock).toBeCalledWith('123a-456b-789c-9d', {
+      expect(saveFnMock).toHaveBeenCalledWith('123a-456b-789c-9d', {
         headingTitle: 'New Heading',
       });
       expect(saveFnMock).toHaveBeenCalledTimes(1);

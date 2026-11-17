@@ -44,6 +44,7 @@ var useFindNeighborSegments = exports.useFindNeighborSegments = function useFind
       return state.peaksInstance;
     }),
     duration = _useSelector.duration,
+    isDragging = _useSelector.isDragging,
     readyPeaks = _useSelector.readyPeaks;
   var _useSelector2 = (0, _reactRedux.useSelector)(function (state) {
       return state.structuralMetadata;
@@ -57,15 +58,21 @@ var useFindNeighborSegments = exports.useFindNeighborSegments = function useFind
   var allSpans = (0, _react.useMemo)(function () {
     return structuralMetadataUtils.getItemsOfType(['span'], smData);
   }, [smData]);
-  (0, _react.useEffect)(function () {
+  var isTempSegment = (segment === null || segment === void 0 ? void 0 : segment._id) === 'temp-segment';
+  (0, _react.useMemo)(function () {
     if (readyPeaks && !(0, _lodash.isEmpty)(segment)) {
+      // Keep the neighbors of a temp segment fixed while its handles are being adjusted
+      if (isTempSegment && isDragging) return;
       var item;
-      if (segment._id === 'temp-segment') {
+      if (isTempSegment) {
         // Construct a span object from segment when handling timespan creation
         var _id = segment._id,
           _startTime = segment._startTime,
-          _endTime = segment._endTime,
-          parentId = segment.parentId;
+          _endTime = segment._endTime;
+        // Derive parent from the updated range in the form, as these updates can move the temp 
+        // segment outside its current parent range
+        var _structuralMetadataUt = structuralMetadataUtils.getTempSpanPlacement(smData, _startTime, _endTime),
+          parentId = _structuralMetadataUt.parentId;
         item = {
           type: 'span',
           label: '',
@@ -85,15 +92,15 @@ var useFindNeighborSegments = exports.useFindNeighborSegments = function useFind
           return span.id === segment._id;
         })[0];
       }
-      var _structuralMetadataUt = structuralMetadataUtils.calculateAdjacentTimespans(smData, item),
-        possibleParent = _structuralMetadataUt.possibleParent,
-        possiblePrevSibling = _structuralMetadataUt.possiblePrevSibling,
-        possibleNextSibling = _structuralMetadataUt.possibleNextSibling;
+      var _structuralMetadataUt2 = structuralMetadataUtils.calculateAdjacentTimespans(smData, item),
+        possibleParent = _structuralMetadataUt2.possibleParent,
+        possiblePrevSibling = _structuralMetadataUt2.possiblePrevSibling,
+        possibleNextSibling = _structuralMetadataUt2.possibleNextSibling;
       parentTimespanRef.current = possibleParent;
       prevSiblingRef.current = possiblePrevSibling;
       nextSiblingRef.current = possibleNextSibling;
     }
-  }, [segment, readyPeaks]);
+  }, [segment, segment === null || segment === void 0 ? void 0 : segment._startTime, segment === null || segment === void 0 ? void 0 : segment._endTime, isDragging, readyPeaks, smData]);
   return {
     prevSiblingRef: prevSiblingRef,
     nextSiblingRef: nextSiblingRef,
@@ -123,10 +130,10 @@ var useFindNeighborTimespans = exports.useFindNeighborTimespans = function useFi
   var prevSiblingRef = (0, _react.useRef)(null);
   var nextSiblingRef = (0, _react.useRef)(null);
   (0, _react.useEffect)(function () {
-    var _structuralMetadataUt2 = structuralMetadataUtils.calculateAdjacentTimespans(smData, item),
-      possibleParent = _structuralMetadataUt2.possibleParent,
-      possiblePrevSibling = _structuralMetadataUt2.possiblePrevSibling,
-      possibleNextSibling = _structuralMetadataUt2.possibleNextSibling;
+    var _structuralMetadataUt3 = structuralMetadataUtils.calculateAdjacentTimespans(smData, item),
+      possibleParent = _structuralMetadataUt3.possibleParent,
+      possiblePrevSibling = _structuralMetadataUt3.possiblePrevSibling,
+      possibleNextSibling = _structuralMetadataUt3.possibleNextSibling;
     parentTimespanRef.current = possibleParent;
     prevSiblingRef.current = possiblePrevSibling;
     nextSiblingRef.current = possibleNextSibling;
@@ -246,9 +253,9 @@ var useStructureUpdate = exports.useStructureUpdate = function useStructureUpdat
     duration = _useSelector6.duration;
   var updateStructure = function updateStructure() {
     var items = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : smData;
-    var _structuralMetadataUt3 = structuralMetadataUtils.buildSMUI(items, duration),
-      newSmData = _structuralMetadataUt3.newSmData,
-      newSmDataStatus = _structuralMetadataUt3.newSmDataStatus;
+    var _structuralMetadataUt4 = structuralMetadataUtils.buildSMUI(items, duration),
+      newSmData = _structuralMetadataUt4.newSmData,
+      newSmDataStatus = _structuralMetadataUt4.newSmDataStatus;
     dispatch((0, _smData.updateSMUI)(newSmData, newSmDataStatus));
     // Remove invalid structure alert when data is corrected
     if (newSmDataStatus) {

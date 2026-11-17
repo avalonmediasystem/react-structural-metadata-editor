@@ -91,7 +91,9 @@ var peaksInstance = function peaksInstance() {
         isDragging: action.flag === 1 ? true : false
       });
     case types.TEMP_INSERT_SEGMENT:
-      newPeaks = waveformUtils.insertTempSegment(_objectSpread({}, state.peaks), state.duration);
+      // Move the playhead to the next available empty space before creating temp segment
+      newPeaks = waveformUtils.seekToNextEmptySpace(state.peaks, state.duration);
+      newPeaks = waveformUtils.insertTempSegment(newPeaks, state.duration);
       return _objectSpread(_objectSpread({}, state), {}, {
         peaks: _objectSpread({}, newPeaks)
       });

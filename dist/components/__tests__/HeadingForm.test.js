@@ -111,7 +111,7 @@ describe('HeadingForm component', () => {
         headingTitle: 'A title here',
       };
 
-      expect(onSubmitMock).toBeCalledWith(expectedPayload);
+      expect(onSubmitMock).toHaveBeenCalledWith(expectedPayload);
       expect(onSubmitMock).toHaveBeenCalledTimes(1);
     });
 

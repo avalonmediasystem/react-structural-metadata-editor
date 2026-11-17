@@ -1090,4 +1090,54 @@ describe('StructuralMetadataUtils class', () => {
       });
     });
   });
+
+  describe('getTempSpanPlacement()', () => {
+    test('returns no parent and no overlap for a range in an empty space', () => {
+      const { parentId, overlaps } = smu.getTempSpanPlacement(nestedTestSmData, 480.001, 540.241);
+      expect(parentId).toBeNull();
+      expect(overlaps).toBeFalsy();
+    });
+
+    test('returns containing parent id for a nested timespan', () => {
+      const { parentId, overlaps } = smu.getTempSpanPlacement(nestedTestSmData, 100, 200);
+      expect(parentId).toEqual('123a-456b-789c-3d');
+      expect(overlaps).toBeFalsy();
+    });
+
+    test('returns innermost parent id for a deeply nested timespan', () => {
+      const { parentId, overlaps } = smu.getTempSpanPlacement(nestedTestSmData, 555, 660);
+      expect(parentId).toEqual('123a-456b-789c-7d');
+      expect(overlaps).toBeFalsy();
+    });
+
+    test('returns outer span id as parent for nested timespan in between its children', () => {
+      const { parentId, overlaps } = smu.getTempSpanPlacement(nestedTestSmData, 665, 700);
+      expect(parentId).toEqual('123a-456b-789c-6d');
+      expect(overlaps).toBeFalsy();
+    });
+
+    test('flags a timespan partially overlapping an existing span at the begin', () => {
+      const { parentId, overlaps } = smu.getTempSpanPlacement(nestedTestSmData, 400, 500);
+      expect(parentId).toBeNull();
+      expect(overlaps).toBeTruthy();
+    });
+
+    test('flags a timespan partially overlapping an existing span at the end', () => {
+      const { parentId, overlaps } = smu.getTempSpanPlacement(nestedTestSmData, 480.001, 545);
+      expect(parentId).toBeNull();
+      expect(overlaps).toBeTruthy();
+    });
+
+    test('flags a timespan entirely wrapping an existing span', () => {
+      const { parentId, overlaps } = smu.getTempSpanPlacement(nestedTestSmData, 1.023, 20);
+      expect(parentId).toBeNull();
+      expect(overlaps).toBeTruthy();
+    });
+
+    test('flags a nested timespan overlapping its sibling inside the parent timespan', () => {
+      const { parentId, overlaps } = smu.getTempSpanPlacement(nestedTestSmData, 540.241, 600);
+      expect(parentId).toEqual('123a-456b-789c-6d');
+      expect(overlaps).toBeTruthy();
+    });
+  });
 });

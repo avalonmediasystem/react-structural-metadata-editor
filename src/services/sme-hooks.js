@@ -23,7 +23,7 @@ const structuralMetadataUtils = new StructuralMetadataUtils();
  * } React refs for siblings and parent timespans
  */
 export const useFindNeighborSegments = ({ segment }) => {
-  const { duration, readyPeaks } = useSelector((state) => state.peaksInstance);
+  const { duration, isDragging, readyPeaks } = useSelector((state) => state.peaksInstance);
   const { smData } = useSelector((state) => state.structuralMetadata);
 
   // React refs to hold parent timespan, previous and next siblings
@@ -35,12 +35,20 @@ export const useFindNeighborSegments = ({ segment }) => {
     return structuralMetadataUtils.getItemsOfType(['span'], smData);
   }, [smData]);
 
-  useEffect(() => {
+  const isTempSegment = segment?._id === 'temp-segment';
+
+  useMemo(() => {
     if (readyPeaks && !isEmpty(segment)) {
+      // Keep the neighbors of a temp segment fixed while its handles are being adjusted
+      if (isTempSegment && isDragging) return;
       let item;
-      if (segment._id === 'temp-segment') {
+      if (isTempSegment) {
         // Construct a span object from segment when handling timespan creation
-        const { _id, _startTime, _endTime, parentId } = segment;
+        const { _id, _startTime, _endTime } = segment;
+        // Derive parent from the updated range in the form, as these updates can move the temp 
+        // segment outside its current parent range
+        const { parentId } = structuralMetadataUtils
+          .getTempSpanPlacement(smData, _startTime, _endTime);
         item = {
           type: 'span', label: '', id: _id,
           begin: structuralMetadataUtils.toHHmmss(_startTime),
@@ -60,7 +68,7 @@ export const useFindNeighborSegments = ({ segment }) => {
       prevSiblingRef.current = possiblePrevSibling;
       nextSiblingRef.current = possibleNextSibling;
     }
-  }, [segment, readyPeaks]);
+  }, [segment, segment?._startTime, segment?._endTime, isDragging, readyPeaks, smData]);
 
   return { prevSiblingRef, nextSiblingRef, parentTimespanRef };
 };

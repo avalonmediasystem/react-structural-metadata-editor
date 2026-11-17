@@ -193,8 +193,9 @@ describe('ButtonSection component', () => {
       });
 
       describe('after saving the first timespan', () => {
-        test('and without moving the playhead to a different time', () => {
-          const { getByTestId } = buttonSection;
+        let getByTestId;
+        beforeEach(() => {
+          getByTestId = buttonSection.getByTestId;
           // Add first timespan
           fireEvent.click(timespanButton);
 
@@ -213,39 +214,11 @@ describe('ButtonSection component', () => {
           // Saving the timespan closes the form
           fireEvent.click(getByTestId('timespan-form-save-button'));
           expect(getByTestId('timespan-form-wrapper')).not.toHaveClass('show');
-
-          // Open the timespan form again to add a second timespan
-          fireEvent.click(timespanButton);
-
-          // Form is filled with time values nested within the newly created timespan
-          expect(getByTestId('timespan-form-begintime').value).toBe('00:00:00.000');
-          expect(getByTestId('timespan-form-endtime').value).toBe('00:00:03.321');
         });
 
-        test('and moving playhead to a different time', () => {
-          const { getByTestId } = buttonSection;
-          // Add first timespan
-          fireEvent.click(timespanButton);
-          // Form is filled with default values
-          expect(getByTestId('timespan-form-begintime').value).toBe('00:00:00.000');
-          expect(getByTestId('timespan-form-endtime').value).toBe('00:00:03.321');
-
-          // Fill the form
-          fireEvent.change(beginTime, { target: { value: '00:00:01.000' } });
-          fireEvent.change(getByTestId('timespan-form-title'), {
-            target: { value: 'Title' },
-          });
-          fireEvent.change(getByTestId('timespan-form-childof'), {
-            target: { value: '123a-456b-789c-1d' },
-          });
-          // Saving the timespan closes the form
-          fireEvent.click(getByTestId('timespan-form-save-button'));
-          expect(getByTestId('timespan-form-wrapper')).not.toHaveClass('show');
-
-          // Move playhead to 00:00:11.231 time marker
-          initialState.peaksInstance.peaks.player.seek(11.231);
-
-          // Update mocked neighbor calculation from hooks
+        test('and without moving the playhead to a different time', () => {
+          /* Update mocked neighbor calculation from hooks where, new temp segment is placed
+          in the next empty space between 'Segment 1.1' and 'Segment 1.2' */
           jest.spyOn(hooks, 'useFindNeighborSegments').mockImplementation(() => ({
             prevSiblingRef: {
               current: {
@@ -256,38 +229,86 @@ describe('ButtonSection component', () => {
             },
             nextSiblingRef: {
               current: {
-                type: 'span', label: 'Segment 2.1', id: '123a-456b-789c-8d',
-                begin: '00:09:03.241', end: '00:15:00.001', valid: true,
-                timeRange: { start: 543.241, end: 900.001 }
+                type: 'span', label: 'Segment 1.2', id: '123a-456b-789c-4d',
+                begin: '00:00:11.231', end: '00:08:00.001', valid: true,
+                timeRange: { start: 11.231, end: 480.001 }
               }
-            }, parentTimespanRef: {
+            }, parentTimespanRef: { current: null }
+          }));
+
+          // Open the timespan form again to add a second timespan
+          fireEvent.click(timespanButton);
+
+          // Playhead is moved to the next empty space after the newly created and adjacent existing segments
+          expect(getByTestId('timespan-form-begintime').value).toBe('00:00:10.321');
+          expect(getByTestId('timespan-form-endtime').value).toBe('00:00:11.231');
+        });
+
+        test('and moving playhead to a different time inside another segment', () => {
+          // Move playhead to 00:00:11.231 time marker
+          initialState.peaksInstance.peaks.player.seek(11.231);
+
+          /* Update mocked neighbor calculation from hooks where, new temp segment is placed
+          in the next empty space after 'Segment 1.2' */
+          jest.spyOn(hooks, 'useFindNeighborSegments').mockImplementation(() => ({
+            prevSiblingRef: {
               current: {
                 type: 'span', label: 'Segment 1.2', id: '123a-456b-789c-4d',
                 begin: '00:00:11.231', end: '00:08:00.001', valid: true,
                 timeRange: { start: 11.231, end: 480.001 },
-                items: [
-                  { type: 'div', label: 'Sub-Segment 2.1.1', id: '123a-456b-789c-7d' },
-                  {
-                    type: 'span', label: 'Segment 2.1', id: '123a-456b-789c-8d',
-                    begin: '00:09:03.241', end: '00:15:00.001',
-                    valid: true, timeRange: { start: 543.241, end: 900.001 }
-                  }
-                ]
               },
-            }
+            },
+            nextSiblingRef: {
+              current: {
+                type: 'span', label: 'Segment 2.1', id: '123a-456b-789c-8d',
+                begin: '00:09:03.241', end: '00:15:00.001', valid: true,
+                timeRange: { start: 543.241, end: 900.001 }
+              }
+            }, parentTimespanRef: { current: null }
           }));
           // Open the timespan form again to add a second timespan
           fireEvent.click(timespanButton);
 
-          // Form is filled with time values nested within the current timespan
-          // ranging from 00:00:11.231 -> 00:01:11.231
-          expect(getByTestId('timespan-form-begintime').value).toBe('00:00:11.231');
-          expect(getByTestId('timespan-form-endtime').value).toBe('00:01:11.231');
+          /* Playhead is moved out of 'Segment 1.2', so form is filled with time values in
+          the next empty space starting from 00:08:00.001 */
+          expect(getByTestId('timespan-form-begintime').value).toBe('00:08:00.001');
+          expect(getByTestId('timespan-form-endtime').value).toBe('00:09:00.001');
+        });
+
+        test('and moving playhead to a time outside any existing timespan (empty space)', () => {
+          // Move playhead to 00:08:20.231 time marker
+          initialState.peaksInstance.peaks.player.seek(500.231);
+
+          /* Update mocked neighbor calculation from hooks where, new temp segment is placed
+          in the next empty space after 'Segment 1.2' */
+          jest.spyOn(hooks, 'useFindNeighborSegments').mockImplementation(() => ({
+            prevSiblingRef: {
+              current: {
+                type: 'span', label: 'Segment 1.2', id: '123a-456b-789c-4d',
+                begin: '00:00:11.231', end: '00:08:00.001', valid: true,
+                timeRange: { start: 11.231, end: 480.001 },
+              },
+            },
+            nextSiblingRef: {
+              current: {
+                type: 'span', label: 'Segment 2.1', id: '123a-456b-789c-8d',
+                begin: '00:09:03.241', end: '00:15:00.001', valid: true,
+                timeRange: { start: 543.241, end: 900.001 }
+              }
+            }, parentTimespanRef: { current: null }
+          }));
+          // Open the timespan form again to add a second timespan
+          fireEvent.click(timespanButton);
+
+          /* Playhead is not moved, and filled with a time values starting from the seeked
+          time until it reaches the next sibling */
+          expect(getByTestId('timespan-form-begintime').value).toBe('00:08:20.231');
+          expect(getByTestId('timespan-form-endtime').value).toBe('00:09:03.241');
         });
       });
 
       describe('without saving first timespan', () => {
-        test('and moving playhead to a times inside an existing timespan', () => {
+        test('and moving playhead to a time inside an existing timespan', () => {
           const { getByTestId } = buttonSection;
           expect(getByTestId('timespan-form-wrapper')).not.toHaveClass('show');
 
@@ -305,13 +326,14 @@ describe('ButtonSection component', () => {
           // Move playhead to 00:07:00.00 time marker
           initialState.peaksInstance.peaks.player.seek(420.0);
 
-          // Update mocked neighbor calculation from hooks
+          /* Update mocked neighbor calculation from hooks where, new temp segment is placed
+          in the next empty space after 'Segment 1.2' */
           jest.spyOn(hooks, 'useFindNeighborSegments').mockImplementation(() => ({
             prevSiblingRef: {
               current: {
-                type: 'span', label: 'Segment 1.1', id: '123a-456b-789c-3d',
-                begin: '00:00:03.321', end: '00:00:10.321', valid: true,
-                timeRange: { start: 3.321, end: 10.321 }
+                type: 'span', label: 'Segment 1.2', id: '123a-456b-789c-4d',
+                begin: '00:00:11.231', end: '00:08:00.001', valid: true,
+                timeRange: { start: 11.231, end: 480.001 },
               },
             },
             nextSiblingRef: {
@@ -320,29 +342,15 @@ describe('ButtonSection component', () => {
                 begin: '00:09:03.241', end: '00:15:00.001', valid: true,
                 timeRange: { start: 543.241, end: 900.001 }
               }
-            }, parentTimespanRef: {
-              current: {
-                type: 'span', label: 'Segment 1.2', id: '123a-456b-789c-4d',
-                begin: '00:00:11.231', end: '00:08:00.001', valid: true,
-                timeRange: { start: 11.231, end: 480.001 },
-                items: [
-                  { type: 'div', label: 'Sub-Segment 2.1.1', id: '123a-456b-789c-7d' },
-                  {
-                    type: 'span', label: 'Segment 2.1', id: '123a-456b-789c-8d',
-                    begin: '00:09:03.241', end: '00:15:00.001',
-                    valid: true, timeRange: { start: 543.241, end: 900.001 }
-                  }
-                ]
-              },
-            }
+            }, parentTimespanRef: { current: null }
           }));
 
           // Open the timespan form again to add a timspan
           fireEvent.click(timespanButton);
-          // Form is filled with time values that are nested within the current timespan
-          // ranging from 00:07:00.000 -> 00:08.00.000 (60 seconds)
-          expect(getByTestId('timespan-form-begintime').value).toBe('00:07:00.000');
-          expect(getByTestId('timespan-form-endtime').value).toBe('00:08:00.000');
+          /* Playhead is moved out of 'Segment 1.2', so form is filled with time values in
+          the next empty space starting from 00:08:00.001 */
+          expect(getByTestId('timespan-form-begintime').value).toBe('00:08:00.001');
+          expect(getByTestId('timespan-form-endtime').value).toBe('00:09:00.001');
         });
 
         test('and moving playhead to a time outside any existing timespan', () => {

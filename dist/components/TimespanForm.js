@@ -120,8 +120,34 @@ var TimespanForm = function TimespanForm(_ref) {
 
     // Update state with valid headings
     setValidHeadings(validHeadings);
+
+    // Clear any selected parent that is no longer valid for the updated times
+    setTimespanChildOf(function (prev) {
+      return validHeadings.some(function (h) {
+        return h.id === prev;
+      }) ? prev : '';
+    });
   };
-  var isValidTimespan = (0, _react.useMemo)(function () {
+
+  /**
+   * Check whether a given time range overlaps with an existing timespan without being
+   * fully contained in it. Such a range cannot be placed in the structure.
+   * @param {String} begin begin time in hh:mm:ss.ms format
+   * @param {String} end end time in hh:mm:ss.ms format
+   * @returns {Boolean}
+   */
+  var overlapsExistingTimespan = function overlapsExistingTimespan(begin, end) {
+    var _structuralMetadataUt = structuralMetadataUtils.getTempSpanPlacement(smData, structuralMetadataUtils.toMs(begin) / 1000, structuralMetadataUtils.toMs(end) / 1000),
+      overlaps = _structuralMetadataUt.overlaps;
+    return overlaps;
+  };
+  var isOverlapping = (0, _react.useMemo)(function () {
+    if (!(0, _formHelper.validTimespans)(beginTime, endTime, duration).valid) {
+      return false;
+    }
+    return overlapsExistingTimespan(beginTime, endTime);
+  }, [beginTime, endTime, duration, smData]);
+  (0, _react.useEffect)(function () {
     var _validTimespans = (0, _formHelper.validTimespans)(beginTime, endTime, duration),
       valid = _validTimespans.valid;
     if (valid) {
@@ -129,7 +155,6 @@ var TimespanForm = function TimespanForm(_ref) {
     } else {
       setValidHeadings([]);
     }
-    return valid;
   }, [beginTime, endTime, duration]);
   (0, _react.useEffect)(function () {
     if (!isTyping) {
@@ -197,7 +222,11 @@ var TimespanForm = function TimespanForm(_ref) {
 
     // Set isTyping flag in props to true
     setIsTyping(1);
-    if (isValidTimespan) {
+
+    // Validate the new values, as state updates for them are not yet applied
+    var _validTimespans2 = (0, _formHelper.validTimespans)(start, end, duration),
+      valid = _validTimespans2.valid;
+    if (valid && !overlapsExistingTimespan(start, end)) {
       updateSegment(segment, {
         beginTime: start,
         endTime: end
@@ -273,8 +302,8 @@ var TimespanForm = function TimespanForm(_ref) {
   }, /*#__PURE__*/_react["default"].createElement(_Form["default"].Label, null, "End Time"), /*#__PURE__*/_react["default"].createElement(_Form["default"].Control, {
     type: "text",
     value: endTime,
-    isValid: isEndValid,
-    isInvalid: !isEndValid,
+    isValid: isEndValid && !isOverlapping,
+    isInvalid: !isEndValid || isOverlapping,
     placeholder: "00:00:00",
     onChange: handleEndTimeChange,
     "data-testid": "timespan-form-endtime"
@@ -302,7 +331,7 @@ var TimespanForm = function TimespanForm(_ref) {
   }, "Cancel"), /*#__PURE__*/_react["default"].createElement(_Button["default"], {
     variant: "primary",
     type: "submit",
-    disabled: !(formIsValid && timespanChildOf.length > 0),
+    disabled: !(formIsValid && !isOverlapping && timespanChildOf.length > 0),
     "data-testid": "timespan-form-save-button"
   }, "Save")))));
 };

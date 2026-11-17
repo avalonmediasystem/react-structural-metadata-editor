@@ -61,7 +61,7 @@ const props = {
   cancelClick: cancelMock,
 };
 
-describe('Timespan component', () => {
+describe('TimespanForm component', () => {
   describe('renders', () => {
     beforeEach(() => {
       // Mock neighbor calculation from hooks
@@ -140,7 +140,7 @@ describe('Timespan component', () => {
 
       describe('begin and end times', () => {
         let timespanForm, saveButton;
-        let beginTimeInput, endTimeInput;
+        let beginTimeInput, endTimeInput, childOfSelect;
         beforeEach(() => {
           // Mock neighbor calculation from hooks
           jest.spyOn(hooks, 'useFindNeighborSegments').mockImplementation(() => ({
@@ -159,7 +159,7 @@ describe('Timespan component', () => {
           saveButton = timespanForm.getByTestId('timespan-form-save-button');
           // Make the other values valid, so that form status depends on the changes to times
           const titleInput = timespanForm.getByLabelText(/title/i);
-          const childOfSelect = timespanForm.getByLabelText(/child of/i);
+          childOfSelect = timespanForm.getByLabelText(/child of/i);
           fireEvent.change(titleInput, { target: { value: 'New timespan' } });
           fireEvent.change(childOfSelect, {
             target: { value: '123a-456b-789c-2d' },
@@ -167,7 +167,6 @@ describe('Timespan component', () => {
 
           beginTimeInput = timespanForm.getByLabelText(/begin time/i);
           endTimeInput = timespanForm.getByLabelText(/end time/i);
-
         });
 
         test('when form opens', () => {
@@ -215,6 +214,8 @@ describe('Timespan component', () => {
           // Change begin and end times to be inside an existing timespan
           fireEvent.change(beginTimeInput, { target: { value: '00:00:03.321' } });
           fireEvent.change(endTimeInput, { target: { value: '00:00:04.321' } });
+          // Select the first valid option in Child Of dropdown after time changes
+          fireEvent.change(childOfSelect, { target: { value: childOfSelect.children[1].value } });
 
           expect(beginTimeInput.className.includes('is-valid')).toBeTruthy();
           expect(endTimeInput.className.includes('is-valid')).toBeTruthy();
@@ -250,6 +251,8 @@ describe('Timespan component', () => {
           // Change begin time to be outside of existing timespans
           fireEvent.change(beginTimeInput, { target: { value: '00:15:00.001' } });
           fireEvent.change(endTimeInput, { target: { value: '00:16:00.001' } });
+          // Select the first valid option in Child Of dropdown after time changes
+          fireEvent.change(childOfSelect, { target: { value: childOfSelect.children[1].value } });
 
           expect(beginTimeInput.className.includes('is-valid')).toBeTruthy();
           expect(endTimeInput.className.includes('is-valid')).toBeTruthy();
@@ -343,7 +346,7 @@ describe('Timespan component', () => {
 
       describe('begin and end times', () => {
         let timespanForm, saveButton;
-        let beginTimeInput, endTimeInput;
+        let beginTimeInput, endTimeInput, childOfSelect;
         beforeEach(() => {
           // Mock neighbor calculation from hooks
           jest.spyOn(hooks, 'useFindNeighborSegments').mockImplementation(() => ({
@@ -365,7 +368,7 @@ describe('Timespan component', () => {
           saveButton = timespanForm.getByTestId('timespan-form-save-button');
           // Make the other values valid, so that form status depends on the changes to times
           const titleInput = timespanForm.getByLabelText(/title/i);
-          const childOfSelect = timespanForm.getByLabelText(/child of/i);
+          childOfSelect = timespanForm.getByLabelText(/child of/i);
           fireEvent.change(titleInput, { target: { value: 'New timespan' } });
           fireEvent.change(childOfSelect, {
             target: { value: '123a-456b-789c-2d' },
@@ -421,6 +424,8 @@ describe('Timespan component', () => {
           // Change begin and end times to be inside an existing timespan
           fireEvent.change(beginTimeInput, { target: { value: '00:00:03.321' } });
           fireEvent.change(endTimeInput, { target: { value: '00:00:04.321' } });
+          // Select the first valid option in Child Of dropdown after time changes
+          fireEvent.change(childOfSelect, { target: { value: childOfSelect.children[1].value } });
 
           expect(beginTimeInput.className.includes('is-valid')).toBeTruthy();
           expect(endTimeInput.className.includes('is-valid')).toBeTruthy();
@@ -452,6 +457,8 @@ describe('Timespan component', () => {
 
           // Change end time to be within the existing timespan
           fireEvent.change(endTimeInput, { target: { value: '00:11:00.231' } });
+          // Select the first valid option in Child Of dropdown after time changes
+          fireEvent.change(childOfSelect, { target: { value: childOfSelect.children[1].value } });
 
           // Both begin and end times are now marked valid
           expect(beginTimeInput.value).toBe('00:10:00.432');
@@ -478,6 +485,8 @@ describe('Timespan component', () => {
           // Change begin time to be outside of existing timespans
           fireEvent.change(beginTimeInput, { target: { value: '00:15:00.001' } });
           fireEvent.change(endTimeInput, { target: { value: '00:16:00.001' } });
+          // Select the first valid option in Child Of dropdown after time changes
+          fireEvent.change(childOfSelect, { target: { value: childOfSelect.children[1].value } });
 
           expect(beginTimeInput.className.includes('is-valid')).toBeTruthy();
           expect(endTimeInput.className.includes('is-valid')).toBeTruthy();
@@ -506,6 +515,108 @@ describe('Timespan component', () => {
           expect(endTimeInput.className.includes('is-invalid')).toBeTruthy();
           expect(saveButton).toBeDisabled();
         });
+      });
+    });
+
+    describe('when a temp-segment is moved out of its parent via updating the form', () => {
+      const gapNeighbors = {
+        prevSiblingRef: {
+          current: {
+            type: 'span', label: 'Segment 1.2', id: '123a-456b-789c-3d', begin: '00:01:00.231',
+            end: '00:08:00.001', valid: true, timeRange: { start: 60.231, end: 480.001 }
+          }
+        },
+        nextSiblingRef: {
+          current: {
+            type: 'span', label: 'Segment 2.1', id: '123a-456b-789c-6d', begin: '00:09:00.241',
+            end: '00:15:00.001', valid: true, timeRange: { start: 540.241, end: 900.001 }
+          }
+        },
+        parentTimespanRef: { current: null }
+      };
+
+      let timespanForm, beginTimeInput, endTimeInput, childOfSelect, saveButton, tempPeaksSegment;
+      const renderForm = () => {
+        timespanForm = renderWithRedux(<TimespanForm {...props} />, { initialState: nestedState });
+        saveButton = timespanForm.getByTestId('timespan-form-save-button');
+        // Make the other values valid, so that form status depends on the changes to times
+        const titleInput = timespanForm.getByLabelText(/title/i);
+        childOfSelect = timespanForm.getByLabelText(/child of/i);
+        fireEvent.change(titleInput, { target: { value: 'New timespan' } });
+
+        beginTimeInput = timespanForm.getByLabelText(/begin time/i);
+        endTimeInput = timespanForm.getByLabelText(/end time/i);
+
+        tempPeaksSegment = peaksInst.segments.getSegment('temp-segment');
+      };
+
+      afterEach(() => {
+        tempPeaksSegment.update({ startTime: 0, endTime: 3.321 });
+      });
+
+      test('validates the new time range and moves both waveform handles', () => {
+        jest.spyOn(hooks, 'useFindNeighborSegments').mockImplementation(() => gapNeighbors);
+        renderForm();
+
+        fireEvent.change(beginTimeInput, { target: { value: '00:08:10.000' } });
+        fireEvent.change(endTimeInput, { target: { value: '00:08:50.000' } });
+
+        expect(beginTimeInput.className.includes('is-valid')).toBeTruthy();
+        expect(endTimeInput.className.includes('is-valid')).toBeTruthy();
+
+        // Waveform handles are moved to the correct valid times
+        expect(tempPeaksSegment.startTime).toEqual(490);
+        expect(tempPeaksSegment.endTime).toEqual(530);
+
+        fireEvent.change(childOfSelect, { target: { value: '123a-456b-789c-4d' } });
+        expect(saveButton).toBeEnabled();
+      });
+
+      test('marks end time invalid for a range partially overlapping an existing timespan', () => {
+        jest.spyOn(hooks, 'useFindNeighborSegments').mockImplementation(() => gapNeighbors);
+        renderForm();
+
+        fireEvent.change(childOfSelect, { target: { value: '123a-456b-789c-4d' } });
+
+        // Overlaps the end of 'Segment 1.2' (ends at 00:08:00.001)
+        fireEvent.change(beginTimeInput, { target: { value: '00:07:00.000' } });
+        fireEvent.change(endTimeInput, { target: { value: '00:08:30.000' } });
+
+        // Form reflects the invalid times
+        expect(endTimeInput.className.includes('is-invalid')).toBeTruthy();
+        expect(saveButton).toBeDisabled();
+
+        // Waveform handles are not moved for the invalid times
+        expect(tempPeaksSegment.startTime).toEqual(0);
+        expect(tempPeaksSegment.endTime).toEqual(3.321);
+      });
+
+      test('clears "Child Of" selection that is no longer valid', () => {
+        // Initially nested inside 'Segment 2.1'
+        jest.spyOn(hooks, 'useFindNeighborSegments').mockImplementation(() => ({
+          prevSiblingRef: { current: null },
+          nextSiblingRef: { current: null },
+          parentTimespanRef: {
+            current: {
+              type: 'span', label: 'Segment 2.1', id: '123a-456b-789c-6d',
+              begin: '00:09:00.241', end: '00:15:00.001', valid: true,
+              timeRange: { start: 540.241, end: 900.001 }, items: []
+            }
+          },
+        }));
+        renderForm();
+
+        // Select a parent
+        fireEvent.change(childOfSelect, { target: { value: '123a-456b-789c-6d' } });
+        expect(childOfSelect.value).toBe('123a-456b-789c-6d');
+
+        // Move the temp segment, where 'Segment 2.1' is not a valid parent
+        jest.spyOn(hooks, 'useFindNeighborSegments').mockImplementation(() => gapNeighbors);
+        fireEvent.change(beginTimeInput, { target: { value: '00:08:10.000' } });
+        fireEvent.change(endTimeInput, { target: { value: '00:08:50.000' } });
+
+        expect(childOfSelect.value).toBe('');
+        expect(saveButton).toBeDisabled();
       });
     });
   });

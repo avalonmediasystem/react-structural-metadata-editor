@@ -531,19 +531,15 @@ var WaveformDataUtils = exports["default"] = /*#__PURE__*/function () {
       var beginSeconds = this.timeToS(beginTime);
       var endSeconds = this.timeToS(endTime);
       var changeSegment = peaksInstance.segments.getSegment(segment.id);
+      var isChanged = segment.startTime !== beginSeconds || segment.endTime !== endSeconds;
 
-      // Update segment only when the entered times are valid
-      if (beginSeconds < segment.endTime && segment.startTime !== beginSeconds) {
+      /* Update both boundaries together, so that a range that is being updated entirely
+      outside of the current range is validated in one stage. */
+      if (beginSeconds < endSeconds && isChanged) {
         changeSegment.update({
-          startTime: beginSeconds
-        });
-        return peaksInstance;
-      }
-      if (endSeconds > segment.startTime && segment.endTime !== endSeconds) {
-        changeSegment.update({
+          startTime: beginSeconds,
           endTime: endSeconds
         });
-        return peaksInstance;
       }
       return peaksInstance;
     }
@@ -635,6 +631,59 @@ var WaveformDataUtils = exports["default"] = /*#__PURE__*/function () {
         });
       }
       return segments;
+    }
+
+    /**
+     * Move the playhead in the waveform to the next empty space beyond the existing
+     * timespans either at or after the current playhead time. If the seek reaches
+     * the end of the file without finding a suitable time wrap around to the beginning
+     * of the media.
+     * If there is no empty space in the media then, the playhead is not moved.
+     * @param {Object} peaksInstance - current peaks instance
+     * @param {Number} duration - file length in seconds
+     */
+  }, {
+    key: "seekToNextEmptySpace",
+    value: function seekToNextEmptySpace(peaksInstance, duration) {
+      var currentTime = this.roundOff(peaksInstance.player.getCurrentTime());
+      var currentSegments = this.sortSegments(peaksInstance, 'startTime');
+      var emptyTime = this.findNextEmptyTime(currentSegments, currentTime);
+      if (emptyTime >= duration) {
+        emptyTime = this.findNextEmptyTime(currentSegments, 0);
+      }
+      if (emptyTime < duration && emptyTime !== currentTime) {
+        peaksInstance.player.seek(emptyTime);
+      }
+      return peaksInstance;
+    }
+
+    /**
+     * Find the first time at or after the current playhead time that does not contain
+     * an existing segment.
+     * @param {Array} sortedSegments - segments in peaks sorted in ascending order by start
+     * @param {Number} time - time in seconds to start the search from
+     */
+  }, {
+    key: "findNextEmptyTime",
+    value: function findNextEmptyTime(sortedSegments, time) {
+      var emptyTime = time;
+      var _iterator4 = _createForOfIteratorHelper(sortedSegments),
+        _step4;
+      try {
+        for (_iterator4.s(); !(_step4 = _iterator4.n()).done;) {
+          var segment = _step4.value;
+          /* A time gap of 0.1s between the current empty time and the start of the next segment
+          is skipped because, a temporary segment shorter than 0.1s is not created in SME. */
+          if (segment.startTime < emptyTime + 0.1 && segment.endTime > emptyTime) {
+            emptyTime = segment.endTime;
+          }
+        }
+      } catch (err) {
+        _iterator4.e(err);
+      } finally {
+        _iterator4.f();
+      }
+      return emptyTime;
     }
 
     /**

@@ -1,5 +1,13 @@
 ## Structural Metadata Editor
 
+### v4.1.1 / avalon-8.2.2 (11/17/2026)
+* Bump out-dated and vulnerable dependencies by @Dananji in https://github.com/avalonmediasystem/react-structural-metadata-editor/pull/279
+* Bump uuid from v11 -> v14 with test env fixes for CJS by @Dananji in https://github.com/avalonmediasystem/react-structural-metadata-editor/pull/284
+* Bump shell-quote from 1.8.3 to 1.8.4 by @cjcolvar in https://github.com/avalonmediasystem/react-structural-metadata-editor/pull/285
+* Update CircleCI to use node 26 by @Dananji in https://github.com/avalonmediasystem/react-structural-metadata-editor/pull/294
+* Re-calc parent timespan when start/end times in Timespan form are update by @Dananji in https://github.com/avalonmediasystem/react-structural-metadata-editor/pull/324
+* Move playhead to an empty space when creating a new timespan by @Dananji in https://github.com/avalonmediasystem/react-structural-metadata-editor/pull/325
+
 ### v4.1.0 / avalon-8.2 (05/05/2026)
 
 * Change structure parsing to read/parse nested timespans by @Dananji in https://github.com/avalonmediasystem/react-structural-metadata-editor/pull/243

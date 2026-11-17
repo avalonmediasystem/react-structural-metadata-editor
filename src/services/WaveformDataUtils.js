@@ -526,6 +526,46 @@ export default class WaveformDataUtils {
   }
 
   /**
+   * Move the playhead in the waveform to the next empty space beyond the existing
+   * timespans either at or after the current playhead time. If the seek reaches
+   * the end of the file without finding a suitable time wrap around to the beginning
+   * of the media.
+   * If there is no empty space in the media then, the playhead is not moved.
+   * @param {Object} peaksInstance - current peaks instance
+   * @param {Number} duration - file length in seconds
+   */
+  seekToNextEmptySpace(peaksInstance, duration) {
+    const currentTime = this.roundOff(peaksInstance.player.getCurrentTime());
+    const currentSegments = this.sortSegments(peaksInstance, 'startTime');
+    let emptyTime = this.findNextEmptyTime(currentSegments, currentTime);
+    if (emptyTime >= duration) {
+      emptyTime = this.findNextEmptyTime(currentSegments, 0);
+    }
+    if (emptyTime < duration && emptyTime !== currentTime) {
+      peaksInstance.player.seek(emptyTime);
+    }
+    return peaksInstance;
+  }
+
+  /**
+   * Find the first time at or after the current playhead time that does not contain
+   * an existing segment.
+   * @param {Array} sortedSegments - segments in peaks sorted in ascending order by start
+   * @param {Number} time - time in seconds to start the search from
+   */
+  findNextEmptyTime(sortedSegments, time) {
+    let emptyTime = time;
+    for (const segment of sortedSegments) {
+      /* A time gap of 0.1s between the current empty time and the start of the next segment
+      is skipped because, a temporary segment shorter than 0.1s is not created in SME. */
+      if (segment.startTime < emptyTime + 0.1 && segment.endTime > emptyTime) {
+        emptyTime = segment.endTime;
+      }
+    }
+    return emptyTime;
+  }
+
+  /**
    * Round off time in seconds to 3 decimal places
    * @param {Number} value - time value in seconds
    */

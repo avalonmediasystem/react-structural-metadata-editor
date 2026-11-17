@@ -133,10 +133,9 @@ const peaksInstance = (state = initialState, action) => {
       };
 
     case types.TEMP_INSERT_SEGMENT:
-      newPeaks = waveformUtils.insertTempSegment(
-        { ...state.peaks },
-        state.duration
-      );
+      // Move the playhead to the next available empty space before creating temp segment
+      newPeaks = waveformUtils.seekToNextEmptySpace(state.peaks, state.duration);
+      newPeaks = waveformUtils.insertTempSegment(newPeaks, state.duration);
       return {
         ...state,
         peaks: { ...newPeaks },
